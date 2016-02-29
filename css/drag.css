@@ -80,7 +80,7 @@ body{
     border-radius: 30px;
     background: #151515;
     width: 300px;
-    height: 500px;
+    height: 520px;
 }
 #comboHit{    
     color: white;
@@ -94,7 +94,7 @@ body{
     margin-top: 10px;
     margin-bottom: 10px;
     width: 280px;
-    height: 420px;
+    height: 400px;
 }
 #comboBox img.comboBox{
     background: rgba(0%,0%,0%,0);

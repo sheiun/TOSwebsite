@@ -101,6 +101,11 @@ $(document).ready( function(){
     closeCanvas();
     resetTimeDiv();
     setComboShow();
+    if( HISTORY.length > 0 ){
+        $("#historyNum").text(HISTORY.length-1);
+    }else{
+        $("#historyNum").text(0);
+    }
 });
 
 function newRandomPlain(){
@@ -494,7 +499,8 @@ function resetMoveTime(){
     TIME_RUNNING = false;
     clearInterval(TIME_INTERVAL);
 }
-function resetHistory(){    
+function resetHistory(){   
+    $("#historyNum").text('0'); 
     HISTORY = [];
     INITIAL_PANEL = [];
     for(var i = 0; i < TR_NUM*TD_NUM; i++){
@@ -673,7 +679,9 @@ function dragPosition(e){
         TD_INDEX = left_index;
         TR_INDEX = top_index;
         HISTORY.push( TR_INDEX*TD_NUM+TD_INDEX );
-
+        if( HISTORY.length > 0 ){
+            $("#historyNum").text(HISTORY.length-1);
+        }
     }
 }
 
