@@ -198,9 +198,11 @@ function toggleDropable(){
 
 function initialPlain(){
     backInitColor();
+    nextMoveWave();
 }
 function finalPlain(){
     backFinalColor();
+    nextMoveWave();
 }
 function replay(){
     $("#randomPanel").closest("button").prop("disabled", true);
