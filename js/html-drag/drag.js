@@ -582,8 +582,13 @@ function startDragging(){
 }
 
 function playAudioRemove(){
-    var audio = new Audio('sound/smash.wav');
-    audio.volume = 0.8;
+    if( COMBO_SHOW < 10 ){
+        var mp3 = "sound/combo"+COMBO_SHOW+".mp3";
+    }else{
+        var mp3 = "sound/combo10.mp3";
+    }
+    var audio = new Audio(mp3);
+    audio.volume = 0.5;
     audio.play();
 }
 function playAudioWrong(){
@@ -645,7 +650,7 @@ function dragPosition(e){
 
         if( $(td_goal).children().length > 0 ){
             //檢查風化
-            if( $(item_base).attr("src").indexOf("x") >= 0 || $(item_goal).attr("src").indexOf("x") >= 0 ){  
+            if( $(item_base).attr("src").indexOf("x") >= 0 || $(item_goal).attr("src").indexOf("x") >= 0 ){
                 $("#dragContainment tr td img").removeAttr("style");      
                 playAudioWrong();
                 MOVE_OUT_OF_TIME = true;
@@ -873,7 +878,9 @@ function checkEndSkill(){
 
 }
 function checkAttack(){
-    checkEndSkill();
+    setTimeout(function(){
+        checkEndSkill();
+    }, 1000);
 }
 
 //==============================================================
