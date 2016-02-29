@@ -56,6 +56,7 @@ var TIME_LIMIT = 5;
 var DROPABLE = false;
 var AUTO_REMOVE = true;
 var REPLAY_SPEED = 300;
+var AUDIO = true;
 
 var TEAM_COLORS_CHANGEABLE = true;
 var TEAM_LEADER_LEFT = null;
@@ -193,6 +194,15 @@ function toggleDropable(){
     }else{
         $("#dropable").text("取消落珠");
         DROPABLE = false;
+    }
+}
+function toggleAudio(){
+    if( $("#playAudio").text() == "播放音效" ){
+        $("#playAudio").text("關閉音效");
+        AUDIO = false;
+    }else{
+        $("#playAudio").text("播放音效");
+        AUDIO = true;
     }
 }
 
@@ -582,6 +592,7 @@ function startDragging(){
 }
 
 function playAudioRemove(){
+    if( !AUDIO ){ return; }
     if( COMBO_SHOW < 10 ){
         var mp3 = "sound/combo"+COMBO_SHOW+".mp3";
     }else{
@@ -592,6 +603,7 @@ function playAudioRemove(){
     audio.play();
 }
 function playAudioWrong(){
+    if( !AUDIO ){ return; }
     var audio = new Audio('sound/wrong.wav');
     audio.volume = 0.8;
     audio.play();
