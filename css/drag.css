@@ -1,0 +1,138 @@
+body{
+    background-image: url('../img/Card_background.png');
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-position: center center; 
+}
+#title{
+    color: black;
+    font-family: "Microsoft JhengHei", Helvetica, Arial, Sans;
+    font-size: 50px;
+}
+
+#main_workplace{
+    background: white;
+}
+#main_workplace .teamLabel{
+    color: black;
+    font-family: "Microsoft JhengHei", Helvetica, Arial, Sans;
+    font-size: 20px;
+}
+
+#dragContainment{
+    background-image: url('../img/Icon/base.png');
+    background-size: 320px 320px;
+    background-repeat: repeat;
+}
+#dragContainment td{
+    width: 80px;
+    height: 80px;
+}
+
+#dragContainment img{
+    width: 80px;
+    height: 80px;	
+}
+#dragContainment img.over{
+    position: absolute;
+    z-index: 3;
+}
+#dragContainment img.under{
+    position: relative;
+    z-index: 2;
+    opacity: 0.3;
+    filter: alpha(opacity=30); 
+}
+
+#dragCanvas{ 
+    position: absolute;
+    z-index: 10;
+}
+#clock{
+    position: relative;
+    z-index: 3;
+}
+#timeRect{
+    background: red; /* For browsers that do not support gradients */    
+    background: -webkit-linear-gradient(left, Yellow , PaleGreen); /* For Safari 5.1 to 6.0 */
+    background: -o-linear-gradient(left, Yellow , PaleGreen); /* For Opera 11.1 to 12.0 */
+    background: -moz-linear-gradient(left, Yellow , PaleGreen); /* For Firefox 3.6 to 15 */
+    background: linear-gradient(left, Yellow , PaleGreen); /* Standard syntax (must be last*/
+    position: absolute;
+    z-index: 2;
+}
+#timeBack{
+    background: black;
+    position: absolute;
+    z-index: 1;
+}
+
+#panelControl img{
+    width: 50px;
+    height: 50px;   
+}
+#panelColorSelect{
+    width: 50px;
+    height: 50px;
+}
+
+#comboDiv{
+    border-radius: 30px;
+    background: black;
+    width: 300px;
+    height: 400px;
+}
+#comboHit{    
+    color: white;
+    font-family:  "Lucida Grande", "Lucida Sans", Helvetica, Arial, Sans;
+    font-weight: 200;
+    font-size: 2em;
+}
+#Scrollbar{
+    border-radius: 20px;
+    margin: auto;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    width: 280px;
+    height: 320px;
+}
+#comboBox img.comboBox{
+    background: rgba(0%,0%,0%,0);
+    width: 40px;
+    height: 40px;   
+}
+#comboBox div.imgComboSet{ 
+    margin-top: 10px;
+    margin-bottom: 10px;
+    margin-right: 0px;
+    margin-left: 0px;  
+}
+#comboBox div.comboLabel{ 
+    margin: auto;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    color: white;
+    font-family: "Microsoft JhengHei", Helvetica, Arial, Sans;
+    font-size: 30px;
+}
+
+#HorizontalScrollbar{
+    background: LightGray;
+    border-radius: 10px;
+    width: 400px;
+    height: 110px;
+}
+#HorizontalScrollbar img{
+    border-radius: 10px;
+    background: DarkGray ;
+    height: 60px;
+}
+#HorizontalScrollbar .addNewColor{
+    border-radius: 10px;
+    background: DarkGray;
+    width: 90px;
+    height: 60px;
+}
+#HorizontalScrollbar .addNewColor span{
+    margin-top: 20px;
+}
