@@ -72,7 +72,7 @@ $(document).ready( function(){
         alert("\n\n此次模擬結果網址：\n\n"+$("#clipboard").attr("data-clipboard-text")+"\n\n此網址已複製到剪貼簿。\n\n");
     });
     CLIPBOARD.on('error', function(e) {
-        alert("製造網址時產生錯誤，敬請見諒。");
+        alert("製造網址時產生錯誤，敬請見諒。\n\n建議使用Chrome進行作業。");
     });
 
     //initial Scrollbar
