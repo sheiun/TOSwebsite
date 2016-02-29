@@ -26,6 +26,7 @@ var DROP_WAVES = 0;
 var COMBO_TIMES = 0;
 var COMBO_STACK = [];
 var COMBO_SHOW = 0;
+var HISTORY_SHOW = 0;
 
 var DRAG_ANIMATE_TIME = 100;
 var REMOVE_TIME = 100;
@@ -101,11 +102,7 @@ $(document).ready( function(){
     closeCanvas();
     resetTimeDiv();
     setComboShow();
-    if( HISTORY.length > 0 ){
-        $("#historyNum").text(HISTORY.length-1);
-    }else{
-        $("#historyNum").text(0);
-    }
+    setHistoryShow();
 });
 
 function newRandomPlain(){
@@ -255,6 +252,9 @@ function showTime(now){
     $("#timeRect").css( "clip", "rect(0px, "+
         parseInt($("#timeBack").css("width"))*timeFraction+"px,"+
         parseInt($("#timeBack").css("height"))+"px, 0px)" );
+}
+function setHistoryShow(){    
+    $("#historyNum").text( HISTORY_SHOW );
 }
 function setComboShow(){    
     $("#comboNum").text( COMBO_SHOW );
@@ -499,8 +499,8 @@ function resetMoveTime(){
     TIME_RUNNING = false;
     clearInterval(TIME_INTERVAL);
 }
-function resetHistory(){   
-    $("#historyNum").text('0'); 
+function resetHistory(){
+    HISTORY_SHOW = 0;  
     HISTORY = [];
     INITIAL_PANEL = [];
     for(var i = 0; i < TR_NUM*TD_NUM; i++){
@@ -679,9 +679,8 @@ function dragPosition(e){
         TD_INDEX = left_index;
         TR_INDEX = top_index;
         HISTORY.push( TR_INDEX*TD_NUM+TD_INDEX );
-        if( HISTORY.length > 0 ){
-            $("#historyNum").text(HISTORY.length-1);
-        }
+        HISTORY_SHOW += 1;
+        setHistoryShow();
     }
 }
 
@@ -1274,8 +1273,8 @@ function download()
     }
 }
 function parseDownloadJson(){
-    var json = {    "history": HISTORY, 
-                    "initial": INITIAL_PANEL, "final": FINAL_PANEL,
+    var json = {    "HISTORY": HISTORY, "HISTORY_SHOW": HISTORY_SHOW, 
+                    "INITIAL_PANEL": INITIAL_PANEL, "FINAL_PANEL": FINAL_PANEL,
                     "TD_NUM": TD_NUM, "TR_NUM": TR_NUM,
                     "AUTO_REMOVE": AUTO_REMOVE };
     return JSON.stringify(json);
@@ -1295,9 +1294,10 @@ function upload()
 function parseUploadJson(msg){
     try{
         var json = JSON.parse(msg);
-        HISTORY = json["history"];
-        INITIAL_PANEL = json["initial"];
-        FINAL_PANEL = json["final"];
+        HISTORY = json["HISTORY"];
+        HISTORY_SHOW = json["HISTORY_SHOW"];
+        INITIAL_PANEL = json["INITIAL_PANEL"];
+        FINAL_PANEL = json["FINAL_PANEL"];
         TD_NUM = json["TD_NUM"];
         TR_NUM = json["TR_NUM"];
         $("#dragContainment").attr("td", TD_NUM).attr("tr", TR_NUM);
@@ -1310,8 +1310,10 @@ function parseUploadJson(msg){
             resetBase();
             backInitColor();
             nextMoveWave();
+            setHistoryShow();
         }
     }catch(e){
         alert("檔案讀取失敗！！\n"+e);
+        newRandomPlain();
     }
 }
