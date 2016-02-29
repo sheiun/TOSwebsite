@@ -161,6 +161,7 @@ function startBrokeBoundary(){
     $("#dragContainment").attr("td", 6).attr("tr", 8);
     resetHistory();
     resetDropStack();
+    resetComboStack();
     resetColors();
     resetBase();
     initialTable();
