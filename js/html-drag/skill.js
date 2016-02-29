@@ -3,6 +3,7 @@
 //==============================================================
 var GREEK_LEFT_COUNT  = {'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0};
 var GREEK_RIGHT_COUNT = {'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0};
+var GREEK_TEAM_COUNT = {'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0};
 var COUPLE_RAND_STACK = [];
 
 //==============================================================
@@ -71,7 +72,10 @@ function GreekSkill(color, leader){
 }
 
 function TeamGreekSkill(color){
-    var comboTimes = 0;
+    if( DROP_WAVES == 0 ){
+        GREEK_TEAM_COUNT[color] = 0;
+    }
+    var comboTimes = GREEK_TEAM_COUNT[color];
     for(var key in GROUP_SETS){
         comboTimes += GROUP_SETS[key].length;
     }
@@ -86,6 +90,7 @@ function TeamGreekSkill(color){
         REMOVE_STACK.splice(rand_i,1);
         STRONG_STACK[id] = color;
     }
+    GREEK_TEAM_COUNT[color] = comboTimes;
 }
 
 function coupleEndSkill(color){
