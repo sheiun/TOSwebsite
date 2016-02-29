@@ -360,6 +360,18 @@ $('#colorSelect').change(function (){
 });
 $("#dropColorSelect").change(function (){
     if( $(this).val() == "optional" ){
+
+        $("#optionalColors li img").closest("li").remove();
+        var id = 0;
+        for(var c of ["w", "f", "p", "l", "d", "h"]){
+            var element = $("<img>").attr("src", mapImgSrc(c) );
+            element.attr("color",c).attr("onclick","removeSelfColor("+id+")");
+            var li = $("<li></li>").attr("id","li_"+id).append(element);
+            $("#optionalColors li").eq(-1).before(li);
+            id++;
+        }
+        $("#optionalColors").attr("IDmaker", id);
+
         $("#HorizontalScrollbar").show();
         setOptionalColors();
     }else{
