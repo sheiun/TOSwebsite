@@ -18,6 +18,7 @@ var COLOR_SETS = {'w':[], 'f':[], 'p':[], 'l':[], 'd':[], 'h':[]};
 var COLOR_SETS_PREPARE = {'w':[], 'f':[], 'p':[], 'l':[], 'd':[], 'h':[]};
 var GROUP_SIZE = {'w':3, 'f':3, 'p':3, 'l':3, 'd':3, 'h':3};
 var GROUP_SETS = {'w':[], 'f':[], 'p':[], 'l':[], 'd':[], 'h':[]};
+var COLOR_RANDOM = Math.floor( Math.random() );
 
 var REMOVE_STACK = [];
 var STRONG_STACK = {};
@@ -27,6 +28,7 @@ var COMBO_TIMES = 0;
 var COMBO_STACK = [];
 var COMBO_SHOW = 0;
 var HISTORY_SHOW = 0;
+var HISTORY_RANDOM = COLOR_RANDOM;
 
 var DRAG_ANIMATE_TIME = 100;
 var REMOVE_TIME = 100;
@@ -223,6 +225,7 @@ function replay(){
 
     MAIN_STATE = "review";
     AUTO_REMOVE = false;
+    COLOR_RANDOM = HISTORY_RANDOM;
     backInitColor();
     resetComboStack();
     replayHistory();
@@ -524,7 +527,8 @@ function resetMoveTime(){
     clearInterval(TIME_INTERVAL);
 }
 function resetHistory(){
-    HISTORY_SHOW = 0;  
+    HISTORY_SHOW = 0;
+    HISTORY_RANDOM =  COLOR_RANDOM;
     HISTORY = [];
     INITIAL_PANEL = [];
     for(var i = 0; i < TR_NUM*TD_NUM; i++){
@@ -616,7 +620,7 @@ function playAudioRemove(){
 }
 function playAudioWrong(){
     if( !AUDIO ){ return; }
-    var audio = new Audio('sound/wrong.wav');
+    var audio = new Audio('sound/wrong.mp3');
     audio.volume = 0.8;
     audio.play();
 }
@@ -764,11 +768,15 @@ function mapImgSrc(color){
     if( color.indexOf('x') >= 0 ){ return "img/Icon/x.png"; }
     return "img/Icon/"+color+".png";
 }
+function randomBySeed(){    
+    var rand = Math.sin(COLOR_RANDOM++) * 10000;
+    return rand - Math.floor(rand);
+}
 
 function newElementByID(id){
     var td_seat = id%TD_NUM;
     var colors = TEAM_COLORS[td_seat];
-    var color = colors[ Math.floor( Math.random()*colors.length ) ];
+    var color = colors[ Math.floor( randomBySeed() * colors.length ) ];
     return newElementByItem(color);
 }
 function newElementByItem(item){
@@ -1050,7 +1058,7 @@ function newGroups(){
     for(var color in GROUP_SETS){
         for(var set of GROUP_SETS[color]){
             if( set.size >= 5 ){
-                var rand_i = Math.floor( Math.random()*REMOVE_STACK.length );
+                var rand_i = Math.floor( randomBySeed() * REMOVE_STACK.length );
                 var id = REMOVE_STACK[rand_i];
                 REMOVE_STACK.splice(rand_i,1);
                 STRONG_STACK[id] = color+'+';
@@ -1306,10 +1314,22 @@ function download()
     }
 }
 function parseDownloadJson(){
-    var json = {    "HISTORY": HISTORY, "HISTORY_SHOW": HISTORY_SHOW, 
-                    "INITIAL_PANEL": INITIAL_PANEL, "FINAL_PANEL": FINAL_PANEL,
-                    "TD_NUM": TD_NUM, "TR_NUM": TR_NUM,
-                    "AUTO_REMOVE": AUTO_REMOVE };
+    var json = {
+                    "HISTORY": HISTORY,
+                    "HISTORY_SHOW": HISTORY_SHOW, 
+                    "INITIAL_PANEL": INITIAL_PANEL,
+                    "FINAL_PANEL": FINAL_PANEL,
+                    "TD_NUM": TD_NUM,
+                    "TR_NUM": TR_NUM,
+                    "AUTO_REMOVE": AUTO_REMOVE,
+                    "HISTORY_RANDOM": HISTORY_RANDOM,
+                    "DROPABLE": DROPABLE,
+                    "TEAM_COLORS": TEAM_COLORS,
+                    "TEAM_LEADER_LEFT": TEAM_LEADER_LEFT,
+                    "TEAM_LEADER_RIGHT": TEAM_LEADER_RIGHT,
+                    "GROUP_SIZE": GROUP_SIZE,
+                    "skillVariables": saveSkillVariable() 
+                };
     return JSON.stringify(json);
 }
 
@@ -1333,10 +1353,23 @@ function parseUploadJson(msg){
         FINAL_PANEL = json["FINAL_PANEL"];
         TD_NUM = json["TD_NUM"];
         TR_NUM = json["TR_NUM"];
-        $("#dragContainment").attr("td", TD_NUM).attr("tr", TR_NUM);
-
+        HISTORY_RANDOM = json["HISTORY_RANDOM"];
         AUTO_REMOVE = json["AUTO_REMOVE"];
-        DROPABLE = false;
+        DROPABLE = json["DROPABLE"];
+        TEAM_COLORS = json["TEAM_COLORS"];
+        TEAM_LEADER_LEFT = json["TEAM_LEADER_LEFT"];
+        TEAM_LEADER_RIGHT = json["TEAM_LEADER_RIGHT"];
+        GROUP_SIZE = json["GROUP_SIZE"];
+
+        $("#dragContainment").attr("td", TD_NUM).attr("tr", TR_NUM);
+        COLOR_RANDOM = HISTORY_RANDOM;
+        if( DROPABLE ){
+            $("#dropable").text("隨機落珠");
+        }
+        if( !AUTO_REMOVE ){
+            $("#autoRemove").text("保持待機");
+        }
+        loadSkillVariable(json["skillVariables"]);
 
         if( INITIAL_PANEL.length > 0 ){
             initialTable();

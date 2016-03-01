@@ -6,6 +6,21 @@ var GREEK_RIGHT_COUNT = {'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0};
 var GREEK_TEAM_COUNT = {'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0};
 var COUPLE_RAND_STACK = [];
 
+
+function saveSkillVariable(){
+    var json = {
+                    "GREEK_LEFT_COUNT": GREEK_LEFT_COUNT,
+                    "GREEK_RIGHT_COUNT": GREEK_RIGHT_COUNT,
+                    "GREEK_TEAM_COUNT": GREEK_TEAM_COUNT
+                };
+    return JSON.stringify(json);
+}
+function loadSkillVariable(msg){
+    var json = JSON.parse(msg);
+    GREEK_LEFT_COUNT = json["GREEK_LEFT_COUNT"];
+    GREEK_RIGHT_COUNT = json["GREEK_RIGHT_COUNT"];
+    GREEK_TEAM_COUNT = json["GREEK_TEAM_COUNT"];
+}
 //==============================================================
 // team skill
 //==============================================================
@@ -55,9 +70,9 @@ function GreekSkill(color, leader){
         if( COMBO_TIMES == 1 && check_straight == 1 ||
             COMBO_TIMES == 1 && check_horizontal == 1 ){
             console.log(REMOVE_STACK);
-            rand_i = Math.floor( Math.random()* ( REMOVE_STACK.length-1 ) );
+            rand_i = Math.floor( randomBySeed() * ( REMOVE_STACK.length-1 ) );
         }else{
-            rand_i = Math.floor( Math.random()*REMOVE_STACK.length );
+            rand_i = Math.floor( randomBySeed() *REMOVE_STACK.length );
         }
         var id = REMOVE_STACK[rand_i];
         REMOVE_STACK.splice(rand_i,1);
@@ -81,11 +96,11 @@ function TeamGreekSkill(color){
     }
     while( comboTimes >= 5 && REMOVE_STACK.length >= 2 ){
         comboTimes -= 5;
-        var rand_i = Math.floor( Math.random()*REMOVE_STACK.length );
+        var rand_i = Math.floor( randomBySeed() * REMOVE_STACK.length );
         var id = REMOVE_STACK[rand_i];
         REMOVE_STACK.splice(rand_i,1);
         STRONG_STACK[id] = color;
-        var rand_i = Math.floor( Math.random()*REMOVE_STACK.length );
+        var rand_i = Math.floor( randomBySeed() * REMOVE_STACK.length );
         var id = REMOVE_STACK[rand_i];
         REMOVE_STACK.splice(rand_i,1);
         STRONG_STACK[id] = color;
@@ -127,7 +142,7 @@ function coupleEndSkill(color){
 }
 
 function coupleTurnRandToColor(stack, color){
-    var rand_i = Math.floor( Math.random()*stack.length );
+    var rand_i = Math.floor( randomBySeed() * stack.length );
     var id = stack[rand_i];
     COUPLE_RAND_STACK.push(id);
     stack.splice(rand_i,1);
@@ -141,6 +156,8 @@ function coupleTurnRandToColor(stack, color){
         $("#dragContainment tr td").eq(id).append( hide_items );
         $("#dragContainment tr td").eq(id).find("img").fadeIn( FADEOUT_TIME );
         COUPLE_RAND_STACK = [];
+        resetDraggable();
+        startDragging();
     });
 }
 
