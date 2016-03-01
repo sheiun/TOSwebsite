@@ -18,7 +18,7 @@ var COLOR_SETS = {'w':[], 'f':[], 'p':[], 'l':[], 'd':[], 'h':[]};
 var COLOR_SETS_PREPARE = {'w':[], 'f':[], 'p':[], 'l':[], 'd':[], 'h':[]};
 var GROUP_SIZE = {'w':3, 'f':3, 'p':3, 'l':3, 'd':3, 'h':3};
 var GROUP_SETS = {'w':[], 'f':[], 'p':[], 'l':[], 'd':[], 'h':[]};
-var COLOR_RANDOM = Math.floor( Math.random() );
+var COLOR_RANDOM = Math.floor( Math.random() * 1000 );
 
 var REMOVE_STACK = [];
 var STRONG_STACK = {};
