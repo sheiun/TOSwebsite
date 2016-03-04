@@ -155,6 +155,8 @@ function coupleTurnRandToColor(stack, color){
         $(this).remove();
         $("#dragContainment tr td").eq(id).append( hide_items );
         $("#dragContainment tr td").eq(id).find("img").fadeIn( FADEOUT_TIME );
+        resetDraggable();
+        startDragging();
         COUPLE_RAND_STACK = [];
         resetDraggable();
         startDragging();

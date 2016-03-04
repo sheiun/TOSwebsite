@@ -1,6 +1,10 @@
+
+//==============================================================
+// BASIC LENGTH
+//==============================================================
 var WIDTH = 80;
 var HEIGHT = 80;
-var ACCURACY = 0.55;
+
 var TR_INDEX;
 var TD_INDEX;
 var BASE_LEFT;
@@ -8,9 +12,14 @@ var BASE_TOP;
 var TR_NUM = parseInt( $("#dragContainment").attr("tr") );
 var TD_NUM = parseInt( $("#dragContainment").attr("td") );
 
+var ACCURACY = 0.6;
+
+//==============================================================
+// GLOBAL VARIABLE
+//==============================================================
 var COLORS = ['w', 'f', 'p', 'l', 'd', 'h'];
 var TEAM_COLORS = [ ];
-var CREATE_COLOR = "w";
+var CREATE_COLOR = null;
 
 var STRAIGHT_SETS = [];
 var HORIZONTAL_SETS = [];
@@ -29,11 +38,12 @@ var COMBO_STACK = [];
 var COMBO_SHOW = 0;
 var HISTORY_SHOW = 0;
 var HISTORY_RANDOM = COLOR_RANDOM;
+var HISTORY_SKILL_VARIABLE;
 
 var DRAG_ANIMATE_TIME = 100;
 var REMOVE_TIME = 100;
 var FADEOUT_TIME = 200;
-var DROP_TIME = 200;
+var DROP_TIME = 150;
 
 var MOVING = false;
 var MOVE_OUT_OF_TIME = false;
@@ -47,6 +57,8 @@ var HISTORY = [];
 var INITIAL_PANEL = [];
 var FINAL_PANEL = [];
 var CLIPBOARD;
+var MIN_SHIFT = 8;
+var MAX_SHIFT = 50;
 
 var MAIN_STATE;
 
@@ -65,6 +77,7 @@ var TEAM_LEADER_LEFT = null;
 var TEAM_LEADER_RIGHT = null;
 
 //==============================================================
+// Button click functions
 //==============================================================
 $(document).ready( function(){
     //initail autoHidingNavbar
@@ -131,16 +144,23 @@ function endOptionalPlain(){
     $("#optionalPanel").text("開始自選版面");
     $("#optionalPanel").closest("button").attr("onclick","newOptionalPlain()");
     $("#dragContainment tr td").unbind("mousedown");
+    $("#panelControl button").css('background','');
+    CREATE_COLOR = null;
     returnMainState();
     returnAutoRemove();
     nextMoveWave();
 }
-function setColor(color){
+function setColor(color, n){
     CREATE_COLOR = color;
+    $("#mouseImg").remove();
+    $("#panelControl button").css('background','');
+    $("#panelControl button").eq(n).css('background','lightgray');
 }
 function setElementByOption(e){
-    $(e).find("img").remove()
-    $(e).append( newElementByItem(CREATE_COLOR) );
+    if( CREATE_COLOR != null ){
+        $(e).find("img").remove()
+        $(e).append( newElementByItem(CREATE_COLOR) );
+    }
 }
 
 function toggleFreeDrag(){
@@ -226,6 +246,7 @@ function replay(){
     MAIN_STATE = "review";
     AUTO_REMOVE = false;
     COLOR_RANDOM = HISTORY_RANDOM;
+    loadSkillVariable(HISTORY_SKILL_VARIABLE);
     backInitColor();
     resetComboStack();
     replayHistory();
@@ -307,15 +328,17 @@ function addComboSet(comboSet){
     $("#Scrollbar").mCustomScrollbar("update");
 }
 function addColorIntoBar(){
-    var id = parseInt( $("#optionalColors").attr("IDmaker") );
-    $("#optionalColors").attr("IDmaker", id+1);
-    var element = $("<img>").attr("src", mapImgSrc(CREATE_COLOR) );
-    element.attr("color",CREATE_COLOR).attr("onclick","removeSelfColor("+id+")");
-    var li = $("<li></li>").attr("id","li_"+id).append(element);
-    $("#optionalColors li").eq(-1).before(li);
+    if( CREATE_COLOR != null ){
+        var id = parseInt( $("#optionalColors").attr("IDmaker") );
+        $("#optionalColors").attr("IDmaker", id+1);
+        var element = $("<img>").attr("src", mapImgSrc(CREATE_COLOR) );
+        element.attr("color",CREATE_COLOR).attr("onclick","removeSelfColor("+id+")");
+        var li = $("<li></li>").attr("id","li_"+id).append(element);
+        $("#optionalColors li").eq(-1).before(li);
 
-    $("#HorizontalScrollbar").mCustomScrollbar("update");
-    setOptionalColors();
+        $("#HorizontalScrollbar").mCustomScrollbar("update");
+        setOptionalColors();
+    }
 }
 function removeSelfColor(id){
     $("#li_"+id).remove();
@@ -357,7 +380,7 @@ $('#speedSelect').change(function (){
 $('#colorSelect').change(function (){
     var colorArr = $(this).val().split(",");
     for(var i = 0; i < colorArr.length; i++){
-        $("#panelControl button").eq(i).attr("onclick","setColor('"+colorArr[i]+"')");
+        $("#panelControl button").eq(i).attr("onclick","setColor('"+colorArr[i]+"',"+i+")");
         $("#panelControl button img").eq(i).attr("src",mapImgSrc(colorArr[i]));
     }
 });
@@ -440,6 +463,7 @@ $("#teamRightSelect").change(function (){
 });
 
 //==============================================================
+// reset functions
 //==============================================================
 function resetDraggable(){
     $("#dragContainment tr td img").removeAttr("style");
@@ -529,6 +553,7 @@ function resetMoveTime(){
 function resetHistory(){
     HISTORY_SHOW = 0;
     HISTORY_RANDOM =  COLOR_RANDOM;
+    HISTORY_SKILL_VARIABLE = saveSkillVariable();
     HISTORY = [];
     INITIAL_PANEL = [];
     for(var i = 0; i < TR_NUM*TD_NUM; i++){
@@ -626,6 +651,7 @@ function playAudioWrong(){
 }
 
 //==============================================================
+// drag item analysis
 //==============================================================
 function countGridPositon(e){
     TD_INDEX = $(e).closest("td").index();
@@ -635,13 +661,8 @@ function countGridPositon(e){
 function endPosition(e){
     dragPosition(e);
 
-    var left = $(e).offset().left - BASE_LEFT;
-    var top = $(e).offset().top - BASE_TOP;
-    var left_index = (left/WIDTH)%1 > ACCURACY ? Math.ceil(left/WIDTH) : Math.floor(left/WIDTH);
-    var top_index = (top/HEIGHT)%1 > ACCURACY ? Math.ceil(top/HEIGHT) : Math.floor(top/HEIGHT);
-
     var over = $("<img></img>").attr("src",$(e).attr("src")).attr("color",$(e).attr("color")).addClass("draggable over");
-    $("#dragContainment tr").eq(top_index).find("td").eq(left_index).prepend(over);
+    $("#dragContainment tr td").eq(TR_INDEX*TD_NUM+TD_INDEX).prepend(over);
     $(e).remove();
 }
 
@@ -654,17 +675,32 @@ function dragPosition(e){
 
     var left = Math.max( 0, Math.min( $(e).offset().left - BASE_LEFT, WIDTH*(TD_NUM-1) ) );
     var top  = Math.max( 0, Math.min( $(e).offset().top  - BASE_TOP, HEIGHT*(TR_NUM-1) ) );
-    var left_index = (left/WIDTH)%1 > ACCURACY ? Math.ceil(left/WIDTH) : Math.floor(left/WIDTH);
-    var top_index = (top/HEIGHT)%1 > ACCURACY ? Math.ceil(top/HEIGHT) : Math.floor(top/HEIGHT);
+    var left_index = TD_INDEX;
+    var top_index  = TR_INDEX;
+    var left_vector = (left - (TD_INDEX*WIDTH) )/WIDTH;
+    var top_vector  = (top  - (TR_INDEX*HEIGHT))/HEIGHT;
+    var abs_left = Math.abs(left_vector);
+    var abs_top = Math.abs(top_vector);
 
-    if( left_index != TD_INDEX || top_index != TR_INDEX ){
+    if( abs_left > ACCURACY && abs_top > ACCURACY ){
+        left_index += abs_left/left_vector;
+        top_index  += abs_top/top_vector;
+    }else if( abs_left - Math.max(abs_top-0.25,0) > ACCURACY ){
+        left_index += abs_left/left_vector;
+    }else if( abs_top - Math.max(abs_left-0.25,0) > ACCURACY ){
+        top_index  += abs_top/top_vector;
+    }
+
+    if( left_index != TD_INDEX || top_index != TR_INDEX  ){
         if( !MOVING && !MOVE_OUT_OF_TIME && !TIME_RUNNING ){
             newMoveWave();
             MOVING = true;
             START_TIME = new Date().getTime() / 1000;
             HISTORY.push( TR_INDEX*TD_NUM+TD_INDEX );
-            TIME_RUNNING = true;
-            TIME_INTERVAL = setInterval( function(){ dragTimer(); }, 10);
+            if( TIME_IS_LIMIT ){
+                TIME_RUNNING = true;
+                TIME_INTERVAL = setInterval( function(){ dragTimer(); }, 10);
+            }
         }
         if( MAIN_STATE == "freeDrag" && MOVING &&!HISTORY.slice(-1)[0] ){
             HISTORY.push( TR_INDEX*TD_NUM+TD_INDEX );            
@@ -686,6 +722,7 @@ function dragPosition(e){
                 endMoveWave();
             }
         }
+
         if( $(td_goal).children().length > 0 ){
             var offset_base = $(item_base).offset();
             var offset_goal = $(item_goal).offset();
@@ -720,6 +757,7 @@ function dragPosition(e){
 }
 
 //==============================================================
+// timer
 //==============================================================
 function dragTimer(){
     var now = new Date().getTime() / 1000;
@@ -733,6 +771,7 @@ function dragTimer(){
 }
 
 //==============================================================
+// make element
 //==============================================================
 function initialTable(){
     $("#dragContainment tr").remove();
@@ -793,6 +832,7 @@ function newElementByItem(item){
 }
 
 //==============================================================
+//  stage define 
 //==============================================================
 function initialMoveWave(){    
     resetBase();
@@ -916,6 +956,7 @@ function checkAttack(){
 }
 
 //==============================================================
+// table color group analysis
 //==============================================================
 function countColor(){
     //count for straight
@@ -994,6 +1035,7 @@ function countGroup(){
 }
 
 //==============================================================
+// remove & new group
 //==============================================================
 function removeGroups(next){    
     if( !AUTO_REMOVE ){ return; }
@@ -1090,6 +1132,7 @@ function newGroups(){
 }
 
 //==============================================================
+// drop new element from stack
 //==============================================================
 function dropGroups(){
     if( !AUTO_REMOVE ){ return; }
@@ -1119,7 +1162,7 @@ function dropGroups(){
     var max_drop = 0;
     $("#dragContainment tr td img").each(function(){
         if( $(this).attr("drop") ){
-            max_drop = $(this).attr("drop") > max_drop ? $(this).attr("drop") : max_drop;
+            max_drop = Math.max( $(this).attr("drop"), max_drop );
             $(this).offset({top: $(this).attr("toTop"), left: $(this).attr("toLeft")});
             $(this).animate({"top": "+="+parseInt($(this).attr("drop"))*HEIGHT+"px" },
                             {duration: parseInt($(this).attr("drop"))*DROP_TIME});
@@ -1133,6 +1176,7 @@ function dropGroups(){
 }
 
 //==============================================================
+// show history path
 //==============================================================
 function backInitColor(){
     for(var i = 0; i < TR_NUM*TD_NUM; i++){
@@ -1156,79 +1200,223 @@ function backFinalColor(){
         }
     }
 }
+    
 
 function drawPath(){
+    //clean prepare
+    var line_history = [];
+    var shift_analysis = {};
     var i = 0;
+    var line_index = 0;
     while( i < HISTORY.length-1 && HISTORY[i] != null && HISTORY[i+1] != null ){
         var start = HISTORY[i];
         var goal = HISTORY[i+1];
         var vector = goal - start;
-        i += 1;
-        for(var j = i; j < HISTORY.length-1; j++ ){
+        var line_stack = [];
+        if( i > 0 ){
+            var pre_line = ( HISTORY[i-1] == null ) ? 'null' :'connectLine';
+        }else{
+            var pre_line = 'null';
+        }
+
+        line_stack.push( HISTORY[i] );
+        line_stack.push( HISTORY[i+1] );
+
+        var next_line = 'null';
+        for(var j = ++i; j < HISTORY.length-1; j++ ){
             if( HISTORY[j+1] == null ){
                 i = j+2;
+                next_line = 'null';
                 break;
             }
             var next_vector = HISTORY[j+1] - HISTORY[j];
             if( next_vector != vector ){
+                if( next_vector == vector*(-1) ){
+                    next_line = 'returnLine';
+                }else{
+                    next_line = 'connectLine';
+                }
                 break;
             }else{
+                line_stack.push( HISTORY[j+1] );
                 goal = HISTORY[j+1];
                 i = j+1;
             }
         }
 
-        var startX = parseInt(start%TD_NUM)*WIDTH+WIDTH/2;
-        var startY = parseInt(start/TD_NUM)*HEIGHT+HEIGHT/2;
-        var goalX = parseInt(goal%TD_NUM)*WIDTH+WIDTH/2;
-        var goalY = parseInt(goal/TD_NUM)*HEIGHT+HEIGHT/2;
+        var shift = findEmptyShift( shift_analysis, line_stack, mapVector(vector) );
+        for(var id of line_stack){
+            saveShiftTotal( shift_analysis, id, mapVector(vector), shift );
+        }
+
+        line_history.push({ 
+            'start' : start,
+            'goal'  : goal,
+            'vector': mapVector(vector),
+            'shift' : shift,
+            'line_index': line_index,
+            'pre_line'  : pre_line,
+            'next_line' : next_line,
+            'array' : line_stack
+        });
+        line_index++;
+        if( next_line == 'returnLine' ){
+            var self_stack = [ goal, goal ];
+            var shift = findEmptyShift( shift_analysis, self_stack, mapReverseVector(vector) );
+            saveShiftTotal( shift_analysis, goal, mapReverseVector(vector), shift );
+            line_history.push({
+                'start' : goal,
+                'goal'  : goal,
+                'vector': mapReverseVector(vector),
+                'shift' : shift,
+                'line_index': line_index,
+                'pre_line'  : 'connectLine',
+                'next_line' : 'connectLine',
+                'array' : self_stack
+            });
+            line_index++;
+        }
+    }
+
+    for(var l = 0; l < line_history.length; l++ ){
+        var line = line_history[l];
+        var start = line['start'];
+        var goal = line['goal'];
+        var vector = line['vector'];
+
+        var startX = parseInt( line['start']%TD_NUM )*WIDTH +WIDTH/2;
+        var startY = parseInt( line['start']/TD_NUM )*HEIGHT+HEIGHT/2;
+        var goalX  = parseInt( line['goal']%TD_NUM ) *WIDTH +WIDTH/2;
+        var goalY  = parseInt( line['goal']/TD_NUM ) *HEIGHT+HEIGHT/2;
+
+        var start_shift = makeShiftBias(shift_analysis, line, vector);
+
+        if(vector == "STRAIGHT"){
+            startX += start_shift;
+            goalX  += start_shift;
+        }else if(vector == "HORIZONTAL"){
+            startY += start_shift;
+            goalY  += start_shift;
+        }
         
+        if( line['pre_line'] != 'null' ){
+            var pre_line = line_history[l-1];
+            var pre_vector = pre_line['vector'];
+            var pre_shift = makeShiftBias(shift_analysis, pre_line, pre_vector);
+
+            if(pre_vector == "STRAIGHT"){
+                startX += pre_shift;
+            }else if(pre_vector == "HORIZONTAL"){
+                startY += pre_shift;
+            }
+        }
+
+        if( line['next_line'] != 'null' ){
+            var next_line = line_history[l+1];
+            var next_vector = next_line['vector'];
+            var goal_shift = makeShiftBias(shift_analysis, next_line, next_vector);
+
+            if(next_vector == "STRAIGHT"){
+                goalX  += goal_shift;
+            }else if(next_vector == "HORIZONTAL"){
+                goalY  += goal_shift;
+            }
+        }
+
         $('#dragCanvas').drawLine({
-            strokeStyle: 'PapayaWhip',  fillStyle: 'PapayaWhip',
-            strokeWidth: 6,         rounded: true,
-            endArrow: true,         arrowRadius: 15,        arrowAngle: 60,
+            strokeStyle: 'black',  fillStyle: 'black',
+            strokeWidth: 5,         rounded: true,
             x1: startX,             y1: startY,
-            x2: (startX+goalX)/2,   y2: (startY+goalY)/2
-        }).drawLine({
-            strokeStyle: 'PapayaWhip',
-            strokeWidth: 6,         rounded: true,
-            x1: (startX+goalX)/2,   y1: (startY+goalY)/2,
             x2: goalX,              y2: goalY
         }).drawLine({
-            strokeStyle: 'DarkGoldenRod',
+            strokeStyle: 'white',
             strokeWidth: 3,         rounded: true,
             x1: startX,             y1: startY,
             x2: goalX,              y2: goalY
         });
     }
 
-    var start = 0; 
-    var end = HISTORY.length-1;
-    while( !HISTORY[start] && start < end ){
-        start++;
+    drawTerminalCircle( shift_analysis, line_history[0], 'start' );
+    drawTerminalCircle( shift_analysis, line_history[ line_history.length-1 ], 'goal' );
+}
+function findEmptyShift( shift_analysis, array, vector ){
+    var total_shift = new Set();
+    for(var id of array){
+        if( id in shift_analysis ){
+            if( vector in shift_analysis[ id ] ){
+                for(var shift of shift_analysis[ id ][vector] ){
+                    if( !(shift in total_shift) ){
+                        total_shift.add(shift);
+                    }
+                }
+            }
+        }
     }
-    while( !HISTORY[end] && end > start ){
-        end--;
+    var max_shift = 1;
+    while( total_shift.has(max_shift) ){
+        max_shift++;
     }
-    var centerX = (HISTORY[start]%TD_NUM)*WIDTH+WIDTH/2;
-    var centerY = parseInt(HISTORY[start]/TD_NUM)*HEIGHT+HEIGHT/2;
+    return max_shift;
+}
+function saveShiftTotal( shift_analysis, id, vector, shift ){
+    if( id in shift_analysis ){
+        if( vector in shift_analysis[ id ] ){
+            shift_analysis[ id ][vector].push(shift);            
+            shift_analysis[ id ][vector].sort();
+        }else{
+            shift_analysis[ id ][vector] = [ shift ];
+        }
+    }else{
+        shift_analysis[ id ] = {};
+        shift_analysis[ id ][vector] = [ shift ];
+    }
+}
+function mapVector(vector){
+    if( vector == 6 || vector == -6 ){ return 'STRAIGHT'; }
+    if( vector == 1 || vector == -1 ){ return 'HORIZONTAL'; }
+    if( vector == 7 || vector == -7 ){ return 'NEGATIVE'; }
+    if( vector == 5 || vector == -5 ){ return 'POSITIVE'; }
+}
+function mapReverseVector(vector){
+    if( vector == 6 || vector == -6 ){ return 'HORIZONTAL'; }
+    if( vector == 1 || vector == -1 ){ return 'STRAIGHT'; }
+    if( vector == 7 || vector == -7 ){ return 'POSITIVE'; }
+    if( vector == 5 || vector == -5 ){ return 'NEGATIVE'; }
+}
+function makeShiftBias(shift_analysis, line, vector){
+    var max_shift = 0;
+    for(var id of line['array']){
+        var arr = shift_analysis[id][vector];
+        max_shift = Math.max( arr[ arr.length-1 ], max_shift );
+    }
+    var shift = line['shift'] - ( 1+ (( max_shift - 1 )*0.5) );
+    var shift_bias = Math.min( MAX_SHIFT, max_shift*MIN_SHIFT ) / max_shift;
+    return shift * shift_bias;
+}
+function drawTerminalCircle(shift_analysis, line, terminal){    
+    var point = line[terminal];
+    var vector = line['vector'];
+    var pointX = parseInt(point%TD_NUM)*WIDTH +WIDTH/2;
+    var pointY = parseInt(point/TD_NUM)*HEIGHT+HEIGHT/2;
+    var shift = makeShiftBias(shift_analysis, line, vector);
+
+    if(vector == "STRAIGHT"){
+        pointX += shift;
+    }else if(vector == "HORIZONTAL"){
+        pointY += shift;
+    }
+
+    color = (terminal == 'start') ? 'SpringGreen' : 'red';
     $('#dragCanvas').drawArc({
-        fillStyle: 'SpringGreen',   strokeStyle: 'black',
-        strokeWidth: 5,
-        x: centerX,                 y: centerY,
-        radius: 10,
-    });
-    centerX = (HISTORY[end]%TD_NUM)*WIDTH+WIDTH/2;
-    centerY = parseInt(HISTORY[end]/TD_NUM)*HEIGHT+HEIGHT/2;
-    $('#dragCanvas').drawArc({
-        fillStyle: 'red',           strokeStyle: 'black',
-        strokeWidth: 5,
-        x: centerX,                 y: centerY,
-        radius: 10,
+        fillStyle: color,
+        strokeStyle: 'black',   strokeWidth: 3,
+        x: pointX,              y: pointY,
+        radius: 6,
     });
 }
 
 //==============================================================
+//  replay history
 //==============================================================
 function replayHistory(){
     var i = 0;
@@ -1287,6 +1475,7 @@ function hafGoalMove(i){
 }
 
 //==============================================================
+// download & upload
 //==============================================================
 function download()
 {
