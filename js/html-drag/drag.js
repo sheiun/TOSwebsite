@@ -58,7 +58,7 @@ var INITIAL_PANEL = [];
 var FINAL_PANEL = [];
 var CLIPBOARD;
 var MIN_SHIFT = 8;
-var MAX_SHIFT = 50;
+var MAX_SHIFT = 35;
 
 var MAIN_STATE;
 
@@ -149,6 +149,7 @@ function endOptionalPlain(){
     returnMainState();
     returnAutoRemove();
     nextMoveWave();
+
 }
 function setColor(color, n){
     CREATE_COLOR = color;
