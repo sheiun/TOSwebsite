@@ -515,7 +515,6 @@ function checkGroups(){
     }
 }
 function autoCheckDropGroups(){
-    console.log("auto plain");
     resetBase();
     resetColorGroupSet();
     resetDropStack();
@@ -553,7 +552,6 @@ function autoCheckDropGroups(){
 
         times++;
     }
-    console.log(times);
 }
 
 function checkStartSkill(){

@@ -388,3 +388,45 @@ $("#teamRightSelect").change(function (){
         resetColors();
     }
 });
+
+
+
+function autoCheckDropGroups(){
+    resetBase();
+    resetColorGroupSet();
+    resetDropStack();
+    countColor();
+    countGroup();
+
+    var times = 0;
+    var num = 0;
+    for(var color in GROUP_SETS){
+        num += GROUP_SETS[color].length;
+    }
+    while( num > 0 && times < MAX_AUTO_DROP_TIMES ){
+        for(var i = TD_NUM*TR_NUM-1; i >= 0; i--){
+            if( REMOVE_STACK.indexOf(i) >= 0 ){ continue; }
+            var isSet = inGroup(i);
+            if( isSet ){
+                var setArr = Array.from(isSet);
+                for(var id of setArr){
+                    REMOVE_STACK.push(id);
+                    $("#dragContainment tr td").eq(id).find("img").remove();
+                    $("#dragContainment tr td").eq(id).append( newElementByID(id) );
+                }
+            }
+        }
+
+        resetColorGroupSet();
+        resetDropStack();
+        countColor();
+        countGroup();
+
+        num = 0;
+        for(var color in GROUP_SETS){
+            num += GROUP_SETS[color].length;
+        }
+
+        times++;
+    }
+}
