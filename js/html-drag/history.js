@@ -383,6 +383,7 @@ function parseUploadJson(msg){
             $("#autoRemove").text("保持待機");
         }
         loadSkillVariable(json["skillVariables"]);
+        HISTORY_SKILL_VARIABLE = json["skillVariables"];
 
         if( INITIAL_PANEL.length > 0 ){
             initialTable();
