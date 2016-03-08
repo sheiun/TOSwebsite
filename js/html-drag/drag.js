@@ -437,7 +437,7 @@ function newElementByItem(item){
         var src_path = mapImgSrc(item);
         var strong = item.indexOf('+') >= 0 ? 1 : undefined;
         var inhibit = ( item.indexOf('x') >= 0 || item.indexOf('X') >= 0 ) ? 1 : undefined;
-        var locking = item.indexOf('#') >= 0 ? 1 : undefined;
+        var locking = item.indexOf('k') >= 0 ? 1 : undefined;
 
         var frozen = item.indexOf('i') >= 0 ? 0 : undefined;
         if( item.indexOf('i') >= 0 ){
