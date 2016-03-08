@@ -230,8 +230,7 @@ function makeComboSet(setArr){
     var set_stack = [];
     for(var id of setArr){
         if( $("#dragContainment tr td").eq(id).children().length != 0 ){
-            var src = $("#dragContainment tr td").eq(id).find("img.over").attr("src");
-            var item = src.split('/')[src.split('/').length-1].split('.')[0];
+            var item = $("#dragContainment tr td").eq(id).find("img.over").attr("item");
             var img = newElementByItem(item)[0].removeClass("draggable over").addClass("comboBox");
             set_stack.push(img);
         }
@@ -240,12 +239,11 @@ function makeComboSet(setArr){
 }
 function addComboSet(comboSet){
     if( parseInt( $("#comboBox").attr("wave") ) < 0 ){
-        $("#comboBox").attr("wave",DROP_WAVES);
         $("#comboBox").append( $("<div align=\"center\">首消</div><hr>").addClass("comboLabel") );
     }else if( parseInt( $("#comboBox").attr("wave") ) == 0 && DROP_WAVES > 0 ){
-        $("#comboBox").attr("wave",DROP_WAVES);
         $("#comboBox").append( $("<div align=\"center\">落消</div><hr>").addClass("comboLabel") );
     }
+    $("#comboBox").attr("wave",DROP_WAVES);
     var div = $("<div>").addClass("imgComboSet");
     for(var e of comboSet){
         div.append(e);

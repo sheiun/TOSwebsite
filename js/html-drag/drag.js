@@ -175,8 +175,7 @@ function resetHistory(){
             INITIAL_PANEL.push( undefined );
         }else{
             try{
-                var src = $("#dragContainment tr td").eq(i).find("img.over").attr("src");
-                var item = src.split('/')[src.split('/').length-1].split('.')[0];
+                var item = $("#dragContainment tr td").eq(i).find("img.over").attr("item");
                 INITIAL_PANEL.push( item );
             }catch(e){
                 INITIAL_PANEL.push( undefined );
@@ -192,8 +191,7 @@ function recordFinal(){
             INITIAL_PANEL.push( undefined );
         }else{
             try{
-                var src = $("#dragContainment tr td").eq(i).find("img.over").attr("src");
-                var item = src.split('/')[src.split('/').length-1].split('.')[0];
+                var item = $("#dragContainment tr td").eq(i).find("img.under").attr("item");
                 FINAL_PANEL.push( item );
             }catch(e){
                 FINAL_PANEL.push( undefined );
@@ -275,7 +273,7 @@ function countGridPositon(e){
 function endPosition(e){
     dragPosition(e);
 
-    var over = $("<img></img>").attr("src",$(e).attr("src")).attr("color",$(e).attr("color")).addClass("draggable over");
+    var over = $(e).clone();
     $("#dragContainment tr td").eq(TR_INDEX*TD_NUM+TD_INDEX).prepend(over);
     $(e).remove();
 }
@@ -327,17 +325,6 @@ function dragPosition(e){
         var item_goal = $(td_goal).find("img");
 
         if( $(td_goal).children().length > 0 ){
-            //檢查風化
-            if( $(item_base).attr("src").indexOf("x") >= 0 || $(item_goal).attr("src").indexOf("x") >= 0 ){
-                $("#dragContainment tr td img").removeAttr("style");      
-                playAudioWrong();
-                MOVE_OUT_OF_TIME = true;
-                TIME_RUNNING = false;
-                endMoveWave();
-            }
-        }
-
-        if( $(td_goal).children().length > 0 ){
             var offset_base = $(item_base).offset();
             var offset_goal = $(item_goal).offset();
             var top_vector = (offset_base.top - offset_goal.top);
@@ -351,8 +338,8 @@ function dragPosition(e){
             $(item_base).offset(offset_goal);
             $(item_goal).offset(offset_goal);
             $(item_goal).attr("animate","busy");
-            $(item_goal).animate(   {top: "+="+top_vector+"px",left: "+="+left_vector+"px"},
-                                    {   duration: DRAG_ANIMATE_TIME,
+            $(item_goal).animate( { top: "+="+top_vector+"px",left: "+="+left_vector+"px"},
+                                  { duration: DRAG_ANIMATE_TIME,
                                         complete: function(){
                                             $(this).removeAttr("animate");
                                         } } );
@@ -367,6 +354,18 @@ function dragPosition(e){
         HISTORY.push( TR_INDEX*TD_NUM+TD_INDEX );
         HISTORY_SHOW += 1;
         setHistoryShow();
+
+        if( $(td_goal).children().length > 0 ){
+            //檢查風化
+            if( $(item_base).attr("inhibit") || $(item_goal).attr("inhibit") ){
+                $("#dragContainment tr td img").removeAttr("style");      
+                playAudioWrong();
+                MOVE_OUT_OF_TIME = true;
+                if( !TIME_IS_LIMIT ){
+                    endMoveWave();
+                }
+            }
+        }
     }
 }
 
@@ -377,7 +376,7 @@ function dragTimer(){
     var now = new Date().getTime() / 1000;
     showTime(now);
 
-    if( TIME_IS_LIMIT && (now - START_TIME) > TIME_LIMIT ){
+    if( TIME_IS_LIMIT && ( (now - START_TIME) > TIME_LIMIT || MOVE_OUT_OF_TIME )  ){
         MOVE_OUT_OF_TIME = true;
         TIME_RUNNING = false;
         endMoveWave();
@@ -416,10 +415,10 @@ function mapColor(color){
         return null;
     }
 }
-function mapImgSrc(color){
-    if( color.indexOf('q') >= 0 ){ return "img/Icon/q.png"; }
-    if( color.indexOf('x') >= 0 ){ return "img/Icon/x.png"; }
-    return "img/Icon/"+color+".png";
+function mapImgSrc(item){
+    if( item.indexOf('q') >= 0 ){ return "img/Icon/q.png"; }
+    if( item.indexOf('X') >= 0 ){ return "img/Icon/x.png"; }
+    return "img/Icon/"+item+".png";
 }
 function randomBySeed(){    
     var rand = Math.sin(COLOR_RANDOM++) * 10000;
@@ -435,14 +434,44 @@ function newElementByID(id){
 function newElementByItem(item){
     var color = mapColor(item);
     if( color ){
-        var strong = item.indexOf('+') >= 0;
         var src_path = mapImgSrc(item);
-        var over = $("<img></img>").attr("src",src_path).attr("color",color).prop("strong",strong).addClass("draggable over");
-        var under = $("<img></img>").attr("src",src_path).attr("color",color).prop("strong",strong).addClass("draggable under");
+        var strong = item.indexOf('+') >= 0 ? 1 : undefined;
+        var inhibit = ( item.indexOf('x') >= 0 || item.indexOf('X') >= 0 ) ? 1 : undefined;
+        var locking = item.indexOf('#') >= 0 ? 1 : undefined;
+
+        var frozen = item.indexOf('i') >= 0 ? 0 : undefined;
+        if( item.indexOf('i') >= 0 ){
+            frozen = parseInt( item[ item.indexOf('i') + 1 ] );
+        }
+
+
+        var img = $("<img></img>").attr("src",src_path).attr("color",color).attr("item",item);
+        img.attr("strong",strong).attr("inhibit",inhibit).attr("frozen",frozen).attr("locking",locking);
+
+        var over = img.clone().addClass("draggable over");
+        var under = img.clone().addClass("draggable under");
         return [over, under];
     }else{
         return null;
     }
+}
+
+function frozenUpdate(){
+    $("#dragContainment tr td img").each( function() {
+        if( $(this).attr("frozen") ){
+            var next_frozen = parseInt( $(this).attr("frozen") )+1;
+            var item = $(this).attr("item");
+            if( next_frozen > 3 ){
+                $(this).removeAttr("frozen");
+                item = item.substr(0, item.indexOf("i"))+item.substr(item.indexOf("i")+2);
+            }else{
+                $(this).attr("frozen", next_frozen);
+                item = item.substr(0, item.indexOf("i")+1)+next_frozen+item.substr(item.indexOf("i")+2);
+            }
+            $(this).attr("item", item);
+            $(this).attr("src", mapImgSrc(item) );
+        }
+    });
 }
 
 //==============================================================
@@ -602,6 +631,8 @@ function checkEndSkill(){
 
 }
 function checkAttack(){
+    frozenUpdate();
+    
     setTimeout(function(){
         checkEndSkill();
     }, 1000);
@@ -617,10 +648,22 @@ function countColor(){
             var set = new Set();
             var now = j*TD_NUM+i;
             var color = $("#dragContainment tr td").eq(now).find("img.over").attr("color");
+            var frozen = $("#dragContainment tr td").eq(now).find("img.over").attr("frozen");
+            if( frozen ){
+                if( parseInt(frozen) > 0 ){ continue; }
+            }
+
             set.add(now);
             while( j < TR_NUM-1 ){
                 var next = (j+1)*TD_NUM+i;
                 var next_color = $("#dragContainment tr td").eq(next).find("img.over").attr("color");
+                var next_frozen = $("#dragContainment tr td").eq(next).find("img.over").attr("frozen");
+                if( next_frozen ){
+                    if( parseInt(next_frozen) > 0 ){
+                        break;
+                    }
+                }
+
                 if( color && color == next_color ){
                     set.add(next);
                     j++;
@@ -641,10 +684,22 @@ function countColor(){
             var set = new Set();
             var now = i*TD_NUM+j;
             var color = $("#dragContainment tr td").eq(now).find("img.over").attr("color");
+            var frozen = $("#dragContainment tr td").eq(now).find("img.over").attr("frozen");
+            if( frozen ){
+                if( parseInt(frozen) > 0 ){ continue; }
+            }
+
             set.add(now);
             while( j < TD_NUM-1 ){
                 var next = i*TD_NUM+j+1;
                 var next_color = $("#dragContainment tr td").eq(next).find("img.over").attr("color");
+                var next_frozen = $("#dragContainment tr td").eq(next).find("img.over").attr("frozen");
+                if( next_frozen ){
+                    if( parseInt(next_frozen) > 0 ){
+                        break;
+                    }
+                }
+
                 if( color && color == next_color ){
                     set.add(next);
                     j++;
