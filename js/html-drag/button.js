@@ -116,6 +116,7 @@ function toggleTimeLimit(){
         $("#timeRange").show();
         TIME_IS_LIMIT = true;
         TIME_LIMIT = 5;
+        MOVING = false;
     }
 }
 function toggleAutoRemove(){
@@ -331,6 +332,28 @@ $("#dropColorSelect").change(function (){
         resetColors();
     }
 });
+
+$("#locusSelect").change(function (){
+    if( $(this).val() == "null" ){
+        LOCUS = false;
+    }else{
+        LOCUS = true;
+        if( $(this).val() == "_" ){
+            LOCUS_LENGTH = 6;
+            LOCUS_TYPE = '_';
+        }else if( $(this).val() == "_inf" ){
+            LOCUS_LENGTH = Infinity;
+            LOCUS_TYPE = '_';
+        }else if( $(this).val() == "q" ){
+            LOCUS_LENGTH = 6;
+            LOCUS_TYPE = 'q';
+        }else if( $(this).val() == "qinf" ){
+            LOCUS_LENGTH = Infinity;
+            LOCUS_TYPE = 'q';
+        }
+    }
+});
+
 $("#teamLeftSelect").change(function (){
     TEAM_LEADER_LEFT = $(this).val();
     console.log(TEAM_LEADER_LEFT);

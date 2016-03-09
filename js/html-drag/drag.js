@@ -72,6 +72,9 @@ var DROPABLE = false;
 var AUTO_REMOVE = true;
 var REPLAY_SPEED = 300;
 var AUDIO = true;
+var LOCUS_LENGTH = 6;
+var LOCUS = true;
+var LOCUS_TYPE = null;
 
 var TEAM_COLORS_CHANGEABLE = true;
 var TEAM_LEADER_LEFT = null;
@@ -97,6 +100,7 @@ function resetDraggable(){
             dragPosition(this);
         },
         stop: function(){
+            locusClean();console.log("stop");
             if( !MOVE_OUT_OF_TIME ){
                 endPosition(this);
             }
@@ -355,20 +359,50 @@ function dragPosition(e){
         HISTORY_SHOW += 1;
         setHistoryShow();
 
-        if( $(td_goal).children().length > 0 ){
-            //檢查風化
-            if( $(item_base).attr("inhibit") || $(item_goal).attr("inhibit") ){
-                $("#dragContainment tr td img").removeAttr("style");      
-                playAudioWrong();
-                MOVE_OUT_OF_TIME = true;
-                if( !TIME_IS_LIMIT ){
-                    endMoveWave();
-                }
+        checkInhibit(td_goal, item_base, item_goal);
+        locusUpdate();
+    }
+}
+
+function checkInhibit(td_goal, item_base, item_goal){
+    if( $(td_goal).children().length > 0 ){
+        //檢查風化
+        if( $(item_base).attr("inhibit") || $(item_goal).attr("inhibit") ){
+            $("#dragContainment tr td img").removeAttr("style");      
+            playAudioWrong();
+            MOVE_OUT_OF_TIME = true;
+            if( !TIME_IS_LIMIT ){
+                endMoveWave();
             }
         }
     }
 }
 
+function locusUpdate(){
+    locusClean();
+    if( LOCUS ){
+        for( var i = HISTORY.length-2; i >= 0 && i >= HISTORY.length - LOCUS_LENGTH; i-- ){
+            if( HISTORY[i] == null ){
+                break;
+                console.log("is/null");
+            }
+            if( HISTORY[i] != HISTORY[ HISTORY.length-1 ] ){
+                var imgs = $("#dragContainment tr td").eq(HISTORY[i]).find("img");
+                imgs.attr('src', mapImgSrc( imgs.attr("item")+LOCUS_TYPE ) );
+            }
+        }
+    }
+}
+function locusClean(){
+    if( LOCUS ){
+        for( var i = 0; i < TR_NUM*TD_NUM; i++ ){
+            if( $("#dragContainment tr td").eq(i).children().length > 0 ){
+                var imgs = $("#dragContainment tr td").eq(i).find("img");
+                imgs.attr('src', mapImgSrc( imgs.attr("item") ) );
+            }
+        }
+    }
+}
 //==============================================================
 // timer
 //==============================================================
@@ -418,6 +452,15 @@ function mapColor(color){
 function mapImgSrc(item){
     if( item.indexOf('q') >= 0 ){ return "img/Icon/q.png"; }
     if( item.indexOf('X') >= 0 ){ return "img/Icon/x.png"; }
+    var plus = ( item.indexOf('+') >= 0 ) ? '+' : '';
+    var _ = ( item.indexOf('_') >= 0 ) ? '_' : '';
+    var x = ( item.indexOf('x') >= 0 ) ? 'x' : '';
+    var k = ( item.indexOf('k') >= 0 ) ? 'k' : '';
+    var i = ''
+    if( item.indexOf('i') >= 0 ){
+        i = item.substr( item.indexOf('i'), item.indexOf('i')+2 )
+    }
+    item = mapColor(item)+plus+k+_+i+x ;
     return "img/Icon/"+item+".png";
 }
 function randomBySeed(){    
@@ -443,7 +486,6 @@ function newElementByItem(item){
         if( item.indexOf('i') >= 0 ){
             frozen = parseInt( item[ item.indexOf('i') + 1 ] );
         }
-
 
         var img = $("<img></img>").attr("src",src_path).attr("color",color).attr("item",item);
         img.attr("strong",strong).attr("inhibit",inhibit).attr("frozen",frozen).attr("locking",locking);
