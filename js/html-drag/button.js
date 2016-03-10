@@ -338,18 +338,12 @@ $("#locusSelect").change(function (){
         LOCUS = false;
     }else{
         LOCUS = true;
-        if( $(this).val() == "_" ){
-            LOCUS_LENGTH = 6;
-            LOCUS_TYPE = '_';
-        }else if( $(this).val() == "_inf" ){
+        if( $(this).val().indexOf("Inf") >= 0 ){
             LOCUS_LENGTH = Infinity;
-            LOCUS_TYPE = '_';
-        }else if( $(this).val() == "q" ){
+            LOCUS_TYPE = $(this).val().split('Inf')[0];
+        }else{            
             LOCUS_LENGTH = 6;
-            LOCUS_TYPE = 'q';
-        }else if( $(this).val() == "qinf" ){
-            LOCUS_LENGTH = Infinity;
-            LOCUS_TYPE = 'q';
+            LOCUS_TYPE = $(this).val();
         }
     }
 });

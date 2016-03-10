@@ -61,6 +61,11 @@ var CLIPBOARD;
 var MIN_SHIFT = 8;
 var MAX_SHIFT = 35;
 
+var LOCUS_LENGTH = 6;
+var LOCUS = true;
+var LOCUS_TYPE = null;
+var LOCUS_STACK = [];
+
 var MAIN_STATE;
 
 //==============================================================
@@ -72,9 +77,6 @@ var DROPABLE = false;
 var AUTO_REMOVE = true;
 var REPLAY_SPEED = 300;
 var AUDIO = true;
-var LOCUS_LENGTH = 6;
-var LOCUS = true;
-var LOCUS_TYPE = null;
 
 var TEAM_COLORS_CHANGEABLE = true;
 var TEAM_LEADER_LEFT = null;
@@ -100,7 +102,8 @@ function resetDraggable(){
             dragPosition(this);
         },
         stop: function(){
-            locusClean();console.log("stop");
+            resetLocus();
+            closeCanvas();
             if( !MOVE_OUT_OF_TIME ){
                 endPosition(this);
             }
@@ -210,12 +213,14 @@ function recordFinal(){
 function resetCanvas(){
     $('#dragCanvas').show();
     $('#dragCanvas').clearCanvas();
+    $('#dragCanvas').removeLayers();
     $('#dragCanvas').offset( $("#dragContainment").offset() );
     $('#dragCanvas').attr("width",TD_NUM*WIDTH).attr("height",TR_NUM*HEIGHT);   
 }
 function closeCanvas(){
     $('#dragCanvas').hide();
     $('#dragCanvas').clearCanvas();
+    $('#dragCanvas').removeLayers();
     $('#dragCanvas').offset( $("#dragContainment").offset() );
     $('#dragCanvas').attr("width",TD_NUM*WIDTH).attr("height",TR_NUM*HEIGHT);
 }
@@ -223,11 +228,11 @@ function resetTimeDiv(){
     $("#clock").offset({left: $("#dragContainment").offset().left });
     $("#timeBack").css( "width", TD_NUM*WIDTH-($("#clock").width()/2) );
     $("#timeBack").css( "height", $("#clock").height()/2 );
-    $("#timeBack").offset({top: $("#clock").offset().top+($("#clock").height()/4),
+    $("#timeBack").offset( {top : $("#clock").offset().top+($("#clock").height()/4),
                             left: $("#clock").offset().left+($("#clock").width()/2) });
     $("#timeRect").css( "width", TD_NUM*WIDTH-($("#clock").width()/2) );
     $("#timeRect").css( "height", $("#clock").height()/2 );
-    $("#timeRect").offset({top: $("#clock").offset().top+($("#clock").height()/4),
+    $("#timeRect").offset( {top : $("#clock").offset().top+($("#clock").height()/4),
                             left: $("#clock").offset().left+($("#clock").width()/2) });
 }
 function renewTimeDiv(){
@@ -313,13 +318,26 @@ function dragPosition(e){
             MOVING = true;
             START_TIME = new Date().getTime() / 1000;
             HISTORY.push( TR_INDEX*TD_NUM+TD_INDEX );
+
+            // start timer
             if( TIME_IS_LIMIT ){
                 TIME_RUNNING = true;
                 TIME_INTERVAL = setInterval( function(){ dragTimer(); }, 10);
             }
+
+            // start locus
+            if( LOCUS ){
+                resetLocus();
+                LOCUS_STACK.push( TR_INDEX*TD_NUM+TD_INDEX );
+            }
         }
-        if( MAIN_STATE == "freeDrag" && MOVING &&!HISTORY.slice(-1)[0] ){
-            HISTORY.push( TR_INDEX*TD_NUM+TD_INDEX );            
+        if( MAIN_STATE == "freeDrag" && MOVING && HISTORY.slice(-1)[0] == null ){
+            HISTORY.push( TR_INDEX*TD_NUM+TD_INDEX );   
+            // start locus
+            if( LOCUS ){
+                resetLocus();
+                LOCUS_STACK.push( TR_INDEX*TD_NUM+TD_INDEX );
+            }         
         }
 
         var td_base = $("#dragContainment tr td").eq(TR_INDEX*TD_NUM+TD_INDEX);
@@ -359,11 +377,14 @@ function dragPosition(e){
         HISTORY_SHOW += 1;
         setHistoryShow();
 
+        locusUpdate( TR_INDEX*TD_NUM+TD_INDEX );
         checkInhibit(td_goal, item_base, item_goal);
-        locusUpdate();
     }
 }
 
+//==============================================================
+// inhibit frozen locus
+//==============================================================
 function checkInhibit(td_goal, item_base, item_goal){
     if( $(td_goal).children().length > 0 ){
         //檢查風化
@@ -372,37 +393,106 @@ function checkInhibit(td_goal, item_base, item_goal){
             playAudioWrong();
             MOVE_OUT_OF_TIME = true;
             if( !TIME_IS_LIMIT ){
+                TIME_RUNNING = false;
                 endMoveWave();
+            }
+        }else if( LOCUS && LOCUS_TYPE == "rot" ){
+            var index = LOCUS_STACK.indexOf( HISTORY.slice(-1)[0] );
+            if( index >= 0 && index < LOCUS_STACK.length-1 ){
+                $("#dragContainment tr td img").removeAttr("style");      
+                playAudioWrong();
+                MOVE_OUT_OF_TIME = true;
+                if( !TIME_IS_LIMIT ){
+                    TIME_RUNNING = false;
+                    endMoveWave();
+                }
             }
         }
     }
 }
 
-function locusUpdate(){
-    locusClean();
-    if( LOCUS ){
-        for( var i = HISTORY.length-2; i >= 0 && i >= HISTORY.length - LOCUS_LENGTH; i-- ){
-            if( HISTORY[i] == null ){
-                break;
-                console.log("is/null");
+function frozenUpdate(){
+    $("#dragContainment tr td img").each( function() {
+        if( $(this).attr("frozen") ){
+            var next_frozen = parseInt( $(this).attr("frozen") )+1;
+            var item = $(this).attr("item");
+            if( next_frozen > 3 ){
+                $(this).removeAttr("frozen");
+                item = item.substr(0, item.indexOf("i"))+item.substr(item.indexOf("i")+2);
+            }else{
+                $(this).attr("frozen", next_frozen);
+                item = item.substr(0, item.indexOf("i")+1)+next_frozen+item.substr(item.indexOf("i")+2);
             }
-            if( HISTORY[i] != HISTORY[ HISTORY.length-1 ] ){
-                var imgs = $("#dragContainment tr td").eq(HISTORY[i]).find("img");
-                imgs.attr('src', mapImgSrc( imgs.attr("item")+LOCUS_TYPE ) );
-            }
+            $(this).attr("item", item);
+            $(this).attr("src", mapImgSrc(item) );
+        }
+    });
+}
+
+function resetLocus(){
+    LOCUS_STACK = [];
+    for( var i = 0; i < TR_NUM*TD_NUM; i++ ){
+        if( $("#dragContainment tr td").eq(i).children().length > 0 ){
+            var imgs = $("#dragContainment tr td").eq(i).find("img");
+            imgs.attr('src', mapImgSrc( imgs.attr("item") ) );
         }
     }
-}
-function locusClean(){
-    if( LOCUS ){
-        for( var i = 0; i < TR_NUM*TD_NUM; i++ ){
-            if( $("#dragContainment tr td").eq(i).children().length > 0 ){
-                var imgs = $("#dragContainment tr td").eq(i).find("img");
-                imgs.attr('src', mapImgSrc( imgs.attr("item") ) );
-            }
-        }
+    
+    if( LOCUS_TYPE == 'fire' || LOCUS_TYPE == 'rot' ){
+        resetCanvas();
     }
 }
+
+function locusUpdate( id ){
+    if( !LOCUS || LOCUS_STACK.length == 0 ){ return; }
+
+    var last = LOCUS_STACK.slice(-1)[0];
+    if( LOCUS_TYPE == '_' || LOCUS_TYPE == 'q' ){
+        var imgs = $("#dragContainment tr td").eq(last).find("img");
+        imgs.attr('src', mapImgSrc( imgs.attr("item")+LOCUS_TYPE ) );
+
+    }else if( LOCUS_TYPE == 'rot' && LOCUS_STACK.length ){
+        var startX = parseInt( id%TD_NUM )*WIDTH +WIDTH/2;
+        var startY = parseInt( id/TD_NUM )*HEIGHT+HEIGHT/2;
+        var goalX  = parseInt( last%TD_NUM ) *WIDTH +WIDTH/2;
+        var goalY  = parseInt( last/TD_NUM ) *HEIGHT+HEIGHT/2;
+
+        $('#dragCanvas').drawLine({
+            strokeStyle: 'rgba(50, 200, 50, 0.8)',
+            strokeWidth: 30,         rounded: true,
+            layer: true,
+            x1: startX,             y1: startY,
+            x2: goalX,              y2: goalY
+        });
+    }else if( LOCUS_TYPE == 'fire' && LOCUS_STACK.length ){
+        var startX = parseInt( id%TD_NUM )*WIDTH +WIDTH/2;
+        var startY = parseInt( id/TD_NUM )*HEIGHT+HEIGHT/2;
+        var goalX  = parseInt( last%TD_NUM ) *WIDTH +WIDTH/2;
+        var goalY  = parseInt( last/TD_NUM ) *HEIGHT+HEIGHT/2;
+
+        $('#dragCanvas').drawLine({
+            strokeStyle: 'rgba(200, 0, 50, 0.8)',
+            strokeWidth: 30,         rounded: true,
+            layer: true,
+            x1: startX,             y1: startY,
+            x2: goalX,              y2: goalY
+        });
+    }
+
+    LOCUS_STACK.push(id);
+    while( LOCUS_STACK.length > LOCUS_LENGTH ){
+        var pop = LOCUS_STACK.shift();
+
+        if( LOCUS_TYPE == '_' || LOCUS_TYPE == 'q' ){
+            var imgs = $("#dragContainment tr td").eq(pop).find("img");
+            imgs.attr('src', mapImgSrc( imgs.attr("item") ) );
+        }else if( LOCUS_TYPE == 'fire' || LOCUS_TYPE == "rot" ){
+            $('#dragCanvas').removeLayer(0).drawLayers();
+        }
+    }
+
+}
+
 //==============================================================
 // timer
 //==============================================================
@@ -498,24 +588,6 @@ function newElementByItem(item){
     }
 }
 
-function frozenUpdate(){
-    $("#dragContainment tr td img").each( function() {
-        if( $(this).attr("frozen") ){
-            var next_frozen = parseInt( $(this).attr("frozen") )+1;
-            var item = $(this).attr("item");
-            if( next_frozen > 3 ){
-                $(this).removeAttr("frozen");
-                item = item.substr(0, item.indexOf("i"))+item.substr(item.indexOf("i")+2);
-            }else{
-                $(this).attr("frozen", next_frozen);
-                item = item.substr(0, item.indexOf("i")+1)+next_frozen+item.substr(item.indexOf("i")+2);
-            }
-            $(this).attr("item", item);
-            $(this).attr("src", mapImgSrc(item) );
-        }
-    });
-}
-
 //==============================================================
 //  stage define 
 //==============================================================
@@ -524,6 +596,7 @@ function initialMoveWave(){
     resetMoveTime();
 }
 function endMoveWave(){
+    closeCanvas();
     resetMoveTime();
     stopDragging();
     recordFinal();    
@@ -576,7 +649,10 @@ function checkGroups(){
     if( num == 0 ){
         if( TR_NUM > 5 ){
             endBrokeBoundary()
-        }else{
+        }else if( DROP_WAVES == 0 ){
+            nextMoveWave();
+        }
+        else{
             checkAttack();
         }
     }else{
