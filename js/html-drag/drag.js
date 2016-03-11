@@ -18,8 +18,9 @@ var ACCURACY = 0.6;
 // GLOBAL VARIABLE
 //==============================================================
 var COLORS = ['w', 'f', 'p', 'l', 'd', 'h'];
-var TEAM_COLORS = [ ];
-var CREATE_COLOR = null;
+var TEAM_COLORS = [];
+var COLOR_MAP = {};
+var COLOR_PROB = [ {}, {}, {}, {}, {}, {} ];
 
 var STRAIGHT_SETS = [];
 var HORIZONTAL_SETS = [];
@@ -71,6 +72,7 @@ var MAIN_STATE;
 //==============================================================
 // CONTROL PARAMETER
 //==============================================================
+var CREATE_COLOR = null;
 var TIME_IS_LIMIT = true;
 var TIME_LIMIT = 5;
 var DROPABLE = false;
@@ -129,9 +131,34 @@ function resetColors(){
     TEAM_COLORS = []; 
     for(var i = 0; i < TD_NUM; i++){
         if( TEAM_COLORS_CHANGEABLE ){
-            TEAM_COLORS.push( COLORS );
+            var team_colors = {};
+            var tmp_colors = {};
+            var prob = 0;
+            var color_len = 0;
+
+            for( var c of COLORS ){
+                if( !(c in COLOR_PROB[i]) ){
+                    tmp_colors[c] = ( c in tmp_colors ) ? tmp_colors[c]+1 : 1;
+                    color_len++;
+                }
+            }
+
+            for( var c in COLOR_PROB[i] ){
+                team_colors[c] = prob + COLOR_PROB[i][c];
+                prob += COLOR_PROB[i][c];
+            }
+
+            var else_prob = 1 - prob;
+            for( var c in tmp_colors ){
+                var c_prob = tmp_colors[c] * ( else_prob / color_len ) ;
+                team_colors[c] = prob + c_prob;
+                prob += c_prob;
+            }
+
+            TEAM_COLORS.push( team_colors );
         }else{
-            TEAM_COLORS.push(['w', 'f', 'p', 'l', 'd', 'h']);
+            TEAM_COLORS.push( { 'w': 1/6, 'f': 2/6, 'p': 3/6, 
+                                'l': 4/6, 'd': 5/6, 'h': 6/6 } );
         }
     }
 }
@@ -561,7 +588,19 @@ function randomBySeed(){
 function newElementByID(id){
     var td_seat = id%TD_NUM;
     var colors = TEAM_COLORS[td_seat];
-    var color = colors[ Math.floor( randomBySeed() * colors.length ) ];
+    var rand = randomBySeed();
+    var color = 'w';
+
+    for( var c in colors ){
+        if( rand <= colors[c] ){
+            color = c;
+            break;
+        }
+    }
+    if( color in COLOR_MAP ){
+        color = COLOR_MAP[color];
+    }
+
     return newElementByItem(color);
 }
 function newElementByItem(item){

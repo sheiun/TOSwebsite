@@ -311,6 +311,12 @@ $('#colorSelect').change(function (){
     }
 });
 $("#dropColorSelect").change(function (){
+    for( var i = 0; i < TD_NUM; i++ ){
+        for( var c of ['wq','fq','pq','lq','dq','hq'] ){
+            delete COLOR_PROB[i][c];
+        }
+    }
+
     if( $(this).val() == "optional" ){
 
         $("#optionalColors li img").closest("li").remove();
@@ -325,10 +331,30 @@ $("#dropColorSelect").change(function (){
         $("#optionalColors").attr("IDmaker", id);
 
         $("#HorizontalScrollbar").show();
+        COLOR_MAP = {};
         setOptionalColors();
+    }else if( $(this).val().indexOf("MAP") >= 0 ) {
+        $("#HorizontalScrollbar").hide();
+        var colorBeMap = $(this).val().split(",")[1];
+        var colorToMap = $(this).val().split(",")[2];
+        COLORS = ['w', 'f', 'p', 'l', 'd', 'h'];
+        COLOR_MAP = {};
+        COLOR_MAP[colorBeMap] = colorToMap;
+        resetColors();
+    }else if( $(this).val() == "question" ){
+        $("#HorizontalScrollbar").hide();
+        COLORS = ['w', 'f', 'p', 'l', 'd', 'h'];
+        COLOR_MAP = {};
+        for( var i = 0; i < TD_NUM; i++ ){
+            for( var c of ['wq','fq','pq','lq','dq','hq'] ){
+                COLOR_PROB[i][c] = 0.1/6;
+            }
+        }
+        resetColors();
     }else{
         $("#HorizontalScrollbar").hide();
         COLORS = $(this).val().split(",");
+        COLOR_MAP = {};
         resetColors();
     }
 });
@@ -350,7 +376,16 @@ $("#locusSelect").change(function (){
 
 $("#teamLeftSelect").change(function (){
     TEAM_LEADER_LEFT = $(this).val();
-    console.log(TEAM_LEADER_LEFT);
+
+    for( var c of ['w','f','p','l','d','h'] ){
+        delete COLOR_PROB[0][c];
+    }
+    if( TEAM_LEADER_LEFT.indexOf("GREEK") >= 0 ){
+        var c = TEAM_LEADER_LEFT.split("-")[1];
+        COLOR_PROB[0][c] = 0.4;
+        resetColors();
+    }
+
     if( TEAM_LEADER_LEFT == "COUPLE-f" || TEAM_LEADER_LEFT == "COUPLE-p" ){
         TEAM_COLORS_CHANGEABLE = false;
         resetColors();
@@ -378,6 +413,19 @@ $("#teamLeftSelect").change(function (){
 });
 $("#teamRightSelect").change(function (){
     TEAM_LEADER_RIGHT = $(this).val();
+
+    for( var c of ['w','f','p','l','d','h'] ){
+        delete COLOR_PROB[TD_NUM-1][c];
+    }
+    if( TEAM_LEADER_RIGHT.indexOf("GREEK") >= 0 ){
+        var c = TEAM_LEADER_RIGHT.split("-")[1];
+        COLOR_PROB[TD_NUM-1][c] = 0.4;
+        resetColors();
+    }else{
+        COLOR_PROB[TD_NUM-1] = {};
+        resetColors();
+    }
+
     if( TEAM_LEADER_RIGHT == "COUPLE-f" || TEAM_LEADER_RIGHT == "COUPLE-p" ){
         TEAM_COLORS_CHANGEABLE = false;
         resetColors();
