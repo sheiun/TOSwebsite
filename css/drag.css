@@ -95,6 +95,12 @@ body{
     font-weight: 200;
     font-size: 2em;
 }
+#extraCombo{
+    color: white;
+    font-family:  "Lucida Grande", "Lucida Sans", Helvetica, Arial, Sans;
+    font-weight: 200;
+    font-size: 20px;
+}
 #Scrollbar{
     border-radius: 20px;
     margin: auto;

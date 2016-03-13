@@ -13,6 +13,9 @@ var TR_NUM = parseInt( $("#dragContainment").attr("tr") );
 var TD_NUM = parseInt( $("#dragContainment").attr("td") );
 
 var ACCURACY = 0.6;
+var MIN_SHIFT = 8;
+var MAX_SHIFT = 35;
+var MAX_AUTO_DROP_TIMES = 100;
 
 //==============================================================
 // GLOBAL VARIABLE
@@ -28,19 +31,26 @@ var COLOR_SETS = {'w':[], 'f':[], 'p':[], 'l':[], 'd':[], 'h':[]};
 var COLOR_SETS_PREPARE = {'w':[], 'f':[], 'p':[], 'l':[], 'd':[], 'h':[]};
 var GROUP_SIZE = {'w':3, 'f':3, 'p':3, 'l':3, 'd':3, 'h':3};
 var GROUP_SETS = {'w':[], 'f':[], 'p':[], 'l':[], 'd':[], 'h':[]};
-var COLOR_RANDOM = Math.floor( Math.random() * 1000 );
-var MAX_AUTO_DROP_TIMES = 100;
 
 var REMOVE_STACK = [];
 var STRONG_STACK = {};
 var DROP_STACK = [];
+
+var ALL_GROUP_SET_STACK = [];
+var COMBO_STACK = [];
 var DROP_WAVES = 0;
 var COMBO_TIMES = 0;
-var COMBO_STACK = [];
 var COMBO_SHOW = 0;
-var HISTORY_SHOW = 0;
-var HISTORY_RANDOM = COLOR_RANDOM;
-var HISTORY_SKILL_VARIABLE;
+
+var COUNT_COMBO         = 0;
+var COUNT_COMBO_COEFF   = 0.25;
+var COUNT_AMOUNT        = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
+var COUNT_AMOUNT_COEFF  = 0.25;
+var COUNT_STRONG        = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
+var COUNT_STRONG_COEFF  = 0.15;
+var COUNT_SETS          = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
+var COUNT_FIRST_SETS    = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
+var COUNT_FACTOR        = 1;
 
 var DRAG_ANIMATE_TIME = 100;
 var REMOVE_TIME = 100;
@@ -58,9 +68,11 @@ var TIME_RECT;
 var HISTORY = [];
 var INITIAL_PANEL = [];
 var FINAL_PANEL = [];
+var HISTORY_SHOW = 0;
+var COLOR_RANDOM = Math.floor( Math.random() * 1000 );
+var HISTORY_RANDOM = COLOR_RANDOM;
+var HISTORY_SKILL_VARIABLE;
 var CLIPBOARD;
-var MIN_SHIFT = 8;
-var MAX_SHIFT = 35;
 
 var LOCUS_LENGTH = 6;
 var LOCUS = true;
@@ -81,8 +93,14 @@ var REPLAY_SPEED = 300;
 var AUDIO = true;
 
 var TEAM_COLORS_CHANGEABLE = true;
+var TEAM_LEADER_LEFT_ID = 0;
+var TEAM_LEADER_RIGHT_ID = 0;
 var TEAM_LEADER_LEFT = null;
 var TEAM_LEADER_RIGHT = null;
+var TEAM_SKILL = null;
+var TEAM_LEADER_LEFT_VAR = null;
+var TEAM_LEADER_RIGHT_VAR = null;
+var TEAM_SKILL_VAR = null;
 
 //==============================================================
 // reset functions
@@ -106,16 +124,18 @@ function resetDraggable(){
         stop: function(){
             resetLocus();
             closeCanvas();
-            if( !MOVE_OUT_OF_TIME ){
+            if( MOVING ){
                 endPosition(this);
             }
-            if( MAIN_STATE == "freeDrag" && !MOVE_OUT_OF_TIME ){
+            if( MAIN_STATE == "freeDrag" && MOVING ){
                 HISTORY.push(null);
                 resetDraggable();
                 startDragging();
-            }
-            if( MAIN_STATE == "count" && !MOVE_OUT_OF_TIME ){
+            }else if( MAIN_STATE == "count" && MOVING ){
                 endMoveWave();
+            }else{
+                resetDraggable();
+                startDragging();
             }
         },
     });
@@ -184,13 +204,29 @@ function resetDropStack(){
         DROP_STACK.push([]);
     }
 }
-function resetComboStack(){    
+function resetComboStack(){ 
+    COMBO_STACK = [];
+    ALL_GROUP_SET_STACK = [];   
     DROP_WAVES = 0;
     COMBO_TIMES = 0;
-    COMBO_STACK = [];
     COMBO_SHOW = 0;
     setComboShow();
     resetComboBox();
+
+    if( 'extraReset' in TEAM_SKILL ){
+        TEAM_SKILL['extraReset']( TEAM_SKILL_VAR );
+    }
+}
+function resetCount(){    
+    COUNT_COMBO         = COMBO_TIMES;
+    COUNT_COMBO_COEFF   = 0.25;
+    COUNT_AMOUNT        = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
+    COUNT_AMOUNT_COEFF  = 0.25;
+    COUNT_STRONG        = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
+    COUNT_STRONG_COEFF  = 0.15;
+    COUNT_SETS          = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
+    COUNT_FIRST_SETS    = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
+    COUNT_FACTOR        = 1;
 }
 function resetMoveTime(){
     MOVING = false;
@@ -530,6 +566,7 @@ function dragTimer(){
     if( TIME_IS_LIMIT && ( (now - START_TIME) > TIME_LIMIT || MOVE_OUT_OF_TIME )  ){
         MOVE_OUT_OF_TIME = true;
         TIME_RUNNING = false;
+        MOVING = false;
         endMoveWave();
     }
 }
@@ -567,17 +604,22 @@ function mapColor(color){
     }
 }
 function mapImgSrc(item){
-    if( item.indexOf('q') >= 0 ){ return "img/Icon/q.png"; }
-    if( item.indexOf('X') >= 0 ){ return "img/Icon/x.png"; }
+    var c    = mapColor(item);
     var plus = ( item.indexOf('+') >= 0 ) ? '+' : '';
-    var _ = ( item.indexOf('_') >= 0 ) ? '_' : '';
-    var x = ( item.indexOf('x') >= 0 ) ? 'x' : '';
-    var k = ( item.indexOf('k') >= 0 ) ? 'k' : '';
-    var i = ''
-    if( item.indexOf('i') >= 0 ){
-        i = item.substr( item.indexOf('i'), item.indexOf('i')+2 )
+    var _    = ( item.indexOf('_') >= 0 ) ? '_' : '';
+    var x    = ( item.indexOf('x') >= 0 ) ? 'x' : '';
+    var i    = ( item.indexOf('i') >= 0 ) ? item.substr( item.indexOf('i'), item.indexOf('i')+1 ) : '';
+
+    if( item.indexOf('X') >= 0 ){
+        item = 'X'+i ;
+    }else if( item.indexOf('q') >= 0 ){
+        item = 'q'+i+x ;
+    }else if( item.indexOf('k') >= 0 ){
+        item = 'k'+i+x ;
+    }else{
+        item = c+plus+_+i+x ;
     }
-    item = mapColor(item)+plus+k+_+i+x ;
+
     return "img/Icon/"+item+".png";
 }
 function randomBySeed(){    
@@ -628,6 +670,39 @@ function newElementByItem(item){
 }
 
 //==============================================================
+//  Count Attack
+//==============================================================
+function countAttack(){
+    resetCount();
+
+    for(var obj of COMBO_STACK){
+        var c = obj['color'];
+        COUNT_AMOUNT[c] += obj['amount'];
+        COUNT_STRONG[c] += obj['strong_amount'];
+        COUNT_SETS[c] += 1;
+        if( obj['drop_wave'] == 0 ){
+            COUNT_FIRST_SETS[c] += 1;
+        }
+    }
+
+    if( "attack" in TEAM_LEADER_LEFT ){
+        TEAM_LEADER_LEFT["attack"]( TEAM_LEADER_LEFT_VAR, TEAM_LEADER_LEFT["color"] );
+    }
+    if( "attack" in TEAM_LEADER_RIGHT ){
+        TEAM_LEADER_RIGHT["attack"]( TEAM_LEADER_RIGHT_VAR, TEAM_LEADER_RIGHT["color"] );
+    }
+    if( "attack" in TEAM_SKILL ){
+        TEAM_SKILL["attack"]( TEAM_SKILL_VAR, TEAM_SKILL["color"] );
+    }
+
+    for(var c of ['w','f','p','l','d','h']){
+        var atk = ( 1+(COUNT_COMBO-1)*COUNT_COMBO_COEFF )*COUNT_FACTOR*
+                  ( (COUNT_AMOUNT[c]+COUNT_SETS[c])*COUNT_AMOUNT_COEFF + COUNT_STRONG[c]*COUNT_STRONG_COEFF );
+        console.log(c+' : '+atk);
+    }
+}
+
+//==============================================================
 //  stage define 
 //==============================================================
 function initialMoveWave(){    
@@ -635,6 +710,7 @@ function initialMoveWave(){
     resetMoveTime();
 }
 function endMoveWave(){
+    resetLocus();
     closeCanvas();
     resetMoveTime();
     stopDragging();
@@ -644,7 +720,6 @@ function endMoveWave(){
 function nextMoveWave(){
     resetDraggable();
     startDragging();
-    showResult();
 }
 function newMoveWave(){
     //Maybe used in next move
@@ -669,7 +744,7 @@ function checkGroups(){
         for(var set of GROUP_SETS[color]){
             var strong_amount = 0;
             for(var i of set){
-                if( $("#dragContainment tr td img.over ").eq(i).prop('strong') ){
+                if( parseInt( $("#dragContainment tr td img.over ").eq(i).attr('strong') ) > 0 ){
                     strong_amount += 1;
                 }
             }
@@ -688,10 +763,7 @@ function checkGroups(){
     if( num == 0 ){
         if( TR_NUM > 5 ){
             endBrokeBoundary()
-        }else if( DROP_WAVES == 0 ){
-            nextMoveWave();
-        }
-        else{
+        }else{
             checkAttack();
         }
     }else{
@@ -700,96 +772,39 @@ function checkGroups(){
         }, REMOVE_TIME);        
     }
 }
-function autoCheckDropGroups(){
-    resetBase();
-    resetColorGroupSet();
-    resetDropStack();
-    countColor();
-    countGroup();
 
-    var times = 0;
-    var num = 0;
-    for(var color in GROUP_SETS){
-        num += GROUP_SETS[color].length;
-    }
-    while( num > 0 && times < MAX_AUTO_DROP_TIMES ){
-        for(var i = TD_NUM*TR_NUM-1; i >= 0; i--){
-            if( REMOVE_STACK.indexOf(i) >= 0 ){ continue; }
-            var isSet = inGroup(i);
-            if( isSet ){
-                var setArr = Array.from(isSet);
-                for(var id of setArr){
-                    REMOVE_STACK.push(id);
-                    $("#dragContainment tr td").eq(id).find("img").remove();
-                    $("#dragContainment tr td").eq(id).append( newElementByID(id) );
-                }
-            }
-        }
-
-        resetColorGroupSet();
-        resetDropStack();
-        countColor();
-        countGroup();
-
-        num = 0;
-        for(var color in GROUP_SETS){
-            num += GROUP_SETS[color].length;
-        }
-
-        times++;
-    }
-}
-
-function checkStartSkill(){
-
-}
 function checkNewItemSkill(){
-
-    if( TEAM_LEADER_LEFT  == "GREEK-w" ){ GreekSkill('w', 'left'); }
-    if( TEAM_LEADER_RIGHT == "GREEK-w" ){ GreekSkill('w', 'right'); }
-    if( TEAM_LEADER_LEFT  == "GREEK-f" ){ GreekSkill('f', 'left'); }
-    if( TEAM_LEADER_RIGHT == "GREEK-f" ){ GreekSkill('f', 'right'); }
-    if( TEAM_LEADER_LEFT  == "GREEK-p" ){ GreekSkill('p', 'left'); }
-    if( TEAM_LEADER_RIGHT == "GREEK-p" ){ GreekSkill('p', 'right'); }
-    if( TEAM_LEADER_LEFT  == "GREEK-l" ){ GreekSkill('l', 'left'); }
-    if( TEAM_LEADER_RIGHT == "GREEK-l" ){ GreekSkill('l', 'right'); }
-    if( TEAM_LEADER_LEFT  == "GREEK-d" ){ GreekSkill('d', 'left'); }
-    if( TEAM_LEADER_RIGHT == "GREEK-d" ){ GreekSkill('d', 'right'); }
-    if( TEAM_LEADER_LEFT  == "GREEK-h" ){ GreekSkill('h', 'left'); }
-    if( TEAM_LEADER_RIGHT == "GREEK-h" ){ GreekSkill('h', 'right'); }
-
-    if( TEAM_LEADER_LEFT  == "BIBLE-w" ){ BibleSkill('w'); }
-    if( TEAM_LEADER_RIGHT == "BIBLE-w" ){ BibleSkill('w'); }
-    if( TEAM_LEADER_LEFT  == "BIBLE-f" ){ BibleSkill('f'); }
-    if( TEAM_LEADER_RIGHT == "BIBLE-f" ){ BibleSkill('f'); }
-    if( TEAM_LEADER_LEFT  == "BIBLE-p" ){ BibleSkill('p'); }
-    if( TEAM_LEADER_RIGHT == "BIBLE-p" ){ BibleSkill('p'); }
-    if( TEAM_LEADER_LEFT  == "BIBLE-l" ){ BibleSkill('l'); }
-    if( TEAM_LEADER_RIGHT == "BIBLE-l" ){ BibleSkill('l'); }
-    if( TEAM_LEADER_LEFT  == "BIBLE-d" ){ BibleSkill('d'); }
-    if( TEAM_LEADER_RIGHT == "BIBLE-d" ){ BibleSkill('d'); }
-    if( TEAM_LEADER_LEFT  == "BIBLE-h" ){ BibleSkill('h'); }
-    if( TEAM_LEADER_RIGHT == "BIBLE-h" ){ BibleSkill('h'); }
-
-    if( TEAM_LEADER_LEFT  == "GREEK-w" && TEAM_LEADER_RIGHT == "GREEK-w" ){ TeamGreekSkill("w"); }
-    if( TEAM_LEADER_LEFT  == "GREEK-f" && TEAM_LEADER_RIGHT == "GREEK-f" ){ TeamGreekSkill("f"); }
-    if( TEAM_LEADER_LEFT  == "GREEK-p" && TEAM_LEADER_RIGHT == "GREEK-p" ){ TeamGreekSkill("p"); }
-    if( TEAM_LEADER_LEFT  == "GREEK-l" && TEAM_LEADER_RIGHT == "GREEK-l" ){ TeamGreekSkill("l"); }
-    if( TEAM_LEADER_LEFT  == "GREEK-d" && TEAM_LEADER_RIGHT == "GREEK-d" ){ TeamGreekSkill("d"); }
+    if( 'newItem' in TEAM_LEADER_LEFT ){
+        TEAM_LEADER_LEFT['newItem'](  TEAM_LEADER_LEFT_VAR,  TEAM_LEADER_LEFT['color'] );
+    }
+    if( 'newItem' in TEAM_LEADER_RIGHT ){
+        TEAM_LEADER_RIGHT['newItem']( TEAM_LEADER_RIGHT_VAR, TEAM_LEADER_RIGHT['color'] );
+    }
+    if( 'newItem' in TEAM_SKILL ){
+        TEAM_SKILL['newItem']( TEAM_SKILL_VAR, TEAM_SKILL['color'] );
+    }
+}
+function checkExtraComboSkill(){    
+    if( 'extraCombo' in TEAM_SKILL ){
+        TEAM_SKILL['extraCombo']( TEAM_SKILL_VAR );
+    }
 }
 function checkEndSkill(){
-
-    if( TEAM_LEADER_LEFT  == "COUPLE-f" ){ coupleEndSkill("f"); }
-    if( TEAM_LEADER_RIGHT == "COUPLE-f" ){ coupleEndSkill("f"); }
-    if( TEAM_LEADER_LEFT  == "COUPLE-p" ){ coupleEndSkill("p"); }
-    if( TEAM_LEADER_RIGHT == "COUPLE-p" ){ coupleEndSkill("p"); }
+    if( 'end' in TEAM_LEADER_LEFT ){
+        TEAM_LEADER_LEFT['end'](  TEAM_LEADER_LEFT_VAR,  TEAM_LEADER_LEFT['color'] );
+    }
+    if( 'end' in TEAM_LEADER_RIGHT ){
+        TEAM_LEADER_RIGHT['end']( TEAM_LEADER_RIGHT_VAR, TEAM_LEADER_RIGHT['color'] );
+    }
 
     nextMoveWave();
 
 }
 function checkAttack(){
     frozenUpdate();
-    
+    countAttack();
+    showResult();
+
     setTimeout(function(){
         checkEndSkill();
     }, 1000);
@@ -896,6 +911,11 @@ function countGroup(){
         }
     }
 
+    ALL_GROUP_SET_STACK.push({
+        'GROUP_SETS'        : GROUP_SETS,
+        'STRAIGHT_SETS'     : STRAIGHT_SETS,
+        'HORIZONTAL_SETS'   : HORIZONTAL_SETS
+    });
 }
 
 //==============================================================
@@ -934,6 +954,9 @@ function removePeriod(set, next){
     addComboSet(comboSet);
     playAudioRemove();
 
+    // for greek skill
+    checkExtraComboSkill();
+
     setTimeout( function(){
         removeGroups(next-1);
     }, FADEOUT_TIME );
@@ -953,12 +976,8 @@ function newGroups(){
     if( !AUTO_REMOVE ){ return; }
 
     REMOVE_STACK.sort(function(a, b){return a-b});
-    console.log(REMOVE_STACK);
 
-    /*
-    TODO
-    希臘/巴比隊長技使用
-    */
+    //  希臘/巴比隊長技使用
     checkNewItemSkill();
 
     for(var color in GROUP_SETS){

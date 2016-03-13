@@ -1,6 +1,6 @@
 
 //==============================================================
-// Button click functions
+// READY
 //==============================================================
 $(document).ready( function(){
     //initail autoHidingNavbar
@@ -38,12 +38,19 @@ $(document).ready( function(){
     }
 
     MAIN_STATE = "count";
+    TEAM_LEADER_LEFT = SKILLS[0];
+    TEAM_LEADER_RIGHT = SKILLS[0];
+    TEAM_SKILL = T_SKILLS[0];
+
     closeCanvas();
     resetTimeDiv();
     setComboShow();
     setHistoryShow();
 });
 
+//==============================================================
+// Button click functions
+//==============================================================
 function newRandomPlain(){
     resetColors();
     initialTable();
@@ -207,9 +214,11 @@ function toggleReviewPath(){
     }
 }
 
+//==============================================================
+// Show Result
+//==============================================================
 function showResult(){
-    console.log(HISTORY);
-    console.log(INITIAL_PANEL);
+    $("#AttackShow").text('');
 }
 function showTime(now){    
     var timeFraction = ( TIME_LIMIT - ( now - START_TIME ) )/TIME_LIMIT;
@@ -222,6 +231,13 @@ function setHistoryShow(){
 }
 function setComboShow(){    
     $("#comboNum").text( COMBO_SHOW );
+}
+function setExtraComboShow(combo){
+    if( combo > 0 ){
+        $("#extraCombo").text( '+'+combo );
+    }else{
+        $("#extraCombo").text('');
+    }
 }
 function resetComboBox(){
     $("#comboBox").children().remove();
@@ -253,6 +269,10 @@ function addComboSet(comboSet){
 
     $("#Scrollbar").mCustomScrollbar("update");
 }
+
+//==============================================================
+// Set color drop
+//==============================================================
 function addColorIntoBar(){
     if( CREATE_COLOR != null ){
         var id = parseInt( $("#optionalColors").attr("IDmaker") );
@@ -277,7 +297,7 @@ function setOptionalColors(){
             COLORS.push( $(this).find("img").attr("color") );
         }
     });
-    resetColors();
+    resetTeamLeader();
 }
 
 function scroll_top(){
@@ -289,6 +309,10 @@ function scroll_bottom(){
 function hide_navbar(){
     $('.navbar-fixed-top').autoHidingNavbar('hide');
 }
+
+//==============================================================
+// Change Function
+//==============================================================
 
 $("#file").change(function (){
     if( $(this).val() !== '' ){
@@ -311,6 +335,8 @@ $('#colorSelect').change(function (){
     }
 });
 $("#dropColorSelect").change(function (){
+    $("#HorizontalScrollbar").hide();
+    COLOR_MAP = {};
     for( var i = 0; i < TD_NUM; i++ ){
         for( var c of ['wq','fq','pq','lq','dq','hq'] ){
             delete COLOR_PROB[i][c];
@@ -318,7 +344,6 @@ $("#dropColorSelect").change(function (){
     }
 
     if( $(this).val() == "optional" ){
-
         $("#optionalColors li img").closest("li").remove();
         var id = 0;
         for(var c of ["w", "f", "p", "l", "d", "h"]){
@@ -329,34 +354,28 @@ $("#dropColorSelect").change(function (){
             id++;
         }
         $("#optionalColors").attr("IDmaker", id);
-
         $("#HorizontalScrollbar").show();
-        COLOR_MAP = {};
         setOptionalColors();
+
     }else if( $(this).val().indexOf("MAP") >= 0 ) {
-        $("#HorizontalScrollbar").hide();
         var colorBeMap = $(this).val().split(",")[1];
         var colorToMap = $(this).val().split(",")[2];
         COLORS = ['w', 'f', 'p', 'l', 'd', 'h'];
-        COLOR_MAP = {};
         COLOR_MAP[colorBeMap] = colorToMap;
-        resetColors();
+
     }else if( $(this).val() == "question" ){
-        $("#HorizontalScrollbar").hide();
         COLORS = ['w', 'f', 'p', 'l', 'd', 'h'];
-        COLOR_MAP = {};
         for( var i = 0; i < TD_NUM; i++ ){
             for( var c of ['wq','fq','pq','lq','dq','hq'] ){
                 COLOR_PROB[i][c] = 0.1/6;
             }
         }
-        resetColors();
+
     }else{
-        $("#HorizontalScrollbar").hide();
         COLORS = $(this).val().split(",");
-        COLOR_MAP = {};
-        resetColors();
     }
+
+    resetTeamLeader();
 });
 
 $("#locusSelect").change(function (){
@@ -375,83 +394,92 @@ $("#locusSelect").change(function (){
 });
 
 $("#teamLeftSelect").change(function (){
-    TEAM_LEADER_LEFT = $(this).val();
-
-    for( var c of ['w','f','p','l','d','h'] ){
-        delete COLOR_PROB[0][c];
-    }
-    if( TEAM_LEADER_LEFT.indexOf("GREEK") >= 0 ){
-        var c = TEAM_LEADER_LEFT.split("-")[1];
-        COLOR_PROB[0][c] = 0.4;
-        resetColors();
-    }
-
-    if( TEAM_LEADER_LEFT == "COUPLE-f" || TEAM_LEADER_LEFT == "COUPLE-p" ){
-        TEAM_COLORS_CHANGEABLE = false;
-        resetColors();
-    }
-    if( TEAM_LEADER_LEFT == "COUPLE-f" ){
-        GROUP_SIZE['f'] = 2;
-        GROUP_SIZE['h'] = 2;
-    }
-    if( TEAM_LEADER_LEFT == "COUPLE-p" ){
-        GROUP_SIZE['p'] = 2;
-        GROUP_SIZE['h'] = 2;
-    }
-    if( TEAM_LEADER_LEFT != "COUPLE-f"  && TEAM_LEADER_RIGHT != "COUPLE-f" ){
-        GROUP_SIZE['f'] = 3;
-    }
-    if( TEAM_LEADER_RIGHT != "COUPLE-p" && TEAM_LEADER_LEFT != "COUPLE-p"  ){
-        GROUP_SIZE['p'] = 3;
-    }
-    if( TEAM_LEADER_LEFT != "COUPLE-f" && TEAM_LEADER_RIGHT != "COUPLE-f" &&
-        TEAM_LEADER_LEFT != "COUPLE-p" && TEAM_LEADER_RIGHT != "COUPLE-p" ){
-        GROUP_SIZE['h'] = 3;
-        TEAM_COLORS_CHANGEABLE = true;
-        resetColors();
-    }
+    resetTeamLeader();
 });
 $("#teamRightSelect").change(function (){
-    TEAM_LEADER_RIGHT = $(this).val();
+    resetTeamLeader();
+});
 
-    for( var c of ['w','f','p','l','d','h'] ){
-        delete COLOR_PROB[TD_NUM-1][c];
+function resetTeamLeader(){
+
+    TEAM_LEADER_LEFT_ID  = ( $("#teamLeftSelect").val() ) ? parseInt( $("#teamLeftSelect").val() ) : 0;
+    TEAM_LEADER_RIGHT_ID = ( $("#teamRightSelect").val()) ? parseInt( $("#teamRightSelect").val()) : 0;
+    TEAM_LEADER_LEFT  = SKILLS[ TEAM_LEADER_LEFT_ID  ];
+    TEAM_LEADER_RIGHT = SKILLS[ TEAM_LEADER_RIGHT_ID ];
+
+    if( "preSet" in TEAM_LEADER_LEFT ){
+        TEAM_LEADER_LEFT_VAR = TEAM_LEADER_LEFT['preSet']();
     }
-    if( TEAM_LEADER_RIGHT.indexOf("GREEK") >= 0 ){
-        var c = TEAM_LEADER_RIGHT.split("-")[1];
-        COLOR_PROB[TD_NUM-1][c] = 0.4;
-        resetColors();
-    }else{
-        COLOR_PROB[TD_NUM-1] = {};
-        resetColors();
+    if( "preSet" in TEAM_LEADER_RIGHT ){
+        TEAM_LEADER_RIGHT_VAR = TEAM_LEADER_RIGHT['preSet']();
     }
 
-    if( TEAM_LEADER_RIGHT == "COUPLE-f" || TEAM_LEADER_RIGHT == "COUPLE-p" ){
+    for( var i = 0; i < TD_NUM; i++ ){
+        for( var c of ['w','f','p','l','d','h'] ){
+            delete COLOR_PROB[i][c];
+        }
+    }
+    TEAM_COLORS_CHANGEABLE = true;
+    GROUP_SIZE['f'] = 3;
+    GROUP_SIZE['p'] = 3;
+    GROUP_SIZE['h'] = 3;
+
+    if( TEAM_LEADER_LEFT['id'].indexOf("GREEK") >= 0 ){
+        var c = TEAM_LEADER_LEFT['color'];
+        if( COLORS.indexOf(c) >= 0 ){
+            COLOR_PROB[0][c] = 0.4;
+        }
+    }
+    if( TEAM_LEADER_RIGHT['id'].indexOf("GREEK") >= 0 ){
+        var c = TEAM_LEADER_RIGHT['color'];
+        if( COLORS.indexOf(c) >= 0 ){
+            COLOR_PROB[TD_NUM-1][c] = 0.4;
+        }
+    }
+
+    if( TEAM_LEADER_LEFT['id'] == "COUPLE-f" ){
         TEAM_COLORS_CHANGEABLE = false;
-        resetColors();
-    }
-    if( TEAM_LEADER_RIGHT == "COUPLE-f" ){
         GROUP_SIZE['f'] = 2;
         GROUP_SIZE['h'] = 2;
     }
-    if( TEAM_LEADER_RIGHT == "COUPLE-p" ){
+    if( TEAM_LEADER_LEFT['id'] == "COUPLE-p" ){
+        TEAM_COLORS_CHANGEABLE = false;
         GROUP_SIZE['p'] = 2;
         GROUP_SIZE['h'] = 2;
     }
-    if( TEAM_LEADER_LEFT != "COUPLE-f"  && TEAM_LEADER_RIGHT != "COUPLE-f" ){
-        GROUP_SIZE['f'] = 3;
+    if( TEAM_LEADER_RIGHT['id'] == "COUPLE-f" ){
+        TEAM_COLORS_CHANGEABLE = false;
+        GROUP_SIZE['f'] = 2;
+        GROUP_SIZE['h'] = 2;
     }
-    if( TEAM_LEADER_RIGHT != "COUPLE-p" && TEAM_LEADER_LEFT != "COUPLE-p"  ){
-        GROUP_SIZE['p'] = 3;
+    if( TEAM_LEADER_RIGHT['id'] == "COUPLE-p" ){
+        TEAM_COLORS_CHANGEABLE = false;
+        GROUP_SIZE['p'] = 2;
+        GROUP_SIZE['h'] = 2;
     }
-    if( TEAM_LEADER_LEFT != "COUPLE-f" && TEAM_LEADER_RIGHT != "COUPLE-f" &&
-        TEAM_LEADER_LEFT != "COUPLE-p" && TEAM_LEADER_RIGHT != "COUPLE-p" ){
-        GROUP_SIZE['h'] = 3;
-        TEAM_COLORS_CHANGEABLE = true;
-        resetColors();
-    }
-});
 
+    if( TEAM_LEADER_LEFT_ID == TEAM_LEADER_RIGHT_ID && TEAM_LEADER_RIGHT_ID == 1 ){
+        TEAM_SKILL = T_SKILLS[1];
+    }
+    if( TEAM_LEADER_LEFT_ID == TEAM_LEADER_RIGHT_ID && TEAM_LEADER_RIGHT_ID == 2 ){
+        TEAM_SKILL = T_SKILLS[2];
+    }
+    if( TEAM_LEADER_LEFT_ID == TEAM_LEADER_RIGHT_ID && TEAM_LEADER_RIGHT_ID == 3 ){
+        TEAM_SKILL = T_SKILLS[3];
+    }
+    if( TEAM_LEADER_LEFT_ID == TEAM_LEADER_RIGHT_ID && TEAM_LEADER_RIGHT_ID == 4 ){
+        TEAM_SKILL = T_SKILLS[4];
+    }
+    if( TEAM_LEADER_LEFT_ID == TEAM_LEADER_RIGHT_ID && TEAM_LEADER_RIGHT_ID == 5 ){
+        TEAM_SKILL = T_SKILLS[5];
+    }
+
+    if( "preSet" in TEAM_SKILL ){
+        TEAM_SKILL_VAR = TEAM_SKILL["preSet"]();
+    }
+
+    resetColors();
+}
 
 
 function autoCheckDropGroups(){

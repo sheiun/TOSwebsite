@@ -1,30 +1,27 @@
 //==============================================================
-// team variable
+// Team Variable
 //==============================================================
-var GREEK_LEFT_COUNT  = {'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0};
-var GREEK_RIGHT_COUNT = {'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0};
-var GREEK_TEAM_COUNT = {'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0};
 var COUPLE_RAND_STACK = [];
-
 
 function saveSkillVariable(){
     var json = {
-                    "GREEK_LEFT_COUNT": GREEK_LEFT_COUNT,
-                    "GREEK_RIGHT_COUNT": GREEK_RIGHT_COUNT,
-                    "GREEK_TEAM_COUNT": GREEK_TEAM_COUNT
+                    "TEAM_LEADER_LEFT_VAR"  : TEAM_LEADER_LEFT_VAR,
+                    "TEAM_LEADER_RIGHT_VAR" : TEAM_LEADER_RIGHT_VAR,
+                    "TEAM_SKILL_VAR"        : TEAM_SKILL_VAR
                 };
     return JSON.stringify(json);
 }
 function loadSkillVariable(msg){
     var json = JSON.parse(msg);
-    GREEK_LEFT_COUNT = json["GREEK_LEFT_COUNT"];
-    GREEK_RIGHT_COUNT = json["GREEK_RIGHT_COUNT"];
-    GREEK_TEAM_COUNT = json["GREEK_TEAM_COUNT"];
+    TEAM_LEADER_LEFT_VAR    = json["TEAM_LEADER_LEFT_VAR"];
+    TEAM_LEADER_RIGHT_VAR   = json["TEAM_LEADER_RIGHT_VAR"];
+    TEAM_SKILL_VAR          = json["TEAM_SKILL_VAR"];
 }
+
 //==============================================================
-// team skill
+// Team Skill
 //==============================================================
-function BibleSkill(color){
+var BibleSkill = function( VAR, color ){
     for(var i = 0; i < TD_NUM; i++){
         var trigger = false;
         for(var set of STRAIGHT_SETS[i]){
@@ -44,22 +41,19 @@ function BibleSkill(color){
     }
 }
 
-function GreekSkill(color, leader){
+var GreekSetting = function(){
+    return {
+        'COUNT': 0,
+    };
+}
+var GreekSkill = function( VAR, color ){
     var check_straight = 0;
     var check_horizontal = 0;
-    for(var i = 0; i < TD_NUM; i++ ){
-        check_straight += STRAIGHT_SETS[i].length;
-    }
-    for(var i = 0; i < TR_NUM; i++){
-        check_horizontal += HORIZONTAL_SETS[i].length;
-    }
+    for(var i = 0; i < TD_NUM; i++ ){ check_straight += STRAIGHT_SETS[i].length; }
+    for(var i = 0; i < TR_NUM; i++ ){ check_horizontal += HORIZONTAL_SETS[i].length; }
 
     var num = 0;
-    if(leader == "left"){
-        num += GREEK_LEFT_COUNT[color];
-    }else if(leader == "right"){
-        num += GREEK_RIGHT_COUNT[color];
-    }
+    num += VAR['COUNT'];
     for(var set of GROUP_SETS[color]){
         num += set.size;
     }
@@ -79,91 +73,67 @@ function GreekSkill(color, leader){
         STRONG_STACK[id] = color+'+';
     }
 
-    if(leader == "left"){
-        GREEK_LEFT_COUNT[color] = num;
-    }else if(leader == "right"){
-        GREEK_RIGHT_COUNT[color] = num;
-    }
+    VAR['COUNT'] = num;
 }
 
-function TeamGreekSkill(color){
-    if( DROP_WAVES == 0 ){
-        GREEK_TEAM_COUNT[color] = 0;
+
+var TeamGreekSetting = function(){
+    return {
+        'COUNT': {'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0},
+        'EXTRA_COMBO': 0
+    };
+}
+var TeamGreekExtraComboReset = function( VAR ){
+    VAR['EXTRA_COMBO'] = 0;
+    VAR['COUNT'] = 0;
+    setExtraComboShow( VAR['EXTRA_COMBO'] );
+}
+var TeamGreekExtraCombo = function( VAR ){    
+    if( randomBySeed() < 0.7 ){
+        VAR['EXTRA_COMBO'] += 1;
+        setExtraComboShow( VAR['EXTRA_COMBO'] );
     }
-    var comboTimes = GREEK_TEAM_COUNT[color];
+}
+var TeamGreekSkill = function( VAR, color ){
+    var comboTimes = VAR['COUNT'];
     for(var key in GROUP_SETS){
         comboTimes += GROUP_SETS[key].length;
     }
-    while( comboTimes >= 5 && REMOVE_STACK.length >= 2 ){
+    while( comboTimes >= 5 ){
         comboTimes -= 5;
-        var rand_i = Math.floor( randomBySeed() * REMOVE_STACK.length );
-        var id = REMOVE_STACK[rand_i];
-        REMOVE_STACK.splice(rand_i,1);
-        STRONG_STACK[id] = color;
-        var rand_i = Math.floor( randomBySeed() * REMOVE_STACK.length );
-        var id = REMOVE_STACK[rand_i];
-        REMOVE_STACK.splice(rand_i,1);
-        STRONG_STACK[id] = color;
+        for(var num = 0; num < REMOVE_STACK.length && num < 2; num ++){
+            var rand_i = Math.floor( randomBySeed() * REMOVE_STACK.length );
+            var id = REMOVE_STACK[rand_i];
+            REMOVE_STACK.splice(rand_i,1);
+            STRONG_STACK[id] = color;
+        }
     }
-    GREEK_TEAM_COUNT[color] = comboTimes;
+    VAR['COUNT'] = comboTimes;
 }
 
-function coupleEndSkill(color){
+
+var CoupleEndSkill = function( VAR, color){
     var num = 2;
     var ld_stack = getStackOfPanelByColorArr(['l', 'd']);
-    for(var i of COUPLE_RAND_STACK){
-        if( ld_stack.indexOf(i) >= 0 ){ 
-            ld_stack.splice( ld_stack.indexOf(i), 1 );
-        }
-    }
     var wh_stack = getStackOfPanelByColorArr(['w', 'h']);
-    for(var i of COUPLE_RAND_STACK){
-        if( wh_stack.indexOf(i) >= 0 ){ 
-            wh_stack.splice( wh_stack.indexOf(i), 1 );
-        }
-    }
     var fp_stack = getStackOfPanelByColorArr(['f', 'p']);
-    for(var i of COUPLE_RAND_STACK){
-        if( wh_stack.indexOf(i) >= 0 ){ 
-            fp_stack.splice( fp_stack.indexOf(i), 1 ); 
-        }
-    }
 
     while( num > 0 ){
         num--;
-        if( ld_stack.length > 0 ){
-            coupleTurnRandToColor(ld_stack, color);
-        }else if( wh_stack.length > 0 ){
-            coupleTurnRandToColor(wh_stack, color);
-        }else if( fp_stack.length > 0 ){
-            coupleTurnRandToColor(fp_stack, color);
+        for( var colors of [ ['l', 'd'], ['w', 'h'], ['f', 'p'] ] ){
+            var stack = getStackOfPanelByColorArr( colors );
+            if( stack.length > 0 ){
+                var rand_i = Math.floor( randomBySeed() * stack.length );
+                var id = stack[rand_i];
+                stack.splice(rand_i,1);
+                turnElementToColorByID(id, color);
+                break;
+            }
         }
     }
 }
 
-function coupleTurnRandToColor(stack, color){
-    var rand_i = Math.floor( randomBySeed() * stack.length );
-    var id = stack[rand_i];
-    COUPLE_RAND_STACK.push(id);
-    stack.splice(rand_i,1);
-    var imgs = $("#dragContainment tr td").eq(id).find("img");
-    var item = ($(imgs).attr("src").indexOf("+") >= 0) ? color+"+" : color;
-    var hide_items = newElementByItem(item);
-    $(hide_items[0]).hide();
-    $(hide_items[1]).hide();
-    $("#dragContainment tr td").eq(id).find("img").fadeOut( FADEOUT_TIME, function(){
-        $(this).remove();
-        $("#dragContainment tr td").eq(id).append( hide_items );
-        $("#dragContainment tr td").eq(id).find("img").fadeIn( FADEOUT_TIME );
-        resetDraggable();
-        startDragging();
-        COUPLE_RAND_STACK = [];
-        resetDraggable();
-        startDragging();
-    });
-}
-
-function startBrokeBoundary(){
+var startBrokeBoundary = function(){
     $('#timeRange').val(10);
     $("#timeLimit").text("限制時間");
     $("#freeDrag").text("一般移動");
@@ -241,7 +211,7 @@ function startBrokeBoundary(){
     window.scrollTo(0, $("#clock").offset().top);
 }
 
-function endBrokeBoundary(){ 
+var endBrokeBoundary = function(){ 
     $('#timeRange').val(5);
     $("#randomPanel").closest("button").prop("disabled", false);
     $("#optionalPanel").closest("button").prop("disabled", false);
@@ -273,8 +243,10 @@ function endBrokeBoundary(){
 
 
 //==============================================================
-// base skill
+// Base Skill
 //==============================================================
+var none = function(){}
+
 function getStackOfPanelByColor(color){
     var stack = [];
     for(var i = 0; i < TD_NUM*TR_NUM; i++){
@@ -295,3 +267,154 @@ function getStackOfPanelByColorArr(colorArr){
     }
     return stack;
 }
+
+function turnElementToColorByID(id, color){
+    var imgs = $("#dragContainment tr td").eq(id).find("img");
+    imgs.attr('color', color);
+    var item = imgs.attr("item");
+    item = color + item.substr(1);
+    var hide_items = newElementByItem(item);
+
+    $(hide_items[0]).hide();
+    $(hide_items[1]).hide();
+    $("#dragContainment tr td").eq(id).find("img").fadeOut( FADEOUT_TIME, function(){
+        $(this).remove();
+        $("#dragContainment tr td").eq(id).append( hide_items );
+        $("#dragContainment tr td").eq(id).find("img").fadeIn( FADEOUT_TIME );
+        resetDraggable();
+        startDragging();
+    });
+}
+
+//==============================================================
+// Skill Database
+//==============================================================
+var SKILLS = [
+    {
+        'id'        : 'NONE',
+        'color'     : 'w',
+    },
+    {
+        'id'        : 'GREEK-w',
+        'color'     : 'w',
+        'newItem'   : GreekSkill,
+        'preSet'    : GreekSetting,
+    },
+    {
+        'id'        : 'GREEK-f',
+        'color'     : 'f',
+        'newItem'   : GreekSkill,
+        'preSet'    : GreekSetting,
+    },
+    {
+        'id'        : 'GREEK-p',
+        'color'     : 'p',
+        'newItem'   : GreekSkill,
+        'preSet'    : GreekSetting,
+    },
+    {
+        'id'        : 'GREEK-l',
+        'color'     : 'l',
+        'newItem'   : GreekSkill,
+        'preSet'    : GreekSetting,
+    },
+    {
+        'id'        : 'GREEK-d',
+        'color'     : 'd',
+        'newItem'   : GreekSkill,
+        'preSet'    : GreekSetting,
+    },
+    {
+        'id'        : 'GREEK-h',
+        'color'     : 'h',
+        'newItem'   : GreekSkill,
+        'preSet'    : GreekSetting,
+    },
+    {
+        'id'        : 'BIBLE-w',
+        'color'     : 'w',
+        'newItem'   : BibleSkill,
+    },
+    {
+        'id'        : 'BIBLE-f',
+        'color'     : 'f',
+        'newItem'   : BibleSkill,
+    },
+    {
+        'id'        : 'BIBLE-p',
+        'color'     : 'p',
+        'newItem'   : BibleSkill,
+    },
+    {
+        'id'        : 'BIBLE-l',
+        'color'     : 'l',
+        'newItem'   : BibleSkill,
+    },
+    {
+        'id'        : 'BIBLE-d',
+        'color'     : 'd',
+        'newItem'   : BibleSkill,
+    },
+    {
+        'id'        : 'BIBLE-h',
+        'color'     : 'h',
+        'newItem'   : BibleSkill,
+    },
+    {
+        'id'        : 'COUPLE-f',
+        'color'     : 'f',
+        'end'       : CoupleEndSkill,
+    },
+    {
+        'id'        : 'COUPLE-p',
+        'color'     : 'p',
+        'end'       : CoupleEndSkill,
+    },
+];
+
+var T_SKILLS = [
+    {
+        'id'        : 'NONE',
+        'color'     : 'w',
+    },
+    {
+        'id'        : 'GREEK-w',
+        'color'     : 'w',
+        'newItem'   : TeamGreekSkill,
+        'extraCombo': TeamGreekExtraCombo,
+        'extraReset': TeamGreekExtraComboReset,
+        'preSet'    : TeamGreekSetting,
+    },
+    {
+        'id'        : 'GREEK-f',
+        'color'     : 'f',
+        'newItem'   : TeamGreekSkill,
+        'extraCombo': TeamGreekExtraCombo,
+        'extraReset': TeamGreekExtraComboReset,
+        'preSet'    : TeamGreekSetting,
+    },
+    {
+        'id'        : 'GREEK-p',
+        'color'     : 'p',
+        'newItem'   : TeamGreekSkill,
+        'extraCombo': TeamGreekExtraCombo,
+        'extraReset': TeamGreekExtraComboReset,
+        'preSet'    : TeamGreekSetting,
+    },
+    {
+        'id'        : 'GREEK-l',
+        'color'     : 'l',
+        'newItem'   : TeamGreekSkill,
+        'extraCombo': TeamGreekExtraCombo,
+        'extraReset': TeamGreekExtraComboReset,
+        'preSet'    : TeamGreekSetting,
+    },
+    {
+        'id'        : 'GREEK-d',
+        'color'     : 'd',
+        'newItem'   : TeamGreekSkill,
+        'extraCombo': TeamGreekExtraCombo,
+        'extraReset': TeamGreekExtraComboReset,
+        'preSet'    : TeamGreekSetting,
+    }
+];
