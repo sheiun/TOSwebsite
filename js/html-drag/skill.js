@@ -19,14 +19,21 @@ function loadSkillVariable(msg){
 }
 
 //==============================================================
-// Team Skill
+// Babylon
 //==============================================================
-var BibleSkill = function( VAR, color ){
+var BabylonSetting = function( MEMBER ){
+    return {
+        'COLOR' : MEMBER['color'],
+    };
+}
+var BabylonSkill = function( VAR ){
+    var color = VAR['COLOR'];
     for(var i = 0; i < TD_NUM; i++){
         var trigger = false;
         for(var set of STRAIGHT_SETS[i]){
             if( set.size >= 4 ){
                 trigger = true;
+                break;
             }
         }
         if( trigger && DROP_WAVES == 0 ){
@@ -38,27 +45,93 @@ var BibleSkill = function( VAR, color ){
                 }
             }
         }
-    }
+    };
 }
-var BibleAttack = function( VAR, color ){
-    COUNT_FACTOR['bible'] = {
-        factor    : 3,
+var BabylonAttack = function( VAR, direct ){
+    var color = VAR['COLOR'];
+    COUNT_FACTOR['Babylon'+direct] = {
+        factor    : function( member ){ return 3; },
         prob      : 1,
-        condition : function( VAR, color, member ){
+        condition : function( member ){
             if( member['color'] == color ){
                 return true;
             }
             return false;
         },
-    }
-}
-
-var GreekSetting = function(){
-    return {
-        'COUNT': 0,
     };
 }
-var GreekSkill = function( VAR, color ){
+var TeamBabylonAttack = function( VAR, direct ){
+    COUNT_FACTOR['TeamBabylon'] = {
+        factor    : function( member ){
+            var straight = 0;
+            for(var i = 0; i < TD_NUM; i++ ){
+                for( var set of ALL_GROUP_SET_STACK[0]['STRAIGHT_SETS'][i] ){
+                    if( set.size >= 4 ){
+                        straight += 1;
+                        break;
+                    }
+                }
+            }
+            if( straight < 2 ){ return 1; }
+            else{
+                return Math.min( 1+((straight-1)*0.1), 1.5 );
+            }            
+        },
+        prob      : 1,
+        condition : function( member ){ return true; },
+    };
+}
+
+var DarkLuciferSetting = function( MEMBER ){
+    return {
+        'COLOR' : 'h',
+    };
+}
+var DarkLuciferAttack = function( VAR, direct ){
+    COUNT_FACTOR['DarkLucifer'+direct] = {
+        factor    : function( member ){ return 2.5; },
+        prob      : 1,
+        condition : function( member ){ return true; },
+    };
+}
+var TeamDarkLuciferAttack = function( VAR, direct ){
+    COUNT_BELONG_COLOR['h']['w'] = 1;
+    COUNT_BELONG_COLOR['h']['f'] = 1;
+    COUNT_BELONG_COLOR['h']['p'] = 1;
+    COUNT_BELONG_COLOR['h']['l'] = 1;
+    COUNT_BELONG_COLOR['h']['d'] = 1;
+    COUNT_FACTOR['TeamDarkLucifer'] = {
+        factor    : function( member ){
+            var straight = 0;
+            for(var i = 0; i < TD_NUM; i++ ){
+                for( var set of ALL_GROUP_SET_STACK[0]['STRAIGHT_SETS'][i] ){
+                    if( set.size >= 4 ){
+                        straight += 1;
+                        break;
+                    }
+                }
+            }
+            if( straight < 2 ){ return 1; }
+            else{
+                return Math.min( 1+((straight-1)*0.1), 1.5 );
+            }            
+        },
+        prob      : 1,
+        condition : function( member ){ return true; },
+    };
+}
+
+//==============================================================
+// Greek
+//==============================================================
+var GreekSetting = function( MEMBER ){
+    return {
+        'COLOR' : MEMBER['color'],
+        'COUNT' : 0,
+    };
+}
+var GreekSkill = function( VAR ){
+    var color = VAR['COLOR'];
     var check_straight = 0;
     var check_horizontal = 0;
     for(var i = 0; i < TD_NUM; i++ ){ check_straight += STRAIGHT_SETS[i].length; }
@@ -88,10 +161,11 @@ var GreekSkill = function( VAR, color ){
     VAR['COUNT'] = num;
 }
 
-
-var TeamGreekSetting = function(){
+var TeamGreekSetting = function( LEADER, FRIEND ){
+    console.log("team pre set");
     return {
-        'COUNT': {'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0},
+        'COLOR' : LEADER['color'],
+        'COUNT' : {'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0},
         'EXTRA_COMBO': 0
     };
 }
@@ -106,7 +180,8 @@ var TeamGreekExtraCombo = function( VAR ){
         setExtraComboShow( VAR['EXTRA_COMBO'] );
     }
 }
-var TeamGreekSkill = function( VAR, color ){
+var TeamGreekSkill = function( VAR ){
+    var color = VAR['COLOR'];
     var comboTimes = VAR['COUNT'];
     for(var key in GROUP_SETS){
         comboTimes += GROUP_SETS[key].length;
@@ -122,15 +197,36 @@ var TeamGreekSkill = function( VAR, color ){
     }
     VAR['COUNT'] = comboTimes;
 }
+var TeamGreekAttack = function( VAR, direct ){
+    COUNT_COMBO += VAR['EXTRA_COMBO'];
+}
 
-var CoupleEndSkill = function( VAR, color){
-    var num = 2;
+var HeartQueenSetting = function( MEMBER ){
+    return {
+        'COLOR' : 'h',
+        'COUNT' : 0,
+    };
+}
+
+//==============================================================
+// Couple
+//==============================================================
+var CoupleSetting = function( MEMBER ){
+    TEAM_COLORS_CHANGEABLE = false;
+    GROUP_SIZE[ MEMBER['color'] ] = 2;
+    GROUP_SIZE['h'] = 2;
+    return {
+        'COLOR' : MEMBER['color'],
+        'COUNT' : 0,
+    };
+}
+var CoupleEndSkill = function( VAR ){
+    var color = VAR['COLOR'];
     var ld_stack = getStackOfPanelByColorArr(['l', 'd']);
     var wh_stack = getStackOfPanelByColorArr(['w', 'h']);
     var fp_stack = getStackOfPanelByColorArr(['f', 'p']);
 
-    while( num > 0 ){
-        num--;
+    for( var num = 2; num > 0; num-- ){
         for( var colors of [ ['l', 'd'], ['w', 'h'], ['f', 'p'] ] ){
             var stack = getStackOfPanelByColorArr( colors );
             if( stack.length > 0 ){
@@ -142,6 +238,38 @@ var CoupleEndSkill = function( VAR, color){
             }
         }
     }
+}
+var TeamCoupleAttackFF = function( VAR, direct ){
+    COUNT_FACTOR['COUPLE_FF'] = {
+        factor    : function( member ){ return 6; },
+        prob      : 1,
+        condition : function( member ){
+            if( member['color'] == 'f' ){ return true; }
+            return false;
+        },
+    };
+}
+var TeamCoupleAttackPP = function( VAR, direct ){
+    COUNT_FACTOR['COUPLE_PP'] = {
+        factor    : function( member ){ return 6; },
+        prob      : 1,
+        condition : function( member ){
+            if( member['color'] == 'p' ){ return true; }
+            return false;
+        },
+    };
+}
+var TeamCoupleAttackFP = function( VAR, direct ){
+    COUNT_BELONG_COLOR['f']['p'] = 1;
+    COUNT_BELONG_COLOR['p']['f'] = 1;
+    COUNT_FACTOR['COUPLE_FP'] = {
+        factor    : function( member ){ return 3; },
+        prob      : 1,
+        condition : function( member ){
+            if( member['color'] == 'f' ||  member['color'] == 'p' ){ return true; }
+            return false;
+        },
+    };
 }
 
 var startBrokeBoundary = function(){

@@ -51,7 +51,10 @@ var COUNT_STRONG_COEFF  = 0.15;
 var COUNT_SETS          = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
 var COUNT_FIRST_SETS    = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
 var COUNT_BELONG_COLOR  = { 'w': {}, 'f': {}, 'p': {}, 'l': {}, 'd': {}, 'h': {} };
-var COUNT_FACTOR        = { 'NORMAL': { factor :1 , prob: 1, condition : function(){ return true; } } };
+var COUNT_BELONG_AMOUNT = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
+var COUNT_BELONG_STRONG = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
+var COUNT_BELONG_SETS   = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
+var COUNT_FACTOR        = {};
 
 var DRAG_ANIMATE_TIME = 100;
 var REMOVE_TIME = 100;
@@ -196,13 +199,9 @@ function resetColors(){
 }
 function resetColorGroupSet(){
     STRAIGHT_SETS = [];
-    for(var i = 0; i < TD_NUM; i++){
-        STRAIGHT_SETS.push([]);
-    }
+    for(var i = 0; i < TD_NUM; i++){ STRAIGHT_SETS.push([]); }
     HORIZONTAL_SETS = [];
-    for(var i = 0; i < TR_NUM; i++){
-        HORIZONTAL_SETS.push([]);
-    }
+    for(var i = 0; i < TR_NUM; i++){ HORIZONTAL_SETS.push([]); }
     COLOR_SETS = {'w':[], 'f':[], 'p':[], 'l':[], 'd':[], 'h':[]};
     COLOR_SETS_PREPARE = {'w':[], 'f':[], 'p':[], 'l':[], 'd':[], 'h':[]};
 
@@ -223,6 +222,7 @@ function resetComboStack(){
     COMBO_TIMES = 0;
     COMBO_SHOW = 0;
     setComboShow();
+    setExtraComboShow(0);
     resetComboBox();
 
     if( 'extraReset' in TEAM_SKILL ){
@@ -239,7 +239,16 @@ function resetCount(){
     COUNT_SETS          = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
     COUNT_FIRST_SETS    = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
     COUNT_BELONG_COLOR  = { 'w': {}, 'f': {}, 'p': {}, 'l': {}, 'd': {}, 'h': {} };
-    COUNT_FACTOR        = { 'NORMAL': { factor :1 , prob: 1, condition : function(){ return true; } } };
+    COUNT_BELONG_AMOUNT = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
+    COUNT_BELONG_STRONG = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
+    COUNT_BELONG_SETS   = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
+    COUNT_FACTOR        = { 'NORMAL': 
+        { 
+            factor    : function( member ){ return 1; } ,
+            prob      : 1,
+            condition : function( member ){ return true; } 
+        } 
+    };
 }
 function resetMoveTime(){
     MOVING = false;
@@ -688,30 +697,50 @@ function newElementByItem(item){
 function countAttack(){
     resetCount();
 
+    if( "attack" in TEAM_LEADER_SKILL ){
+        TEAM_LEADER_SKILL["attack"]( TEAM_LEADER_SKILL_VAR, "leader" );
+    }
+    if( "attack" in TEAM_FRIEND_SKILL ){
+        TEAM_FRIEND_SKILL["attack"]( TEAM_FRIEND_SKILL_VAR, "friend" );
+    }
+    if( "attack" in TEAM_SKILL ){
+        TEAM_SKILL["attack"]( TEAM_SKILL_VAR );
+    }
+
     for(var obj of COMBO_STACK){
         var c = obj['color'];
         COUNT_AMOUNT[c] += obj['amount'];
         COUNT_STRONG[c] += obj['strong_amount'];
+
+        for(var belong_color in COUNT_BELONG_COLOR[c]){
+            COUNT_BELONG_AMOUNT[belong_color] += obj['amount'] * COUNT_BELONG_COLOR[c][belong_color];
+            COUNT_BELONG_STRONG[belong_color] += obj['strong_amount'] * COUNT_BELONG_COLOR[c][belong_color];
+            COUNT_BELONG_SETS[belong_color] += 1;
+        }
+
         COUNT_SETS[c] += 1;
         if( obj['drop_wave'] == 0 ){
             COUNT_FIRST_SETS[c] += 1;
         }
     }
 
-    if( "attack" in TEAM_LEADER_SKILL ){
-        TEAM_LEADER_SKILL["attack"]( TEAM_LEADER_SKILL_VAR, TEAM_LEADER_SKILL["color"] );
-    }
-    if( "attack" in TEAM_FRIEND_SKILL ){
-        TEAM_FRIEND_SKILL["attack"]( TEAM_FRIEND_SKILL_VAR, TEAM_FRIEND_SKILL["color"] );
-    }
-    if( "attack" in TEAM_SKILL ){
-        TEAM_SKILL["attack"]( TEAM_SKILL_VAR, TEAM_SKILL["color"] );
-    }
-
-    for(var c of ['w','f','p','l','d','h']){
-        var atk = ( 1+(COUNT_COMBO-1)*COUNT_COMBO_COEFF )*
-                  ( (COUNT_AMOUNT[c]+COUNT_SETS[c])*COUNT_AMOUNT_COEFF + COUNT_STRONG[c]*COUNT_STRONG_COEFF );
-        console.log(c+' : '+atk);
+    for( var member of [TEAM_LEADER, TEAM_FRIEND] ){
+        var color = member["color"];
+        var comboCoeff = ( 1+ ( COUNT_COMBO-1 ) * COUNT_COMBO_COEFF );
+        var amounts = ( COUNT_AMOUNT[color] + COUNT_BELONG_AMOUNT[color] +
+                        COUNT_SETS[color]   + COUNT_BELONG_SETS[color]     );
+        var amountsCoeff = amounts * COUNT_AMOUNT_COEFF;
+        var strongs = ( COUNT_STRONG[color] + COUNT_BELONG_STRONG[color]   );
+        var strongsCoeff = strongs * COUNT_STRONG_COEFF;
+        var atk =  comboCoeff * ( amountsCoeff + strongsCoeff )
+        for(var key in COUNT_FACTOR){
+            if( COUNT_FACTOR[key]["condition"]( member ) ){
+                if( randomBySeed() < COUNT_FACTOR[key]["prob"] ){
+                    atk *= COUNT_FACTOR[key]["factor"]( member );
+                }
+            }
+        }
+        console.log(member["id"]+" : "+atk * member["attack"]);
     }
 }
 
@@ -790,13 +819,13 @@ function checkGroups(){
 
 function checkNewItemSkill(){
     if( 'newItem' in TEAM_LEADER_SKILL ){
-        TEAM_LEADER_SKILL['newItem'](  TEAM_LEADER_SKILL_VAR,  TEAM_LEADER_SKILL['color'] );
+        TEAM_LEADER_SKILL['newItem'](  TEAM_LEADER_SKILL_VAR );
     }
     if( 'newItem' in TEAM_FRIEND_SKILL ){
-        TEAM_FRIEND_SKILL['newItem']( TEAM_FRIEND_SKILL_VAR, TEAM_FRIEND_SKILL['color'] );
+        TEAM_FRIEND_SKILL['newItem']( TEAM_FRIEND_SKILL_VAR );
     }
     if( 'newItem' in TEAM_SKILL ){
-        TEAM_SKILL['newItem']( TEAM_SKILL_VAR, TEAM_SKILL['color'] );
+        TEAM_SKILL['newItem']( TEAM_SKILL_VAR );
     }
 }
 function checkExtraComboSkill(){    
@@ -806,10 +835,10 @@ function checkExtraComboSkill(){
 }
 function checkEndSkill(){
     if( 'end' in TEAM_LEADER_SKILL ){
-        TEAM_LEADER_SKILL['end'](  TEAM_LEADER_SKILL_VAR,  TEAM_LEADER_SKILL['color'] );
+        TEAM_LEADER_SKILL['end'](  TEAM_LEADER_SKILL_VAR );
     }
     if( 'end' in TEAM_FRIEND_SKILL ){
-        TEAM_FRIEND_SKILL['end']( TEAM_FRIEND_SKILL_VAR, TEAM_FRIEND_SKILL['color'] );
+        TEAM_FRIEND_SKILL['end']( TEAM_FRIEND_SKILL_VAR );
     }
 
     nextMoveWave();

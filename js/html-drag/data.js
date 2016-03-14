@@ -1,140 +1,77 @@
 //==============================================================
 // Skill Database
 //==============================================================
-var LEADER_SKILLS = [
-    {
+var LEADER_SKILLS = {
+    NONE : {
         id        : 'NONE',
-        color     : 'w',
     },
-    {
-        id        : 'GREEK-w',
-        color     : 'w',
+    GREEK : {
+        id        : 'GREEK',
         newItem   : GreekSkill,
         preSet    : GreekSetting,
     },
-    {
-        id        : 'GREEK-f',
-        color     : 'f',
+    HEART_QUEEN : {
+        id        : 'HEART_QUEEN',
         newItem   : GreekSkill,
-        preSet    : GreekSetting,
+        preSet    : HeartQueenSetting,
     },
-    {
-        id        : 'GREEK-p',
-        color     : 'p',
-        newItem   : GreekSkill,
-        preSet    : GreekSetting,
+    BABYLON : {
+        id        : 'BABYLON',
+        newItem   : BabylonSkill,
+        attack    : BabylonAttack,
+        preSet    : BabylonSetting,
     },
-    {
-        id        : 'GREEK-l',
-        color     : 'l',
-        newItem   : GreekSkill,
-        preSet    : GreekSetting,
+    DARK_LUCIFER : {
+        id        : 'DARK_LUCIFER',
+        newItem   : BabylonSkill,
+        attack    : DarkLuciferAttack,
+        preSet    : DarkLuciferSetting,        
     },
-    {
-        id        : 'GREEK-d',
-        color     : 'd',
-        newItem   : GreekSkill,
-        preSet    : GreekSetting,
-    },
-    {
-        id        : 'GREEK-h',
-        color     : 'h',
-        newItem   : GreekSkill,
-        preSet    : GreekSetting,
-    },
-    {
-        id        : 'BIBLE-w',
-        color     : 'w',
-        newItem   : BibleSkill,
-        attack    : BibleAttack,
-    },
-    {
-        id        : 'BIBLE-f',
-        color     : 'f',
-        newItem   : BibleSkill,
-        attack    : BibleAttack,
-    },
-    {
-        id        : 'BIBLE-p',
-        color     : 'p',
-        newItem   : BibleSkill,
-        attack    : BibleAttack,
-    },
-    {
-        id        : 'BIBLE-l',
-        color     : 'l',
-        newItem   : BibleSkill,
-        attack    : BibleAttack,
-    },
-    {
-        id        : 'BIBLE-d',
-        color     : 'd',
-        newItem   : BibleSkill,
-        attack    : BibleAttack,
-    },
-    {
-        id        : 'BIBLE-h',
-        color     : 'h',
-        newItem   : BibleSkill,
-    },
-    {
-        id        : 'COUPLE-f',
-        color     : 'f',
+    COUPLE_F : {
+        id        : 'COUPLE_F',
         end       : CoupleEndSkill,
+        preSet    : CoupleSetting,
     },
-    {
-        id        : 'COUPLE-p',
-        color     : 'p',
+    COUPLE_P : {
+        id        : 'COUPLE_P',
         end       : CoupleEndSkill,
+        preSet    : CoupleSetting,
     },
-];
+};
 
-var TEAM_LEADER_SKILLS = [
-    {
+var TEAM_LEADER_SKILLS = {
+    NONE : {
         id        : 'NONE',
-        color     : 'w',
     },
-    {
-        id        : 'GREEK-w',
-        color     : 'w',
+    GREEK : {
+        id        : 'GREEK',
         newItem   : TeamGreekSkill,
         extraCombo: TeamGreekExtraCombo,
         extraReset: TeamGreekExtraComboReset,
+        attack    : TeamGreekAttack,
         preSet    : TeamGreekSetting,
     },
-    {
-        id        : 'GREEK-f',
-        color     : 'f',
-        newItem   : TeamGreekSkill,
-        extraCombo: TeamGreekExtraCombo,
-        extraReset: TeamGreekExtraComboReset,
-        preSet    : TeamGreekSetting,
+    BABYLON : {
+        id        : 'BABYLON',
+        attack    : TeamBabylonAttack,
     },
-    {
-        id        : 'GREEK-p',
-        color     : 'p',
-        newItem   : TeamGreekSkill,
-        extraCombo: TeamGreekExtraCombo,
-        extraReset: TeamGreekExtraComboReset,
-        preSet    : TeamGreekSetting,
+    DARK_LUCIFER : {
+        id        : 'DARK_LUCIFER',
+        attack    : TeamDarkLuciferAttack,
     },
-    {
-        id        : 'GREEK-l',
-        color     : 'l',
-        newItem   : TeamGreekSkill,
-        extraCombo: TeamGreekExtraCombo,
-        extraReset: TeamGreekExtraComboReset,
-        preSet    : TeamGreekSetting,
+    COUPLE_FF : {
+        id        : 'COUPLE_FF',
+        attack    : TeamCoupleAttackFF,
     },
-    {
-        id        : 'GREEK-d',
-        color     : 'd',
-        newItem   : TeamGreekSkill,
-        extraCombo: TeamGreekExtraCombo,
-        extraReset: TeamGreekExtraComboReset,
-        preSet    : TeamGreekSetting,
-    }
-];
+    COUPLE_PP : {
+        id        : 'COUPLE_PP',
+        attack    : TeamCoupleAttackPP,
+    },
+    COUPLE_FP : {
+        id        : 'COUPLE_FP',
+        attack    : TeamCoupleAttackFP,
+    },
+};
 
 //==============================================================
 // Character Database
@@ -143,91 +80,91 @@ var CHARACTERS = [
     {
         id       : "NONE",
         color    : "w",         type     : "GOD",
-        health   : 100,         attack   : 100,         recovery : 100,
-        leader   : 0,           active   : 0,
+        health   : 1,           attack   : 1,           recovery : 1,
+        leader   : "NONE",      active   : 0,
     },
     {
-        id       : "GREEK-w",
+        id       : "GREEK_W",
         color    : "w",         type     : "GOD",
-        health   : 3000,        attack   : 1000,        recovery : 200,
-        leader   : 1,           active   : 0,
+        health   : 2927,        attack   : 1646,        recovery : 403,
+        leader   : "GREEK",     active   : 0,
     },
     {
-        id       : "GREEK-f",
+        id       : "GREEK_F",
         color    : "f",         type     : "GOD",
-        health   : 3000,        attack   : 1000,        recovery : 200,
-        leader   : 2,           active   : 0,
+        health   : 3080,        attack   : 1760,        recovery : 358,
+        leader   : "GREEK",     active   : 0,
     },
     {
-        id       : "GREEK-p",
+        id       : "GREEK_P",
         color    : "p",         type     : "GOD",
-        health   : 3000,        attack   : 1000,        recovery : 200,
-        leader   : 3,           active   : 0,
+        health   : 3385,        attack   : 1516,        recovery : 376,
+        leader   : "GREEK",     active   : 0,
     },
     {
-        id       : "GREEK-l",
+        id       : "GREEK_L",
         color    : "l",         type     : "GOD",
-        health   : 3000,        attack   : 1000,        recovery : 200,
-        leader   : 4,           active   : 0,
+        health   : 3049,        attack   : 1634,        recovery : 414,
+        leader   : "GREEK",     active   : 0,
     },
     {
-        id       : "GREEK-d",
+        id       : "GREEK_D",
         color    : "d",         type     : "GOD",
-        health   : 3000,        attack   : 1000,        recovery : 200,
-        leader   : 5,           active   : 0,
+        health   : 2866,        attack   : 1810,        recovery : 373,
+        leader   : "GREEK",     active   : 0,
     },
     {
-        id       : "GREEK-h",
-        color    : "h",         type     : "GOD",
-        health   : 3000,        attack   : 1000,        recovery : 200,
-        leader   : 6,           active   : 0,
+        id       : "HEART_QUEEN",
+        color    : "f",         type     : "HUMAN",
+        health   : 1954,        attack   : 1392,        recovery : 431,
+        leader   : "HEART_QUEEN", active   : 0,
     },
     {
-        id       : "BIBLE-w",
+        id       : "BABYLON_W",
         color    : "w",         type     : "GOD",
-        health   : 3000,        attack   : 1000,        recovery : 200,
-        leader   : 7,           active   : 0,
+        health   : 3011,        attack   : 1399,        recovery : 421,
+        leader   : "BABYLON",   active   : 0,
     },
     {
-        id       : "BIBLE-f",
+        id       : "BABYLON_F",
         color    : "f",         type     : "GOD",
-        health   : 3000,        attack   : 1000,        recovery : 200,
-        leader   : 8,           active   : 0,
+        health   : 3167,        attack   : 1496,        recovery : 375,
+        leader   : "BABYLON",   active   : 0,
     },
     {
-        id       : "BIBLE-p",
+        id       : "BABYLON_P",
         color    : "p",         type     : "GOD",
-        health   : 3000,        attack   : 1000,        recovery : 200,
-        leader   : 9,           active   : 0,
+        health   : 3481,        attack   : 1288,        recovery : 394,
+        leader   : "BABYLON",   active   : 0,
     },
     {
-        id       : "BIBLE-l",
+        id       : "BABYLON_L",
         color    : "l",         type     : "GOD",
-        health   : 3000,        attack   : 1000,        recovery : 200,
-        leader   : 10,           active   : 0,
+        health   : 3136,        attack   : 1302,        recovery : 433,
+        leader   : "BABYLON",   active   : 0,
     },
     {
-        id       : "BIBLE-d",
+        id       : "BABYLON_D",
         color    : "d",         type     : "GOD",
-        health   : 3000,        attack   : 1000,        recovery : 200,
-        leader   : 11,           active   : 0,
+        health   : 2948,        attack   : 1537,        recovery : 390,
+        leader   : "BABYLON",     active   : 0,
     },
     {
-        id       : "BIBLE-h",
-        color    : "h",         type     : "GOD",
-        health   : 3000,        attack   : 1000,        recovery : 200,
-        leader   : 12,           active   : 0,
+        id       : "DARK_LUCIFER",
+        color    : "d",         type     : "SPIRIT",
+        health   : 2416,        attack   : 1485,        recovery : 601,
+        leader   : "DARK_LUCIFER", active   : 0,
     },
     {
-        id       : "COUPLE-f",
+        id       : "COUPLE_F",
         color    : "f",         type     : "GOD",
-        health   : 3000,        attack   : 1000,        recovery : 200,
-        leader   : 13,           active   : 0,
+        health   : 3102,        attack   : 1604,        recovery : 376,
+        leader   : "COUPLE_F",  active   : 0,
     },
     {
-        id       : "COUPLE-p",
-        color    : "p",         type     : "GOD",
-        health   : 3000,        attack   : 1000,        recovery : 200,
-        leader   : 14,           active   : 0,
+        id       : "COUPLE_P",
+        color    : "p",         type     : "HUMAN",
+        health   : 3132,        attack   : 1372,        recovery : 384,
+        leader   : "COUPLE_P",  active   : 0,
     },
 ];
