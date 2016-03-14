@@ -46,26 +46,31 @@ var LEADER_SKILLS = [
         id        : 'BIBLE-w',
         color     : 'w',
         newItem   : BibleSkill,
+        attack    : BibleAttack,
     },
     {
         id        : 'BIBLE-f',
         color     : 'f',
         newItem   : BibleSkill,
+        attack    : BibleAttack,
     },
     {
         id        : 'BIBLE-p',
         color     : 'p',
         newItem   : BibleSkill,
+        attack    : BibleAttack,
     },
     {
         id        : 'BIBLE-l',
         color     : 'l',
         newItem   : BibleSkill,
+        attack    : BibleAttack,
     },
     {
         id        : 'BIBLE-d',
         color     : 'd',
         newItem   : BibleSkill,
+        attack    : BibleAttack,
     },
     {
         id        : 'BIBLE-h',

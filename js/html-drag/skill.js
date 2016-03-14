@@ -40,6 +40,18 @@ var BibleSkill = function( VAR, color ){
         }
     }
 }
+var BibleAttack = function( VAR, color ){
+    COUNT_FACTOR['bible'] = {
+        factor    : 3,
+        prob      : 1,
+        condition : function( VAR, color, member ){
+            if( member['color'] == color ){
+                return true;
+            }
+            return false;
+        },
+    }
+}
 
 var GreekSetting = function(){
     return {

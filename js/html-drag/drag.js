@@ -50,6 +50,7 @@ var COUNT_STRONG        = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
 var COUNT_STRONG_COEFF  = 0.15;
 var COUNT_SETS          = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
 var COUNT_FIRST_SETS    = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
+var COUNT_BELONG_COLOR  = { 'w': {}, 'f': {}, 'p': {}, 'l': {}, 'd': {}, 'h': {} };
 var COUNT_FACTOR        = { 'NORMAL': { factor :1 , prob: 1, condition : function(){ return true; } } };
 
 var DRAG_ANIMATE_TIME = 100;
@@ -237,6 +238,7 @@ function resetCount(){
     COUNT_STRONG_COEFF  = 0.15;
     COUNT_SETS          = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
     COUNT_FIRST_SETS    = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
+    COUNT_BELONG_COLOR  = { 'w': {}, 'f': {}, 'p': {}, 'l': {}, 'd': {}, 'h': {} };
     COUNT_FACTOR        = { 'NORMAL': { factor :1 , prob: 1, condition : function(){ return true; } } };
 }
 function resetMoveTime(){
