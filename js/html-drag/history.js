@@ -338,8 +338,8 @@ function parseDownloadJson(){
                     "HISTORY_RANDOM": HISTORY_RANDOM,
                     "DROPABLE": DROPABLE,
                     "TEAM_COLORS": TEAM_COLORS,
-                    "TEAM_LEADER_LEFT": TEAM_LEADER_LEFT,
-                    "TEAM_LEADER_RIGHT": TEAM_LEADER_RIGHT,
+                    "TEAM_LEADER_SKILL": TEAM_LEADER_SKILL,
+                    "TEAM_FRIEND_SKILL": TEAM_FRIEND_SKILL,
                     "GROUP_SIZE": GROUP_SIZE,
                     "skillVariables": saveSkillVariable() 
                 };
@@ -370,8 +370,8 @@ function parseUploadJson(msg){
         AUTO_REMOVE = json["AUTO_REMOVE"];
         DROPABLE = json["DROPABLE"];
         TEAM_COLORS = json["TEAM_COLORS"];
-        TEAM_LEADER_LEFT = json["TEAM_LEADER_LEFT"];
-        TEAM_LEADER_RIGHT = json["TEAM_LEADER_RIGHT"];
+        TEAM_LEADER_SKILL = json["TEAM_LEADER_SKILL"];
+        TEAM_FRIEND_SKILL = json["TEAM_FRIEND_SKILL"];
         GROUP_SIZE = json["GROUP_SIZE"];
 
         $("#dragContainment").attr("td", TD_NUM).attr("tr", TR_NUM);

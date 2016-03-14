@@ -38,9 +38,12 @@ $(document).ready( function(){
     }
 
     MAIN_STATE = "count";
-    TEAM_LEADER_LEFT = SKILLS[0];
-    TEAM_LEADER_RIGHT = SKILLS[0];
-    TEAM_SKILL = T_SKILLS[0];
+    TEAM_LEADER_SKILL = LEADER_SKILLS[0];
+    TEAM_LEADER_SKILL_VAR = {};
+    TEAM_FRIEND_SKILL = LEADER_SKILLS[0];
+    TEAM_FRIEND_SKILL_VAR = {};
+    TEAM_SKILL = TEAM_LEADER_SKILLS[0];
+    TEAM_SKILL_VAR = {};
 
     closeCanvas();
     resetTimeDiv();
@@ -402,17 +405,12 @@ $("#teamRightSelect").change(function (){
 
 function resetTeamLeader(){
 
-    TEAM_LEADER_LEFT_ID  = ( $("#teamLeftSelect").val() ) ? parseInt( $("#teamLeftSelect").val() ) : 0;
-    TEAM_LEADER_RIGHT_ID = ( $("#teamRightSelect").val()) ? parseInt( $("#teamRightSelect").val()) : 0;
-    TEAM_LEADER_LEFT  = SKILLS[ TEAM_LEADER_LEFT_ID  ];
-    TEAM_LEADER_RIGHT = SKILLS[ TEAM_LEADER_RIGHT_ID ];
-
-    if( "preSet" in TEAM_LEADER_LEFT ){
-        TEAM_LEADER_LEFT_VAR = TEAM_LEADER_LEFT['preSet']();
-    }
-    if( "preSet" in TEAM_LEADER_RIGHT ){
-        TEAM_LEADER_RIGHT_VAR = TEAM_LEADER_RIGHT['preSet']();
-    }
+    var team_leader_id  = ( $("#teamLeftSelect").val() ) ? parseInt( $("#teamLeftSelect").val() ) : 0;
+    var team_friend_id = ( $("#teamRightSelect").val()) ? parseInt( $("#teamRightSelect").val()) : 0;
+    TEAM_LEADER = CHARACTERS[ team_leader_id  ];
+    TEAM_FRIEND = CHARACTERS[ team_friend_id ];
+    TEAM_LEADER_SKILL = LEADER_SKILLS[ TEAM_LEADER['leader'] ];
+    TEAM_FRIEND_SKILL = LEADER_SKILLS[ TEAM_FRIEND['leader'] ];
 
     for( var i = 0; i < TD_NUM; i++ ){
         for( var c of ['w','f','p','l','d','h'] ){
@@ -424,54 +422,61 @@ function resetTeamLeader(){
     GROUP_SIZE['p'] = 3;
     GROUP_SIZE['h'] = 3;
 
-    if( TEAM_LEADER_LEFT['id'].indexOf("GREEK") >= 0 ){
-        var c = TEAM_LEADER_LEFT['color'];
+    if( "preSet" in TEAM_LEADER_SKILL ){
+        TEAM_LEADER_SKILL_VAR = TEAM_LEADER_SKILL['preSet']();
+    }
+    if( "preSet" in TEAM_FRIEND_SKILL ){
+        TEAM_FRIEND_SKILL_VAR = TEAM_FRIEND_SKILL['preSet']();
+    }
+
+    if( TEAM_LEADER_SKILL['id'].indexOf("GREEK") >= 0 ){
+        var c = TEAM_LEADER_SKILL['color'];
         if( COLORS.indexOf(c) >= 0 ){
             COLOR_PROB[0][c] = 0.4;
         }
     }
-    if( TEAM_LEADER_RIGHT['id'].indexOf("GREEK") >= 0 ){
-        var c = TEAM_LEADER_RIGHT['color'];
+    if( TEAM_FRIEND_SKILL['id'].indexOf("GREEK") >= 0 ){
+        var c = TEAM_FRIEND_SKILL['color'];
         if( COLORS.indexOf(c) >= 0 ){
             COLOR_PROB[TD_NUM-1][c] = 0.4;
         }
     }
 
-    if( TEAM_LEADER_LEFT['id'] == "COUPLE-f" ){
+    if( TEAM_LEADER_SKILL['id'] == "COUPLE-f" ){
         TEAM_COLORS_CHANGEABLE = false;
         GROUP_SIZE['f'] = 2;
         GROUP_SIZE['h'] = 2;
     }
-    if( TEAM_LEADER_LEFT['id'] == "COUPLE-p" ){
+    if( TEAM_LEADER_SKILL['id'] == "COUPLE-p" ){
         TEAM_COLORS_CHANGEABLE = false;
         GROUP_SIZE['p'] = 2;
         GROUP_SIZE['h'] = 2;
     }
-    if( TEAM_LEADER_RIGHT['id'] == "COUPLE-f" ){
+    if( TEAM_FRIEND_SKILL['id'] == "COUPLE-f" ){
         TEAM_COLORS_CHANGEABLE = false;
         GROUP_SIZE['f'] = 2;
         GROUP_SIZE['h'] = 2;
     }
-    if( TEAM_LEADER_RIGHT['id'] == "COUPLE-p" ){
+    if( TEAM_FRIEND_SKILL['id'] == "COUPLE-p" ){
         TEAM_COLORS_CHANGEABLE = false;
         GROUP_SIZE['p'] = 2;
         GROUP_SIZE['h'] = 2;
     }
 
-    if( TEAM_LEADER_LEFT_ID == TEAM_LEADER_RIGHT_ID && TEAM_LEADER_RIGHT_ID == 1 ){
-        TEAM_SKILL = T_SKILLS[1];
+    if( TEAM_LEADER['leader'] == TEAM_FRIEND['leader'] && TEAM_FRIEND['leader'] == 1 ){
+        TEAM_SKILL = TEAM_LEADER_SKILLS[1];
     }
-    if( TEAM_LEADER_LEFT_ID == TEAM_LEADER_RIGHT_ID && TEAM_LEADER_RIGHT_ID == 2 ){
-        TEAM_SKILL = T_SKILLS[2];
+    if( TEAM_LEADER['leader'] == TEAM_FRIEND['leader'] && TEAM_FRIEND['leader'] == 2 ){
+        TEAM_SKILL = TEAM_LEADER_SKILLS[2];
     }
-    if( TEAM_LEADER_LEFT_ID == TEAM_LEADER_RIGHT_ID && TEAM_LEADER_RIGHT_ID == 3 ){
-        TEAM_SKILL = T_SKILLS[3];
+    if( TEAM_LEADER['leader'] == TEAM_FRIEND['leader'] && TEAM_FRIEND['leader'] == 3 ){
+        TEAM_SKILL = TEAM_LEADER_SKILLS[3];
     }
-    if( TEAM_LEADER_LEFT_ID == TEAM_LEADER_RIGHT_ID && TEAM_LEADER_RIGHT_ID == 4 ){
-        TEAM_SKILL = T_SKILLS[4];
+    if( TEAM_LEADER['leader'] == TEAM_FRIEND['leader'] && TEAM_FRIEND['leader'] == 4 ){
+        TEAM_SKILL = TEAM_LEADER_SKILLS[4];
     }
-    if( TEAM_LEADER_LEFT_ID == TEAM_LEADER_RIGHT_ID && TEAM_LEADER_RIGHT_ID == 5 ){
-        TEAM_SKILL = T_SKILLS[5];
+    if( TEAM_LEADER['leader'] == TEAM_FRIEND['leader'] && TEAM_FRIEND['leader'] == 5 ){
+        TEAM_SKILL = TEAM_LEADER_SKILLS[5];
     }
 
     if( "preSet" in TEAM_SKILL ){

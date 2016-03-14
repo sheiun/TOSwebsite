@@ -50,7 +50,7 @@ var COUNT_STRONG        = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
 var COUNT_STRONG_COEFF  = 0.15;
 var COUNT_SETS          = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
 var COUNT_FIRST_SETS    = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
-var COUNT_FACTOR        = 1;
+var COUNT_FACTOR        = { 'NORMAL': { factor :1 , prob: 1, condition : true } };
 
 var DRAG_ANIMATE_TIME = 100;
 var REMOVE_TIME = 100;
@@ -84,6 +84,7 @@ var MAIN_STATE;
 //==============================================================
 // CONTROL PARAMETER
 //==============================================================
+var TEAM_COLORS_CHANGEABLE = true;
 var CREATE_COLOR = null;
 var TIME_IS_LIMIT = true;
 var TIME_LIMIT = 5;
@@ -92,15 +93,25 @@ var AUTO_REMOVE = true;
 var REPLAY_SPEED = 300;
 var AUDIO = true;
 
-var TEAM_COLORS_CHANGEABLE = true;
-var TEAM_LEADER_LEFT_ID = 0;
-var TEAM_LEADER_RIGHT_ID = 0;
-var TEAM_LEADER_LEFT = null;
-var TEAM_LEADER_RIGHT = null;
+//==============================================================
+// TEAM MEMBER
+//==============================================================
+var TEAM_LEADER_SKILL = null;
+var TEAM_LEADER_SKILL_VAR = null;
+
+var TEAM_FRIEND_SKILL = null;
+var TEAM_FRIEND_SKILL_VAR = null;
+
 var TEAM_SKILL = null;
-var TEAM_LEADER_LEFT_VAR = null;
-var TEAM_LEADER_RIGHT_VAR = null;
 var TEAM_SKILL_VAR = null;
+
+var TEAM_LEADER = null;
+var MEMBER_1 = null;
+var MEMBER_2 = null;
+var MEMBER_3 = null;
+var MEMBER_4 = null;
+var TEAM_FRIEND = null;
+
 
 //==============================================================
 // reset functions
@@ -226,7 +237,7 @@ function resetCount(){
     COUNT_STRONG_COEFF  = 0.15;
     COUNT_SETS          = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
     COUNT_FIRST_SETS    = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
-    COUNT_FACTOR        = 1;
+    COUNT_FACTOR        = { 'NORMAL': { factor :1 , prob: 1, condition : true } };
 }
 function resetMoveTime(){
     MOVING = false;
@@ -685,18 +696,18 @@ function countAttack(){
         }
     }
 
-    if( "attack" in TEAM_LEADER_LEFT ){
-        TEAM_LEADER_LEFT["attack"]( TEAM_LEADER_LEFT_VAR, TEAM_LEADER_LEFT["color"] );
+    if( "attack" in TEAM_LEADER_SKILL ){
+        TEAM_LEADER_SKILL["attack"]( TEAM_LEADER_SKILL_VAR, TEAM_LEADER_SKILL["color"] );
     }
-    if( "attack" in TEAM_LEADER_RIGHT ){
-        TEAM_LEADER_RIGHT["attack"]( TEAM_LEADER_RIGHT_VAR, TEAM_LEADER_RIGHT["color"] );
+    if( "attack" in TEAM_FRIEND_SKILL ){
+        TEAM_FRIEND_SKILL["attack"]( TEAM_FRIEND_SKILL_VAR, TEAM_FRIEND_SKILL["color"] );
     }
     if( "attack" in TEAM_SKILL ){
         TEAM_SKILL["attack"]( TEAM_SKILL_VAR, TEAM_SKILL["color"] );
     }
 
     for(var c of ['w','f','p','l','d','h']){
-        var atk = ( 1+(COUNT_COMBO-1)*COUNT_COMBO_COEFF )*COUNT_FACTOR*
+        var atk = ( 1+(COUNT_COMBO-1)*COUNT_COMBO_COEFF )*
                   ( (COUNT_AMOUNT[c]+COUNT_SETS[c])*COUNT_AMOUNT_COEFF + COUNT_STRONG[c]*COUNT_STRONG_COEFF );
         console.log(c+' : '+atk);
     }
@@ -749,12 +760,14 @@ function checkGroups(){
                 }
             }
 
-            var combo = {};
-            combo['drop_wave'] = DROP_WAVES;
-            combo['color'] = color;
-            combo['amount'] = set.size;
-            combo['strong_amount'] = strong_amount;
-            combo['set'] = set
+            var combo = {
+                color         : color,
+                drop_wave     : DROP_WAVES,
+                amount        : set.size,
+                strong_amount : strong_amount,
+                set           : set,
+            }; 
+
             COMBO_STACK.push(combo);
             COMBO_TIMES += 1;
         }
@@ -774,11 +787,11 @@ function checkGroups(){
 }
 
 function checkNewItemSkill(){
-    if( 'newItem' in TEAM_LEADER_LEFT ){
-        TEAM_LEADER_LEFT['newItem'](  TEAM_LEADER_LEFT_VAR,  TEAM_LEADER_LEFT['color'] );
+    if( 'newItem' in TEAM_LEADER_SKILL ){
+        TEAM_LEADER_SKILL['newItem'](  TEAM_LEADER_SKILL_VAR,  TEAM_LEADER_SKILL['color'] );
     }
-    if( 'newItem' in TEAM_LEADER_RIGHT ){
-        TEAM_LEADER_RIGHT['newItem']( TEAM_LEADER_RIGHT_VAR, TEAM_LEADER_RIGHT['color'] );
+    if( 'newItem' in TEAM_FRIEND_SKILL ){
+        TEAM_FRIEND_SKILL['newItem']( TEAM_FRIEND_SKILL_VAR, TEAM_FRIEND_SKILL['color'] );
     }
     if( 'newItem' in TEAM_SKILL ){
         TEAM_SKILL['newItem']( TEAM_SKILL_VAR, TEAM_SKILL['color'] );
@@ -790,11 +803,11 @@ function checkExtraComboSkill(){
     }
 }
 function checkEndSkill(){
-    if( 'end' in TEAM_LEADER_LEFT ){
-        TEAM_LEADER_LEFT['end'](  TEAM_LEADER_LEFT_VAR,  TEAM_LEADER_LEFT['color'] );
+    if( 'end' in TEAM_LEADER_SKILL ){
+        TEAM_LEADER_SKILL['end'](  TEAM_LEADER_SKILL_VAR,  TEAM_LEADER_SKILL['color'] );
     }
-    if( 'end' in TEAM_LEADER_RIGHT ){
-        TEAM_LEADER_RIGHT['end']( TEAM_LEADER_RIGHT_VAR, TEAM_LEADER_RIGHT['color'] );
+    if( 'end' in TEAM_FRIEND_SKILL ){
+        TEAM_FRIEND_SKILL['end']( TEAM_FRIEND_SKILL_VAR, TEAM_FRIEND_SKILL['color'] );
     }
 
     nextMoveWave();

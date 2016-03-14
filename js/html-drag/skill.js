@@ -5,16 +5,16 @@ var COUPLE_RAND_STACK = [];
 
 function saveSkillVariable(){
     var json = {
-                    "TEAM_LEADER_LEFT_VAR"  : TEAM_LEADER_LEFT_VAR,
-                    "TEAM_LEADER_RIGHT_VAR" : TEAM_LEADER_RIGHT_VAR,
+                    "TEAM_LEADER_SKILL_VAR"  : TEAM_LEADER_SKILL_VAR,
+                    "TEAM_FRIEND_SKILL_VAR" : TEAM_FRIEND_SKILL_VAR,
                     "TEAM_SKILL_VAR"        : TEAM_SKILL_VAR
                 };
     return JSON.stringify(json);
 }
 function loadSkillVariable(msg){
     var json = JSON.parse(msg);
-    TEAM_LEADER_LEFT_VAR    = json["TEAM_LEADER_LEFT_VAR"];
-    TEAM_LEADER_RIGHT_VAR   = json["TEAM_LEADER_RIGHT_VAR"];
+    TEAM_LEADER_SKILL_VAR   = json["TEAM_LEADER_SKILL_VAR"];
+    TEAM_FRIEND_SKILL_VAR   = json["TEAM_FRIEND_SKILL_VAR"];
     TEAM_SKILL_VAR          = json["TEAM_SKILL_VAR"];
 }
 
@@ -110,7 +110,6 @@ var TeamGreekSkill = function( VAR, color ){
     }
     VAR['COUNT'] = comboTimes;
 }
-
 
 var CoupleEndSkill = function( VAR, color){
     var num = 2;
@@ -285,136 +284,3 @@ function turnElementToColorByID(id, color){
         startDragging();
     });
 }
-
-//==============================================================
-// Skill Database
-//==============================================================
-var SKILLS = [
-    {
-        'id'        : 'NONE',
-        'color'     : 'w',
-    },
-    {
-        'id'        : 'GREEK-w',
-        'color'     : 'w',
-        'newItem'   : GreekSkill,
-        'preSet'    : GreekSetting,
-    },
-    {
-        'id'        : 'GREEK-f',
-        'color'     : 'f',
-        'newItem'   : GreekSkill,
-        'preSet'    : GreekSetting,
-    },
-    {
-        'id'        : 'GREEK-p',
-        'color'     : 'p',
-        'newItem'   : GreekSkill,
-        'preSet'    : GreekSetting,
-    },
-    {
-        'id'        : 'GREEK-l',
-        'color'     : 'l',
-        'newItem'   : GreekSkill,
-        'preSet'    : GreekSetting,
-    },
-    {
-        'id'        : 'GREEK-d',
-        'color'     : 'd',
-        'newItem'   : GreekSkill,
-        'preSet'    : GreekSetting,
-    },
-    {
-        'id'        : 'GREEK-h',
-        'color'     : 'h',
-        'newItem'   : GreekSkill,
-        'preSet'    : GreekSetting,
-    },
-    {
-        'id'        : 'BIBLE-w',
-        'color'     : 'w',
-        'newItem'   : BibleSkill,
-    },
-    {
-        'id'        : 'BIBLE-f',
-        'color'     : 'f',
-        'newItem'   : BibleSkill,
-    },
-    {
-        'id'        : 'BIBLE-p',
-        'color'     : 'p',
-        'newItem'   : BibleSkill,
-    },
-    {
-        'id'        : 'BIBLE-l',
-        'color'     : 'l',
-        'newItem'   : BibleSkill,
-    },
-    {
-        'id'        : 'BIBLE-d',
-        'color'     : 'd',
-        'newItem'   : BibleSkill,
-    },
-    {
-        'id'        : 'BIBLE-h',
-        'color'     : 'h',
-        'newItem'   : BibleSkill,
-    },
-    {
-        'id'        : 'COUPLE-f',
-        'color'     : 'f',
-        'end'       : CoupleEndSkill,
-    },
-    {
-        'id'        : 'COUPLE-p',
-        'color'     : 'p',
-        'end'       : CoupleEndSkill,
-    },
-];
-
-var T_SKILLS = [
-    {
-        'id'        : 'NONE',
-        'color'     : 'w',
-    },
-    {
-        'id'        : 'GREEK-w',
-        'color'     : 'w',
-        'newItem'   : TeamGreekSkill,
-        'extraCombo': TeamGreekExtraCombo,
-        'extraReset': TeamGreekExtraComboReset,
-        'preSet'    : TeamGreekSetting,
-    },
-    {
-        'id'        : 'GREEK-f',
-        'color'     : 'f',
-        'newItem'   : TeamGreekSkill,
-        'extraCombo': TeamGreekExtraCombo,
-        'extraReset': TeamGreekExtraComboReset,
-        'preSet'    : TeamGreekSetting,
-    },
-    {
-        'id'        : 'GREEK-p',
-        'color'     : 'p',
-        'newItem'   : TeamGreekSkill,
-        'extraCombo': TeamGreekExtraCombo,
-        'extraReset': TeamGreekExtraComboReset,
-        'preSet'    : TeamGreekSetting,
-    },
-    {
-        'id'        : 'GREEK-l',
-        'color'     : 'l',
-        'newItem'   : TeamGreekSkill,
-        'extraCombo': TeamGreekExtraCombo,
-        'extraReset': TeamGreekExtraComboReset,
-        'preSet'    : TeamGreekSetting,
-    },
-    {
-        'id'        : 'GREEK-d',
-        'color'     : 'd',
-        'newItem'   : TeamGreekSkill,
-        'extraCombo': TeamGreekExtraCombo,
-        'extraReset': TeamGreekExtraComboReset,
-        'preSet'    : TeamGreekSetting,
-    }
-];
