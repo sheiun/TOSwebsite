@@ -411,6 +411,10 @@ function closeEditTeam(){
     MEMBER_2 = CHARACTERS["NONE"];
     MEMBER_3 = CHARACTERS["NONE"];
     MEMBER_4 = CHARACTERS["NONE"];
+    $("#TeamMember select").each(function(){
+        var msdropdown = $(this).msDropDown().data("dd");
+        msdropdown.setIndexByValue("NONE");
+    });
     resetTeamLeaderSkill();
     resetTimeDiv();
 }
