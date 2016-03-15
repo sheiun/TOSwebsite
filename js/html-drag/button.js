@@ -36,21 +36,15 @@ $(document).ready( function(){
     }else{
         newRandomPlain();
     }
-
     MAIN_STATE = "count";
-    TEAM_LEADER = CHARACTERS[0];
-    TEAM_LEADER_SKILL = LEADER_SKILLS["NONE"];
-    TEAM_LEADER_SKILL_VAR = {};
-    TEAM_FRIEND = CHARACTERS[0];
-    TEAM_FRIEND_SKILL = LEADER_SKILLS["NONE"];
-    TEAM_FRIEND_SKILL_VAR = {};
-    TEAM_SKILL = TEAM_LEADER_SKILLS["NONE"];
-    TEAM_SKILL_VAR = {};
-
+    resetTeam();
     closeCanvas();
-    resetTimeDiv();
     setComboShow();
     setHistoryShow();
+
+    setTimeout( function(){
+    resetTimeDiv();
+    }, 10);
 });
 
 //==============================================================
@@ -222,9 +216,6 @@ function toggleReviewPath(){
 //==============================================================
 // Show Result
 //==============================================================
-function showResult(){
-    $("#AttackShow").text('');
-}
 function showTime(now){    
     var timeFraction = ( TIME_LIMIT - ( now - START_TIME ) )/TIME_LIMIT;
     $("#timeRect").css( "clip", "rect(0px, "+
@@ -302,9 +293,131 @@ function setOptionalColors(){
             COLORS.push( $(this).find("img").attr("color") );
         }
     });
-    resetTeamLeader();
+    resetTeamLeaderSkill();
 }
 
+//==============================================================
+// Team edit
+//==============================================================
+function resetTeam(){
+    TEAM_LEADER = NewCharacter("NONE");
+    TEAM_FRIEND = NewCharacter("NONE");
+    MEMBER_1 = NewCharacter("NONE");
+    MEMBER_2 = NewCharacter("NONE");
+    MEMBER_3 = NewCharacter("NONE");
+    MEMBER_4 = NewCharacter("NONE");
+
+    TEAM_LEADER_WAKES = [
+        WAKES[ TEAM_LEADER["wake"][0] ], WAKES[ TEAM_LEADER["wake"][1] ],
+        WAKES[ TEAM_LEADER["wake"][2] ], WAKES[ TEAM_LEADER["wake"][3] ],
+    ];
+    TEAM_FRIEND_WAKES = [
+        WAKES[ TEAM_FRIEND["wake"][0] ], WAKES[ TEAM_FRIEND["wake"][1] ],
+        WAKES[ TEAM_FRIEND["wake"][2] ], WAKES[ TEAM_FRIEND["wake"][3] ],
+    ];
+    MEMBER_1_WAKES = [
+        WAKES[ MEMBER_1["wake"][0] ], WAKES[ MEMBER_1["wake"][1] ],
+        WAKES[ MEMBER_1["wake"][2] ], WAKES[ MEMBER_1["wake"][3] ],
+    ];
+    MEMBER_2_WAKES = [
+        WAKES[ MEMBER_2["wake"][0] ], WAKES[ MEMBER_2["wake"][1] ],
+        WAKES[ MEMBER_2["wake"][2] ], WAKES[ MEMBER_2["wake"][3] ],
+    ];
+    MEMBER_3_WAKES = [
+        WAKES[ MEMBER_3["wake"][0] ], WAKES[ MEMBER_3["wake"][1] ],
+        WAKES[ MEMBER_3["wake"][2] ], WAKES[ MEMBER_3["wake"][3] ],
+    ];
+    MEMBER_4_WAKES = [
+        WAKES[ MEMBER_4["wake"][0] ], WAKES[ MEMBER_4["wake"][1] ],
+        WAKES[ MEMBER_4["wake"][2] ], WAKES[ MEMBER_4["wake"][3] ],
+    ];
+
+    $("#TeamMember select").each(function(){
+        var msdropdown = $(this).msDropDown().data("dd");
+        for(var id in CHARACTERS){
+            msdropdown.add({
+                value: id,
+                image: CHARACTERS[id]["img"]
+            });
+        }
+        msdropdown.setIndexByValue("NONE");
+    });
+
+    $("#TeamLeaderSelect").on("change", function(){
+        TEAM_LEADER = NewCharacter( $(this).val() );
+        TEAM_LEADER_WAKES = [
+            WAKES[ TEAM_LEADER["wake"][0] ], WAKES[ TEAM_LEADER["wake"][1] ],
+            WAKES[ TEAM_LEADER["wake"][2] ], WAKES[ TEAM_LEADER["wake"][3] ],
+        ];
+        resetTeamLeaderSkill();
+    });
+    $("#TeamMember1Select").on("change", function(){
+        MEMBER_1 = NewCharacter( $(this).val() );
+        MEMBER_1_WAKES = [
+            WAKES[ MEMBER_1["wake"][0] ], WAKES[ MEMBER_1["wake"][1] ],
+            WAKES[ MEMBER_1["wake"][2] ], WAKES[ MEMBER_1["wake"][3] ],
+        ];
+        resetTeamLeaderSkill();
+    });
+    $("#TeamMember2Select").on("change", function(){
+        MEMBER_2 = NewCharacter( $(this).val() );
+        MEMBER_2_WAKES = [
+            WAKES[ MEMBER_2["wake"][0] ], WAKES[ MEMBER_2["wake"][1] ],
+            WAKES[ MEMBER_2["wake"][2] ], WAKES[ MEMBER_2["wake"][3] ],
+        ];
+        resetTeamLeaderSkill();
+    });
+    $("#TeamMember3Select").on("change", function(){
+        MEMBER_3 = NewCharacter( $(this).val() );
+        MEMBER_3_WAKES = [
+            WAKES[ MEMBER_3["wake"][0] ], WAKES[ MEMBER_3["wake"][1] ],
+            WAKES[ MEMBER_3["wake"][2] ], WAKES[ MEMBER_3["wake"][3] ],
+        ];
+        resetTeamLeaderSkill();
+    });
+    $("#TeamMember4Select").on("change", function(){
+        MEMBER_4 = NewCharacter( $(this).val() );
+        MEMBER_4_WAKES = [
+            WAKES[ MEMBER_4["wake"][0] ], WAKES[ MEMBER_4["wake"][1] ],
+            WAKES[ MEMBER_4["wake"][2] ], WAKES[ MEMBER_4["wake"][3] ],
+        ];
+        resetTeamLeaderSkill();
+    });
+    $("#TeamFriendSelect").on("change", function(){
+        TEAM_FRIEND = NewCharacter( $(this).val() );
+        TEAM_FRIEND_WAKES = [
+            WAKES[ TEAM_FRIEND["wake"][0] ], WAKES[ TEAM_FRIEND["wake"][1] ],
+            WAKES[ TEAM_FRIEND["wake"][2] ], WAKES[ TEAM_FRIEND["wake"][3] ],
+        ];        
+        resetTeamLeaderSkill();
+    });
+
+    resetTeamLeaderSkill();
+}
+function startEditTeam(){
+    $("#StartTeam").hide();
+    $("#CloseTeam").show();
+    $("#TeamMember").show();
+    resetTimeDiv();
+}
+function closeEditTeam(){
+    $("#StartTeam").show();
+    $("#CloseTeam").hide();
+    $("#TeamMember").hide();
+
+    TEAM_LEADER = CHARACTERS["NONE"];
+    TEAM_FRIEND = CHARACTERS["NONE"];
+    MEMBER_1 = CHARACTERS["NONE"];
+    MEMBER_2 = CHARACTERS["NONE"];
+    MEMBER_3 = CHARACTERS["NONE"];
+    MEMBER_4 = CHARACTERS["NONE"];
+    resetTeamLeaderSkill();
+    resetTimeDiv();
+}
+
+//==============================================================
+// scroll
+//==============================================================
 function scroll_top(){
     $("html, body").animate({ scrollTop: 0 }, "fast");
 };
@@ -380,7 +493,7 @@ $("#dropColorSelect").change(function (){
         COLORS = $(this).val().split(",");
     }
 
-    resetTeamLeader();
+    resetTeamLeaderSkill();
 });
 
 $("#locusSelect").change(function (){
@@ -398,39 +511,18 @@ $("#locusSelect").change(function (){
     }
 });
 
-$("#teamLeftSelect").change(function (){
-    resetTeamLeader();
-});
-$("#teamRightSelect").change(function (){
-    resetTeamLeader();
-});
 
-function resetTeamLeader(){
-    TEAM_LEADER = CHARACTERS[0];
-    TEAM_LEADER_SKILL = LEADER_SKILLS["NONE"];
-    TEAM_LEADER_SKILL_VAR = {};
-    TEAM_FRIEND = CHARACTERS[0];
-    TEAM_FRIEND_SKILL = LEADER_SKILLS["NONE"];
-    TEAM_FRIEND_SKILL_VAR = {};
-    TEAM_SKILL = TEAM_LEADER_SKILLS["NONE"];
-    TEAM_SKILL_VAR = {};
-
-    var team_leader_id  = ( $("#teamLeftSelect").val() ) ? parseInt( $("#teamLeftSelect").val() ) : 0;
-    var team_friend_id = ( $("#teamRightSelect").val()) ? parseInt( $("#teamRightSelect").val()) : 0;
-    TEAM_LEADER = CHARACTERS[ team_leader_id  ];
-    TEAM_FRIEND = CHARACTERS[ team_friend_id ];
-    TEAM_LEADER_SKILL = LEADER_SKILLS[ TEAM_LEADER['leader'] ];
-    TEAM_FRIEND_SKILL = LEADER_SKILLS[ TEAM_FRIEND['leader'] ];
-
+function resetTeamLeaderSkill(){
     for( var i = 0; i < TD_NUM; i++ ){
         for( var c of ['w','f','p','l','d','h'] ){
             delete COLOR_PROB[i][c];
         }
     }
     TEAM_COLORS_CHANGEABLE = true;
-    GROUP_SIZE['f'] = 3;
-    GROUP_SIZE['p'] = 3;
-    GROUP_SIZE['h'] = 3;
+    GROUP_SIZE = {'w':3, 'f':3, 'p':3, 'l':3, 'd':3, 'h':3};
+
+    TEAM_LEADER_SKILL = LEADER_SKILLS[ TEAM_LEADER['leader'] ];
+    TEAM_FRIEND_SKILL = LEADER_SKILLS[ TEAM_FRIEND['leader'] ];
 
     if( "preSet" in TEAM_LEADER_SKILL ){
         TEAM_LEADER_SKILL_VAR = TEAM_LEADER_SKILL['preSet']( TEAM_LEADER );
@@ -439,19 +531,44 @@ function resetTeamLeader(){
         TEAM_FRIEND_SKILL_VAR = TEAM_FRIEND_SKILL['preSet']( TEAM_FRIEND );
     }
 
-    if( TEAM_LEADER_SKILL['id'].indexOf("GREEK") >= 0 ){
-        var c = TEAM_LEADER_SKILL['color'];
-        if( COLORS.indexOf(c) >= 0 ){
-            COLOR_PROB[0][c] = 0.4;
+    checkWakeSkill();
+    checkTeamSkill();
+    resetColors();
+}
+function checkWakeSkill(){
+    for(var wake of TEAM_LEADER_WAKES){
+        if( "preSet" in wake ){
+            wake["preSet"]( TEAM_LEADER, 0 );
         }
     }
-    if( TEAM_FRIEND_SKILL['id'].indexOf("GREEK") >= 0 ){
-        var c = TEAM_FRIEND_SKILL['color'];
-        if( COLORS.indexOf(c) >= 0 ){
-            COLOR_PROB[TD_NUM-1][c] = 0.4;
+    for(var wake of MEMBER_1_WAKES){
+        if( "preSet" in wake ){
+            wake["preSet"]( MEMBER_1, 1 );
         }
     }
-
+    for(var wake of MEMBER_2_WAKES){
+        if( "preSet" in wake ){
+            wake["preSet"]( MEMBER_2, 2 );
+        }
+    }
+    for(var wake of MEMBER_3_WAKES){
+        if( "preSet" in wake ){
+            wake["preSet"]( MEMBER_3, 3 );
+        }
+    }
+    for(var wake of MEMBER_4_WAKES){
+        if( "preSet" in wake ){
+            wake["preSet"]( MEMBER_4, 4 );
+        }
+    }
+    for(var wake of TEAM_FRIEND_WAKES){
+        if( "preSet" in wake ){
+            wake["preSet"]( TEAM_FRIEND, 5 );
+        }
+    }
+}
+function checkTeamSkill(){
+    TEAM_SKILL = TEAM_LEADER_SKILLS["NONE"];
     if( TEAM_LEADER['leader'] == TEAM_FRIEND['leader'] && TEAM_FRIEND['leader'] == "GREEK" ){
         TEAM_SKILL = TEAM_LEADER_SKILLS["GREEK"];
     }
@@ -474,10 +591,7 @@ function resetTeamLeader(){
     if( "preSet" in TEAM_SKILL ){
         TEAM_SKILL_VAR = TEAM_SKILL["preSet"]( TEAM_LEADER, TEAM_FRIEND );
     }
-
-    resetColors();
 }
-
 
 function autoCheckDropGroups(){
     resetBase();

@@ -1,5 +1,5 @@
 body{
-    background-image: url('../img/Card_background.png');
+    background-image: url('../../img/Card_background.png');
     background-repeat: no-repeat;
     background-attachment: fixed;
     background-position: center center; 
@@ -20,7 +20,7 @@ body{
 }
 
 #dragContainment{
-    background-image: url('../img/Icon/base.png');
+    background-image: url('../../img/Icon/base.png');
     background-size: 320px 320px;
     background-repeat: repeat;
 }
@@ -150,4 +150,32 @@ body{
 }
 #HorizontalScrollbar .addNewColor span{
     margin-top: 20px;
+}
+
+#TeamMember{
+    border-collapse: collapse;
+}
+#TeamMember select{
+    width: 110px;
+}
+#TeamMember img{
+    width: 60px;
+}
+#TeamMember td span{
+    color: black;
+    margin-left: 10px;
+    font-family: "Microsoft JhengHei", Helvetica, Arial, Sans;
+    font-size: 16px;
+}
+#AttackNumber td{
+    height: 30px;
+    width: 110px;
+    background: PaleTurquoise;
+    border: 1px solid Gray;
+}
+#RecoverNumber td{
+    height: 30px;
+    width: 110px;
+    background: LightPink;
+    border: 1px solid Gray;
 }

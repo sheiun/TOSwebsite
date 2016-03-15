@@ -82,6 +82,9 @@ var TeamBabylonAttack = function( VAR, direct ){
     };
 }
 
+//==============================================================
+// DarkLucifer
+//==============================================================
 var DarkLuciferSetting = function( MEMBER ){
     return {
         'COLOR' : 'h',
@@ -95,30 +98,39 @@ var DarkLuciferAttack = function( VAR, direct ){
     };
 }
 var TeamDarkLuciferAttack = function( VAR, direct ){
-    COUNT_BELONG_COLOR['h']['w'] = 1;
-    COUNT_BELONG_COLOR['h']['f'] = 1;
-    COUNT_BELONG_COLOR['h']['p'] = 1;
-    COUNT_BELONG_COLOR['h']['l'] = 1;
-    COUNT_BELONG_COLOR['h']['d'] = 1;
-    COUNT_FACTOR['TeamDarkLucifer'] = {
-        factor    : function( member ){
-            var straight = 0;
-            for(var i = 0; i < TD_NUM; i++ ){
-                for( var set of ALL_GROUP_SET_STACK[0]['STRAIGHT_SETS'][i] ){
-                    if( set.size >= 4 ){
-                        straight += 1;
-                        break;
+    if( TEAM_LEADER["type"] == "SPIRIT" && 
+        MEMBER_1["type"] == "SPIRIT" && 
+        MEMBER_1["type"] == "SPIRIT" && 
+        MEMBER_1["type"] == "SPIRIT" && 
+        MEMBER_1["type"] == "SPIRIT" && 
+        TEAM_FRIEND["type"] == "SPIRIT" ){
+
+        COUNT_BELONG_COLOR['h']['w'] = 1;
+        COUNT_BELONG_COLOR['h']['f'] = 1;
+        COUNT_BELONG_COLOR['h']['p'] = 1;
+        COUNT_BELONG_COLOR['h']['l'] = 1;
+        COUNT_BELONG_COLOR['h']['d'] = 1;
+
+        COUNT_FACTOR['TeamDarkLucifer'] = {
+            factor    : function( member ){
+                var straight = 0;
+                for(var i = 0; i < TD_NUM; i++ ){
+                    for( var set of ALL_GROUP_SET_STACK[0]['STRAIGHT_SETS'][i] ){
+                        if( set.size >= 4 ){
+                            straight += 1;
+                            break;
+                        }
                     }
                 }
-            }
-            if( straight < 2 ){ return 1; }
-            else{
-                return Math.min( 1+((straight-1)*0.1), 1.5 );
-            }            
-        },
-        prob      : 1,
-        condition : function( member ){ return true; },
-    };
+                if( straight < 2 ){ return 1; }
+                else{
+                    return Math.min( 1+((straight-1)*0.1), 1.5 );
+                }            
+            },
+            prob      : 1,
+            condition : function( member ){ return true; },
+        };
+    }
 }
 
 //==============================================================
@@ -162,7 +174,6 @@ var GreekSkill = function( VAR ){
 }
 
 var TeamGreekSetting = function( LEADER, FRIEND ){
-    console.log("team pre set");
     return {
         'COLOR' : LEADER['color'],
         'COUNT' : {'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0},
@@ -272,6 +283,9 @@ var TeamCoupleAttackFP = function( VAR, direct ){
     };
 }
 
+//==============================================================
+// BrokeBoundary
+//==============================================================
 var startBrokeBoundary = function(){
     $('#timeRange').val(10);
     $("#timeLimit").text("限制時間");
@@ -379,12 +393,11 @@ var endBrokeBoundary = function(){
     checkAttack();
 }
 
-
-
 //==============================================================
 // Base Skill
 //==============================================================
 var none = function(){}
+var noneSetting = function(){ return {}; }
 
 function getStackOfPanelByColor(color){
     var stack = [];
@@ -423,4 +436,17 @@ function turnElementToColorByID(id, color){
         resetDraggable();
         startDragging();
     });
+}
+
+//==============================================================
+//==============================================================
+// WAKE SKILL
+//==============================================================
+//==============================================================
+
+var DropIncrease = function( MEMBER, place ){
+    var color = MEMBER['color'];
+    if( COLORS.indexOf(color) >= 0 ){
+        COLOR_PROB[ place ][ color ] = 0.4;
+    }
 }

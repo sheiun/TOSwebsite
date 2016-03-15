@@ -42,19 +42,23 @@ var DROP_WAVES = 0;
 var COMBO_TIMES = 0;
 var COMBO_SHOW = 0;
 
-var COUNT_COMBO         = 0;
-var COUNT_COMBO_COEFF   = 0.25;
-var COUNT_AMOUNT        = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
-var COUNT_AMOUNT_COEFF  = 0.25;
-var COUNT_STRONG        = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
-var COUNT_STRONG_COEFF  = 0.15;
-var COUNT_SETS          = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
-var COUNT_FIRST_SETS    = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
-var COUNT_BELONG_COLOR  = { 'w': {}, 'f': {}, 'p': {}, 'l': {}, 'd': {}, 'h': {} };
-var COUNT_BELONG_AMOUNT = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
-var COUNT_BELONG_STRONG = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
-var COUNT_BELONG_SETS   = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
-var COUNT_FACTOR        = {};
+var COUNT_COMBO                = 0;
+var COUNT_COMBO_COEFF          = 0.25;
+var COUNT_AMOUNT               = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
+var COUNT_AMOUNT_COEFF         = 0.25;
+var COUNT_STRONG               = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
+var COUNT_STRONG_COEFF         = 0.15;
+var COUNT_SETS                 = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
+var COUNT_FIRST_SETS           = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
+var COUNT_BELONG_COLOR         = { 'w': {}, 'f': {}, 'p': {}, 'l': {}, 'd': {}, 'h': {} };
+var COUNT_BELONG_AMOUNT        = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
+var COUNT_BELONG_STRONG        = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
+var COUNT_BELONG_SETS          = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
+var COUNT_FACTOR               = {};
+var COUNT_RECOVER_COMBO_COEFF  = 0.25;
+var COUNT_RECOVER_AMOUNT_COEFF = 0.25;
+var COUNT_RECOVER_STRONG_COEFF = 0.15;
+var COUNT_RECOVER_FACTOR       = {};
 
 var DRAG_ANIMATE_TIME = 100;
 var REMOVE_TIME = 100;
@@ -100,21 +104,27 @@ var AUDIO = true;
 //==============================================================
 // TEAM MEMBER
 //==============================================================
+var TEAM_LEADER = null;
 var TEAM_LEADER_SKILL = null;
 var TEAM_LEADER_SKILL_VAR = null;
+var TEAM_LEADER_WAKES = null;
 
+var TEAM_FRIEND = null;
 var TEAM_FRIEND_SKILL = null;
 var TEAM_FRIEND_SKILL_VAR = null;
+var TEAM_FRIEND_WAKES = null;
 
 var TEAM_SKILL = null;
 var TEAM_SKILL_VAR = null;
 
-var TEAM_LEADER = null;
 var MEMBER_1 = null;
+var MEMBER_1_WAKES = null;
 var MEMBER_2 = null;
+var MEMBER_2_WAKES = null;
 var MEMBER_3 = null;
+var MEMBER_3_WAKES = null;
 var MEMBER_4 = null;
-var TEAM_FRIEND = null;
+var MEMBER_4_WAKES = null;
 
 
 //==============================================================
@@ -230,25 +240,35 @@ function resetComboStack(){
     }
 }
 function resetCount(){    
-    COUNT_COMBO         = COMBO_TIMES;
-    COUNT_COMBO_COEFF   = 0.25;
-    COUNT_AMOUNT        = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
-    COUNT_AMOUNT_COEFF  = 0.25;
-    COUNT_STRONG        = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
-    COUNT_STRONG_COEFF  = 0.15;
-    COUNT_SETS          = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
-    COUNT_FIRST_SETS    = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
-    COUNT_BELONG_COLOR  = { 'w': {}, 'f': {}, 'p': {}, 'l': {}, 'd': {}, 'h': {} };
-    COUNT_BELONG_AMOUNT = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
-    COUNT_BELONG_STRONG = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
-    COUNT_BELONG_SETS   = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
-    COUNT_FACTOR        = { 'NORMAL': 
+    COUNT_COMBO                = COMBO_TIMES;
+    COUNT_COMBO_COEFF          = 0.25;
+    COUNT_AMOUNT               = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
+    COUNT_AMOUNT_COEFF         = 0.25;
+    COUNT_STRONG               = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
+    COUNT_STRONG_COEFF         = 0.15;
+    COUNT_SETS                 = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
+    COUNT_FIRST_SETS           = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
+    COUNT_BELONG_COLOR         = { 'w': {}, 'f': {}, 'p': {}, 'l': {}, 'd': {}, 'h': {} };
+    COUNT_BELONG_AMOUNT        = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
+    COUNT_BELONG_STRONG        = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
+    COUNT_BELONG_SETS          = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
+    COUNT_FACTOR               = { 'NORMAL': 
         { 
             factor    : function( member ){ return 1; } ,
             prob      : 1,
             condition : function( member ){ return true; } 
         } 
     };
+    COUNT_RECOVER_COMBO_COEFF  = 0.25;
+    COUNT_RECOVER_AMOUNT_COEFF = 0.25;
+    COUNT_RECOVER_STRONG_COEFF = 0.15;
+    COUNT_RECOVER_FACTOR       = { 'NORMAL': 
+        { 
+            factor    : function( member ){ return 1; } ,
+            prob      : 1,
+            condition : function( member ){ return true; } 
+        } 
+    };;
 }
 function resetMoveTime(){
     MOVING = false;
@@ -310,15 +330,16 @@ function closeCanvas(){
     $('#dragCanvas').attr("width",TD_NUM*WIDTH).attr("height",TR_NUM*HEIGHT);
 }
 function resetTimeDiv(){
-    $("#clock").offset({left: $("#dragContainment").offset().left });
+    $("#clock").offset({ top  : $("#dragContainment").offset().top-$("#clock").height(),
+                         left : $("#dragContainment").offset().left });
     $("#timeBack").css( "width", TD_NUM*WIDTH-($("#clock").width()/2) );
     $("#timeBack").css( "height", $("#clock").height()/2 );
-    $("#timeBack").offset( {top : $("#clock").offset().top+($("#clock").height()/4),
-                            left: $("#clock").offset().left+($("#clock").width()/2) });
+    $("#timeBack").offset( { top  : $("#clock").offset().top+($("#clock").height()/4),
+                             left : $("#clock").offset().left+($("#clock").width()/2) });
     $("#timeRect").css( "width", TD_NUM*WIDTH-($("#clock").width()/2) );
     $("#timeRect").css( "height", $("#clock").height()/2 );
-    $("#timeRect").offset( {top : $("#clock").offset().top+($("#clock").height()/4),
-                            left: $("#clock").offset().left+($("#clock").width()/2) });
+    $("#timeRect").offset( { top  : $("#clock").offset().top+($("#clock").height()/4),
+                             left : $("#clock").offset().left+($("#clock").width()/2) });
 }
 function renewTimeDiv(){
     resetTimeDiv();
@@ -724,23 +745,46 @@ function countAttack(){
         }
     }
 
-    for( var member of [TEAM_LEADER, TEAM_FRIEND] ){
+    var members = [ TEAM_LEADER, MEMBER_1, MEMBER_2, MEMBER_3, MEMBER_4, TEAM_FRIEND ];
+    for( var i = 0; i < members.length; i++ ){
+        var member = members[i];
         var color = member["color"];
-        var comboCoeff = ( 1+ ( COUNT_COMBO-1 ) * COUNT_COMBO_COEFF );
-        var amounts = ( COUNT_AMOUNT[color] + COUNT_BELONG_AMOUNT[color] +
-                        COUNT_SETS[color]   + COUNT_BELONG_SETS[color]     );
+
+        var comboCoeff   = ( 1+ ( COUNT_COMBO-1 ) * COUNT_COMBO_COEFF );
+        var amounts      = ( COUNT_AMOUNT[color] + COUNT_BELONG_AMOUNT[color] +
+                             COUNT_SETS[color]   + COUNT_BELONG_SETS[color]     );
         var amountsCoeff = amounts * COUNT_AMOUNT_COEFF;
-        var strongs = ( COUNT_STRONG[color] + COUNT_BELONG_STRONG[color]   );
+        var strongs      = ( COUNT_STRONG[color] + COUNT_BELONG_STRONG[color]   );
         var strongsCoeff = strongs * COUNT_STRONG_COEFF;
-        var atk =  comboCoeff * ( amountsCoeff + strongsCoeff )
+        var atk          = comboCoeff * ( amountsCoeff + strongsCoeff );
+        console.log(amounts+';'+amountsCoeff+';'+atk);
         for(var key in COUNT_FACTOR){
             if( COUNT_FACTOR[key]["condition"]( member ) ){
                 if( randomBySeed() < COUNT_FACTOR[key]["prob"] ){
-                    atk *= COUNT_FACTOR[key]["factor"]( member );
+                    atk     *= COUNT_FACTOR[key]["factor"]( member );
                 }
             }
         }
-        console.log(member["id"]+" : "+atk * member["attack"]);
+
+        var recover_comboCoeff   = ( 1+ ( COUNT_COMBO-1 ) * COUNT_RECOVER_COMBO_COEFF );
+        var recover_amounts      = ( COUNT_AMOUNT['h'] + COUNT_BELONG_AMOUNT['h'] +
+                                     COUNT_SETS['h']   + COUNT_BELONG_SETS['h']     );
+        var recover_amountsCoeff = recover_amounts * COUNT_RECOVER_AMOUNT_COEFF;
+        var recover_strongs      = ( COUNT_STRONG['h'] + COUNT_BELONG_STRONG['h']   );
+        var recover_strongsCoeff = recover_strongs * COUNT_RECOVER_STRONG_COEFF;
+        var recover              = recover_comboCoeff * ( recover_amountsCoeff + recover_strongsCoeff );
+        for(var key in COUNT_RECOVER_FACTOR){
+            if( COUNT_RECOVER_FACTOR[key]["condition"]( member ) ){
+                if( randomBySeed() < COUNT_RECOVER_FACTOR[key]["prob"] ){
+                    recover *= COUNT_RECOVER_FACTOR[key]["factor"]( member );
+                }
+            }
+        }
+
+        atk = Math.round( atk * member["attack"] );
+        recover = Math.round( recover * member["recovery"] );
+        $("#AttackNumber td span").eq(i).text( atk );
+        $("#RecoverNumber td span").eq(i).text( recover );
     }
 }
 
@@ -847,7 +891,6 @@ function checkEndSkill(){
 function checkAttack(){
     frozenUpdate();
     countAttack();
-    showResult();
 
     setTimeout(function(){
         checkEndSkill();
