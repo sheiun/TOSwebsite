@@ -654,11 +654,11 @@ function mapImgSrc(item){
     var i    = ( item.indexOf('i') >= 0 ) ? item.substr( item.indexOf('i'), item.indexOf('i')+1 ) : '';
 
     if( item.indexOf('X') >= 0 ){
-        item = 'X'+i ;
+        item = 'x'+i ;
     }else if( item.indexOf('q') >= 0 ){
         item = 'q'+i+x ;
     }else if( item.indexOf('k') >= 0 ){
-        item = 'k'+i+x ;
+        item = c+'k'+i+x ;
     }else{
         item = c+plus+_+i+x ;
     }
