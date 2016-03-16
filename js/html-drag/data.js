@@ -6,9 +6,24 @@ var LEADER_SKILLS = {
         id        : 'NONE',
         preSet    : noneSetting,
     },
+    WillPower : {
+        id        : 'WillPower',
+        preSet    : noneSetting,
+    },
+    ElementFactor3 : {
+        id        : "ElementFactor3",
+        attack    : ElementFactor3Attack,
+        preSet    : ElementFactor3Setting,
+    },
+    ElementFactor3_5 : {
+        id        : "ElementFactor3_5",
+        attack    : ElementFactor3_5Attack,
+        preSet    : ElementFactor3_5Setting,
+    },
     CHINA_D : {
         id        : "CHINA_D",
         attack    : ChinaDAttack,
+        preSet    : noneSetting,
     },
     GREEK : {
         id        : 'GREEK',
@@ -47,6 +62,11 @@ var LEADER_SKILLS = {
         attack    : SwordBrotherAttack,
         preSet    : noneSetting,
     },
+    DEVIL_CIRCLE : {
+        id        : 'DEVIL_CIRCLE',
+        attack    : DevilCircleAttack,
+        preSet    : DevilCircleSetting,
+    },
 };
 
 //==============================================================
@@ -55,6 +75,11 @@ var LEADER_SKILLS = {
 var TEAM_LEADER_SKILLS = {
     NONE : {
         id        : 'NONE',
+    },
+    NORDIC : {
+        id        : 'NORDIC',
+        attack    : TeamNordicAttack,
+        preSet    : TeamNordicSetting,
     },
     GREEK : {
         id        : 'GREEK',
@@ -126,6 +151,54 @@ var CHARACTERS = {
         wake     : [ "NONE", "NONE", "NONE", "NONE" ],
         wake_var : [ 0, 0, 0, 0 ],
         leader   : "NONE",      active   : 0,
+    },
+    NORDIC_W : {
+        id       : "NORDIC_W",  img      : "img/Special/1/w4.png",
+        color    : "w",         type     : "GOD",
+        health   : 3556,        attack   : 1577,        recovery : 496,
+        wake     : [ "H_A_R_INCREASE", "STRAIGHT_ATTACK", "H_A_R_INCREASE", "STRAIGHT_ATTACK" ],
+        wake_var : [ "[0,0,30]", "[1.1,4]", "[0,180,0]", "[1.12,5]" ],
+        leader   : "ElementFactor3",      active   : 0,
+    },
+    NORDIC_F : {
+        id       : "NORDIC_F",  img      : "img/Special/1/f4.png",
+        color    : "f",         type     : "GOD",
+        health   : 3742,        attack   : 1686,        recovery : 442,
+        wake     : [ "H_A_R_INCREASE", "STRAIGHT_ATTACK", "H_A_R_INCREASE", "STRAIGHT_ATTACK" ],
+        wake_var : [ "[0,0,30]", "[1.1,4]", "[0,180,0]", "[1.12,5]" ],
+        leader   : "ElementFactor3",      active   : 0,
+    },
+    NORDIC_P : {
+        id       : "NORDIC_P",  img      : "img/Special/1/p4.png",
+        color    : "p",         type     : "GOD",
+        health   : 3961,        attack   : 1529,        recovery : 464,
+        wake     : [ "H_A_R_INCREASE", "STRAIGHT_ATTACK", "H_A_R_INCREASE", "STRAIGHT_ATTACK" ],
+        wake_var : [ "[0,0,30]", "[1.1,4]", "[0,180,0]", "[1.12,5]" ],
+        leader   : "ElementFactor3",      active   : 0,
+    },
+    NORDIC_L : {
+        id       : "NORDIC_L",  img      : "img/Special/1/l4.png",
+        color    : "l",         type     : "GOD",
+        health   : 3738,        attack   : 1545,        recovery : 531,
+        wake     : [ "H_A_R_INCREASE", "STRAIGHT_ATTACK", "H_A_R_INCREASE", "STRAIGHT_ATTACK" ],
+        wake_var : [ "[0,0,30]", "[1.1,4]", "[0,180,0]", "[1.12,5]" ],
+        leader   : "ElementFactor3",      active   : 0,
+    },
+    NORDIC_D : {
+        id       : "NORDIC_D",  img      : "img/Special/1/d4.png",
+        color    : "d",         type     : "GOD",
+        health   : 3482,        attack   : 1734,        recovery : 460,
+        wake     : [ "H_A_R_INCREASE", "STRAIGHT_ATTACK", "H_A_R_INCREASE", "STRAIGHT_ATTACK" ],
+        wake_var : [ "[0,0,30]", "[1.1,4]", "[0,180,0]", "[1.12,5]" ],
+        leader   : "ElementFactor3",      active   : 0,
+    },
+    BOSS_ODIN : {
+        id       : "BOSS_ODIN", img      : "img/Boss/0/d2-3.png",
+        color    : "d",         type     : "GOD",
+        health   : 4259,        attack   : 1995,         recovery : 352,
+        wake     : [ "NONE", "NONE", "NONE", "NONE" ],
+        wake_var : [ 0, 0, 0, 0 ],
+        leader   : "WillPower",      active   : 0,
     },
     CHINA_D : {
         id       : "CHINA_D",   img      : "img/Special/4/d5.png",
@@ -254,6 +327,46 @@ var CHARACTERS = {
         wake     : [ "H_A_R_INCREASE", "NONE", "DROP_INCREASE", "NONE" ],
         wake_var : [ "[150,120,0]", 0, "d", 0 ],
         leader   : "SWORD_BROTHER",  active   : 0,
+    },
+    DEVIL_ANCESTOR_W : {
+        id       : "DEVIL_ANCESTOR_W", img  : "img/Special/35/w2.png",
+        color    : "w",         type     : "DEVIL",
+        health   : 1651,        attack   : 2362,        recovery : 396,
+        wake     : [ "NONE", "NONE", "NONE", "NONE" ],
+        wake_var : [ 0, 0, 0, 0 ],
+        leader   : "ElementFactor3_5",  active   : 0,
+    },
+    DEVIL_ANCESTOR_F : {
+        id       : "DEVIL_ANCESTOR_F", img  : "img/Special/35/f2.png",
+        color    : "f",         type     : "DEVIL",
+        health   : 1724,        attack   : 2429,        recovery : 330,
+        wake     : [ "NONE", "NONE", "NONE", "NONE" ],
+        wake_var : [ 0, 0, 0, 0 ],
+        leader   : "ElementFactor3_5",  active   : 0,
+    },
+    DEVIL_ANCESTOR_P : {
+        id       : "DEVIL_ANCESTOR_P", img  : "img/Special/35/p2.png",
+        color    : "p",         type     : "DEVIL",
+        health   : 1895,        attack   : 2279,        recovery : 368,
+        wake     : [ "NONE", "NONE", "NONE", "NONE" ],
+        wake_var : [ 0, 0, 0, 0 ],
+        leader   : "ElementFactor3_5",  active   : 0,
+    },
+    DEVIL_ANCESTOR_L : {
+        id       : "DEVIL_ANCESTOR_L", img  : "img/Special/35/l2.png",
+        color    : "l",         type     : "DEVIL",
+        health   : 1698,        attack   : 2315,        recovery : 408,
+        wake     : [ "NONE", "NONE", "NONE", "NONE" ],
+        wake_var : [ 0, 0, 0, 0 ],
+        leader   : "DEVIL_CIRCLE",  active   : 0,
+    },
+    DEVIL_ANCESTOR_D : {
+        id       : "DEVIL_ANCESTOR_D", img  : "img/Special/35/d2.png",
+        color    : "d",         type     : "DEVIL",
+        health   : 1582,        attack   : 2531,        recovery : 304,
+        wake     : [ "NONE", "NONE", "NONE", "NONE" ],
+        wake_var : [ 0, 0, 0, 0 ],
+        leader   : "DEVIL_CIRCLE",  active   : 0,
     },
 };
 

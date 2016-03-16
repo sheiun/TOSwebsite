@@ -80,6 +80,7 @@ var HISTORY_SHOW = 0;
 var COLOR_RANDOM = Math.floor( Math.random() * 1000 );
 var HISTORY_RANDOM = COLOR_RANDOM;
 var HISTORY_SKILL_VARIABLE;
+var HISTORY_TEAM_MEMBER;
 var CLIPBOARD;
 
 var LOCUS_LENGTH = 6;
@@ -171,6 +172,14 @@ function resetBase(){
     TD_NUM = parseInt( $("#dragContainment").attr("td") );
     BASE_LEFT = $("#dragContainment td").eq(0).offset().left;
     BASE_TOP = $("#dragContainment td").eq(0).offset().top;
+}
+function cleanColors(){
+    COLORS = ['w', 'f', 'p', 'l', 'd', 'h'];
+    COLOR_MAP = {};
+    COLOR_PROB = [];
+    for(var i = 0; i < TD_NUM; i++){
+        COLOR_PROB.push( {} );
+    }
 }
 function resetColors(){
     TEAM_COLORS = []; 
@@ -286,6 +295,7 @@ function resetHistory(){
     HISTORY_SHOW = 0;
     HISTORY_RANDOM =  COLOR_RANDOM;
     HISTORY_SKILL_VARIABLE = saveSkillVariable();
+    HISTORY_TEAM_MEMBER = saveTeamMembers();
     HISTORY = [];
     INITIAL_PANEL = [];
     for(var i = 0; i < TR_NUM*TD_NUM; i++){
@@ -425,15 +435,16 @@ function dragPosition(e){
     }
 
     if( left_index != TD_INDEX || top_index != TR_INDEX  ){
-        if( !MOVING && !MOVE_OUT_OF_TIME && !TIME_RUNNING ){
+        if( !MOVING && !MOVE_OUT_OF_TIME ){
+            //Maybe used in end attack effect
             newMoveWave();
             MOVING = true;
-            START_TIME = new Date().getTime() / 1000;
             HISTORY.push( TR_INDEX*TD_NUM+TD_INDEX );
 
             // start timer
-            if( TIME_IS_LIMIT ){
+            if( TIME_IS_LIMIT && !TIME_RUNNING ){
                 TIME_RUNNING = true;
+                START_TIME = new Date().getTime() / 1000;
                 TIME_INTERVAL = setInterval( function(){ dragTimer(); }, 10);
             }
 
@@ -722,6 +733,7 @@ function newElementByItem(item){
 //  Count Attack
 //==============================================================
 function countAttack(){
+console.log(0);
     var members = [
         TEAM_LEADER,
         MEMBER_1,
@@ -843,7 +855,7 @@ function nextMoveWave(){
     startDragging();
 }
 function newMoveWave(){
-    //Maybe used in next move
+    //Maybe used in end attack effect
     resetComboStack();
     resetHistory();
     renewTimeDiv();

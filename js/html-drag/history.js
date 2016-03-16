@@ -327,22 +327,27 @@ function download()
     }
 }
 function parseDownloadJson(){
-    var json = {
-                    "HISTORY": HISTORY,
-                    "HISTORY_SHOW": HISTORY_SHOW, 
-                    "INITIAL_PANEL": INITIAL_PANEL,
-                    "FINAL_PANEL": FINAL_PANEL,
-                    "TD_NUM": TD_NUM,
-                    "TR_NUM": TR_NUM,
-                    "AUTO_REMOVE": AUTO_REMOVE,
-                    "HISTORY_RANDOM": HISTORY_RANDOM,
-                    "DROPABLE": DROPABLE,
-                    "TEAM_COLORS": TEAM_COLORS,
-                    "TEAM_LEADER_SKILL": TEAM_LEADER_SKILL,
-                    "TEAM_FRIEND_SKILL": TEAM_FRIEND_SKILL,
-                    "GROUP_SIZE": GROUP_SIZE,
-                    "skillVariables": saveSkillVariable() 
-                };
+    var json = [
+        TD_NUM,
+        TR_NUM,
+
+        HISTORY,
+        HISTORY_SHOW, 
+        INITIAL_PANEL,
+        FINAL_PANEL,
+        HISTORY_RANDOM,
+
+        AUTO_REMOVE,
+        DROPABLE,
+
+        COLORS,
+        COLOR_PROB,
+        COLOR_MAP,
+        GROUP_SIZE,
+
+        HISTORY_TEAM_MEMBER,
+        HISTORY_SKILL_VARIABLE,
+    ];
     return JSON.stringify(json);
 }
 
@@ -360,30 +365,35 @@ function upload()
 function parseUploadJson(msg){
     try{
         var json = JSON.parse(msg);
-        HISTORY = json["HISTORY"];
-        HISTORY_SHOW = json["HISTORY_SHOW"];
-        INITIAL_PANEL = json["INITIAL_PANEL"];
-        FINAL_PANEL = json["FINAL_PANEL"];
-        TD_NUM = json["TD_NUM"];
-        TR_NUM = json["TR_NUM"];
-        HISTORY_RANDOM = json["HISTORY_RANDOM"];
-        AUTO_REMOVE = json["AUTO_REMOVE"];
-        DROPABLE = json["DROPABLE"];
-        TEAM_COLORS = json["TEAM_COLORS"];
-        TEAM_LEADER_SKILL = json["TEAM_LEADER_SKILL"];
-        TEAM_FRIEND_SKILL = json["TEAM_FRIEND_SKILL"];
-        GROUP_SIZE = json["GROUP_SIZE"];
-
+        TD_NUM                 = json[0];
+        TR_NUM                 = json[1];
         $("#dragContainment").attr("td", TD_NUM).attr("tr", TR_NUM);
+
+        HISTORY                = json[2];
+        HISTORY_SHOW           = json[3];
+        INITIAL_PANEL          = json[4];
+        FINAL_PANEL            = json[5];
+        HISTORY_RANDOM         = json[6];
         COLOR_RANDOM = HISTORY_RANDOM;
-        if( DROPABLE ){
-            $("#dropable").text("隨機落珠");
-        }
+
+        AUTO_REMOVE            = json[7];
+        DROPABLE               = json[8];
         if( !AUTO_REMOVE ){
             $("#autoRemove").text("保持待機");
         }
-        loadSkillVariable(json["skillVariables"]);
-        HISTORY_SKILL_VARIABLE = json["skillVariables"];
+        if( DROPABLE ){
+            $("#dropable").text("隨機落珠");
+        }
+
+        COLORS                 = json[9];
+        COLOR_PROB             = json[10];
+        COLOR_MAP              = json[11];
+        GROUP_SIZE             = json[12];
+
+        HISTORY_TEAM_MEMBER    = json[13];
+        HISTORY_SKILL_VARIABLE = json[14];
+        loadTeamMembers(HISTORY_TEAM_MEMBER);
+        loadSkillVariable(HISTORY_SKILL_VARIABLE);
 
         if( INITIAL_PANEL.length > 0 ){
             initialTable();
@@ -392,6 +402,7 @@ function parseUploadJson(msg){
             nextMoveWave();
             setHistoryShow();
         }
+
     }catch(e){
         alert("檔案讀取失敗！！\n"+e);
         newRandomPlain();

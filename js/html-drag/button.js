@@ -35,12 +35,17 @@ $(document).ready( function(){
         parseUploadJson( LZString.decompressFromEncodedURIComponent( $.url("?record") ) );
     }else{
         newRandomPlain();
+        initialTeamMember();
+        resetMemberWakes();
+        resetTeamLeaderSkill();
     }
     MAIN_STATE = "count";
-    resetTeam();
+
     closeCanvas();
+    resetColors();
     setComboShow();
     setHistoryShow();
+    resetMemberSelect();
 
     setTimeout( function(){
     resetTimeDiv();
@@ -180,6 +185,7 @@ function replay(){
     MAIN_STATE = "review";
     AUTO_REMOVE = false;
     COLOR_RANDOM = HISTORY_RANDOM;
+    loadTeamMembers(HISTORY_TEAM_MEMBER);
     loadSkillVariable(HISTORY_SKILL_VARIABLE);
     backInitColor();
     resetComboStack();
@@ -287,52 +293,71 @@ function removeSelfColor(id){
     setOptionalColors();
 }
 function setOptionalColors(){
+    cleanColors();
     COLORS = [];
     $("#optionalColors li").each(function(){
         if( $(this).find("img").length > 0 ){
             COLORS.push( $(this).find("img").attr("color") );
         }
     });
+            
+    resetTeamMembers();
+    resetMemberWakes();
     resetTeamLeaderSkill();
+    resetColors();
 }
 
 //==============================================================
 // Team edit
 //==============================================================
-function resetTeam(){
+function initialTeamMember(){    
     TEAM_LEADER = NewCharacter("NONE");
     TEAM_FRIEND = NewCharacter("NONE");
     MEMBER_1 = NewCharacter("NONE");
     MEMBER_2 = NewCharacter("NONE");
     MEMBER_3 = NewCharacter("NONE");
     MEMBER_4 = NewCharacter("NONE");
+}
+function saveTeamMembers(){
+    return [
+        TEAM_LEADER["id"],
+        MEMBER_1["id"],
+        MEMBER_2["id"],
+        MEMBER_3["id"],
+        MEMBER_4["id"],
+        TEAM_FRIEND["id"]
+    ];
+}
+function loadTeamMembers(members){
+    for( var i = 0; i < TD_NUM; i++ ){
+        for( var c of ['w','f','p','l','d','h'] ){
+            delete COLOR_PROB[i][c];
+        }
+    }
+    TEAM_LEADER = NewCharacter( members[0] );
+    MEMBER_1    = NewCharacter( members[1] );
+    MEMBER_2    = NewCharacter( members[2] );
+    MEMBER_3    = NewCharacter( members[3] );
+    MEMBER_4    = NewCharacter( members[4] );
+    TEAM_FRIEND = NewCharacter( members[5] );
+    resetMemberWakes();
+    resetTeamLeaderSkill();
+    $("#TeamMember select").each(function(i){
+        var msdropdown = $(this).msDropDown().data("dd");
+        msdropdown.setIndexByValue( members[i] );
+    });
+}
+function resetMemberSelect(){
+    var members = [
+        TEAM_LEADER,
+        MEMBER_1,
+        MEMBER_2,
+        MEMBER_3,
+        MEMBER_4,
+        TEAM_FRIEND
+    ];
 
-    TEAM_LEADER_WAKES = [
-        WAKES[ TEAM_LEADER["wake"][0] ], WAKES[ TEAM_LEADER["wake"][1] ],
-        WAKES[ TEAM_LEADER["wake"][2] ], WAKES[ TEAM_LEADER["wake"][3] ],
-    ];
-    TEAM_FRIEND_WAKES = [
-        WAKES[ TEAM_FRIEND["wake"][0] ], WAKES[ TEAM_FRIEND["wake"][1] ],
-        WAKES[ TEAM_FRIEND["wake"][2] ], WAKES[ TEAM_FRIEND["wake"][3] ],
-    ];
-    MEMBER_1_WAKES = [
-        WAKES[ MEMBER_1["wake"][0] ], WAKES[ MEMBER_1["wake"][1] ],
-        WAKES[ MEMBER_1["wake"][2] ], WAKES[ MEMBER_1["wake"][3] ],
-    ];
-    MEMBER_2_WAKES = [
-        WAKES[ MEMBER_2["wake"][0] ], WAKES[ MEMBER_2["wake"][1] ],
-        WAKES[ MEMBER_2["wake"][2] ], WAKES[ MEMBER_2["wake"][3] ],
-    ];
-    MEMBER_3_WAKES = [
-        WAKES[ MEMBER_3["wake"][0] ], WAKES[ MEMBER_3["wake"][1] ],
-        WAKES[ MEMBER_3["wake"][2] ], WAKES[ MEMBER_3["wake"][3] ],
-    ];
-    MEMBER_4_WAKES = [
-        WAKES[ MEMBER_4["wake"][0] ], WAKES[ MEMBER_4["wake"][1] ],
-        WAKES[ MEMBER_4["wake"][2] ], WAKES[ MEMBER_4["wake"][3] ],
-    ];
-
-    $("#TeamMember select").each(function(){
+    $("#TeamMember select").each(function(i){
         var msdropdown = $(this).msDropDown().data("dd");
         for(var id in CHARACTERS){
             msdropdown.add({
@@ -340,13 +365,16 @@ function resetTeam(){
                 image: CHARACTERS[id]["img"]
             });
         }
-        msdropdown.setIndexByValue("NONE");
+        msdropdown.setIndexByValue( members[i]["id"] );
         msdropdown.on("change", function(){
+            cleanColors();
+            reserDropColors();
             resetTeamMembers();
+            resetMemberWakes();
+            resetTeamLeaderSkill();
+            resetColors();
         });
     });
-
-    resetTeamLeaderSkill();
 }
 function startEditTeam(){
     $("#StartTeam").hide();
@@ -359,6 +387,9 @@ function closeEditTeam(){
     $("#CloseTeam").hide();
     $("#TeamMember").hide();
 
+    cleanColors();
+    reserDropColors();
+
     TEAM_LEADER = CHARACTERS["NONE"];
     TEAM_FRIEND = CHARACTERS["NONE"];
     MEMBER_1 = CHARACTERS["NONE"];
@@ -369,8 +400,11 @@ function closeEditTeam(){
         var msdropdown = $(this).msDropDown().data("dd");
         msdropdown.setIndexByValue("NONE");
     });
+
+    resetMemberWakes();
     resetTeamLeaderSkill();
     resetTimeDiv();
+    resetColors();
 }
 
 //==============================================================
@@ -398,7 +432,7 @@ $("#file").change(function (){
 $('#timeRange').change(function (){
     $(this).val( Math.max( parseInt($(this).attr("min")), 
         Math.min( parseInt($(this).attr("max")), parseInt($(this).val()) ) ) );
-    TIME_LIMIT = $(this).val();
+    TIME_LIMIT = parseInt( $(this).val() );
 });
 $('#speedSelect').change(function (){
     REPLAY_SPEED = parseInt($(this).val());
@@ -412,46 +446,12 @@ $('#colorSelect').change(function (){
 });
 $("#dropColorSelect").change(function (){
     $("#HorizontalScrollbar").hide();
-    COLOR_MAP = {};
-    for( var i = 0; i < TD_NUM; i++ ){
-        for( var c of ['wq','fq','pq','lq','dq','hq'] ){
-            delete COLOR_PROB[i][c];
-        }
-    }
-
-    if( $(this).val() == "optional" ){
-        $("#optionalColors li img").closest("li").remove();
-        var id = 0;
-        for(var c of ["w", "f", "p", "l", "d", "h"]){
-            var element = $("<img>").attr("src", mapImgSrc(c) );
-            element.attr("color",c).attr("onclick","removeSelfColor("+id+")");
-            var li = $("<li></li>").attr("id","li_"+id).append(element);
-            $("#optionalColors li").eq(-1).before(li);
-            id++;
-        }
-        $("#optionalColors").attr("IDmaker", id);
-        $("#HorizontalScrollbar").show();
-        setOptionalColors();
-
-    }else if( $(this).val().indexOf("MAP") >= 0 ) {
-        var colorBeMap = $(this).val().split(",")[1];
-        var colorToMap = $(this).val().split(",")[2];
-        COLORS = ['w', 'f', 'p', 'l', 'd', 'h'];
-        COLOR_MAP[colorBeMap] = colorToMap;
-
-    }else if( $(this).val() == "question" ){
-        COLORS = ['w', 'f', 'p', 'l', 'd', 'h'];
-        for( var i = 0; i < TD_NUM; i++ ){
-            for( var c of ['wq','fq','pq','lq','dq','hq'] ){
-                COLOR_PROB[i][c] = 0.1/6;
-            }
-        }
-
-    }else{
-        COLORS = $(this).val().split(",");
-    }
-
+    cleanColors();
+    reserDropColors();
+    resetTeamMembers();
+    resetMemberWakes();
     resetTeamLeaderSkill();
+    resetColors();
 });
 
 $("#locusSelect").change(function (){
@@ -469,62 +469,76 @@ $("#locusSelect").change(function (){
     }
 });
 
+function reserDropColors(){
+    if( $("#dropColorSelect").val() == "optional" ){
+        if( $("#HorizontalScrollbar").is(":visible") ){
+            setOptionalColors();
+        }else{
+            $("#optionalColors li img").closest("li").remove();
+            var id = 0;
+            for(var c of ["w", "f", "p", "l", "d", "h"]){
+                var element = $("<img>").attr("src", mapImgSrc(c) );
+                element.attr("color",c).attr("onclick","removeSelfColor("+id+")");
+                var li = $("<li></li>").attr("id","li_"+id).append(element);
+                $("#optionalColors li").eq(-1).before(li);
+                id++;
+            }
+            $("#optionalColors").attr("IDmaker", id);
+            $("#HorizontalScrollbar").show();
+            setOptionalColors();
+        }
+
+    }else if( $("#dropColorSelect").val().indexOf("MAP") >= 0 ) {
+        var colorBeMap = $("#dropColorSelect").val().split(",")[1];
+        var colorToMap = $("#dropColorSelect").val().split(",")[2];
+        COLOR_MAP[colorBeMap] = colorToMap;
+
+    }else if( $("#dropColorSelect").val() == "question" ){
+        for( var i = 0; i < TD_NUM; i++ ){
+            for( var c of ['wq','fq','pq','lq','dq','hq'] ){
+                COLOR_PROB[i][c] = 0.1/6;
+            }
+        }
+
+    }else if( $("#dropColorSelect").val() ){
+        COLORS = $("#dropColorSelect").val().split(",");
+    }
+}
+
 function resetTeamMembers(){
     TEAM_LEADER = NewCharacter( $("#TeamLeaderSelect").val() );
+    MEMBER_1    = NewCharacter( $("#TeamMember1Select").val() );
+    MEMBER_2    = NewCharacter( $("#TeamMember2Select").val() );
+    MEMBER_3    = NewCharacter( $("#TeamMember3Select").val() );
+    MEMBER_4    = NewCharacter( $("#TeamMember4Select").val() );
+    TEAM_FRIEND = NewCharacter( $("#TeamFriendSelect").val() );
+}
+function resetMemberWakes(){
     TEAM_LEADER_WAKES = [
         WAKES[ TEAM_LEADER["wake"][0] ], WAKES[ TEAM_LEADER["wake"][1] ],
         WAKES[ TEAM_LEADER["wake"][2] ], WAKES[ TEAM_LEADER["wake"][3] ],
     ];
-    MEMBER_1 = NewCharacter( $("#TeamMember1Select").val() );
     MEMBER_1_WAKES = [
         WAKES[ MEMBER_1["wake"][0] ], WAKES[ MEMBER_1["wake"][1] ],
         WAKES[ MEMBER_1["wake"][2] ], WAKES[ MEMBER_1["wake"][3] ],
     ];
-    MEMBER_2 = NewCharacter( $("#TeamMember2Select").val() );
     MEMBER_2_WAKES = [
         WAKES[ MEMBER_2["wake"][0] ], WAKES[ MEMBER_2["wake"][1] ],
         WAKES[ MEMBER_2["wake"][2] ], WAKES[ MEMBER_2["wake"][3] ],
     ];
-    MEMBER_3 = NewCharacter( $("#TeamMember3Select").val() );
     MEMBER_3_WAKES = [
         WAKES[ MEMBER_3["wake"][0] ], WAKES[ MEMBER_3["wake"][1] ],
         WAKES[ MEMBER_3["wake"][2] ], WAKES[ MEMBER_3["wake"][3] ],
     ];
-    MEMBER_4 = NewCharacter( $("#TeamMember4Select").val() );
     MEMBER_4_WAKES = [
         WAKES[ MEMBER_4["wake"][0] ], WAKES[ MEMBER_4["wake"][1] ],
         WAKES[ MEMBER_4["wake"][2] ], WAKES[ MEMBER_4["wake"][3] ],
     ];
-    TEAM_FRIEND = NewCharacter( $("#TeamFriendSelect").val() );
     TEAM_FRIEND_WAKES = [
         WAKES[ TEAM_FRIEND["wake"][0] ], WAKES[ TEAM_FRIEND["wake"][1] ],
         WAKES[ TEAM_FRIEND["wake"][2] ], WAKES[ TEAM_FRIEND["wake"][3] ],
-    ];    
-    resetTeamLeaderSkill();
-}
-
-function resetTeamLeaderSkill(){
-    for( var i = 0; i < TD_NUM; i++ ){
-        for( var c of ['w','f','p','l','d','h'] ){
-            delete COLOR_PROB[i][c];
-        }
-    }
-    TEAM_COLORS_CHANGEABLE = true;
-    GROUP_SIZE = {'w':3, 'f':3, 'p':3, 'l':3, 'd':3, 'h':3};
-
-    TEAM_LEADER_SKILL = LEADER_SKILLS[ TEAM_LEADER['leader'] ];
-    TEAM_FRIEND_SKILL = LEADER_SKILLS[ TEAM_FRIEND['leader'] ];
-
-    if( "preSet" in TEAM_LEADER_SKILL ){
-        TEAM_LEADER_SKILL_VAR = TEAM_LEADER_SKILL['preSet']( TEAM_LEADER );
-    }
-    if( "preSet" in TEAM_FRIEND_SKILL ){
-        TEAM_FRIEND_SKILL_VAR = TEAM_FRIEND_SKILL['preSet']( TEAM_FRIEND );
-    }
-
+    ];
     checkWakeSkill();
-    checkTeamSkill();
-    resetColors();
 }
 function checkWakeSkill(){
     var members = [
@@ -554,21 +568,58 @@ function checkWakeSkill(){
         });
     });
 }
+function resetTeamLeaderSkill(){
+    TEAM_COLORS_CHANGEABLE = true;
+    GROUP_SIZE = {'w':3, 'f':3, 'p':3, 'l':3, 'd':3, 'h':3};
+
+    TEAM_LEADER_SKILL = LEADER_SKILLS[ TEAM_LEADER['leader'] ];
+    TEAM_FRIEND_SKILL = LEADER_SKILLS[ TEAM_FRIEND['leader'] ];
+    checkTeamSkill();
+
+    if( "preSet" in TEAM_LEADER_SKILL ){
+        TEAM_LEADER_SKILL_VAR = TEAM_LEADER_SKILL['preSet']( TEAM_LEADER );
+    }
+    if( "preSet" in TEAM_FRIEND_SKILL ){
+        TEAM_FRIEND_SKILL_VAR = TEAM_FRIEND_SKILL['preSet']( TEAM_FRIEND );
+    }
+}
 function checkTeamSkill(){
     TEAM_SKILL = TEAM_LEADER_SKILLS["NONE"];
-    if( TEAM_LEADER['leader'] == TEAM_FRIEND['leader'] && TEAM_FRIEND['leader'] == "GREEK" ){
+
+    if( TEAM_LEADER['id'] == TEAM_FRIEND['id'] && TEAM_FRIEND['id'].indexOf("NORDIC") >= 0 ){
+        TEAM_SKILL = TEAM_LEADER_SKILLS["NORDIC"];
+        var check = false;
+        if( MEMBER_1['id'] == "BOSS_ODIN" ){
+            check = true;
+            MEMBER_1["color"] = TEAM_LEADER["color"];
+        }else if( MEMBER_2['id'] == "BOSS_ODIN" ){
+            check = true;
+            MEMBER_2["color"] = TEAM_LEADER["color"];
+        }else if( MEMBER_3['id'] == "BOSS_ODIN" ){
+            check = true;
+            MEMBER_3["color"] = TEAM_LEADER["color"];
+        }else if( MEMBER_4['id'] == "BOSS_ODIN" ){
+            check = true;
+            MEMBER_4["color"] = TEAM_LEADER["color"];
+        }
+        if(check){
+            TEAM_LEADER_SKILL = LEADER_SKILLS[ "ElementFactor3_5" ];
+            TEAM_FRIEND_SKILL = LEADER_SKILLS[ "ElementFactor3_5" ];
+        }
+    }
+    if( TEAM_LEADER['id'] == TEAM_FRIEND['id'] && TEAM_FRIEND['leader'] == "GREEK" ){
         TEAM_SKILL = TEAM_LEADER_SKILLS["GREEK"];
     }
-    if( TEAM_LEADER['leader'] == TEAM_FRIEND['leader'] && TEAM_FRIEND['leader'] == "BABYLON" ){
+    if( TEAM_LEADER['id'] == TEAM_FRIEND['id'] && TEAM_FRIEND['leader'] == "BABYLON" ){
         TEAM_SKILL = TEAM_LEADER_SKILLS["BABYLON"];
     }
-    if( TEAM_LEADER['leader'] == TEAM_FRIEND['leader'] && TEAM_FRIEND['leader'] == "DARK_LUCIFER" ){
+    if( TEAM_LEADER['id'] == TEAM_FRIEND['id'] && TEAM_FRIEND['leader'] == "DARK_LUCIFER" ){
         TEAM_SKILL = TEAM_LEADER_SKILLS["DARK_LUCIFER"];
     }
-    if( TEAM_LEADER['leader'] == TEAM_FRIEND['leader'] && TEAM_FRIEND['leader'] == "COUPLE_F" ){
+    if( TEAM_LEADER['id'] == TEAM_FRIEND['id'] && TEAM_FRIEND['leader'] == "COUPLE_F" ){
         TEAM_SKILL = TEAM_LEADER_SKILLS["COUPLE_FF"];
     }
-    if( TEAM_LEADER['leader'] == TEAM_FRIEND['leader'] && TEAM_FRIEND['leader'] == "COUPLE_P" ){
+    if( TEAM_LEADER['id'] == TEAM_FRIEND['id'] && TEAM_FRIEND['leader'] == "COUPLE_P" ){
         TEAM_SKILL = TEAM_LEADER_SKILLS["COUPLE_PP"];
     }
     if( (TEAM_LEADER['leader'] == "COUPLE_F" && TEAM_FRIEND['leader'] == "COUPLE_P") || 

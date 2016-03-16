@@ -4,20 +4,70 @@
 var COUPLE_RAND_STACK = [];
 
 function saveSkillVariable(){
-    var json = {
-                    "TEAM_LEADER_SKILL_VAR"  : TEAM_LEADER_SKILL_VAR,
-                    "TEAM_FRIEND_SKILL_VAR" : TEAM_FRIEND_SKILL_VAR,
-                    "TEAM_SKILL_VAR"        : TEAM_SKILL_VAR
-                };
+    var json = 
+    [
+        TEAM_LEADER_SKILL_VAR,
+        TEAM_FRIEND_SKILL_VAR,
+        TEAM_SKILL_VAR,
+    ];
     return JSON.stringify(json);
 }
 function loadSkillVariable(msg){
     var json = JSON.parse(msg);
-    TEAM_LEADER_SKILL_VAR   = json["TEAM_LEADER_SKILL_VAR"];
-    TEAM_FRIEND_SKILL_VAR   = json["TEAM_FRIEND_SKILL_VAR"];
-    TEAM_SKILL_VAR          = json["TEAM_SKILL_VAR"];
+    TEAM_LEADER_SKILL_VAR   = json[0];
+    TEAM_FRIEND_SKILL_VAR   = json[1];
+    TEAM_SKILL_VAR          = json[2];
 }
 
+//==============================================================
+// ElementFactor
+//==============================================================
+var ElementFactor3Setting = function( MEMBER ){
+    return {
+        'COLOR' : MEMBER['color'],
+    };
+}
+var ElementFactor3Attack = function( VAR, direct ){
+    var color = VAR['COLOR'];
+    COUNT_FACTOR['ElementFactor3'+direct] = {
+        factor    : function( member ){ return 3; },
+        prob      : 1,
+        condition : function( member ){
+            if( member['color'] == color ){ return true; }
+            return false;
+        },
+    };
+}
+var ElementFactor3_5Setting = function( MEMBER ){
+    return {
+        'COLOR' : MEMBER['color'],
+    };
+}
+var ElementFactor3_5Attack = function( VAR, direct ){
+    var color = VAR['COLOR'];
+    COUNT_FACTOR['ElementFactor3'+direct] = {
+        factor    : function( member ){ return 3.5; },
+        prob      : 1,
+        condition : function( member ){
+            if( member['color'] == color ){ return true; }
+            return false;
+        },
+    };
+}
+
+var TeamNordicAttack = function( VAR, direct ){
+    COUNT_STRONG_COEFF += 0.15;
+}
+var TeamNordicSetting = function( MEMBER ){
+    var color = MEMBER['color'];
+    for(var i = 0; i < TD_NUM; i++){
+        COLOR_PROB[i][ color ] = 0.25;
+    }
+}
+
+//==============================================================
+// ChinaGod
+//==============================================================
 var ChinaDAttack = function( VAR, direct ){
     COUNT_COMBO_COEFF += 1.25;
 }
@@ -290,7 +340,7 @@ var TeamCoupleAttackFP = function( VAR, direct ){
 var SwordBrotherAttack = function( VAR, direct ){
     COUNT_BELONG_COLOR['l']['d'] += 0.5;
     COUNT_BELONG_COLOR['d']['l'] += 0.5;
-    COUNT_FACTOR['SWORD_BROTHER'+direct] = {
+    COUNT_FACTOR['SwordBrother'+direct] = {
         factor    : function( member ){ return 2.5; },
         prob      : 1,
         condition : function( member ){
@@ -300,12 +350,43 @@ var SwordBrotherAttack = function( VAR, direct ){
             return false;
         },
     };
-    COUNT_FACTOR['SWORD_BROTHER_BOTH'+direct] = {
+    COUNT_FACTOR['SwordBrotherBoth'+direct] = {
         factor    : function( member ){ return 1.5; },
         prob      : 1,
         condition : function( member ){
             if( COUNT_AMOUNT['l'] > 0 && COUNT_AMOUNT['d'] > 0 ){
                 return true;
+            }
+            return false;
+        },
+    };
+}
+
+var DevilCircleSetting = function( MEMBER ){
+    TIME_LIMIT += 1;
+    $('#timeRange').val( TIME_LIMIT );
+    return {
+        'COLOR' : MEMBER['color']
+    };
+}
+var DevilCircleAttack = function( VAR, direct ){
+    var color = VAR['COLOR'];
+    COUNT_FACTOR['DevilCircle'+direct] = {
+        factor    : function( member ){ return 3; },
+        prob      : 1,
+        condition : function( member ){
+            if( member['color'] == color ){ return true; }
+            return false;
+        },
+    };
+    COUNT_FACTOR['DevilCircle5Set'+direct] = {
+        factor    : function( member ){ return 1.5; },
+        prob      : 1,
+        condition : function( member ){
+            for(var obj of COMBO_STACK){
+                if( obj['color'] == color && obj['amount'] >= 5 ){
+                    return true;
+                }
             }
             return false;
         },
@@ -419,7 +500,8 @@ var endBrokeBoundary = function(){
         }
     }
     window.scrollTo(0, $("#clock").offset().top-3*HEIGHT);
-    checkAttack();
+console.log(0);
+    //checkAttack();
 }
 
 //==============================================================
@@ -474,9 +556,9 @@ function turnElementToColorByID(id, color){
 //==============================================================
 var HealthAttackRecoveryIncrease = function( MEMBER, place, wakeVar ){
     // wakeVar = "[+health,+attack,+recovery]"
-    MEMBER['health']   = MEMBER['health'] + eval(wakeVar)[0];
-    MEMBER['attack']   = MEMBER['attack'] + eval(wakeVar)[1];
-    MEMBER['recovery'] = MEMBER['recovery'] + eval(wakeVar)[2];
+    MEMBER['health']   += eval(wakeVar)[0];
+    MEMBER['attack']   += eval(wakeVar)[1];
+    MEMBER['recovery'] += eval(wakeVar)[2];
 }
 
 var DropIncrease = function( MEMBER, place, wakeVar ){
