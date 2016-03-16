@@ -341,55 +341,9 @@ function resetTeam(){
             });
         }
         msdropdown.setIndexByValue("NONE");
-    });
-
-    $("#TeamLeaderSelect").on("change", function(){
-        TEAM_LEADER = NewCharacter( $(this).val() );
-        TEAM_LEADER_WAKES = [
-            WAKES[ TEAM_LEADER["wake"][0] ], WAKES[ TEAM_LEADER["wake"][1] ],
-            WAKES[ TEAM_LEADER["wake"][2] ], WAKES[ TEAM_LEADER["wake"][3] ],
-        ];
-        resetTeamLeaderSkill();
-    });
-    $("#TeamMember1Select").on("change", function(){
-        MEMBER_1 = NewCharacter( $(this).val() );
-        MEMBER_1_WAKES = [
-            WAKES[ MEMBER_1["wake"][0] ], WAKES[ MEMBER_1["wake"][1] ],
-            WAKES[ MEMBER_1["wake"][2] ], WAKES[ MEMBER_1["wake"][3] ],
-        ];
-        resetTeamLeaderSkill();
-    });
-    $("#TeamMember2Select").on("change", function(){
-        MEMBER_2 = NewCharacter( $(this).val() );
-        MEMBER_2_WAKES = [
-            WAKES[ MEMBER_2["wake"][0] ], WAKES[ MEMBER_2["wake"][1] ],
-            WAKES[ MEMBER_2["wake"][2] ], WAKES[ MEMBER_2["wake"][3] ],
-        ];
-        resetTeamLeaderSkill();
-    });
-    $("#TeamMember3Select").on("change", function(){
-        MEMBER_3 = NewCharacter( $(this).val() );
-        MEMBER_3_WAKES = [
-            WAKES[ MEMBER_3["wake"][0] ], WAKES[ MEMBER_3["wake"][1] ],
-            WAKES[ MEMBER_3["wake"][2] ], WAKES[ MEMBER_3["wake"][3] ],
-        ];
-        resetTeamLeaderSkill();
-    });
-    $("#TeamMember4Select").on("change", function(){
-        MEMBER_4 = NewCharacter( $(this).val() );
-        MEMBER_4_WAKES = [
-            WAKES[ MEMBER_4["wake"][0] ], WAKES[ MEMBER_4["wake"][1] ],
-            WAKES[ MEMBER_4["wake"][2] ], WAKES[ MEMBER_4["wake"][3] ],
-        ];
-        resetTeamLeaderSkill();
-    });
-    $("#TeamFriendSelect").on("change", function(){
-        TEAM_FRIEND = NewCharacter( $(this).val() );
-        TEAM_FRIEND_WAKES = [
-            WAKES[ TEAM_FRIEND["wake"][0] ], WAKES[ TEAM_FRIEND["wake"][1] ],
-            WAKES[ TEAM_FRIEND["wake"][2] ], WAKES[ TEAM_FRIEND["wake"][3] ],
-        ];        
-        resetTeamLeaderSkill();
+        msdropdown.on("change", function(){
+            resetTeamMembers();
+        });
     });
 
     resetTeamLeaderSkill();
@@ -515,6 +469,39 @@ $("#locusSelect").change(function (){
     }
 });
 
+function resetTeamMembers(){
+    TEAM_LEADER = NewCharacter( $("#TeamLeaderSelect").val() );
+    TEAM_LEADER_WAKES = [
+        WAKES[ TEAM_LEADER["wake"][0] ], WAKES[ TEAM_LEADER["wake"][1] ],
+        WAKES[ TEAM_LEADER["wake"][2] ], WAKES[ TEAM_LEADER["wake"][3] ],
+    ];
+    MEMBER_1 = NewCharacter( $("#TeamMember1Select").val() );
+    MEMBER_1_WAKES = [
+        WAKES[ MEMBER_1["wake"][0] ], WAKES[ MEMBER_1["wake"][1] ],
+        WAKES[ MEMBER_1["wake"][2] ], WAKES[ MEMBER_1["wake"][3] ],
+    ];
+    MEMBER_2 = NewCharacter( $("#TeamMember2Select").val() );
+    MEMBER_2_WAKES = [
+        WAKES[ MEMBER_2["wake"][0] ], WAKES[ MEMBER_2["wake"][1] ],
+        WAKES[ MEMBER_2["wake"][2] ], WAKES[ MEMBER_2["wake"][3] ],
+    ];
+    MEMBER_3 = NewCharacter( $("#TeamMember3Select").val() );
+    MEMBER_3_WAKES = [
+        WAKES[ MEMBER_3["wake"][0] ], WAKES[ MEMBER_3["wake"][1] ],
+        WAKES[ MEMBER_3["wake"][2] ], WAKES[ MEMBER_3["wake"][3] ],
+    ];
+    MEMBER_4 = NewCharacter( $("#TeamMember4Select").val() );
+    MEMBER_4_WAKES = [
+        WAKES[ MEMBER_4["wake"][0] ], WAKES[ MEMBER_4["wake"][1] ],
+        WAKES[ MEMBER_4["wake"][2] ], WAKES[ MEMBER_4["wake"][3] ],
+    ];
+    TEAM_FRIEND = NewCharacter( $("#TeamFriendSelect").val() );
+    TEAM_FRIEND_WAKES = [
+        WAKES[ TEAM_FRIEND["wake"][0] ], WAKES[ TEAM_FRIEND["wake"][1] ],
+        WAKES[ TEAM_FRIEND["wake"][2] ], WAKES[ TEAM_FRIEND["wake"][3] ],
+    ];    
+    resetTeamLeaderSkill();
+}
 
 function resetTeamLeaderSkill(){
     for( var i = 0; i < TD_NUM; i++ ){
@@ -540,36 +527,32 @@ function resetTeamLeaderSkill(){
     resetColors();
 }
 function checkWakeSkill(){
-    for(var wake of TEAM_LEADER_WAKES){
-        if( "preSet" in wake ){
-            wake["preSet"]( TEAM_LEADER, 0 );
-        }
-    }
-    for(var wake of MEMBER_1_WAKES){
-        if( "preSet" in wake ){
-            wake["preSet"]( MEMBER_1, 1 );
-        }
-    }
-    for(var wake of MEMBER_2_WAKES){
-        if( "preSet" in wake ){
-            wake["preSet"]( MEMBER_2, 2 );
-        }
-    }
-    for(var wake of MEMBER_3_WAKES){
-        if( "preSet" in wake ){
-            wake["preSet"]( MEMBER_3, 3 );
-        }
-    }
-    for(var wake of MEMBER_4_WAKES){
-        if( "preSet" in wake ){
-            wake["preSet"]( MEMBER_4, 4 );
-        }
-    }
-    for(var wake of TEAM_FRIEND_WAKES){
-        if( "preSet" in wake ){
-            wake["preSet"]( TEAM_FRIEND, 5 );
-        }
-    }
+    var members = [
+        TEAM_LEADER,
+        MEMBER_1,
+        MEMBER_2,
+        MEMBER_3,
+        MEMBER_4,
+        TEAM_FRIEND
+    ];
+    var team_wakes = [
+        TEAM_LEADER_WAKES,
+        MEMBER_1_WAKES,
+        MEMBER_2_WAKES,
+        MEMBER_3_WAKES,
+        MEMBER_4_WAKES,
+        TEAM_FRIEND_WAKES
+    ];
+
+    $.each(team_wakes, function(place, wakes){
+        $.each(wakes, function(i, wake){
+            var member = members[place];
+            var wake_var = member['wake_var'][i];
+            if( "preSet" in wake ){
+                wake["preSet"]( member, place, wake_var );
+            }
+        });
+    });
 }
 function checkTeamSkill(){
     TEAM_SKILL = TEAM_LEADER_SKILLS["NONE"];

@@ -18,6 +18,10 @@ function loadSkillVariable(msg){
     TEAM_SKILL_VAR          = json["TEAM_SKILL_VAR"];
 }
 
+var ChinaDAttack = function( VAR, direct ){
+    COUNT_COMBO_COEFF += 1.25;
+}
+
 //==============================================================
 // Babylon
 //==============================================================
@@ -283,6 +287,31 @@ var TeamCoupleAttackFP = function( VAR, direct ){
     };
 }
 
+var SwordBrotherAttack = function( VAR, direct ){
+    COUNT_BELONG_COLOR['l']['d'] += 0.5;
+    COUNT_BELONG_COLOR['d']['l'] += 0.5;
+    COUNT_FACTOR['SWORD_BROTHER'+direct] = {
+        factor    : function( member ){ return 2.5; },
+        prob      : 1,
+        condition : function( member ){
+            if( member['color'] == 'l' ||  member['color'] == 'd' ){ 
+                return true;
+            }
+            return false;
+        },
+    };
+    COUNT_FACTOR['SWORD_BROTHER_BOTH'+direct] = {
+        factor    : function( member ){ return 1.5; },
+        prob      : 1,
+        condition : function( member ){
+            if( COUNT_AMOUNT['l'] > 0 && COUNT_AMOUNT['d'] > 0 ){
+                return true;
+            }
+            return false;
+        },
+    };
+}
+
 //==============================================================
 // BrokeBoundary
 //==============================================================
@@ -443,10 +472,53 @@ function turnElementToColorByID(id, color){
 // WAKE SKILL
 //==============================================================
 //==============================================================
+var HealthAttackRecoveryIncrease = function( MEMBER, place, wakeVar ){
+    // wakeVar = "[+health,+attack,+recovery]"
+    MEMBER['health']   = MEMBER['health'] + eval(wakeVar)[0];
+    MEMBER['attack']   = MEMBER['attack'] + eval(wakeVar)[1];
+    MEMBER['recovery'] = MEMBER['recovery'] + eval(wakeVar)[2];
+}
 
-var DropIncrease = function( MEMBER, place ){
-    var color = MEMBER['color'];
+var DropIncrease = function( MEMBER, place, wakeVar ){
+    // wakeVar = color
+    var color = wakeVar;
     if( COLORS.indexOf(color) >= 0 ){
         COLOR_PROB[ place ][ color ] = 0.4;
     }
+}
+
+var StraightAttack = function( wakeVar, place, i ){
+    // wakeVar = "[factor,straightSize]"
+    COUNT_FACTOR['StraightAttack_'+place+'_'+i] = {
+        factor    : function( member ){
+            return  eval(wakeVar)[0];
+        },
+        prob      : 1,
+        condition : function( member ){
+            for( var set of ALL_GROUP_SET_STACK[0]['STRAIGHT_SETS'][place] ){
+                if( set.size >= eval(wakeVar)[1] ){
+                    return true;
+                }
+            }
+            return false;
+        },
+    };    
+}
+
+var StraightRecover = function( wakeVar, place, i ){
+    // wakeVar = "[factor,straightSize]"
+    COUNT_RECOVER_FACTOR['StraightRecover_'+place+'_'+i] = {
+        factor    : function( member ){
+            return  eval(wakeVar)[0];
+        },
+        prob      : 1,
+        condition : function( member ){
+            for( var set of ALL_GROUP_SET_STACK[0]['STRAIGHT_SETS'][place] ){
+                if( set.size >= eval(wakeVar)[1] ){
+                    return true;
+                }
+            }
+            return false;
+        },
+    };    
 }

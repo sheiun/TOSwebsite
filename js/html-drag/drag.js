@@ -50,7 +50,7 @@ var COUNT_STRONG               = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 
 var COUNT_STRONG_COEFF         = 0.15;
 var COUNT_SETS                 = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
 var COUNT_FIRST_SETS           = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
-var COUNT_BELONG_COLOR         = { 'w': {}, 'f': {}, 'p': {}, 'l': {}, 'd': {}, 'h': {} };
+var COUNT_BELONG_COLOR         = { };
 var COUNT_BELONG_AMOUNT        = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
 var COUNT_BELONG_STRONG        = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
 var COUNT_BELONG_SETS          = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
@@ -248,7 +248,13 @@ function resetCount(){
     COUNT_STRONG_COEFF         = 0.15;
     COUNT_SETS                 = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
     COUNT_FIRST_SETS           = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
-    COUNT_BELONG_COLOR         = { 'w': {}, 'f': {}, 'p': {}, 'l': {}, 'd': {}, 'h': {} };
+    COUNT_BELONG_COLOR         = {
+    'w': { 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 },
+    'f': { 'w': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 },
+    'p': { 'w': 0, 'f': 0, 'l': 0, 'd': 0, 'h': 0 },
+    'l': { 'w': 0, 'f': 0, 'p': 0, 'd': 0, 'h': 0 },
+    'd': { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'h': 0 },
+    'h': { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0 } };
     COUNT_BELONG_AMOUNT        = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
     COUNT_BELONG_STRONG        = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
     COUNT_BELONG_SETS          = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
@@ -716,6 +722,23 @@ function newElementByItem(item){
 //  Count Attack
 //==============================================================
 function countAttack(){
+    var members = [
+        TEAM_LEADER,
+        MEMBER_1,
+        MEMBER_2,
+        MEMBER_3,
+        MEMBER_4,
+        TEAM_FRIEND
+    ];
+    var team_wakes = [
+        TEAM_LEADER_WAKES,
+        MEMBER_1_WAKES,
+        MEMBER_2_WAKES,
+        MEMBER_3_WAKES,
+        MEMBER_4_WAKES,
+        TEAM_FRIEND_WAKES
+    ];
+
     resetCount();
 
     if( "attack" in TEAM_LEADER_SKILL ){
@@ -728,15 +751,28 @@ function countAttack(){
         TEAM_SKILL["attack"]( TEAM_SKILL_VAR );
     }
 
+    $.each(team_wakes, function(place, wakes){
+        $.each(wakes, function(i, wake){
+            if( "attack" in wake ){
+                wake["attack"]( members[place]['wake_var'][i], place, i );
+            }
+            if( "recover" in wake ){
+                wake["recover"]( members[place]['wake_var'][i], place, i );
+            }
+        });
+    });
+
     for(var obj of COMBO_STACK){
         var c = obj['color'];
         COUNT_AMOUNT[c] += obj['amount'];
         COUNT_STRONG[c] += obj['strong_amount'];
 
         for(var belong_color in COUNT_BELONG_COLOR[c]){
-            COUNT_BELONG_AMOUNT[belong_color] += obj['amount'] * COUNT_BELONG_COLOR[c][belong_color];
-            COUNT_BELONG_STRONG[belong_color] += obj['strong_amount'] * COUNT_BELONG_COLOR[c][belong_color];
-            COUNT_BELONG_SETS[belong_color] += 1;
+            if(  COUNT_BELONG_COLOR[c][belong_color] > 0 ){
+                COUNT_BELONG_AMOUNT[belong_color] += obj['amount'] * COUNT_BELONG_COLOR[c][belong_color];
+                COUNT_BELONG_STRONG[belong_color] += obj['strong_amount'] * COUNT_BELONG_COLOR[c][belong_color];
+                COUNT_BELONG_SETS[belong_color] += 1;
+            }
         }
 
         COUNT_SETS[c] += 1;
@@ -745,7 +781,6 @@ function countAttack(){
         }
     }
 
-    var members = [ TEAM_LEADER, MEMBER_1, MEMBER_2, MEMBER_3, MEMBER_4, TEAM_FRIEND ];
     for( var i = 0; i < members.length; i++ ){
         var member = members[i];
         var color = member["color"];
@@ -757,7 +792,7 @@ function countAttack(){
         var strongs      = ( COUNT_STRONG[color] + COUNT_BELONG_STRONG[color]   );
         var strongsCoeff = strongs * COUNT_STRONG_COEFF;
         var atk          = comboCoeff * ( amountsCoeff + strongsCoeff );
-        console.log(amounts+';'+amountsCoeff+';'+atk);
+        console.log(comboCoeff+';'+amounts+';'+amountsCoeff+';'+strongs+';'+strongsCoeff+'=>'+atk);
         for(var key in COUNT_FACTOR){
             if( COUNT_FACTOR[key]["condition"]( member ) ){
                 if( randomBySeed() < COUNT_FACTOR[key]["prob"] ){
