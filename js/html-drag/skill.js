@@ -500,8 +500,7 @@ var endBrokeBoundary = function(){
         }
     }
     window.scrollTo(0, $("#clock").offset().top-3*HEIGHT);
-console.log(0);
-    //checkAttack();
+    checkAttack();
 }
 
 //==============================================================
