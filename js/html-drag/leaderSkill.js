@@ -15,9 +15,9 @@ var ElementFactor3Setting = function( MEMBER ){
 var ElementFactor3Attack = function( VAR, direct ){
     var color = VAR['COLOR'];
     COUNT_FACTOR['ElementFactor3'+direct] = {
-        factor    : function( member ){ return 3; },
+        factor    : function( member, member_place ){ return 3; },
         prob      : 1,
-        condition : function( member ){
+        condition : function( member, member_place ){
             if( member['color'] == color ){ return true; }
             return false;
         },
@@ -31,9 +31,9 @@ var ElementFactor3_5Setting = function( MEMBER ){
 var ElementFactor3_5Attack = function( VAR, direct ){
     var color = VAR['COLOR'];
     COUNT_FACTOR['ElementFactor3'+direct] = {
-        factor    : function( member ){ return 3.5; },
+        factor    : function( member, member_place ){ return 3.5; },
         prob      : 1,
-        condition : function( member ){
+        condition : function( member, member_place ){
             if( member['color'] == color ){ return true; }
             return false;
         },
@@ -72,9 +72,9 @@ var BabylonSkill = function( VAR, direct ){
 var BabylonAttack = function( VAR, direct ){
     var color = VAR['COLOR'];
     COUNT_FACTOR['Babylon'+direct] = {
-        factor    : function( member ){ return 3; },
+        factor    : function( member, member_place ){ return 3; },
         prob      : 1,
-        condition : function( member ){
+        condition : function( member, member_place ){
             if( member['color'] == color ){
                 return true;
             }
@@ -86,6 +86,57 @@ var BabylonAttack = function( VAR, direct ){
 //==============================================================
 // DarkLucifer
 //==============================================================
+var WaterFairySetting = function( MEMBER ){
+    return {
+        'COLOR' : MEMBER['color'],
+    };
+}
+var WaterFairyAttack = function( VAR, direct ){
+    COUNT_FACTOR['WaterFairy'+direct] = {
+        factor    : function( member, member_place ){ return 2.5; },
+        prob      : 1,
+        condition : function( member, member_place ){
+            if( member['color'] == VAR['COLOR'] ){
+                return true;
+            }
+            return false;
+        },
+    };
+    if( !('WaterFairyBaseLine' in COUNT_FACTOR) ){
+        COUNT_FACTOR['WaterFairyBaseLine'] = {
+            factor    : function( member, member_place ){
+                if( TEAM_MEMBERS[member_place]['id'] == 'WATER_FAIRY' && 
+                    ( member_place == 0 || member_place == (TD_NUM-1) ) ){
+                    if( TEAM_LEADER['id'] == TEAM_FRIEND['id'] ){
+                        return 9;
+                    }
+                    return 3;
+                }
+                return 1;
+            },
+            prob      : 1,
+            condition : function( member, member_place ){
+                var base_line = [];
+                for(var i = TD_NUM*(TR_NUM-1); i < TD_NUM*TR_NUM; i++){
+                    base_line.push( i );
+                }
+                for(var obj of COMBO_STACK){
+                    if( obj['drop_wave'] == 0 ){
+                        for(var i of obj['set']){
+                            if( base_line.indexOf(i) >= 0 ){
+                                base_line.splice( base_line.indexOf(i), 1 );
+                            }
+                        }
+                    }
+                }
+                if( base_line.length == 0 ){
+                    return true;
+                }
+                return false;
+            },
+        };
+    }
+}
 var DarkLuciferSetting = function( MEMBER ){
     return {
         'COLOR' : 'h',
@@ -93,9 +144,9 @@ var DarkLuciferSetting = function( MEMBER ){
 }
 var DarkLuciferAttack = function( VAR, direct ){
     COUNT_FACTOR['DarkLucifer'+direct] = {
-        factor    : function( member ){ return 2.5; },
+        factor    : function( member, member_place ){ return 2.5; },
         prob      : 1,
-        condition : function( member ){ return true; },
+        condition : function( member, member_place ){ return true; },
     };
 }
 
@@ -172,15 +223,125 @@ var CoupleEndSkill = function( VAR, direct ){
 }
 
 //==============================================================
+// Doll
+//==============================================================
+var DollHumanDragonAttack = function( VAR, direct ){
+    COUNT_FACTOR['DollHumanDragon'+direct] = {
+        factor    : function( member, member_place ){
+            if( member['type'] == "DRAGON" ){
+                return 2;
+            }else if( member['type'] == "HUMAN" ){
+                return 3.5;
+            }
+            return 1;
+        },
+        prob      : 1,
+        condition : function( member, member_place ){
+            var count_type = { 'HUMAN': 0, 'DRAGON': 0, 'OTHER': 0 };
+            $.each(TEAM_MEMBERS, function(i, member){
+                if( member['type'] == 'HUMAN' ){ count_type['HUMAN'] += 1; }
+                else if( member['type'] == 'DRAGON' ){ count_type['DRAGON'] += 1; }
+                else { count_type['OTHER'] += 1; }
+            });
+            if( count_type['HUMAN'] > 0 && count_type['DRAGON'] >= 2 && 
+                count_type['OTHER'] == 0 ){ 
+                return true;
+            }
+            return false;
+        },
+    };
+}
+var DollHumanBeastSpiritAttack = function( VAR, direct ){
+    COUNT_FACTOR['DollHumanDragon'+direct] = {
+        factor    : function( member, member_place ){
+            if( member['type'] == "BEAST" || member['type'] == "SPIRIT" ){
+                return 2.5;
+            }else if( member['type'] == "HUMAN" ){
+                return 3.5;
+            }
+            return 1;
+        },
+        prob      : 1,
+        condition : function( member, member_place ){
+            var count_type = { 'HUMAN': 0, 'BEAST': 0, 'SPIRIT': 0, 'OTHER': 0 };
+            $.each(TEAM_MEMBERS, function(i, member){
+                if( member['type'] == 'HUMAN' ){ count_type['HUMAN'] += 1; }
+                else if( member['type'] == 'BEAST' ){ count_type['BEAST'] += 1; }
+                else if( member['type'] == 'SPIRIT' ){ count_type['SPIRIT'] += 1; }
+                else { count_type['OTHER'] += 1; }
+            });
+            if( count_type['HUMAN'] > 0 && ( count_type['BEAST'] + count_type['SPIRIT'] ) >= 2 && 
+                count_type['OTHER'] == 0 ){ 
+                return true;
+            }
+            return false;
+        },
+    };
+}
+var DollHumanDevilSpiritAttack = function( VAR, direct ){
+    COUNT_FACTOR['DollHumanDragon'+direct] = {
+        factor    : function( member, member_place ){
+            if( member['type'] == "DEVIL" || member['type'] == "SPIRIT" ){
+                return 2.5;
+            }else if( member['type'] == "HUMAN" ){
+                return 3.5;
+            }
+            return 1;
+        },
+        prob      : 1,
+        condition : function( member, member_place ){
+            var count_type = { 'HUMAN': 0, 'DEVIL': 0, 'SPIRIT': 0, 'OTHER': 0 };
+            $.each(TEAM_MEMBERS, function(i, member){
+                if( member['type'] == 'HUMAN' ){ count_type['HUMAN'] += 1; }
+                else if( member['type'] == 'DEVIL' ){ count_type['DEVIL'] += 1; }
+                else if( member['type'] == 'SPIRIT' ){ count_type['SPIRIT'] += 1; }
+                else { count_type['OTHER'] += 1; }
+            });
+            if( count_type['HUMAN'] > 0 && ( count_type['DEVIL'] + count_type['SPIRIT'] ) >= 2 && 
+                count_type['OTHER'] == 0 ){ 
+                return true;
+            }
+            return false;
+        },
+    };
+}
+var DollHumanGodAttack = function( VAR, direct ){
+    COUNT_FACTOR['DollHumanDragon'+direct] = {
+        factor    : function( member, member_place ){
+            if( member['type'] == "GOD" ){
+                return 2;
+            }else if( member['type'] == "HUMAN" ){
+                return 3.5;
+            }
+            return 1;
+        },
+        prob      : 1,
+        condition : function( member, member_place ){
+            var count_type = { 'HUMAN': 0, 'GOD': 0, 'OTHER': 0 };
+            $.each(TEAM_MEMBERS, function(i, member){
+                if( member['type'] == 'HUMAN' ){ count_type['HUMAN'] += 1; }
+                else if( member['type'] == 'GOD' ){ count_type['GOD'] += 1; }
+                else { count_type['OTHER'] += 1; }
+            });
+            if( count_type['HUMAN'] > 0 && count_type['GOD'] >= 2 && 
+                count_type['OTHER'] == 0 ){ 
+                return true;
+            }
+            return false;
+        },
+    };
+}
+
+//==============================================================
 // Sword
 //==============================================================
 var SwordBrotherAttack = function( VAR, direct ){
     COUNT_BELONG_COLOR['l']['d'] += 0.5;
     COUNT_BELONG_COLOR['d']['l'] += 0.5;
     COUNT_FACTOR['SwordBrother'+direct] = {
-        factor    : function( member ){ return 2.5; },
+        factor    : function( member, member_place ){ return 2.5; },
         prob      : 1,
-        condition : function( member ){
+        condition : function( member, member_place ){
             if( member['color'] == 'l' ||  member['color'] == 'd' ){ 
                 return true;
             }
@@ -188,9 +349,9 @@ var SwordBrotherAttack = function( VAR, direct ){
         },
     };
     COUNT_FACTOR['SwordBrotherBoth'+direct] = {
-        factor    : function( member ){ return 1.5; },
+        factor    : function( member, member_place ){ return 1.5; },
         prob      : 1,
-        condition : function( member ){
+        condition : function( member, member_place ){
             if( COUNT_AMOUNT['l'] > 0 && COUNT_AMOUNT['d'] > 0 ){
                 return true;
             }
@@ -199,6 +360,9 @@ var SwordBrotherAttack = function( VAR, direct ){
     };
 }
 
+//==============================================================
+// Chinese Paladin
+//==============================================================
 var LIXIAOYAOSetting = function( MEMBER ){
     return {
         'COLOR' : MEMBER['color'],
@@ -209,9 +373,9 @@ var LIXIAOYAOAttack = function( VAR, direct ){
         COUNT_FACTOR['HeartProb']['prob'] += 0.5;
     }else{
         COUNT_FACTOR['HeartProb'] = {
-            factor    : function( member ){ return 1.5; },
+            factor    : function( member, member_place ){ return 1.5; },
             prob      : 0.5,
-            condition : function( member ){
+            condition : function( member, member_place ){
                 if( COUNT_AMOUNT['h'] > 0 ){                   
                     return checkMembersColorOnlyInColorArr( ['w', 'f', 'p'] );
                 }
@@ -221,7 +385,7 @@ var LIXIAOYAOAttack = function( VAR, direct ){
     }
 
     COUNT_FACTOR['LIXIAOYAOAttack'+direct] = {
-        factor    : function( member ){            
+        factor    : function( member, member_place ){            
             var num = 0;
             for( var key in COUNT_AMOUNT ){
                 num += COUNT_AMOUNT[key];
@@ -242,7 +406,7 @@ var LIXIAOYAOAttack = function( VAR, direct ){
             return factor;
         },
         prob      : 1,
-        condition : function( member ){ return true; },
+        condition : function( member, member_place ){ return true; },
     };
 }
 var CommonSourcePlusAttack = function( VAR, direct ){
@@ -250,9 +414,9 @@ var CommonSourcePlusAttack = function( VAR, direct ){
         COUNT_FACTOR['HeartProb']['prob'] += 0.5;
     }else{
         COUNT_FACTOR['HeartProb'] = {
-            factor    : function( member ){ return 1.5; },
+            factor    : function( member, member_place ){ return 1.5; },
             prob      : 0.5,
-            condition : function( member ){
+            condition : function( member, member_place ){
                 if( COUNT_AMOUNT['h'] > 0 ){                   
                     return checkMembersColorOnlyInColorArr( ['w', 'f', 'p'] );
                 }
@@ -271,9 +435,9 @@ var CommonSourcePlusAttack = function( VAR, direct ){
     }
 
     COUNT_FACTOR['CommonSourcePlus'+direct] = {
-            factor    : function( member ){ return 1.5; },
+            factor    : function( member, member_place ){ return 1.5; },
             prob      : 1,
-            condition : function( member ){
+            condition : function( member, member_place ){
                 if( COUNT_AMOUNT['w'] > 0 && COUNT_AMOUNT['f'] > 0 && COUNT_AMOUNT['p'] > 0 ){                   
                     return true;
                 }
@@ -281,7 +445,6 @@ var CommonSourcePlusAttack = function( VAR, direct ){
             },
         };
 }
-
 
 //==============================================================
 // DevilIllusion
@@ -313,18 +476,18 @@ var DevilIllusionAttack = function( VAR, direct ){
     var color = VAR['COLOR'];
     var max_colors = VAR['MAX_COLORS'];
     COUNT_FACTOR['DevilIllusion'+direct] = {
-        factor    : function( member ){ return 3; },
+        factor    : function( member, member_place ){ return 3; },
         prob      : 1,
-        condition : function( member ){
+        condition : function( member, member_place ){
             if( member['color'] == color ){ return true; }
             return false;
         },
     };
     if( max_colors.indexOf(color) >= 0 ){
         COUNT_FACTOR['DevilIllusionBelong'+direct] = {
-            factor    : function( member ){ return 1.4; },
+            factor    : function( member, member_place ){ return 1.4; },
             prob      : 1,
-            condition : function( member ){
+            condition : function( member, member_place ){
                 if( member['color'] == color ){ return true; }
                 return false;
             },
@@ -339,18 +502,18 @@ var DevilIllusionPlusAttack = function( VAR, direct ){
     var color = VAR['COLOR'];
     var max_colors = VAR['MAX_COLORS'];
     COUNT_FACTOR['DevilIllusion'+direct] = {
-        factor    : function( member ){ return 3.5; },
+        factor    : function( member, member_place ){ return 3.5; },
         prob      : 1,
-        condition : function( member ){
+        condition : function( member, member_place ){
             if( member['color'] == color ){ return true; }
             return false;
         },
     };
     if( max_colors.indexOf(color) >= 0 ){
         COUNT_FACTOR['DevilIllusionBelong'+direct] = {
-            factor    : function( member ){ return 1.4; },
+            factor    : function( member, member_place ){ return 1.4; },
             prob      : 1,
-            condition : function( member ){
+            condition : function( member, member_place ){
                 if( member['color'] == color ){ return true; }
                 return false;
             },
@@ -375,17 +538,17 @@ var DevilCircleSetting = function( MEMBER ){
 var DevilCircleAttack = function( VAR, direct ){
     var color = VAR['COLOR'];
     COUNT_FACTOR['DevilCircle'+direct] = {
-        factor    : function( member ){ return 3; },
+        factor    : function( member, member_place ){ return 3; },
         prob      : 1,
-        condition : function( member ){
+        condition : function( member, member_place ){
             if( member['color'] == color ){ return true; }
             return false;
         },
     };
     COUNT_FACTOR['DevilCircle5Set'+direct] = {
-        factor    : function( member ){ return 1.5; },
+        factor    : function( member, member_place ){ return 1.5; },
         prob      : 1,
-        condition : function( member ){
+        condition : function( member, member_place ){
             for(var obj of COMBO_STACK){
                 if( obj['color'] == color && obj['amount'] >= 5 ){
                     return true;
@@ -459,6 +622,11 @@ var LEADER_SKILLS_DATA = {
         attack    : BabylonAttack,
         preSet    : BabylonSetting,
     },
+    WATER_FAIRY : {
+        id        : 'WATER_FAIRY',
+        attack    : WaterFairyAttack,
+        preSet    : WaterFairySetting,
+    },
     DARK_LUCIFER : {
         id        : 'DARK_LUCIFER',
         newItem   : BabylonSkill,
@@ -474,6 +642,26 @@ var LEADER_SKILLS_DATA = {
         id        : 'COUPLE_P',
         end       : CoupleEndSkill,
         preSet    : CoupleSetting,
+    },
+    DOLL_HUMAN_DRAGON : {
+        id        : 'DOLL_HUMAN_DRAGON',
+        attack    : DollHumanDragonAttack,
+        preSet    : noneSetting,
+    },
+    DOLL_HUMAN_BEAST_SPIRIT : {
+        id        : 'DOLL_HUMAN_BEAST_SPIRIT',
+        attack    : DollHumanBeastSpiritAttack,
+        preSet    : noneSetting,
+    },
+    DOLL_HUMAN_DEVIL_SPIRIT : {
+        id        : 'DOLL_HUMAN_DEVIL_SPIRIT',
+        attack    : DollHumanDevilSpiritAttack,
+        preSet    : noneSetting,
+    },
+    DOLL_HUMAN_GOD : {
+        id        : 'DOLL_HUMAN_GOD',
+        attack    : DollHumanGodAttack,
+        preSet    : noneSetting,
     },
     SWORD_BROTHER : {
         id        : 'SWORD_BROTHER',

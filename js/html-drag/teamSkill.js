@@ -60,7 +60,7 @@ var TeamNordicOdinMapping = function(){
 //==============================================================
 var TeamBabylonAttack = function( VAR ){
     COUNT_FACTOR['TeamBabylon'] = {
-        factor    : function( member ){
+        factor    : function( member, membe_place ){
             var straight = 0;
             for(var i = 0; i < TD_NUM; i++ ){
                 for( var set of ALL_GROUP_SET_STACK[0]['STRAIGHT_SETS'][i] ){
@@ -76,7 +76,7 @@ var TeamBabylonAttack = function( VAR ){
             }            
         },
         prob      : 1,
-        condition : function( member ){ return true; },
+        condition : function( member, membe_place ){ return true; },
     };
 }
 var TeamBabylonMapping = function(){
@@ -103,7 +103,7 @@ var TeamDarkLuciferAttack = function( VAR ){
         COUNT_BELONG_COLOR['h']['d'] = 1;
 
         COUNT_FACTOR['TeamDarkLucifer'] = {
-            factor    : function( member ){
+            factor    : function( member, membe_place ){
                 var straight = 0;
                 for(var i = 0; i < TD_NUM; i++ ){
                     for( var set of ALL_GROUP_SET_STACK[0]['STRAIGHT_SETS'][i] ){
@@ -119,7 +119,7 @@ var TeamDarkLuciferAttack = function( VAR ){
                 }            
             },
             prob      : 1,
-            condition : function( member ){ return true; },
+            condition : function( member, membe_place ){ return true; },
         };
     }
 }
@@ -181,9 +181,9 @@ var TeamGreekMapping = function(){
 //==============================================================
 var TeamCoupleAttackFF = function( VAR ){
     COUNT_FACTOR['COUPLE_FF'] = {
-        factor    : function( member ){ return 6; },
+        factor    : function( member, membe_place ){ return 6; },
         prob      : 1,
-        condition : function( member ){
+        condition : function( member, membe_place ){
             if( member['color'] == 'f' ){ return true; }
             return false;
         },
@@ -191,9 +191,9 @@ var TeamCoupleAttackFF = function( VAR ){
 }
 var TeamCoupleAttackPP = function( VAR ){
     COUNT_FACTOR['COUPLE_PP'] = {
-        factor    : function( member ){ return 6; },
+        factor    : function( member, membe_place ){ return 6; },
         prob      : 1,
-        condition : function( member ){
+        condition : function( member, membe_place ){
             if( member['color'] == 'p' ){ return true; }
             return false;
         },
@@ -203,9 +203,9 @@ var TeamCoupleAttackFP = function( VAR ){
     COUNT_BELONG_COLOR['f']['p'] = 1;
     COUNT_BELONG_COLOR['p']['f'] = 1;
     COUNT_FACTOR['COUPLE_FP'] = {
-        factor    : function( member ){ return 3; },
+        factor    : function( member, membe_place ){ return 3; },
         prob      : 1,
-        condition : function( member ){
+        condition : function( member, membe_place ){
             if( member['color'] == 'f' ||  member['color'] == 'p' ){ return true; }
             return false;
         },

@@ -183,6 +183,10 @@ function replay(){
     AUTO_REMOVE = false;
     COLOR_RANDOM = HISTORY_RANDOM;
     loadTeamMembers(HISTORY_TEAM_MEMBER);
+    $("#TeamMember select").each(function(i){
+        var msdropdown = $(this).msDropDown().data("dd");
+        msdropdown.setIndexByValue( TEAM_MEMBERS[i]["id"] );
+    });
     loadSkillVariable(HISTORY_SKILL_VARIABLE);
     backInitColor();
     resetComboStack();

@@ -796,9 +796,9 @@ function countAttack(){
         }
     }
 
-    $.each(TEAM_MEMBERS, function(i, member){
+    $.each(TEAM_MEMBERS, function(membe_place, member){
         var attack = {
-            place  : i,
+            place  : membe_place,
             type   : "person",
             goal   : "single",
             color  : member["color"],
@@ -807,7 +807,7 @@ function countAttack(){
             log    : "",
         };
         var recover = {
-            place  : i,
+            place  : membe_place,
             color  : member["h"],
             base   : member["recovery"],
             factor : 1,
@@ -829,11 +829,11 @@ function countAttack(){
                          "("+COUNT_STRONG[color]+"+"+COUNT_BELONG_STRONG[color]+")*"+COUNT_STRONG_COEFF+")";
 
         for(var key in COUNT_FACTOR){
-            if( COUNT_FACTOR[key]["condition"]( member ) ){
+            if( COUNT_FACTOR[key]["condition"]( member, membe_place ) ){
                 if( randomBySeed() < COUNT_FACTOR[key]["prob"] ){
-                    var factor = COUNT_FACTOR[key]["factor"]( member ).toFixed(5);
+                    var factor = COUNT_FACTOR[key]["factor"]( member, membe_place ).toFixed(5);
                     atk *= factor;
-                    attack['log'] += "*"+factor;
+                    attack['log'] += "*"+factor+'('+key+')';
                 }
             }
         }
@@ -847,9 +847,9 @@ function countAttack(){
                               COUNT_SETS['h']  +"+"+COUNT_BELONG_SETS['h']  +")*"+COUNT_RECOVER_AMOUNT_COEFF+"+"+
                           "("+COUNT_STRONG['h']+"+"+COUNT_BELONG_STRONG['h']+")*"+COUNT_RECOVER_STRONG_COEFF+")";
         for(var key in COUNT_RECOVER_FACTOR){
-            if( COUNT_RECOVER_FACTOR[key]["condition"]( member ) ){
+            if( COUNT_RECOVER_FACTOR[key]["condition"]( member, membe_place ) ){
                 if( randomBySeed() < COUNT_RECOVER_FACTOR[key]["prob"] ){
-                    var factor = COUNT_RECOVER_FACTOR[key]["factor"]( member ).toFixed(5);
+                    var factor = COUNT_RECOVER_FACTOR[key]["factor"]( member, membe_place ).toFixed(5);
                     rec *= factor;
                     recover['log'] += "*"+factor;
                 }

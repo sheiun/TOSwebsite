@@ -11,21 +11,21 @@ var HealthAttackRecoveryIncrease = function( MEMBER, place, wakeVar ){
 }
 
 var DropIncrease = function( MEMBER, place, wakeVar ){
-    // wakeVar = color
-    var color = wakeVar;
+    // wakeVar = "[color,prob]"
+    var color = eval(wakeVar)[0];
     if( COLORS.indexOf(color) >= 0 ){
-        COLOR_PROB[ place ][ color ] = 0.4;
+        COLOR_PROB[ place ][ color ] = eval(wakeVar)[1];
     }
 }
 
 var StraightAttack = function( wakeVar, place, i ){
     // wakeVar = "[factor,straightSize]"
     COUNT_FACTOR['StraightAttack_'+place+'_'+i] = {
-        factor    : function( member ){
+        factor    : function( member, membe_place ){
             return  eval(wakeVar)[0];
         },
         prob      : 1,
-        condition : function( member ){
+        condition : function( member, membe_place ){
             for( var set of ALL_GROUP_SET_STACK[0]['STRAIGHT_SETS'][place] ){
                 if( set.size >= eval(wakeVar)[1] ){
                     return true;
@@ -39,11 +39,11 @@ var StraightAttack = function( wakeVar, place, i ){
 var StraightRecover = function( wakeVar, place, i ){
     // wakeVar = "[factor,straightSize]"
     COUNT_RECOVER_FACTOR['StraightRecover_'+place+'_'+i] = {
-        factor    : function( member ){
+        factor    : function( member, membe_place ){
             return  eval(wakeVar)[0];
         },
         prob      : 1,
-        condition : function( member ){
+        condition : function( member, membe_place ){
             for( var set of ALL_GROUP_SET_STACK[0]['STRAIGHT_SETS'][place] ){
                 if( set.size >= eval(wakeVar)[1] ){
                     return true;
@@ -71,7 +71,7 @@ var WAKES_DATA = {
     DROP_INCREASE : {
         id        : "DROP_INCREASE",
         preSet    : DropIncrease,
-        // wakeVar = color
+        // wakeVar = "[color,prob]"
     },
     STRAIGHT_ATTACK : {
         id        : "STRAIGHT_ATTACK",
