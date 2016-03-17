@@ -16,7 +16,7 @@ var TeamNordicAttack = function( VAR ){
     COUNT_STRONG_COEFF += 0.15;
 }
 var TeamNordicSetting = function( LEADER, FRIEND ){
-    var color = MEMBER['color'];
+    var color = LEADER['color'];
     for(var i = 0; i < TD_NUM; i++){
         COLOR_PROB[i][ color ] = 0.25;
     }
