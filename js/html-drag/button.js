@@ -186,6 +186,7 @@ function replay(){
     loadSkillVariable(HISTORY_SKILL_VARIABLE);
     backInitColor();
     resetComboStack();
+    resetAttackRecoverStack();
     replayHistory();
 }
 function endReplayHistory(){
