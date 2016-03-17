@@ -41,8 +41,6 @@
 
     TODO: 
     make attack/recovery be object
-    make teamSkills be stack
-    split leader skill, active skill, team skill, character, wake
     -->
 
 
@@ -148,20 +146,20 @@
 
                 <table id="TeamMember" style="display: none;">
                     <tr id="AttackNumber">
-                        <td> <span></span> </td>
-                        <td> <span></span> </td>
-                        <td> <span></span> </td>
-                        <td> <span></span> </td>
-                        <td> <span></span> </td>
-                        <td> <span></span> </td>
+                        <td> </td>
+                        <td> </td>
+                        <td> </td>
+                        <td> </td>
+                        <td> </td>
+                        <td> </td>
                     </tr>
                     <tr id="RecoverNumber">
-                        <td> <span></span> </td>
-                        <td> <span></span> </td>
-                        <td> <span></span> </td>
-                        <td> <span></span> </td>
-                        <td> <span></span> </td>
-                        <td> <span></span> </td>
+                        <td> </td>
+                        <td> </td>
+                        <td> </td>
+                        <td> </td>
+                        <td> </td>
+                        <td> </td>
                     </tr>
                     <tr>
                         <td> <select name="MemberSelect" id="TeamLeaderSelect"></select>  </td>
@@ -328,10 +326,19 @@
 
     <script type="text/javascript" src="js/html-drag/drag.js"></script>
     <script type="text/javascript" src="js/html-drag/skill.js"></script>
+    <script type="text/javascript" src="js/html-drag/teamSkill.js"></script>
+    <script type="text/javascript" src="js/html-drag/LeaderSkill.js"></script>
+    <script type="text/javascript" src="js/html-drag/wake.js"></script>
     <script type="text/javascript" src="js/html-drag/data.js"></script>
+
     <script type="text/javascript" src="js/html-drag/history.js"></script>
     <script type="text/javascript" src="js/html-drag/button.js"></script>
-
+    <script type="text/javascript">
+      String.prototype.format = function(){
+        var args = arguments;
+        return this.replace(/\{(\d+)\}/g, function (m, n) { return args[n]; });
+      };
+    </script>
 </body>
 
 </html>

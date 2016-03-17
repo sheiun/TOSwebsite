@@ -36,13 +36,10 @@ $(document).ready( function(){
     }else{
         newRandomPlain();
         initialTeamMember();
-        resetMemberWakes();
-        resetTeamLeaderSkill();
     }
     MAIN_STATE = "count";
 
     closeCanvas();
-    resetColors();
     setComboShow();
     setHistoryShow();
     resetMemberSelect();
@@ -220,8 +217,71 @@ function toggleReviewPath(){
 }
 
 //==============================================================
+// Change Function
+//==============================================================
+
+$("#file").change(function (){
+    if( $(this).val() !== '' ){
+        upload();
+    }
+});
+$('#timeRange').change(function (){
+    $(this).val( Math.max( parseInt($(this).attr("min")), 
+        Math.min( parseInt($(this).attr("max")), parseInt($(this).val()) ) ) );
+    TIME_LIMIT = parseInt( $(this).val() );
+});
+$('#speedSelect').change(function (){
+    REPLAY_SPEED = parseInt($(this).val());
+});
+$('#colorSelect').change(function (){
+    var colorArr = $(this).val().split(",");
+    for(var i = 0; i < colorArr.length; i++){
+        $("#panelControl button").eq(i).attr("onclick","setColor('"+colorArr[i]+"',"+i+")");
+        $("#panelControl button img").eq(i).attr("src",mapImgSrc(colorArr[i]));
+    }
+});
+$("#dropColorSelect").change(function (){
+    $("#HorizontalScrollbar").hide();
+    cleanColors();
+    reserDropColors();
+    resetTeamMembers();
+    resetMemberWakes();
+    resetTeamLeaderSkill();
+    resetColors();
+});
+
+$("#locusSelect").change(function (){
+    if( $(this).val() == "null" ){
+        LOCUS = false;
+    }else{
+        LOCUS = true;
+        if( $(this).val().indexOf("Inf") >= 0 ){
+            LOCUS_LENGTH = Infinity;
+            LOCUS_TYPE = $(this).val().split('Inf')[0];
+        }else{            
+            LOCUS_LENGTH = 6;
+            LOCUS_TYPE = $(this).val();
+        }
+    }
+});
+
+//==============================================================
 // Show Result
 //==============================================================
+function showResult(){
+    $("#AttackNumber td").children().remove();
+    $("#RecoverNumber td").children().remove();
+    $.each(ATTACK_STACK, function(i, attack){
+        var atk = Math.round( attack["base"] * attack["factor"] );
+        if( attack["type"] == "person" ){
+            $("#AttackNumber td").eq( attack["place"] ).append( $("<sapn></span>").text(atk).addClass("AtkRecLabel") ).append( $("<br>") );
+        }
+    });
+    $.each(RECOVER_STACK, function(i, recover){
+        var rec = Math.round( recover["base"] * recover["factor"] );
+        $("#RecoverNumber td").eq( recover["place"] ).append( $("<sapn></span>").text(rec).addClass("AtkRecLabel") ).append( $("<br>") );
+    });
+}
 function showTime(now){    
     var timeFraction = ( TIME_LIMIT - ( now - START_TIME ) )/TIME_LIMIT;
     $("#timeRect").css( "clip", "rect(0px, "+
@@ -317,6 +377,19 @@ function initialTeamMember(){
     MEMBER_2 = NewCharacter("NONE");
     MEMBER_3 = NewCharacter("NONE");
     MEMBER_4 = NewCharacter("NONE");
+    TEAM_MEMBERS = [
+        TEAM_LEADER,
+        MEMBER_1,
+        MEMBER_2,
+        MEMBER_3,
+        MEMBER_4,
+        TEAM_FRIEND,
+    ];    
+    cleanColors();
+    reserDropColors();
+    resetMemberWakes();
+    resetTeamLeaderSkill();
+    resetColors();
 }
 function saveTeamMembers(){
     return [
@@ -329,34 +402,27 @@ function saveTeamMembers(){
     ];
 }
 function loadTeamMembers(members){
-    for( var i = 0; i < TD_NUM; i++ ){
-        for( var c of ['w','f','p','l','d','h'] ){
-            delete COLOR_PROB[i][c];
-        }
-    }
     TEAM_LEADER = NewCharacter( members[0] );
     MEMBER_1    = NewCharacter( members[1] );
     MEMBER_2    = NewCharacter( members[2] );
     MEMBER_3    = NewCharacter( members[3] );
     MEMBER_4    = NewCharacter( members[4] );
     TEAM_FRIEND = NewCharacter( members[5] );
-    resetMemberWakes();
-    resetTeamLeaderSkill();
-    $("#TeamMember select").each(function(i){
-        var msdropdown = $(this).msDropDown().data("dd");
-        msdropdown.setIndexByValue( members[i] );
-    });
-}
-function resetMemberSelect(){
-    var members = [
+    TEAM_MEMBERS = [
         TEAM_LEADER,
         MEMBER_1,
         MEMBER_2,
         MEMBER_3,
         MEMBER_4,
-        TEAM_FRIEND
+        TEAM_FRIEND,
     ];
-
+    cleanColors();
+    reserDropColors();
+    resetMemberWakes();
+    resetTeamLeaderSkill();
+    resetColors();
+}
+function resetMemberSelect(){
     $("#TeamMember select").each(function(i){
         var msdropdown = $(this).msDropDown().data("dd");
         for(var id in CHARACTERS){
@@ -365,8 +431,10 @@ function resetMemberSelect(){
                 image: CHARACTERS[id]["img"]
             });
         }
-        msdropdown.setIndexByValue( members[i]["id"] );
+        msdropdown.setIndexByValue( TEAM_MEMBERS[i]["id"] );
         msdropdown.on("change", function(){
+            TIME_LIMIT = 10;
+            $('#timeRange').val(5);
             cleanColors();
             reserDropColors();
             resetTeamMembers();
@@ -386,88 +454,19 @@ function closeEditTeam(){
     $("#StartTeam").show();
     $("#CloseTeam").hide();
     $("#TeamMember").hide();
-
-    cleanColors();
-    reserDropColors();
-
-    TEAM_LEADER = CHARACTERS["NONE"];
-    TEAM_FRIEND = CHARACTERS["NONE"];
-    MEMBER_1 = CHARACTERS["NONE"];
-    MEMBER_2 = CHARACTERS["NONE"];
-    MEMBER_3 = CHARACTERS["NONE"];
-    MEMBER_4 = CHARACTERS["NONE"];
     $("#TeamMember select").each(function(){
         var msdropdown = $(this).msDropDown().data("dd");
         msdropdown.setIndexByValue("NONE");
     });
 
-    resetMemberWakes();
-    resetTeamLeaderSkill();
-    resetTimeDiv();
-    resetColors();
-}
-
-//==============================================================
-// scroll
-//==============================================================
-function scroll_top(){
-    $("html, body").animate({ scrollTop: 0 }, "fast");
-};
-function scroll_bottom(){
-    $("html, body").animate({ scrollTop: $(document).height() }, "fast");
-};
-function hide_navbar(){
-    $('.navbar-fixed-top').autoHidingNavbar('hide');
-}
-
-//==============================================================
-// Change Function
-//==============================================================
-
-$("#file").change(function (){
-    if( $(this).val() !== '' ){
-        upload();
-    }
-});
-$('#timeRange').change(function (){
-    $(this).val( Math.max( parseInt($(this).attr("min")), 
-        Math.min( parseInt($(this).attr("max")), parseInt($(this).val()) ) ) );
-    TIME_LIMIT = parseInt( $(this).val() );
-});
-$('#speedSelect').change(function (){
-    REPLAY_SPEED = parseInt($(this).val());
-});
-$('#colorSelect').change(function (){
-    var colorArr = $(this).val().split(",");
-    for(var i = 0; i < colorArr.length; i++){
-        $("#panelControl button").eq(i).attr("onclick","setColor('"+colorArr[i]+"',"+i+")");
-        $("#panelControl button img").eq(i).attr("src",mapImgSrc(colorArr[i]));
-    }
-});
-$("#dropColorSelect").change(function (){
-    $("#HorizontalScrollbar").hide();
     cleanColors();
     reserDropColors();
     resetTeamMembers();
     resetMemberWakes();
     resetTeamLeaderSkill();
+    resetTimeDiv();
     resetColors();
-});
-
-$("#locusSelect").change(function (){
-    if( $(this).val() == "null" ){
-        LOCUS = false;
-    }else{
-        LOCUS = true;
-        if( $(this).val().indexOf("Inf") >= 0 ){
-            LOCUS_LENGTH = Infinity;
-            LOCUS_TYPE = $(this).val().split('Inf')[0];
-        }else{            
-            LOCUS_LENGTH = 6;
-            LOCUS_TYPE = $(this).val();
-        }
-    }
-});
+}
 
 function reserDropColors(){
     if( $("#dropColorSelect").val() == "optional" ){
@@ -512,58 +511,57 @@ function resetTeamMembers(){
     MEMBER_3    = NewCharacter( $("#TeamMember3Select").val() );
     MEMBER_4    = NewCharacter( $("#TeamMember4Select").val() );
     TEAM_FRIEND = NewCharacter( $("#TeamFriendSelect").val() );
-}
-function resetMemberWakes(){
-    TEAM_LEADER_WAKES = [
-        WAKES[ TEAM_LEADER["wake"][0] ], WAKES[ TEAM_LEADER["wake"][1] ],
-        WAKES[ TEAM_LEADER["wake"][2] ], WAKES[ TEAM_LEADER["wake"][3] ],
-    ];
-    MEMBER_1_WAKES = [
-        WAKES[ MEMBER_1["wake"][0] ], WAKES[ MEMBER_1["wake"][1] ],
-        WAKES[ MEMBER_1["wake"][2] ], WAKES[ MEMBER_1["wake"][3] ],
-    ];
-    MEMBER_2_WAKES = [
-        WAKES[ MEMBER_2["wake"][0] ], WAKES[ MEMBER_2["wake"][1] ],
-        WAKES[ MEMBER_2["wake"][2] ], WAKES[ MEMBER_2["wake"][3] ],
-    ];
-    MEMBER_3_WAKES = [
-        WAKES[ MEMBER_3["wake"][0] ], WAKES[ MEMBER_3["wake"][1] ],
-        WAKES[ MEMBER_3["wake"][2] ], WAKES[ MEMBER_3["wake"][3] ],
-    ];
-    MEMBER_4_WAKES = [
-        WAKES[ MEMBER_4["wake"][0] ], WAKES[ MEMBER_4["wake"][1] ],
-        WAKES[ MEMBER_4["wake"][2] ], WAKES[ MEMBER_4["wake"][3] ],
-    ];
-    TEAM_FRIEND_WAKES = [
-        WAKES[ TEAM_FRIEND["wake"][0] ], WAKES[ TEAM_FRIEND["wake"][1] ],
-        WAKES[ TEAM_FRIEND["wake"][2] ], WAKES[ TEAM_FRIEND["wake"][3] ],
-    ];
-    checkWakeSkill();
-}
-function checkWakeSkill(){
-    var members = [
+    TEAM_MEMBERS = [
         TEAM_LEADER,
         MEMBER_1,
         MEMBER_2,
         MEMBER_3,
         MEMBER_4,
-        TEAM_FRIEND
+        TEAM_FRIEND,
     ];
-    var team_wakes = [
+}
+function resetMemberWakes(){
+    TEAM_LEADER_WAKES = [
+        WAKES_DATA[ TEAM_LEADER["wake"][0] ], WAKES_DATA[ TEAM_LEADER["wake"][1] ],
+        WAKES_DATA[ TEAM_LEADER["wake"][2] ], WAKES_DATA[ TEAM_LEADER["wake"][3] ],
+    ];
+    MEMBER_1_WAKES = [
+        WAKES_DATA[ MEMBER_1["wake"][0] ], WAKES_DATA[ MEMBER_1["wake"][1] ],
+        WAKES_DATA[ MEMBER_1["wake"][2] ], WAKES_DATA[ MEMBER_1["wake"][3] ],
+    ];
+    MEMBER_2_WAKES = [
+        WAKES_DATA[ MEMBER_2["wake"][0] ], WAKES_DATA[ MEMBER_2["wake"][1] ],
+        WAKES_DATA[ MEMBER_2["wake"][2] ], WAKES_DATA[ MEMBER_2["wake"][3] ],
+    ];
+    MEMBER_3_WAKES = [
+        WAKES_DATA[ MEMBER_3["wake"][0] ], WAKES_DATA[ MEMBER_3["wake"][1] ],
+        WAKES_DATA[ MEMBER_3["wake"][2] ], WAKES_DATA[ MEMBER_3["wake"][3] ],
+    ];
+    MEMBER_4_WAKES = [
+        WAKES_DATA[ MEMBER_4["wake"][0] ], WAKES_DATA[ MEMBER_4["wake"][1] ],
+        WAKES_DATA[ MEMBER_4["wake"][2] ], WAKES_DATA[ MEMBER_4["wake"][3] ],
+    ];
+    TEAM_FRIEND_WAKES = [
+        WAKES_DATA[ TEAM_FRIEND["wake"][0] ], WAKES_DATA[ TEAM_FRIEND["wake"][1] ],
+        WAKES_DATA[ TEAM_FRIEND["wake"][2] ], WAKES_DATA[ TEAM_FRIEND["wake"][3] ],
+    ];
+
+    TEAM_WAKES = [
         TEAM_LEADER_WAKES,
         MEMBER_1_WAKES,
         MEMBER_2_WAKES,
         MEMBER_3_WAKES,
         MEMBER_4_WAKES,
-        TEAM_FRIEND_WAKES
+        TEAM_FRIEND_WAKES,
     ];
 
-    $.each(team_wakes, function(place, wakes){
+    checkWakeSkill();
+}
+function checkWakeSkill(){
+    $.each(TEAM_WAKES, function(place, wakes){
         $.each(wakes, function(i, wake){
-            var member = members[place];
-            var wake_var = member['wake_var'][i];
             if( "preSet" in wake ){
-                wake["preSet"]( member, place, wake_var );
+                wake["preSet"]( TEAM_MEMBERS[place], place, TEAM_MEMBERS[place]['wake_var'][i] );
             }
         });
     });
@@ -572,8 +570,8 @@ function resetTeamLeaderSkill(){
     TEAM_COLORS_CHANGEABLE = true;
     GROUP_SIZE = {'w':3, 'f':3, 'p':3, 'l':3, 'd':3, 'h':3};
 
-    TEAM_LEADER_SKILL = LEADER_SKILLS[ TEAM_LEADER['leader'] ];
-    TEAM_FRIEND_SKILL = LEADER_SKILLS[ TEAM_FRIEND['leader'] ];
+    TEAM_LEADER_SKILL = LEADER_SKILLS_DATA[ TEAM_LEADER['leader'] ];
+    TEAM_FRIEND_SKILL = LEADER_SKILLS_DATA[ TEAM_FRIEND['leader'] ];
     checkTeamSkill();
 
     if( "preSet" in TEAM_LEADER_SKILL ){
@@ -584,51 +582,29 @@ function resetTeamLeaderSkill(){
     }
 }
 function checkTeamSkill(){
-    TEAM_SKILL = TEAM_LEADER_SKILLS["NONE"];
+    TEAM_SKILL = [];
+    TEAM_SKILL_VAR = {};
+    for( var teamSkillKey in TEAM_SKILLS_DATA ){
+        TEAM_SKILLS_DATA[teamSkillKey]["mapping"]();
+    }
+    for( var teamSkill of TEAM_SKILL ){
+        if( "preSet" in teamSkill ){
+            TEAM_SKILL_VAR[ teamSkill["id"] ] = teamSkill["preSet"]( TEAM_LEADER, TEAM_FRIEND );
+        }
+    }
+}
 
-    if( TEAM_LEADER['id'] == TEAM_FRIEND['id'] && TEAM_FRIEND['id'].indexOf("NORDIC") >= 0 ){
-        TEAM_SKILL = TEAM_LEADER_SKILLS["NORDIC"];
-        var check = false;
-        if( MEMBER_1['id'] == "BOSS_ODIN" ){
-            check = true;
-            MEMBER_1["color"] = TEAM_LEADER["color"];
-        }else if( MEMBER_2['id'] == "BOSS_ODIN" ){
-            check = true;
-            MEMBER_2["color"] = TEAM_LEADER["color"];
-        }else if( MEMBER_3['id'] == "BOSS_ODIN" ){
-            check = true;
-            MEMBER_3["color"] = TEAM_LEADER["color"];
-        }else if( MEMBER_4['id'] == "BOSS_ODIN" ){
-            check = true;
-            MEMBER_4["color"] = TEAM_LEADER["color"];
-        }
-        if(check){
-            TEAM_LEADER_SKILL = LEADER_SKILLS[ "ElementFactor3_5" ];
-            TEAM_FRIEND_SKILL = LEADER_SKILLS[ "ElementFactor3_5" ];
-        }
-    }
-    if( TEAM_LEADER['id'] == TEAM_FRIEND['id'] && TEAM_FRIEND['leader'] == "GREEK" ){
-        TEAM_SKILL = TEAM_LEADER_SKILLS["GREEK"];
-    }
-    if( TEAM_LEADER['id'] == TEAM_FRIEND['id'] && TEAM_FRIEND['leader'] == "BABYLON" ){
-        TEAM_SKILL = TEAM_LEADER_SKILLS["BABYLON"];
-    }
-    if( TEAM_LEADER['id'] == TEAM_FRIEND['id'] && TEAM_FRIEND['leader'] == "DARK_LUCIFER" ){
-        TEAM_SKILL = TEAM_LEADER_SKILLS["DARK_LUCIFER"];
-    }
-    if( TEAM_LEADER['id'] == TEAM_FRIEND['id'] && TEAM_FRIEND['leader'] == "COUPLE_F" ){
-        TEAM_SKILL = TEAM_LEADER_SKILLS["COUPLE_FF"];
-    }
-    if( TEAM_LEADER['id'] == TEAM_FRIEND['id'] && TEAM_FRIEND['leader'] == "COUPLE_P" ){
-        TEAM_SKILL = TEAM_LEADER_SKILLS["COUPLE_PP"];
-    }
-    if( (TEAM_LEADER['leader'] == "COUPLE_F" && TEAM_FRIEND['leader'] == "COUPLE_P") || 
-        (TEAM_LEADER['leader'] == "COUPLE_P" && TEAM_FRIEND['leader'] == "COUPLE_F") ){
-        TEAM_SKILL = TEAM_LEADER_SKILLS["COUPLE_FP"];
-    }
-    if( "preSet" in TEAM_SKILL ){
-        TEAM_SKILL_VAR = TEAM_SKILL["preSet"]( TEAM_LEADER, TEAM_FRIEND );
-    }
+//==============================================================
+// scroll
+//==============================================================
+function scroll_top(){
+    $("html, body").animate({ scrollTop: 0 }, "fast");
+};
+function scroll_bottom(){
+    $("html, body").animate({ scrollTop: $(document).height() }, "fast");
+};
+function hide_navbar(){
+    $('.navbar-fixed-top').autoHidingNavbar('hide');
 }
 
 function autoCheckDropGroups(){

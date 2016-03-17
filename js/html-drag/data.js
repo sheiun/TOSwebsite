@@ -1,146 +1,4 @@
 //==============================================================
-// Skill Database
-//==============================================================
-var LEADER_SKILLS = {
-    NONE : {
-        id        : 'NONE',
-        preSet    : noneSetting,
-    },
-    WillPower : {
-        id        : 'WillPower',
-        preSet    : noneSetting,
-    },
-    ElementFactor3 : {
-        id        : "ElementFactor3",
-        attack    : ElementFactor3Attack,
-        preSet    : ElementFactor3Setting,
-    },
-    ElementFactor3_5 : {
-        id        : "ElementFactor3_5",
-        attack    : ElementFactor3_5Attack,
-        preSet    : ElementFactor3_5Setting,
-    },
-    CHINA_D : {
-        id        : "CHINA_D",
-        attack    : ChinaDAttack,
-        preSet    : noneSetting,
-    },
-    GREEK : {
-        id        : 'GREEK',
-        newItem   : GreekSkill,
-        preSet    : GreekSetting,
-    },
-    HEART_QUEEN : {
-        id        : 'HEART_QUEEN',
-        newItem   : GreekSkill,
-        preSet    : HeartQueenSetting,
-    },
-    BABYLON : {
-        id        : 'BABYLON',
-        newItem   : BabylonSkill,
-        attack    : BabylonAttack,
-        preSet    : BabylonSetting,
-    },
-    DARK_LUCIFER : {
-        id        : 'DARK_LUCIFER',
-        newItem   : BabylonSkill,
-        attack    : DarkLuciferAttack,
-        preSet    : DarkLuciferSetting,        
-    },
-    COUPLE_F : {
-        id        : 'COUPLE_F',
-        end       : CoupleEndSkill,
-        preSet    : CoupleSetting,
-    },
-    COUPLE_P : {
-        id        : 'COUPLE_P',
-        end       : CoupleEndSkill,
-        preSet    : CoupleSetting,
-    },
-    SWORD_BROTHER : {
-        id        : 'SWORD_BROTHER',
-        attack    : SwordBrotherAttack,
-        preSet    : noneSetting,
-    },
-    DEVIL_CIRCLE : {
-        id        : 'DEVIL_CIRCLE',
-        attack    : DevilCircleAttack,
-        preSet    : DevilCircleSetting,
-    },
-};
-
-//==============================================================
-// Team Skill Database
-//==============================================================
-var TEAM_LEADER_SKILLS = {
-    NONE : {
-        id        : 'NONE',
-    },
-    NORDIC : {
-        id        : 'NORDIC',
-        attack    : TeamNordicAttack,
-        preSet    : TeamNordicSetting,
-    },
-    GREEK : {
-        id        : 'GREEK',
-        newItem   : TeamGreekSkill,
-        extraCombo: TeamGreekExtraCombo,
-        extraReset: TeamGreekExtraComboReset,
-        attack    : TeamGreekAttack,
-        preSet    : TeamGreekSetting,
-    },
-    BABYLON : {
-        id        : 'BABYLON',
-        attack    : TeamBabylonAttack,
-    },
-    DARK_LUCIFER : {
-        id        : 'DARK_LUCIFER',
-        attack    : TeamDarkLuciferAttack,
-    },
-    COUPLE_FF : {
-        id        : 'COUPLE_FF',
-        attack    : TeamCoupleAttackFF,
-    },
-    COUPLE_PP : {
-        id        : 'COUPLE_PP',
-        attack    : TeamCoupleAttackPP,
-    },
-    COUPLE_FP : {
-        id        : 'COUPLE_FP',
-        attack    : TeamCoupleAttackFP,
-    },
-};
-
-//==============================================================
-// Wake Database
-//==============================================================
-var WAKES = {
-    NONE : {
-        id        : "NONE",
-    },
-    H_A_R_INCREASE : {
-        id        : "H_A_R_INCREASE",
-        preSet    : HealthAttackRecoveryIncrease,
-        // wakeVar = "[+health,+attack,+recovery]"
-    },
-    DROP_INCREASE : {
-        id        : "DROP_INCREASE",
-        preSet    : DropIncrease,
-        // wakeVar = color
-    },
-    STRAIGHT_ATTACK : {
-        id        : "STRAIGHT_ATTACK",
-        attack    : StraightAttack,
-        // wakeVar = "[factor,straightSize]"
-    },
-    STRAIGHT_RECOVER : {
-        id        : "STRAIGHT_RECOVER",
-        recover   : StraightRecover,
-        // wakeVar = "[factor,straightSize]"
-    }
-}
-
-//==============================================================
 // Character Database
 //==============================================================
 var CHARACTERS = {
@@ -328,13 +186,37 @@ var CHARACTERS = {
         wake_var : [ "[150,120,0]", 0, "d", 0 ],
         leader   : "SWORD_BROTHER",  active   : 0,
     },
+    ZHAOLINGER : {
+        id       : "ZHAOLINGER", img     : "img/Special/26/w2-1.png",
+        color    : "w",         type     : "HUMAN",
+        health   : 2349,        attack   : 1360,        recovery : 477,
+        wake     : [ "H_A_R_INCREASE", "NONE", "H_A_R_INCREASE", "NONE" ],
+        wake_var : [ "[150,0,0]", 0, "[0,120,0]", 0 ],
+        leader   : "COMMON_SOURCE_PLUS",  active   : 0,
+    },
+    LINYUERU : {
+        id       : "LINYUERU",  img      : "img/Special/26/f2-1.png",
+        color    : "f",         type     : "HUMAN",
+        health   : 2472,        attack   : 1455,        recovery : 424,
+        wake     : [ "H_A_R_INCREASE", "NONE", "H_A_R_INCREASE", "NONE" ],
+        wake_var : [ "[100,0,0]", 0, "[0,130,0]", 0 ],
+        leader   : "COMMON_SOURCE_PLUS",  active   : 0,
+    },
+    LIXIAOYAO : {
+        id       : "LIXIAOYAO", img      : "img/Special/26/p2-1.png",
+        color    : "p",         type     : "HUMAN",
+        health   : 2805,        attack   : 1358,        recovery : 440,
+        wake     : [ "H_A_R_INCREASE", "STRAIGHT_RECOVER", "STRAIGHT_ATTACK", "NONE" ],
+        wake_var : [ "[150,80,0]", "[1.1,3]", "[1.1,4]", 0 ],
+        leader   : "LIXIAOYAO",  active   : 0,
+    },
     DEVIL_ANCESTOR_W : {
         id       : "DEVIL_ANCESTOR_W", img  : "img/Special/35/w2.png",
         color    : "w",         type     : "DEVIL",
         health   : 1651,        attack   : 2362,        recovery : 396,
         wake     : [ "NONE", "NONE", "NONE", "NONE" ],
         wake_var : [ 0, 0, 0, 0 ],
-        leader   : "ElementFactor3_5",  active   : 0,
+        leader   : "DEVIL_ILLUSION",  active   : 0,
     },
     DEVIL_ANCESTOR_F : {
         id       : "DEVIL_ANCESTOR_F", img  : "img/Special/35/f2.png",
@@ -342,7 +224,7 @@ var CHARACTERS = {
         health   : 1724,        attack   : 2429,        recovery : 330,
         wake     : [ "NONE", "NONE", "NONE", "NONE" ],
         wake_var : [ 0, 0, 0, 0 ],
-        leader   : "ElementFactor3_5",  active   : 0,
+        leader   : "DEVIL_ILLUSION",  active   : 0,
     },
     DEVIL_ANCESTOR_P : {
         id       : "DEVIL_ANCESTOR_P", img  : "img/Special/35/p2.png",
@@ -350,7 +232,7 @@ var CHARACTERS = {
         health   : 1895,        attack   : 2279,        recovery : 368,
         wake     : [ "NONE", "NONE", "NONE", "NONE" ],
         wake_var : [ 0, 0, 0, 0 ],
-        leader   : "ElementFactor3_5",  active   : 0,
+        leader   : "DEVIL_ILLUSION",  active   : 0,
     },
     DEVIL_ANCESTOR_L : {
         id       : "DEVIL_ANCESTOR_L", img  : "img/Special/35/l2.png",

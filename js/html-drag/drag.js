@@ -45,6 +45,7 @@ var COMBO_SHOW = 0;
 var COUNT_COMBO                = 0;
 var COUNT_COMBO_COEFF          = 0.25;
 var COUNT_AMOUNT               = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
+var COUNT_MAX_AMOUNT           = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
 var COUNT_AMOUNT_COEFF         = 0.25;
 var COUNT_STRONG               = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
 var COUNT_STRONG_COEFF         = 0.15;
@@ -52,6 +53,7 @@ var COUNT_SETS                 = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 
 var COUNT_FIRST_SETS           = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
 var COUNT_BELONG_COLOR         = { };
 var COUNT_BELONG_AMOUNT        = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
+var COUNT_BELONG_MAX_AMOUNT    = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
 var COUNT_BELONG_STRONG        = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
 var COUNT_BELONG_SETS          = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
 var COUNT_FACTOR               = {};
@@ -105,27 +107,32 @@ var AUDIO = true;
 //==============================================================
 // TEAM MEMBER
 //==============================================================
-var TEAM_LEADER = null;
-var TEAM_LEADER_SKILL = null;
-var TEAM_LEADER_SKILL_VAR = null;
-var TEAM_LEADER_WAKES = null;
+var TEAM_MEMBERS = [];
+var TEAM_LEADER  = null;
+var MEMBER_1     = null;
+var MEMBER_2     = null;
+var MEMBER_3     = null;
+var MEMBER_4     = null;
+var TEAM_FRIEND  = null;
 
-var TEAM_FRIEND = null;
-var TEAM_FRIEND_SKILL = null;
-var TEAM_FRIEND_SKILL_VAR = null;
+var TEAM_WAKES        = [];
+var TEAM_LEADER_WAKES = null;
+var MEMBER_1_WAKES    = null;
+var MEMBER_2_WAKES    = null;
+var MEMBER_3_WAKES    = null;
+var MEMBER_4_WAKES    = null;
 var TEAM_FRIEND_WAKES = null;
 
-var TEAM_SKILL = null;
-var TEAM_SKILL_VAR = null;
+var TEAM_LEADER_SKILL = null;
+var TEAM_FRIEND_SKILL = null;
+var TEAM_SKILL        = [];
 
-var MEMBER_1 = null;
-var MEMBER_1_WAKES = null;
-var MEMBER_2 = null;
-var MEMBER_2_WAKES = null;
-var MEMBER_3 = null;
-var MEMBER_3_WAKES = null;
-var MEMBER_4 = null;
-var MEMBER_4_WAKES = null;
+var TEAM_LEADER_SKILL_VAR = null;
+var TEAM_FRIEND_SKILL_VAR = null;
+var TEAM_SKILL_VAR        = [];
+
+var ATTACK_STACK = [];
+var RECOVER_STACK = [];
 
 
 //==============================================================
@@ -244,15 +251,15 @@ function resetComboStack(){
     setExtraComboShow(0);
     resetComboBox();
 
-    if( 'extraReset' in TEAM_SKILL ){
-        TEAM_SKILL['extraReset']( TEAM_SKILL_VAR );
-    }
+    // TeamGreek reset extraCombo
+    checkSkillByKey( 'extraReset' );
 }
 function resetCount(){    
     COUNT_COMBO                = COMBO_TIMES;
     COUNT_COMBO_COEFF          = 0.25;
     COUNT_AMOUNT               = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
     COUNT_AMOUNT_COEFF         = 0.25;
+    COUNT_MAX_AMOUNT           = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
     COUNT_STRONG               = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
     COUNT_STRONG_COEFF         = 0.15;
     COUNT_SETS                 = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
@@ -265,6 +272,7 @@ function resetCount(){
     'd': { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'h': 0 },
     'h': { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0 } };
     COUNT_BELONG_AMOUNT        = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
+    COUNT_BELONG_MAX_AMOUNT    = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
     COUNT_BELONG_STRONG        = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
     COUNT_BELONG_SETS          = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
     COUNT_FACTOR               = { 'NORMAL': 
@@ -284,6 +292,10 @@ function resetCount(){
             condition : function( member ){ return true; } 
         } 
     };;
+}
+function resetAttackRecoverStack(){
+    ATTACK_STACK = [];
+    RECOVER_STACK = [];
 }
 function resetMoveTime(){
     MOVING = false;
@@ -732,107 +744,123 @@ function newElementByItem(item){
 //==============================================================
 //  Count Attack
 //==============================================================
-function countAttack(){
-console.log(0);
-    var members = [
-        TEAM_LEADER,
-        MEMBER_1,
-        MEMBER_2,
-        MEMBER_3,
-        MEMBER_4,
-        TEAM_FRIEND
-    ];
-    var team_wakes = [
-        TEAM_LEADER_WAKES,
-        MEMBER_1_WAKES,
-        MEMBER_2_WAKES,
-        MEMBER_3_WAKES,
-        MEMBER_4_WAKES,
-        TEAM_FRIEND_WAKES
-    ];
-
-    resetCount();
-
-    if( "attack" in TEAM_LEADER_SKILL ){
-        TEAM_LEADER_SKILL["attack"]( TEAM_LEADER_SKILL_VAR, "leader" );
+function checkSkillByKey( key ){
+    if( key in TEAM_LEADER_SKILL ){
+        TEAM_LEADER_SKILL[ key ](  TEAM_LEADER_SKILL_VAR, "leader" );
     }
-    if( "attack" in TEAM_FRIEND_SKILL ){
-        TEAM_FRIEND_SKILL["attack"]( TEAM_FRIEND_SKILL_VAR, "friend" );
+    if( key in TEAM_FRIEND_SKILL ){
+        TEAM_FRIEND_SKILL[ key ]( TEAM_FRIEND_SKILL_VAR, "friend" );
+    }    
+    for( var teamSkill of TEAM_SKILL ){
+        if( key in teamSkill ){
+            teamSkill[ key ]( TEAM_SKILL_VAR[ teamSkill["id"] ] );
+        }
     }
-    if( "attack" in TEAM_SKILL ){
-        TEAM_SKILL["attack"]( TEAM_SKILL_VAR );
-    }
-
-    $.each(team_wakes, function(place, wakes){
+}
+function checkWakeByKey( key ){
+    $.each(TEAM_WAKES, function(place, wakes){
         $.each(wakes, function(i, wake){
             if( "attack" in wake ){
-                wake["attack"]( members[place]['wake_var'][i], place, i );
-            }
-            if( "recover" in wake ){
-                wake["recover"]( members[place]['wake_var'][i], place, i );
+                wake["attack"]( TEAM_MEMBERS[place]['wake_var'][i], place, i );
             }
         });
     });
+}
+
+function countAttack(){
+    resetCount();
+
+    checkSkillByKey( "attack" );
+    checkSkillByKey( "recover" );
+    checkWakeByKey( "attack" );
+    checkWakeByKey( "recover" );
 
     for(var obj of COMBO_STACK){
         var c = obj['color'];
         COUNT_AMOUNT[c] += obj['amount'];
+        COUNT_MAX_AMOUNT[c] = Math.max( COUNT_MAX_AMOUNT[c], obj['amount'] );
         COUNT_STRONG[c] += obj['strong_amount'];
+        COUNT_SETS[c] += 1;
 
         for(var belong_color in COUNT_BELONG_COLOR[c]){
-            if(  COUNT_BELONG_COLOR[c][belong_color] > 0 ){
+            if( COUNT_BELONG_COLOR[c][belong_color] > 0 ){
                 COUNT_BELONG_AMOUNT[belong_color] += obj['amount'] * COUNT_BELONG_COLOR[c][belong_color];
+                COUNT_BELONG_MAX_AMOUNT[c] = Math.max( COUNT_BELONG_MAX_AMOUNT[c], obj['amount'] );
                 COUNT_BELONG_STRONG[belong_color] += obj['strong_amount'] * COUNT_BELONG_COLOR[c][belong_color];
                 COUNT_BELONG_SETS[belong_color] += 1;
             }
         }
 
-        COUNT_SETS[c] += 1;
         if( obj['drop_wave'] == 0 ){
             COUNT_FIRST_SETS[c] += 1;
         }
     }
 
-    for( var i = 0; i < members.length; i++ ){
-        var member = members[i];
+    $.each(TEAM_MEMBERS, function(i, member){
+        var attack = {
+            place  : i,
+            type   : "person",
+            goal   : "single",
+            color  : member["color"],
+            base   : member["attack"],
+            factor : 1,
+            log    : "",
+        };
+        var recover = {
+            place  : i,
+            color  : member["h"],
+            base   : member["recovery"],
+            factor : 1,
+            log    : "",
+        };
         var color = member["color"];
 
-        var comboCoeff   = ( 1+ ( COUNT_COMBO-1 ) * COUNT_COMBO_COEFF );
-        var amounts      = ( COUNT_AMOUNT[color] + COUNT_BELONG_AMOUNT[color] +
-                             COUNT_SETS[color]   + COUNT_BELONG_SETS[color]     );
-        var amountsCoeff = amounts * COUNT_AMOUNT_COEFF;
-        var strongs      = ( COUNT_STRONG[color] + COUNT_BELONG_STRONG[color]   );
-        var strongsCoeff = strongs * COUNT_STRONG_COEFF;
-        var atk          = comboCoeff * ( amountsCoeff + strongsCoeff );
-        console.log(comboCoeff+';'+amounts+';'+amountsCoeff+';'+strongs+';'+strongsCoeff+'=>'+atk);
+        if( COUNT_MAX_AMOUNT[color] >= 5 || COUNT_BELONG_MAX_AMOUNT[color] >= 5 ){
+            attack['goal'] = "all";
+        }
+
+        var atk       = ( 1+ ( COUNT_COMBO-1 ) * COUNT_COMBO_COEFF ) * 
+                        ( ( COUNT_AMOUNT[color] + COUNT_BELONG_AMOUNT[color] +
+                            COUNT_SETS[color]   + COUNT_BELONG_SETS[color]     ) * COUNT_AMOUNT_COEFF +
+                          ( COUNT_STRONG[color] + COUNT_BELONG_STRONG[color]   ) * COUNT_STRONG_COEFF );
+        attack['log'] = "(1+("+(COUNT_COMBO-1)+")*"+COUNT_COMBO_COEFF+")*"+
+                        "(("+COUNT_AMOUNT[color]+"+"+COUNT_BELONG_AMOUNT[color]+"+"+
+                             COUNT_SETS[color]  +"+"+COUNT_BELONG_SETS[color]  +")*"+COUNT_AMOUNT_COEFF+"+"+
+                         "("+COUNT_STRONG[color]+"+"+COUNT_BELONG_STRONG[color]+")*"+COUNT_STRONG_COEFF+")";
+
         for(var key in COUNT_FACTOR){
             if( COUNT_FACTOR[key]["condition"]( member ) ){
                 if( randomBySeed() < COUNT_FACTOR[key]["prob"] ){
-                    atk     *= COUNT_FACTOR[key]["factor"]( member );
+                    var factor = COUNT_FACTOR[key]["factor"]( member ).toFixed(5);
+                    atk *= factor;
+                    attack['log'] += "*"+factor;
                 }
             }
         }
 
-        var recover_comboCoeff   = ( 1+ ( COUNT_COMBO-1 ) * COUNT_RECOVER_COMBO_COEFF );
-        var recover_amounts      = ( COUNT_AMOUNT['h'] + COUNT_BELONG_AMOUNT['h'] +
-                                     COUNT_SETS['h']   + COUNT_BELONG_SETS['h']     );
-        var recover_amountsCoeff = recover_amounts * COUNT_RECOVER_AMOUNT_COEFF;
-        var recover_strongs      = ( COUNT_STRONG['h'] + COUNT_BELONG_STRONG['h']   );
-        var recover_strongsCoeff = recover_strongs * COUNT_RECOVER_STRONG_COEFF;
-        var recover              = recover_comboCoeff * ( recover_amountsCoeff + recover_strongsCoeff );
+        var rec        = ( 1+ ( COUNT_COMBO-1 ) * COUNT_RECOVER_COMBO_COEFF ) *
+                         ( ( COUNT_AMOUNT['h'] + COUNT_BELONG_AMOUNT['h'] +
+                             COUNT_SETS['h']   + COUNT_BELONG_SETS['h']     ) * COUNT_RECOVER_AMOUNT_COEFF +
+                           ( COUNT_STRONG['h'] + COUNT_BELONG_STRONG['h']   ) * COUNT_RECOVER_STRONG_COEFF );
+        recover['log'] = "(1+("+(COUNT_COMBO-1)+")*"+COUNT_RECOVER_COMBO_COEFF+")"+"*"+
+                         "(("+COUNT_AMOUNT['h']+"+"+COUNT_BELONG_AMOUNT['h']+"+"+
+                              COUNT_SETS['h']  +"+"+COUNT_BELONG_SETS['h']  +")*"+COUNT_RECOVER_AMOUNT_COEFF+"+"+
+                          "("+COUNT_STRONG['h']+"+"+COUNT_BELONG_STRONG['h']+")*"+COUNT_RECOVER_STRONG_COEFF+")";
         for(var key in COUNT_RECOVER_FACTOR){
             if( COUNT_RECOVER_FACTOR[key]["condition"]( member ) ){
                 if( randomBySeed() < COUNT_RECOVER_FACTOR[key]["prob"] ){
-                    recover *= COUNT_RECOVER_FACTOR[key]["factor"]( member );
+                    var factor = COUNT_RECOVER_FACTOR[key]["factor"]( member ).toFixed(5);
+                    rec *= factor;
+                    recover['log'] += "*"+factor;
                 }
             }
         }
 
-        atk = Math.round( atk * member["attack"] );
-        recover = Math.round( recover * member["recovery"] );
-        $("#AttackNumber td span").eq(i).text( atk );
-        $("#RecoverNumber td span").eq(i).text( recover );
-    }
+        attack["factor"]  = atk;
+        ATTACK_STACK.push( attack );
+        recover["factor"] = rec;
+        RECOVER_STACK.push( recover );
+    });
 }
 
 //==============================================================
@@ -857,8 +885,11 @@ function nextMoveWave(){
 function newMoveWave(){
     //Maybe used in end attack effect
     resetComboStack();
+    resetAttackRecoverStack();
     resetHistory();
     renewTimeDiv();
+
+    checkSkillByKey('findMaxC');
 }
 
 function checkGroups(){
@@ -908,39 +939,14 @@ function checkGroups(){
     }
 }
 
-function checkNewItemSkill(){
-    if( 'newItem' in TEAM_LEADER_SKILL ){
-        TEAM_LEADER_SKILL['newItem'](  TEAM_LEADER_SKILL_VAR );
-    }
-    if( 'newItem' in TEAM_FRIEND_SKILL ){
-        TEAM_FRIEND_SKILL['newItem']( TEAM_FRIEND_SKILL_VAR );
-    }
-    if( 'newItem' in TEAM_SKILL ){
-        TEAM_SKILL['newItem']( TEAM_SKILL_VAR );
-    }
-}
-function checkExtraComboSkill(){    
-    if( 'extraCombo' in TEAM_SKILL ){
-        TEAM_SKILL['extraCombo']( TEAM_SKILL_VAR );
-    }
-}
-function checkEndSkill(){
-    if( 'end' in TEAM_LEADER_SKILL ){
-        TEAM_LEADER_SKILL['end'](  TEAM_LEADER_SKILL_VAR );
-    }
-    if( 'end' in TEAM_FRIEND_SKILL ){
-        TEAM_FRIEND_SKILL['end']( TEAM_FRIEND_SKILL_VAR );
-    }
-
-    nextMoveWave();
-
-}
 function checkAttack(){
     frozenUpdate();
     countAttack();
+    showResult();
 
-    setTimeout(function(){
-        checkEndSkill();
+    setTimeout( function(){
+        checkSkillByKey( 'end' );
+        nextMoveWave();
     }, 1000);
 }
 
@@ -1088,8 +1094,8 @@ function removePeriod(set, next){
     addComboSet(comboSet);
     playAudioRemove();
 
-    // for greek skill
-    checkExtraComboSkill();
+    // greek skill extracombo
+    checkSkillByKey( 'extraCombo' );
 
     setTimeout( function(){
         removeGroups(next-1);
@@ -1112,7 +1118,7 @@ function newGroups(){
     REMOVE_STACK.sort(function(a, b){return a-b});
 
     //  希臘/巴比隊長技使用
-    checkNewItemSkill();
+    checkSkillByKey( 'newItem' );
 
     for(var color in GROUP_SETS){
         for(var set of GROUP_SETS[color]){
