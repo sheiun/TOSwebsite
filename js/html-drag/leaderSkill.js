@@ -559,9 +559,7 @@ var DevilIllusionPlusAttack = function( VAR, direct ){
 // DevilCircle
 //==============================================================
 var DevilCircleSetting = function( MEMBER ){
-    console.log(TIME_LIMIT);
     TIME_LIMIT += 1;
-    console.log(TIME_LIMIT);
     $('#timeRange').val( TIME_LIMIT );
     return {
         COLOR : MEMBER['color']

@@ -191,6 +191,8 @@ function replay(){
     backInitColor();
     resetComboStack();
     resetAttackRecoverStack();
+
+    checkSkillByKey('findMaxC');
     replayHistory();
 }
 function endReplayHistory(){
