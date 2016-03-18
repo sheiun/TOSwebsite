@@ -9,7 +9,7 @@
 //==============================================================
 var ElementFactor3Setting = function( MEMBER ){
     return {
-        'COLOR' : MEMBER['color'],
+        COLOR : MEMBER['color'],
     };
 }
 var ElementFactor3Attack = function( VAR, direct ){
@@ -25,7 +25,7 @@ var ElementFactor3Attack = function( VAR, direct ){
 }
 var ElementFactor3_5Setting = function( MEMBER ){
     return {
-        'COLOR' : MEMBER['color'],
+        COLOR : MEMBER['color'],
     };
 }
 var ElementFactor3_5Attack = function( VAR, direct ){
@@ -41,122 +41,12 @@ var ElementFactor3_5Attack = function( VAR, direct ){
 }
 
 //==============================================================
-// Babylon
-//==============================================================
-var BabylonSetting = function( MEMBER ){
-    return {
-        'COLOR' : MEMBER['color'],
-    };
-}
-var BabylonSkill = function( VAR, direct ){
-    var color = VAR['COLOR'];
-    for(var i = 0; i < TD_NUM; i++){
-        var trigger = false;
-        for(var set of STRAIGHT_SETS[i]){
-            if( set.size >= 4 ){
-                trigger = true;
-                break;
-            }
-        }
-        if( trigger && DROP_WAVES == 0 ){
-            for(var id = (TR_NUM-1)*TD_NUM+i; id >= 0; id -= TD_NUM ){
-                if( REMOVE_STACK.indexOf(id) >= 0 ){
-                    REMOVE_STACK.splice( REMOVE_STACK.indexOf(id), 1 );
-                    DROP_STACK[i].push( newElementByItem( color ) );
-                    break;
-                }
-            }
-        }
-    };
-}
-var BabylonAttack = function( VAR, direct ){
-    var color = VAR['COLOR'];
-    COUNT_FACTOR['Babylon'+direct] = {
-        factor    : function( member, member_place ){ return 3; },
-        prob      : 1,
-        condition : function( member, member_place ){
-            if( member['color'] == color ){
-                return true;
-            }
-            return false;
-        },
-    };
-}
-
-//==============================================================
-// DarkLucifer
-//==============================================================
-var WaterFairySetting = function( MEMBER ){
-    return {
-        'COLOR' : MEMBER['color'],
-    };
-}
-var WaterFairyAttack = function( VAR, direct ){
-    COUNT_FACTOR['WaterFairy'+direct] = {
-        factor    : function( member, member_place ){ return 2.5; },
-        prob      : 1,
-        condition : function( member, member_place ){
-            if( member['color'] == VAR['COLOR'] ){
-                return true;
-            }
-            return false;
-        },
-    };
-    if( !('WaterFairyBaseLine' in COUNT_FACTOR) ){
-        COUNT_FACTOR['WaterFairyBaseLine'] = {
-            factor    : function( member, member_place ){
-                if( TEAM_MEMBERS[member_place]['id'] == 'WATER_FAIRY' && 
-                    ( member_place == 0 || member_place == (TD_NUM-1) ) ){
-                    if( TEAM_LEADER['id'] == TEAM_FRIEND['id'] ){
-                        return 9;
-                    }
-                    return 3;
-                }
-                return 1;
-            },
-            prob      : 1,
-            condition : function( member, member_place ){
-                var base_line = [];
-                for(var i = TD_NUM*(TR_NUM-1); i < TD_NUM*TR_NUM; i++){
-                    base_line.push( i );
-                }
-                for(var obj of COMBO_STACK){
-                    if( obj['drop_wave'] == 0 ){
-                        for(var i of obj['set']){
-                            if( base_line.indexOf(i) >= 0 ){
-                                base_line.splice( base_line.indexOf(i), 1 );
-                            }
-                        }
-                    }
-                }
-                if( base_line.length == 0 ){
-                    return true;
-                }
-                return false;
-            },
-        };
-    }
-}
-var DarkLuciferSetting = function( MEMBER ){
-    return {
-        'COLOR' : 'h',
-    };
-}
-var DarkLuciferAttack = function( VAR, direct ){
-    COUNT_FACTOR['DarkLucifer'+direct] = {
-        factor    : function( member, member_place ){ return 2.5; },
-        prob      : 1,
-        condition : function( member, member_place ){ return true; },
-    };
-}
-
-//==============================================================
 // Greek
 //==============================================================
 var GreekSetting = function( MEMBER ){
     return {
-        'COLOR' : MEMBER['color'],
-        'COUNT' : 0,
+        COLOR : MEMBER['color'],
+        COUNT : 0,
     };
 }
 var GreekSkill = function( VAR, direct ){
@@ -198,16 +88,12 @@ var CoupleSetting = function( MEMBER ){
     GROUP_SIZE[ MEMBER['color'] ] = 2;
     GROUP_SIZE['h'] = 2;
     return {
-        'COLOR' : MEMBER['color'],
-        'COUNT' : 0,
+        COLOR : MEMBER['color'],
+        COUNT : 0,
     };
 }
 var CoupleEndSkill = function( VAR, direct ){
     var color = VAR['COLOR'];
-    var ld_stack = getStackOfPanelByColorArr(['l', 'd']);
-    var wh_stack = getStackOfPanelByColorArr(['w', 'h']);
-    var fp_stack = getStackOfPanelByColorArr(['f', 'p']);
-
     for( var num = 2; num > 0; num-- ){
         for( var colors of [ ['l', 'd'], ['w', 'h'], ['f', 'p'] ] ){
             var stack = getStackOfPanelByColorArr( colors );
@@ -331,6 +217,40 @@ var DollHumanGodAttack = function( VAR, direct ){
         },
     };
 }
+//==============================================================
+// Tribe Beast
+//==============================================================
+var TribeBeastSetting = function( MEMBER ){
+    return {
+        COLOR : MEMBER['color'],
+    };
+}
+var TribeBeastAttack = function( VAR, direct ){
+    var color = VAR['COLOR'];
+    var colorArr = ['w', 'f', 'p', 'l', 'd'];
+    colorArr.splice( colorArr.indexOf(color), 1 );
+    var belong_factor = 0;
+    for( var member of TEAM_MEMBERS ){
+        if( member['type'] == 'BEAST' ){
+            belong_factor += 0.1;
+        }
+    }
+    belong_factor = Math.min( belong_factor, 0.5 );
+    for(var c of colorArr){
+        COUNT_BELONG_COLOR[ color ][ c ] += belong_factor;
+    }
+
+    COUNT_FACTOR['TribeBeast'+direct] = {
+        factor    : function( member, member_place ){ return 2.5; },
+        prob      : 1,
+        condition : function( member, member_place ){
+            if( member['type'] == 'BEAST' ){ 
+                return true;
+            }
+            return false;
+        },
+    };
+}
 
 //==============================================================
 // Sword
@@ -361,11 +281,54 @@ var SwordBrotherAttack = function( VAR, direct ){
 }
 
 //==============================================================
+// Babylon
+//==============================================================
+var BabylonSetting = function( MEMBER ){
+    return {
+        COLOR : MEMBER['color'],
+    };
+}
+var BabylonSkill = function( VAR, direct ){
+    var color = VAR['COLOR'];
+    for(var i = 0; i < TD_NUM; i++){
+        var trigger = false;
+        for(var set of STRAIGHT_SETS[i]){
+            if( set.size >= 4 ){
+                trigger = true;
+                break;
+            }
+        }
+        if( trigger && DROP_WAVES == 0 ){
+            for(var id = (TR_NUM-1)*TD_NUM+i; id >= 0; id -= TD_NUM ){
+                if( REMOVE_STACK.indexOf(id) >= 0 ){
+                    REMOVE_STACK.splice( REMOVE_STACK.indexOf(id), 1 );
+                    DROP_STACK[i].push( newElementByItem( color ) );
+                    break;
+                }
+            }
+        }
+    };
+}
+var BabylonAttack = function( VAR, direct ){
+    var color = VAR['COLOR'];
+    COUNT_FACTOR['Babylon'+direct] = {
+        factor    : function( member, member_place ){ return 3; },
+        prob      : 1,
+        condition : function( member, member_place ){
+            if( member['color'] == color ){
+                return true;
+            }
+            return false;
+        },
+    };
+}
+
+//==============================================================
 // Chinese Paladin
 //==============================================================
 var LIXIAOYAOSetting = function( MEMBER ){
     return {
-        'COLOR' : MEMBER['color'],
+        COLOR : MEMBER['color'],
     };
 }
 var LIXIAOYAOAttack = function( VAR, direct ){
@@ -447,12 +410,79 @@ var CommonSourcePlusAttack = function( VAR, direct ){
 }
 
 //==============================================================
+// DarkLucifer
+//==============================================================
+var WaterFairySetting = function( MEMBER ){
+    return {
+        COLOR : MEMBER['color'],
+    };
+}
+var WaterFairyAttack = function( VAR, direct ){
+    COUNT_FACTOR['WaterFairy'+direct] = {
+        factor    : function( member, member_place ){ return 2.5; },
+        prob      : 1,
+        condition : function( member, member_place ){
+            if( member['color'] == VAR['COLOR'] ){
+                return true;
+            }
+            return false;
+        },
+    };
+    if( !('WaterFairyBaseLine' in COUNT_FACTOR) ){
+        COUNT_FACTOR['WaterFairyBaseLine'] = {
+            factor    : function( member, member_place ){
+                if( TEAM_MEMBERS[member_place]['id'] == 'WATER_FAIRY' && 
+                    ( member_place == 0 || member_place == (TD_NUM-1) ) ){
+                    if( TEAM_LEADER['id'] == TEAM_FRIEND['id'] ){
+                        return 9;
+                    }
+                    return 3;
+                }
+                return 1;
+            },
+            prob      : 1,
+            condition : function( member, member_place ){
+                var base_line = [];
+                for(var i = TD_NUM*(TR_NUM-1); i < TD_NUM*TR_NUM; i++){
+                    base_line.push( i );
+                }
+                for(var obj of COMBO_STACK){
+                    if( obj['drop_wave'] == 0 ){
+                        for(var i of obj['set']){
+                            if( base_line.indexOf(i) >= 0 ){
+                                base_line.splice( base_line.indexOf(i), 1 );
+                            }
+                        }
+                    }
+                }
+                if( base_line.length == 0 ){
+                    return true;
+                }
+                return false;
+            },
+        };
+    }
+}
+var DarkLuciferSetting = function( MEMBER ){
+    return {
+        COLOR : 'h',
+    };
+}
+var DarkLuciferAttack = function( VAR, direct ){
+    COUNT_FACTOR['DarkLucifer'+direct] = {
+        factor    : function( member, member_place ){ return 2.5; },
+        prob      : 1,
+        condition : function( member, member_place ){ return true; },
+    };
+}
+
+//==============================================================
 // DevilIllusion
 //==============================================================
 var DevilIllusionSetting = function( MEMBER ){
     return {
-        'COLOR'     : MEMBER['color'],
-        'MAX_COLORS': [],
+        COLOR      : MEMBER['color'],
+        MAX_COLORS : [],
     };
 }
 var DevilIllusionFindMaxColor = function( VAR, direct ){
@@ -529,10 +559,12 @@ var DevilIllusionPlusAttack = function( VAR, direct ){
 // DevilCircle
 //==============================================================
 var DevilCircleSetting = function( MEMBER ){
+    console.log(TIME_LIMIT);
     TIME_LIMIT += 1;
+    console.log(TIME_LIMIT);
     $('#timeRange').val( TIME_LIMIT );
     return {
-        'COLOR' : MEMBER['color']
+        COLOR : MEMBER['color']
     };
 }
 var DevilCircleAttack = function( VAR, direct ){
@@ -571,8 +603,8 @@ var ChinaDAttack = function( VAR, direct ){
 //==============================================================
 var HeartQueenSetting = function( MEMBER ){
     return {
-        'COLOR' : 'h',
-        'COUNT' : 0,
+        COLOR : 'h',
+        COUNT : 0,
     };
 }
 
@@ -616,23 +648,6 @@ var LEADER_SKILLS_DATA = {
         newItem   : GreekSkill,
         preSet    : HeartQueenSetting,
     },
-    BABYLON : {
-        id        : 'BABYLON',
-        newItem   : BabylonSkill,
-        attack    : BabylonAttack,
-        preSet    : BabylonSetting,
-    },
-    WATER_FAIRY : {
-        id        : 'WATER_FAIRY',
-        attack    : WaterFairyAttack,
-        preSet    : WaterFairySetting,
-    },
-    DARK_LUCIFER : {
-        id        : 'DARK_LUCIFER',
-        newItem   : BabylonSkill,
-        attack    : DarkLuciferAttack,
-        preSet    : DarkLuciferSetting,        
-    },
     COUPLE_F : {
         id        : 'COUPLE_F',
         end       : CoupleEndSkill,
@@ -663,6 +678,17 @@ var LEADER_SKILLS_DATA = {
         attack    : DollHumanGodAttack,
         preSet    : noneSetting,
     },
+    TRIBE_BEAST : {
+        id        : 'TRIBE_BEAST',
+        attack    : TribeBeastAttack,
+        preSet    : TribeBeastSetting,
+    },
+    BABYLON : {
+        id        : 'BABYLON',
+        newItem   : BabylonSkill,
+        attack    : BabylonAttack,
+        preSet    : BabylonSetting,
+    },
     SWORD_BROTHER : {
         id        : 'SWORD_BROTHER',
         attack    : SwordBrotherAttack,
@@ -677,6 +703,17 @@ var LEADER_SKILLS_DATA = {
         id        : 'LIXIAOYAO',
         attack    : LIXIAOYAOAttack,
         preSet    : LIXIAOYAOSetting,
+    },
+    WATER_FAIRY : {
+        id        : 'WATER_FAIRY',
+        attack    : WaterFairyAttack,
+        preSet    : WaterFairySetting,
+    },
+    DARK_LUCIFER : {
+        id        : 'DARK_LUCIFER',
+        newItem   : BabylonSkill,
+        attack    : DarkLuciferAttack,
+        preSet    : DarkLuciferSetting,        
     },
     DEVIL_ILLUSION : {
         id        : 'DEVIL_ILLUSION',

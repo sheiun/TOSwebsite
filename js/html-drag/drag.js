@@ -760,8 +760,8 @@ function checkSkillByKey( key ){
 function checkWakeByKey( key ){
     $.each(TEAM_WAKES, function(place, wakes){
         $.each(wakes, function(i, wake){
-            if( "attack" in wake ){
-                wake["attack"]( TEAM_MEMBERS[place]['wake_var'][i], place, i );
+            if( key in wake ){
+                wake[ key ]( TEAM_MEMBERS[place]['wake_var'][i], place, i );
             }
         });
     });
@@ -808,7 +808,7 @@ function countAttack(){
         };
         var recover = {
             place  : membe_place,
-            color  : member["h"],
+            color  : "h",
             base   : member["recovery"],
             factor : 1,
             log    : "",

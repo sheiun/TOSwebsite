@@ -134,9 +134,9 @@ var TeamDarkLuciferMapping = function(){
 //==============================================================
 var TeamGreekSetting = function( LEADER, FRIEND ){
     return {
-        'COLOR' : LEADER['color'],
-        'COUNT' : {'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0},
-        'EXTRA_COMBO': 0
+        COLOR       : LEADER['color'],
+        COUNT       : {'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0},
+        EXTRA_COMBO : 0
     };
 }
 var TeamGreekExtraComboReset = function( VAR ){
@@ -244,6 +244,45 @@ var TeamDevilIllusionMapping = function(){
     }
 }
 
+var TeamDevilCircleEndItem = function( VAR ){
+    if( VAR['END_ITEM'] ){
+        var color = VAR['COLOR'];
+        var colorArr = ['w', 'f', 'p', 'l', 'd'];
+        colorArr.splice( colorArr.indexOf(color), 1 );
+        var stack = getStackOfPanelByColorArr( colorArr );
+
+        for( var num = 2; num > 0; num-- ){
+            if( stack.length > 0 ){
+                var rand_i = Math.floor( randomBySeed() * stack.length );
+                var id = stack[rand_i];
+                stack.splice(rand_i,1);
+                turnElementToColorByID(id, color);
+            }
+        }
+    }
+}
+var TeamDevilCircleAttack = function( VAR ){
+    var color = VAR['COLOR'];
+    var check = false;
+    for(var obj of COMBO_STACK){
+        if( obj['color'] == color && obj['amount'] >= 5 ){
+            check = true;
+        }
+    }
+    VAR['END_ITEM'] = check;
+}
+var TeamDevilCircleSetting = function( LEADER, FRIEND ){
+    return {
+        COLOR    : LEADER['color'],
+        END_ITEM : false,
+    };
+}
+var TeamDevilCircleMapping = function(){
+    if( TEAM_LEADER['id'] == TEAM_FRIEND['id'] && TEAM_FRIEND['leader'] == 'DEVIL_CIRCLE' ){
+        TEAM_SKILL.push( TEAM_SKILLS_DATA["DEVIL_CIRCLE"] );
+    }
+}
+
 //==============================================================
 //==============================================================
 // Team Skill Database
@@ -305,5 +344,12 @@ var TEAM_SKILLS_DATA = {
         id        : 'DEVIL_ILLUSION',
         preSet    : TeamDevilIllusionSetting,
         mapping   : TeamDevilIllusionMapping,
+    },
+    DEVIL_CIRCLE : {
+        id        : 'DEVIL_CIRCLE',
+        end       : TeamDevilCircleEndItem,
+        attack    : TeamDevilCircleAttack,
+        preSet    : TeamDevilCircleSetting,
+        mapping   : TeamDevilCircleMapping,
     },
 };

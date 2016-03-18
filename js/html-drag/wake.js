@@ -20,38 +20,64 @@ var DropIncrease = function( MEMBER, place, wakeVar ){
 
 var StraightAttack = function( wakeVar, place, i ){
     // wakeVar = "[factor,straightSize]"
-    COUNT_FACTOR['StraightAttack_'+place+'_'+i] = {
-        factor    : function( member, membe_place ){
-            return  eval(wakeVar)[0];
-        },
-        prob      : 1,
-        condition : function( member, membe_place ){
-            for( var set of ALL_GROUP_SET_STACK[0]['STRAIGHT_SETS'][place] ){
-                if( set.size >= eval(wakeVar)[1] ){
-                    return true;
-                }
-            }
-            return false;
-        },
-    };    
+    var check = false;
+    for( var set of ALL_GROUP_SET_STACK[0]['STRAIGHT_SETS'][place] ){
+        if( set.size >= eval(wakeVar)[1] ){
+            check = true;
+        }
+    }
+    if( check ){
+        COUNT_FACTOR['StraightAttack_'+place+'_'+i] = {
+            factor    : function( member, membe_place ){
+                return eval(wakeVar)[0];
+            },
+            prob      : 1,
+            condition : function( member, membe_place ){
+                return true;
+            },
+        };  
+    }  
 }
 
 var StraightRecover = function( wakeVar, place, i ){
     // wakeVar = "[factor,straightSize]"
-    COUNT_RECOVER_FACTOR['StraightRecover_'+place+'_'+i] = {
-        factor    : function( member, membe_place ){
-            return  eval(wakeVar)[0];
-        },
-        prob      : 1,
-        condition : function( member, membe_place ){
-            for( var set of ALL_GROUP_SET_STACK[0]['STRAIGHT_SETS'][place] ){
-                if( set.size >= eval(wakeVar)[1] ){
-                    return true;
-                }
-            }
-            return false;
-        },
-    };    
+    var check = false;
+    for( var set of ALL_GROUP_SET_STACK[0]['STRAIGHT_SETS'][place] ){
+        if( set.size >= eval(wakeVar)[1] ){
+            check = true;
+        }
+    }
+    if( check ){
+        COUNT_FACTOR['StraightRecover_'+place+'_'+i] = {
+            factor    : function( member, membe_place ){
+                return eval(wakeVar)[0];
+            },
+            prob      : 1,
+            condition : function( member, membe_place ){
+                return true;
+            },
+        };  
+    }
+}
+
+var StraightHeal = function( wakeVar, place, i ){
+    // wakeVar = "[factor,straightSize]"
+    var check = false;
+    for( var set of ALL_GROUP_SET_STACK[0]['STRAIGHT_SETS'][place] ){
+        if( set.size >= eval(wakeVar)[1] ){
+            check = true;
+        }
+    }
+    if( check ){
+        var recover = {
+            place  : place,
+            color  : "h",
+            base   : TEAM_MEMBERS[place]["recovery"],
+            factor : eval(wakeVar)[0],
+            log    : "StraightHeal_from_"+place,
+        };
+        RECOVER_STACK.push(recover);
+    }
 }
 
 //==============================================================
@@ -82,5 +108,10 @@ var WAKES_DATA = {
         id        : "STRAIGHT_RECOVER",
         recover   : StraightRecover,
         // wakeVar = "[factor,straightSize]"
-    }
+    },
+    STRAIGHT_HEAL : {
+        id        : "STRAIGHT_HEAL",
+        recover   : StraightHeal,
+        // wakeVar = "[factor,straightSize]"
+    },
 }

@@ -286,6 +286,8 @@ function showResult(){
         var rec = Math.round( recover["base"] * recover["factor"] );
         $("#RecoverNumber td").eq( recover["place"] ).append( $("<sapn></span>").text(rec).addClass("AtkRecLabel") ).append( $("<br>") );
     });
+
+    resetTimeDiv();
 }
 function showTime(now){    
     var timeFraction = ( TIME_LIMIT - ( now - START_TIME ) )/TIME_LIMIT;
@@ -438,7 +440,7 @@ function resetMemberSelect(){
         }
         msdropdown.setIndexByValue( TEAM_MEMBERS[i]["id"] );
         msdropdown.on("change", function(){
-            TIME_LIMIT = 10;
+            TIME_LIMIT = 5;
             $('#timeRange').val(5);
             cleanColors();
             reserDropColors();
