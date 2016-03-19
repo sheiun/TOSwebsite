@@ -1,145 +1,28 @@
 //==============================================================
-// team variable
+// Team Variable
 //==============================================================
-var GREEK_LEFT_COUNT  = {'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0};
-var GREEK_RIGHT_COUNT = {'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0};
 var COUPLE_RAND_STACK = [];
 
+function saveSkillVariable(){
+    var json = 
+    [
+        TEAM_LEADER_SKILL_VAR,
+        TEAM_FRIEND_SKILL_VAR,
+        TEAM_SKILL_VAR,
+    ];
+    return JSON.stringify(json);
+}
+function loadSkillVariable(msg){
+    var json = JSON.parse(msg);
+    TEAM_LEADER_SKILL_VAR   = json[0];
+    TEAM_FRIEND_SKILL_VAR   = json[1];
+    TEAM_SKILL_VAR          = json[2];
+}
+
 //==============================================================
-// team skill
+// BrokeBoundary
 //==============================================================
-function BibleSkill(color){
-    for(var i = 0; i < TD_NUM; i++){
-        var trigger = false;
-        for(var set of STRAIGHT_SETS[i]){
-            if( set.size >= 4 ){
-                trigger = true;
-            }
-        }
-        if( trigger && DROP_WAVES == 0 ){
-            for(var id = (TR_NUM-1)*TD_NUM+i; id >= 0; id -= TD_NUM ){
-                if( REMOVE_STACK.indexOf(id) >= 0 ){
-                    REMOVE_STACK.splice( REMOVE_STACK.indexOf(id), 1 );
-                    DROP_STACK[i].push( newElementByItem( color ) );
-                    break;
-                }
-            }
-        }
-    }
-}
-
-function GreekSkill(color, leader){
-    var check_straight = 0;
-    var check_horizontal = 0;
-    for(var i = 0; i < TD_NUM; i++ ){
-        check_straight += STRAIGHT_SETS[i].length;
-    }
-    for(var i = 0; i < TR_NUM; i++){
-        check_horizontal += HORIZONTAL_SETS[i].length;
-    }
-
-    var num = 0;
-    if(leader == "left"){
-        num += GREEK_LEFT_COUNT[color];
-    }else if(leader == "right"){
-        num += GREEK_RIGHT_COUNT[color];
-    }
-    for(var set of GROUP_SETS[color]){
-        num += set.size;
-    }
-
-    while( num >= 3 ){
-        num -= 3;
-        var rand_i;
-        if( COMBO_TIMES == 1 && check_straight == 1 ||
-            COMBO_TIMES == 1 && check_horizontal == 1 ){
-            console.log(REMOVE_STACK);
-            rand_i = Math.floor( Math.random()* ( REMOVE_STACK.length-1 ) );
-        }else{
-            rand_i = Math.floor( Math.random()*REMOVE_STACK.length );
-        }
-        var id = REMOVE_STACK[rand_i];
-        REMOVE_STACK.splice(rand_i,1);
-        STRONG_STACK[id] = color+'+';
-    }
-
-    if(leader == "left"){
-        GREEK_LEFT_COUNT[color] = num;
-    }else if(leader == "right"){
-        GREEK_RIGHT_COUNT[color] = num;
-    }
-}
-
-function TeamGreekSkill(color){
-    var comboTimes = 0;
-    for(var key in GROUP_SETS){
-        comboTimes += GROUP_SETS[key].length;
-    }
-    while( comboTimes >= 5 && REMOVE_STACK.length >= 2 ){
-        comboTimes -= 5;
-        var rand_i = Math.floor( Math.random()*REMOVE_STACK.length );
-        var id = REMOVE_STACK[rand_i];
-        REMOVE_STACK.splice(rand_i,1);
-        STRONG_STACK[id] = color;
-        var rand_i = Math.floor( Math.random()*REMOVE_STACK.length );
-        var id = REMOVE_STACK[rand_i];
-        REMOVE_STACK.splice(rand_i,1);
-        STRONG_STACK[id] = color;
-    }
-}
-
-function coupleEndSkill(color){
-    var num = 2;
-    var ld_stack = getStackOfPanelByColorArr(['l', 'd']);
-    for(var i of COUPLE_RAND_STACK){
-        if( ld_stack.indexOf(i) >= 0 ){ 
-            ld_stack.splice( ld_stack.indexOf(i), 1 );
-        }
-    }
-    var wh_stack = getStackOfPanelByColorArr(['w', 'h']);
-    for(var i of COUPLE_RAND_STACK){
-        if( wh_stack.indexOf(i) >= 0 ){ 
-            wh_stack.splice( wh_stack.indexOf(i), 1 );
-        }
-    }
-    var fp_stack = getStackOfPanelByColorArr(['f', 'p']);
-    for(var i of COUPLE_RAND_STACK){
-        if( wh_stack.indexOf(i) >= 0 ){ 
-            fp_stack.splice( fp_stack.indexOf(i), 1 ); 
-        }
-    }
-
-    while( num > 0 ){
-        num--;
-        if( ld_stack.length > 0 ){
-            coupleTurnRandToColor(ld_stack, color);
-        }else if( wh_stack.length > 0 ){
-            coupleTurnRandToColor(wh_stack, color);
-        }else if( fp_stack.length > 0 ){
-            coupleTurnRandToColor(fp_stack, color);
-        }
-    }
-}
-
-function coupleTurnRandToColor(stack, color){
-    var rand_i = Math.floor( Math.random()*stack.length );
-    var id = stack[rand_i];
-    COUPLE_RAND_STACK.push(id);
-    stack.splice(rand_i,1);
-    var imgs = $("#dragContainment tr td").eq(id).find("img");
-    var item = ($(imgs).attr("src").indexOf("+") >= 0) ? color+"+" : color;
-    var hide_items = newElementByItem(item);
-    $(hide_items[0]).hide();
-    $(hide_items[1]).hide();
-    $("#dragContainment tr td").eq(id).find("img").fadeOut( FADEOUT_TIME, function(){
-        $(this).remove();
-        $("#dragContainment tr td").eq(id).append( hide_items );
-        $("#dragContainment tr td").eq(id).find("img").fadeIn( FADEOUT_TIME );
-        COUPLE_RAND_STACK = [];
-    });
-}
-
-function startBrokeBoundary(){
+var startBrokeBoundary = function(){
     $('#timeRange').val(10);
     $("#timeLimit").text("限制時間");
     $("#freeDrag").text("一般移動");
@@ -161,6 +44,7 @@ function startBrokeBoundary(){
     $("#dragContainment").attr("td", 6).attr("tr", 8);
     resetHistory();
     resetDropStack();
+    resetComboStack();
     resetColors();
     resetBase();
     initialTable();
@@ -216,7 +100,7 @@ function startBrokeBoundary(){
     window.scrollTo(0, $("#clock").offset().top);
 }
 
-function endBrokeBoundary(){ 
+var endBrokeBoundary = function(){ 
     $('#timeRange').val(5);
     $("#randomPanel").closest("button").prop("disabled", false);
     $("#optionalPanel").closest("button").prop("disabled", false);
@@ -225,7 +109,7 @@ function endBrokeBoundary(){
     $("#replay").closest("button").prop("disabled", false);
     $("#dragContainment").attr("td", 6).attr("tr", 5);
     $('#clipboard').attr("data-clipboard-text", "null");
-    TIME_LIMIT = 10;
+    TIME_LIMIT = 5;
     resetHistory();
     resetBase();
     initialTable();
@@ -245,11 +129,12 @@ function endBrokeBoundary(){
     checkAttack();
 }
 
-
-
 //==============================================================
-// base skill
+// Base Skill
 //==============================================================
+var none = function(){}
+var noneSetting = function(){ return {}; }
+
 function getStackOfPanelByColor(color){
     var stack = [];
     for(var i = 0; i < TD_NUM*TR_NUM; i++){
@@ -269,4 +154,47 @@ function getStackOfPanelByColorArr(colorArr){
         }
     }
     return stack;
+}
+
+function turnElementToColorByID(id, color){
+    var imgs = $("#dragContainment tr td").eq(id).find("img");
+    imgs.attr('color', color);
+    var item = imgs.attr("item");
+    item = color + item.substr(1);
+    var hide_items = newElementByItem(item);
+
+    $(hide_items[0]).hide();
+    $(hide_items[1]).hide();
+    $("#dragContainment tr td").eq(id).find("img").fadeOut( FADEOUT_TIME, function(){
+        $(this).remove();
+        $("#dragContainment tr td").eq(id).append( hide_items );
+        $("#dragContainment tr td").eq(id).find("img").fadeIn( FADEOUT_TIME );
+        resetDraggable();
+        startDragging();
+    });
+}
+
+// 隊伍屬性包含全部 > colorArr
+function checkMembersColorHasColorArr( colorArr ){
+    $.each(TEAM_MEMBERS, function(i, member){
+        if( colorArr.indexOf( member['color'] ) >= 0 ){
+            colorArr.splice( colorArr.indexOf( member['color'] ), 1 );
+        }
+    });
+    return colorArr.length == 0;
+
+}
+// 隊伍屬性包含只在 < colorArr
+function checkMembersColorInColorArr( colorArr ){
+    var check = true;
+    $.each(TEAM_MEMBERS, function(i, member){
+        if( colorArr.indexOf( member['color'] ) < 0 ){
+            check = false;
+        }
+    });
+    return check;
+}
+// 隊伍屬性相當 == colorArr
+function checkMembersColorOnlyInColorArr( colorArr ){
+    return checkMembersColorInColorArr( colorArr ) && checkMembersColorHasColorArr( colorArr );
 }

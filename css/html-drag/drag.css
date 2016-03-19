@@ -1,5 +1,5 @@
 body{
-    background-image: url('../img/Card_background.png');
+    background-image: url('../../img/Card_background.png');
     background-repeat: no-repeat;
     background-attachment: fixed;
     background-position: center center; 
@@ -20,7 +20,7 @@ body{
 }
 
 #dragContainment{
-    background-image: url('../img/Icon/base.png');
+    background-image: url('../../img/Icon/base.png');
     background-size: 320px 320px;
     background-repeat: repeat;
 }
@@ -71,6 +71,13 @@ body{
     width: 50px;
     height: 50px;   
 }
+#panelControl img.mouseImg{
+    position: absolute;
+    z-index: 256;
+    width: 50px;
+    height: 50px;
+    opacity: 0.3;
+}
 #panelColorSelect{
     width: 50px;
     height: 50px;
@@ -78,9 +85,9 @@ body{
 
 #comboDiv{
     border-radius: 30px;
-    background: black;
+    background: #151515;
     width: 300px;
-    height: 400px;
+    height: 520px;
 }
 #comboHit{    
     color: white;
@@ -88,13 +95,19 @@ body{
     font-weight: 200;
     font-size: 2em;
 }
+#extraCombo{
+    color: white;
+    font-family:  "Lucida Grande", "Lucida Sans", Helvetica, Arial, Sans;
+    font-weight: 200;
+    font-size: 20px;
+}
 #Scrollbar{
     border-radius: 20px;
     margin: auto;
     margin-top: 10px;
     margin-bottom: 10px;
     width: 280px;
-    height: 320px;
+    height: 400px;
 }
 #comboBox img.comboBox{
     background: rgba(0%,0%,0%,0);
@@ -123,11 +136,13 @@ body{
     height: 110px;
 }
 #HorizontalScrollbar img{
+    cursor: pointer;
     border-radius: 10px;
     background: DarkGray ;
     height: 60px;
 }
 #HorizontalScrollbar .addNewColor{
+    cursor: pointer;
     border-radius: 10px;
     background: DarkGray;
     width: 90px;
@@ -135,4 +150,32 @@ body{
 }
 #HorizontalScrollbar .addNewColor span{
     margin-top: 20px;
+}
+
+#TeamMember{
+    border-collapse: collapse;
+}
+#TeamMember select{
+    width: 110px;
+}
+#TeamMember img{
+    width: 60px;
+}
+#AttackNumber td{
+    height: 30px;
+    width: 110px;
+    background: PaleTurquoise;
+    border: 1px solid Gray;
+}
+#RecoverNumber td{
+    height: 30px;
+    width: 110px;
+    background: LightPink;
+    border: 1px solid Gray;
+}
+.AtkRecLabel{
+    color: black;
+    margin-left: 10px;
+    font-family: "Microsoft JhengHei", Helvetica, Arial, Sans;
+    font-size: 16px;
 }

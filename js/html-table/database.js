@@ -587,7 +587,7 @@ var data =
 	},
 	{
 		"name": "百鬼夜行", "id": 19, "trDisplay": true, "label": true, "rarity": "Special", "type": "Devil",
-		"maxLv" : 		[ [ 2, 2, 2, 2, 2 ] ],
+		"maxLv" : 		[ [ 3, 3, 3, 3, 3 ] ],
 		"color" : 		[ [ 0, 0, 0, 0, 0 ] ],
 		"tdDisplay" : 	[ [ 1, 1, 1, 1, 1 ] ],
 	},
@@ -698,6 +698,12 @@ var data =
 						  [ 0, 0, 0, 0, 0 ] ],
 		"tdDisplay" : 	[ [ 1, 1, 1, 1, 1 ], 
 						  [ 1, 1, 1, 1, 1 ] ],
+	},
+	{
+		"name": "魔族始源", "id": 35, "trDisplay": true, "label": true, "rarity": "Special", "type": "Devil",
+		"maxLv" : 		[ [ 2, 2, 2, 2, 2 ] ],
+		"color" : 		[ [ 0, 0, 0, 0, 0 ] ],
+		"tdDisplay" : 	[ [ 1, 1, 1, 1, 1 ] ],
 	},
 
 

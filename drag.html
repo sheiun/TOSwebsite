@@ -12,13 +12,14 @@
     <title>Tower of Saviors 神魔之塔 卡片圖鑑表</title>
 
     <!-- Bootstrap Core CSS -->
-    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
     <!-- CSS for this html -->
-    <link href="css/bootstrap-select.min.css" rel="stylesheet">
-    <link href="css/jquery.mCustomScrollbar.css" rel="stylesheet">
-    <link href="css/scrollbar-style.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="css/bootstrap-select.min.css">
+    <link rel="stylesheet" type="text/css" href="css/jquery.mCustomScrollbar.css">
+    <link rel="stylesheet" type="text/css" href="css/scrollbar-style.css">
+    <link rel="stylesheet" type="text/css" href="css/dd/dd.css" />
 
-    <link href="css/drag.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="css/html-drag/drag.css">
 
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -26,6 +27,22 @@
         <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
         <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-74512169-1', 'auto');
+      ga('send', 'pageview');
+    </script>
+
+    <!--
+
+    TODO: 
+    make attack/recovery be object
+    -->
+
 
 </head>
 
@@ -72,7 +89,7 @@
         </div>
 
         <div class="row">
-            <div class="col-lg-3" align="center">
+            <div class="col-lg-2" align="center">
                 <br><br>
                 <div id="playBtn" class="btn-group-vertical" role="group">
                     <button class="btn btn-default" onclick="toggleFreeDrag()">
@@ -87,6 +104,9 @@
                     </button>
                     <button class="btn btn-default" onclick="toggleDropable()">
                         <span id="dropable">取消落珠</span>
+                    </button>
+                    <button class="btn btn-default" onclick="toggleAudio()">
+                        <span id="playAudio">播放音效</span>
                     </button>
                     <button class="btn btn-default"></button>
 
@@ -121,12 +141,42 @@
                 </div>
             </div>
 
-            <div  id="main_workplace" class="col-lg-6" align="center">
+            <div  id="main_workplace" class="col-lg-8" align="center">
                 <p id="title">轉珠模擬器</p>
 
-                <img id="clock" src="img/Icon/clock.png">
-                <div id="timeRect"></div>
-                <div id="timeBack"></div>
+                <table id="TeamMember" style="display: none;">
+                    <tr id="AttackNumber">
+                        <td> </td>
+                        <td> </td>
+                        <td> </td>
+                        <td> </td>
+                        <td> </td>
+                        <td> </td>
+                    </tr>
+                    <tr id="RecoverNumber">
+                        <td> </td>
+                        <td> </td>
+                        <td> </td>
+                        <td> </td>
+                        <td> </td>
+                        <td> </td>
+                    </tr>
+                    <tr>
+                        <td> <select name="MemberSelect" id="TeamLeaderSelect"></select>  </td>
+                        <td> <select name="MemberSelect" id="TeamMember1Select"></select> </td>
+                        <td> <select name="MemberSelect" id="TeamMember2Select"></select> </td>
+                        <td> <select name="MemberSelect" id="TeamMember3Select"></select> </td>
+                        <td> <select name="MemberSelect" id="TeamMember4Select"></select> </td>
+                        <td> <select name="MemberSelect" id="TeamFriendSelect"></select>  </td>
+                    </tr>
+                </table>
+                <br>
+
+                <div id="Time" >
+                    <img id="clock" src="img/Icon/clock.png">
+                    <div id="timeRect"></div>
+                    <div id="timeBack"></div>
+                </div>
 
                 <canvas id="dragCanvas"></canvas>
                 <table id="dragContainment" tr="5" td="6">
@@ -149,83 +199,73 @@
                       <option value="w+q,f+q,p+q,l+q,d+q,h+q" >問號強化</option>
                       <option value="wx,fx,px,lx,dx,hx" >風化普通</option>
                       <option value="w+x,f+x,p+x,l+x,d+x,h+x" >風化強化</option>
+                      <option value="wX,fX,pX,lX,dX,hX" >隱藏風化普通</option>
+                      <option value="w+X,f+X,p+X,l+X,d+X,h+X" >隱藏風化強化</option>
+                      <option value="wk,fk,pk,lk,dk,hk" >鎖定</option>
+                      <option value="wi0,fi0,pi0,li0,di0,hi0" >冰凍0</option>
+                      <option value="wi1,fi1,pi1,li1,di1,hi1" >冰凍1</option>
+                      <option value="wi2,fi2,pi2,li2,di2,hi2" >冰凍2</option>
+                      <option value="wi3,fi3,pi3,li3,di3,hi3" >冰凍3</option>
                     </select>
                 </div><br>
                 <div id="panelControl" class="btn-group" role="group">
-                    <button class="btn btn-default" onclick="setColor('w')">
+                    <button class="btn btn-default" onclick="setColor('w',0)">
                         <img src="img/Icon/w.png">
                     </button>
-                    <button class="btn btn-default" onclick="setColor('f')">
+                    <button class="btn btn-default" onclick="setColor('f',1)">
                         <img src="img/Icon/f.png">
                     </button>
-                    <button class="btn btn-default" onclick="setColor('p')">
+                    <button class="btn btn-default" onclick="setColor('p',2)">
                         <img src="img/Icon/p.png">
                     </button>
-                    <button class="btn btn-default" onclick="setColor('l')">
+                    <button class="btn btn-default" onclick="setColor('l',3)">
                         <img src="img/Icon/l.png">
                     </button>
-                    <button class="btn btn-default" onclick="setColor('d')">
+                    <button class="btn btn-default" onclick="setColor('d',4)">
                         <img src="img/Icon/d.png">
                     </button>
-                    <button class="btn btn-default" onclick="setColor('h')">
+                    <button class="btn btn-default" onclick="setColor('h',5)">
                         <img src="img/Icon/h.png">
                     </button>
                 </div>
                 <br><br>
                     
                 <span class="teamLabel">進階選項：</span>
-                <div id="teamControl" class="btn-group" role="group">
-                    <button class="btn btn-default" onclick="startBrokeBoundary()">
-                        <span>界線突破</span>
-                    </button>&nbsp;
-                    <select id="teamLeftSelect" class="selectpicker" data-width="100px" title="隊長技能">
-                      <option value="null" >無技能</option>
-                      <option value="GREEK-w" >大海之神 ‧ 波塞頓</option>
-                      <option value="GREEK-f" >煉火之神 ‧ 赫淮斯托斯</option>
-                      <option value="GREEK-p" >戰爭女神 ‧ 雅典娜</option>
-                      <option value="GREEK-l" >聖光之神 ‧ 阿波羅</option>
-                      <option value="GREEK-d" >月夜之神 ‧ 阿提密斯</option>
-                      <option value="GREEK-h" >魔境之主 ‧ 紅心女王</option>
-                      <option value="BIBLE-w" >智慧者 ‧ 阿特拉哈西斯</option>
-                      <option value="BIBLE-f" >暴風軍神 ‧ 尼努爾塔</option>
-                      <option value="BIBLE-p" >牧者國王 ‧ 杜穆濟</option>
-                      <option value="BIBLE-l" >月神 ‧ 伊南娜</option>
-                      <option value="BIBLE-d" >惡疾之神 ‧ 納姆塔爾</option>
-                      <option value="BIBLE-h" >反叛的墮天使 路西法</option>
-                      <option value="COUPLE-f" >彌勒世尊 ‧ 燃燈</option>
-                      <option value="COUPLE-p" >顯聖真君 ‧ 楊戩</option>
-                    </select>
-                    <select id="teamRightSelect" class="selectpicker" data-width="100px" title="隊友技能">
-                      <option value="null" >無技能</option>
-                      <option value="GREEK-w" >大海之神 ‧ 波塞頓</option>
-                      <option value="GREEK-f" >煉火之神 ‧ 赫淮斯托斯</option>
-                      <option value="GREEK-p" >戰爭女神 ‧ 雅典娜</option>
-                      <option value="GREEK-l" >聖光之神 ‧ 阿波羅</option>
-                      <option value="GREEK-d" >月夜之神 ‧ 阿提密斯</option>
-                      <option value="GREEK-h" >魔境之主 ‧ 紅心女王</option>
-                      <option value="BIBLE-w" >智慧者 ‧ 阿特拉哈西斯</option>
-                      <option value="BIBLE-f" >暴風軍神 ‧ 尼努爾塔</option>
-                      <option value="BIBLE-p" >牧者國王 ‧ 杜穆濟</option>
-                      <option value="BIBLE-l" >月神 ‧ 伊南娜</option>
-                      <option value="BIBLE-d" >惡疾之神 ‧ 納姆塔爾</option>
-                      <option value="BIBLE-h" >反叛的墮天使 路西法</option>
-                      <option value="COUPLE-f" >彌勒世尊 ‧ 燃燈</option>
-                      <option value="COUPLE-p" >顯聖真君 ‧ 楊戩</option>
-                    </select>
-                    <select id="dropColorSelect" class="selectpicker" data-width="100px" title="落珠選擇">
-                      <option value="w,f,p,l,d,h" >正常分布</option>
-                      <option value="w,f,p,l,d" >禁心珠</option>
-                      <option value="w,f,p,l,d,w" >亡命感應 ‧ 水</option>
-                      <option value="w,f,p,l,d,f" >亡命感應 ‧ 火</option>
-                      <option value="w,f,p,l,d,p" >亡命感應 ‧ 木</option>
-                      <option value="w,f,p,l,d,l" >聖言詠歌</option>
-                      <option value="w,f,p,l,d,d" >夜言鳴曲</option>
-                      <option value="w,f,p,l,d,h,w,f,p,l,d,h,w,f,p,l,d,h,w,f,p,l,d,h,w,f,p,l,d,h,w,f,p,l,d,h,w,f,p,l,d,h,w,f,p,l,d,h,w,f,p,l,d,h,wq,fq,pq,lq,dq,hq" >問號掉落</option>
-                      <option value="optional" >自訂義</option>
-                    </select>
+                <button class="btn btn-default" onclick="startBrokeBoundary()">
+                    <span>界線突破</span>
+                </button>&nbsp;
 
-                </div>
-                <br>
+                <select id="dropColorSelect" class="selectpicker" data-width="100px" title="落珠選擇">
+                    <option value="w,f,p,l,d,h" >正常分布</option>
+                    <option value="w,f,p,l,d" >禁心珠</option>
+                    <option value="MAP,h,w" >亡命感應 ‧ 水</option>
+                    <option value="MAP,h,f" >亡命感應 ‧ 火</option>
+                    <option value="MAP,h,p" >亡命感應 ‧ 木</option>
+                    <option value="MAP,h,l" >聖言詠歌</option>
+                    <option value="MAP,h,d" >夜言鳴曲</option>
+                    <option value="question" >問號掉落</option>
+                    <option value="optional" >自訂義</option>
+                </select>
+
+                <select id="locusSelect" class="selectpicker" data-width="100px" title="軌跡選擇">
+                    <option value="null" >無軌跡</option>
+                    <option value="_" >軌跡黑白</option>
+                    <option value="_Inf" >持續軌跡黑白</option>
+                    <option value="q" >軌跡問號</option>
+                    <option value="qInf" >持續軌跡問號</option>
+                    <option value="fire" >軌跡燃燒</option>
+                    <option value="fireInf" >持續軌跡燃燒</option>
+                    <option value="rot" >軌跡腐蝕</option>
+                    <option value="rotInf" >持續軌跡腐蝕</option>
+                </select>
+
+                <button id="StartTeam" onclick="startEditTeam()" class="btn btn-default">
+                    <span>開啟隊伍編輯</span>
+                </button>
+                <button id="CloseTeam" onclick="closeEditTeam()" class="btn btn-default" style="display: none;">
+                    <span>關閉隊伍編輯</span>
+                </button>
+                <br><br>
 
                 <div id="HorizontalScrollbar" class="content horizontal-images" style="display: none;">
                     <ul id="optionalColors" IDmaker="0">
@@ -236,18 +276,17 @@
                         </li>
                     </ul>
                 </div>
-
-                <br>
                 <br>
 
             </div>
 
-            <div class="col-lg-3">
+            <div class="col-lg-2">
                 <br><br>
                 <div id="comboDiv">
                     <br>
                     <div id="comboHit" align="center">
-                        <span id="comboNum"></span> Combo <br>
+                      <span id="historyNum"></span> 步 <br>
+                      <span id="comboNum"></span><span id="extraCombo"></span> Combo <br>
                     </div>
                     <div id="Scrollbar" class="content mCustomScrollbar">
                         <div id="comboBox" wave="-1"></div>
@@ -270,25 +309,37 @@
 	</div>
 
     <!-- jQuery -->
-    <script src="js/jquery.js"></script>
-    <script src="js/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="js/jquery.js"></script>
     <!-- Bootstrap Core JavaScript -->
-    <script src="js/bootstrap/bootstrap.min.js"></script>
+    <script type="text/javascript" src="js/bootstrap/bootstrap.min.js"></script>
     <!-- Javascript for this html -->
-    <script src="js/bootstrap-select/bootstrap-select.min.js" ></script>
-    <script src="js/filestyle/bootstrap-filestyle.min.js"> </script>
-    <script src="js/autohidingnavbar/jquery.bootstrap-autohidingnavbar.min.js" ></script>
-    <script src="js/jquery-ui/jquery-ui.min.js"></script>
-    <script src="js/jcanvas/jcanvas.min.js"></script>
-    <script src="js/url/url.min.js"></script>
-    <script src="js/clipboard/clipboard.min.js"></script>
-    <script src="js/scrollbar/jquery.mCustomScrollbar.concat.min.js"></script>
-    <script src="js/LZstring/lz-string.min.js"></script>
+    <script type="text/javascript" src="js/bootstrap-select/bootstrap-select.min.js" ></script>
+    <script type="text/javascript" src="js/filestyle/bootstrap-filestyle.min.js"> </script>
+    <script type="text/javascript" src="js/autohidingnavbar/jquery.bootstrap-autohidingnavbar.min.js" ></script>
+    <script type="text/javascript" src="js/jquery-ui/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="js/jquery-ui/jquery.ui.touch-punch.min.js"></script>
+    <script type="text/javascript" src="js/jcanvas/jcanvas.min.js"></script>
+    <script type="text/javascript" src="js/url/url.min.js"></script>
+    <script type="text/javascript" src="js/clipboard/clipboard.min.js"></script>
+    <script type="text/javascript" src="js/scrollbar/jquery.mCustomScrollbar.concat.min.js"></script>
+    <script type="text/javascript" src="js/LZstring/lz-string.min.js"></script>
+    <script type="text/javascript" src="js/msdropdown/jquery.dd.js"></script>
 
-    <script src="js/html-drag/drag.js"></script>
-    <script src="js/html-drag/skill.js"></script>
+    <script type="text/javascript" src="js/html-drag/drag.js"></script>
+    <script type="text/javascript" src="js/html-drag/skill.js"></script>
+    <script type="text/javascript" src="js/html-drag/teamSkill.js"></script>
+    <script type="text/javascript" src="js/html-drag/leaderSkill.js"></script>
+    <script type="text/javascript" src="js/html-drag/wake.js"></script>
+    <script type="text/javascript" src="js/html-drag/data.js"></script>
 
-
+    <script type="text/javascript" src="js/html-drag/history.js"></script>
+    <script type="text/javascript" src="js/html-drag/button.js"></script>
+    <script type="text/javascript">
+      String.prototype.format = function(){
+        var args = arguments;
+        return this.replace(/\{(\d+)\}/g, function (m, n) { return args[n]; });
+      };
+    </script>
 </body>
 
 </html>
