@@ -48,6 +48,7 @@ $(document).ready( function(){
     setComboShow();
     setHistoryShow();
     resetMemberSelect();
+    resetTeamMembers();
 
     setTimeout( function(){
     resetTimeDiv();
@@ -250,13 +251,7 @@ function closeEditTeam(){
         msdropdown.setIndexByValue("NONE");
     });
 
-    cleanColors();
-    reserDropColors();
     resetTeamMembers();
-    resetMemberWakes();
-    resetTeamLeaderSkill();
-    resetTimeDiv();
-    resetColors();
 }
 
 //==============================================================
@@ -285,12 +280,7 @@ $('#colorSelect').change(function (){
 });
 $("#dropColorSelect").change(function (){
     $("#HorizontalScrollbar").hide();
-    cleanColors();
-    reserDropColors();
     resetTeamMembers();
-    resetMemberWakes();
-    resetTeamLeaderSkill();
-    resetColors();
 });
 
 $("#locusSelect").change(function (){
@@ -403,26 +393,20 @@ function addColorIntoBar(){
         $("#optionalColors li").eq(-1).before(li);
 
         $("#HorizontalScrollbar").mCustomScrollbar("update");
-        setOptionalColors();
+        resetTeamMembers();
     }
 }
 function removeSelfColor(id){
     $("#li_"+id).remove();
-    setOptionalColors();
+    resetTeamMembers();
 }
 function setOptionalColors(){
-    cleanColors();
     COLORS = [];
     $("#optionalColors li").each(function(){
         if( $(this).find("img").length > 0 ){
             COLORS.push( $(this).find("img").attr("color") );
         }
     });
-            
-    resetTeamMembers();
-    resetMemberWakes();
-    resetTeamLeaderSkill();
-    resetColors();
 }
 
 //==============================================================
@@ -442,12 +426,7 @@ function initialTeamMember(){
         MEMBER_3,
         MEMBER_4,
         TEAM_FRIEND,
-    ];    
-    cleanColors();
-    reserDropColors();
-    resetMemberWakes();
-    resetTeamLeaderSkill();
-    resetColors();
+    ];
 }
 function saveTeamMembers(){
     return [
@@ -474,11 +453,6 @@ function loadTeamMembers(members){
         MEMBER_4,
         TEAM_FRIEND,
     ];
-    cleanColors();
-    reserDropColors();
-    resetMemberWakes();
-    resetTeamLeaderSkill();
-    resetColors();
 }
 function resetMemberSelect(){
     $("#TeamMember select").each(function(i){
@@ -491,20 +465,12 @@ function resetMemberSelect(){
         }
         msdropdown.setIndexByValue( TEAM_MEMBERS[i]["id"] );
         msdropdown.on("change", function(){
-            TIME_LIMIT = 5;
-            $('#timeRange').val(5);
-            cleanColors();
-            reserDropColors();
             resetTeamMembers();
-            resetMemberWakes();
-            resetTeamLeaderSkill();
-            resetColors();
-            showTeamInfomation();
         });
     });
 }
 
-function reserDropColors(){
+function resetDropColors(){
     if( $("#dropColorSelect").val() == "optional" ){
         if( $("#HorizontalScrollbar").is(":visible") ){
             setOptionalColors();
@@ -541,6 +507,11 @@ function reserDropColors(){
 }
 
 function resetTeamMembers(){
+    TIME_LIMIT = 5;
+    PLAY_TURN = 0;
+    $('#timeRange').val(5);
+    $("#BattleInfomation").children().remove();
+
     TEAM_LEADER = NewCharacter( $("#TeamLeaderSelect").val() );
     MEMBER_1    = NewCharacter( $("#TeamMember1Select").val() );
     MEMBER_2    = NewCharacter( $("#TeamMember2Select").val() );
@@ -555,6 +526,13 @@ function resetTeamMembers(){
         MEMBER_4,
         TEAM_FRIEND,
     ];
+
+    cleanColors();
+    resetDropColors();
+    resetMemberWakes();
+    resetTeamLeaderSkill();
+    resetColors();
+    showTeamInfomation();
 }
 function resetMemberWakes(){
     TEAM_LEADER_WAKES = [
