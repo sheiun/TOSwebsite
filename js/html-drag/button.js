@@ -187,12 +187,14 @@ function replay(){
 
     MAIN_STATE = "review";
     AUTO_REMOVE = false;
+
     COLOR_RANDOM = HISTORY_RANDOM;
     loadTeamMembers(HISTORY_TEAM_MEMBER);
     $("#TeamMember select").each(function(i){
         var msdropdown = $(this).msDropDown().data("dd");
         msdropdown.setIndexByValue( TEAM_MEMBERS[i]["id"] );
     });
+    resetTeamMembers();
     loadSkillVariable(HISTORY_SKILL_VARIABLE);
     showTeamInfomation();
     
