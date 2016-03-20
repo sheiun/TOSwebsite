@@ -153,6 +153,7 @@ body{
 }
 
 #TeamMember{
+    cursor: default;
     border-collapse: collapse;
 }
 #TeamMember select{
@@ -178,4 +179,36 @@ body{
     margin-left: 10px;
     font-family: "Microsoft JhengHei", Helvetica, Arial, Sans;
     font-size: 16px;
+}
+
+#SystemInfomation{
+    cursor: default;
+    border-collapse: collapse;
+    background: #EFEFEF;
+}
+#SystemInfomation th{
+    width: 80px;
+    border: 1px solid Gray;
+    color: black;
+}
+#SystemInfomation td{
+    width: 100px;
+    border: 1px solid Gray;
+    color: black;
+}
+#SystemInfomation th span{
+    margin-left: 10px;
+    font-family: "Microsoft JhengHei", Helvetica, Arial, Sans;
+    font-size: 18px;
+}
+#BattleInfomationScrollbar{
+    width: 600px;
+    height: 150px;
+    background: white;
+}
+span.labelInfo{
+    cursor: pointer;
+    margin-left: 10px;
+    font-family: "Microsoft JhengHei", Helvetica, Arial, Sans;
+    font-size: 18px;
 }

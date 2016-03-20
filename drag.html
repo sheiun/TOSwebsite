@@ -26,7 +26,7 @@
     <!--[if lt IE 9]>
         <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
         <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
-    <![endif]-->
+    <![endif]
     <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -35,7 +35,7 @@
 
       ga('create', 'UA-74512169-1', 'auto');
       ga('send', 'pageview');
-    </script>
+    </script>-->
 
     <!--
 
@@ -126,13 +126,13 @@
                     <select id="speedSelect" class="selectpicker" data-width="100px" title="重播速度">
                       <option value="2400" >龜速</option>
                       <option value="1200" >極慢</option>
-                      <option value="900" >緩慢</option>
-                      <option value="600" >中等</option>
-                      <option value="450" >正常</option>
-                      <option value="300" >快速</option>
-                      <option value="150" >極快</option>
-                      <option value="60" >須臾</option>
-                      <option value="15" >剎那</option>
+                      <option value="900"  >緩慢</option>
+                      <option value="600"  >中等</option>
+                      <option value="450"  >正常</option>
+                      <option value="300"  >快速</option>
+                      <option value="150"  >極快</option>
+                      <option value="60"   >須臾</option>
+                      <option value="15"   >剎那</option>
                     </select>
                     <button class="btn btn-default"></button>
                     <span id="clipboard" class="btn btn-default" data-clipboard-text="null" >
@@ -146,28 +146,21 @@
 
                 <table id="TeamMember" style="display: none;">
                     <tr id="AttackNumber">
-                        <td> </td>
-                        <td> </td>
-                        <td> </td>
-                        <td> </td>
-                        <td> </td>
-                        <td> </td>
+                        <td> </td> <td> </td> <td> </td> <td> </td> <td> </td> <td> </td>
                     </tr>
                     <tr id="RecoverNumber">
-                        <td> </td>
-                        <td> </td>
-                        <td> </td>
-                        <td> </td>
-                        <td> </td>
-                        <td> </td>
+                        <td> </td> <td> </td> <td> </td> <td> </td> <td> </td> <td> </td>
                     </tr>
-                    <tr>
+                    <tr id="MemberSelectTD" >
                         <td> <select name="MemberSelect" id="TeamLeaderSelect"></select>  </td>
                         <td> <select name="MemberSelect" id="TeamMember1Select"></select> </td>
                         <td> <select name="MemberSelect" id="TeamMember2Select"></select> </td>
                         <td> <select name="MemberSelect" id="TeamMember3Select"></select> </td>
                         <td> <select name="MemberSelect" id="TeamMember4Select"></select> </td>
                         <td> <select name="MemberSelect" id="TeamFriendSelect"></select>  </td>
+                    </tr>
+                    <tr id="ActiveButtonTD">
+                        <td> </td> <td> </td> <td> </td> <td> </td> <td> </td> <td> </td>
                     </tr>
                 </table>
                 <br>
@@ -180,6 +173,78 @@
 
                 <canvas id="dragCanvas"></canvas>
                 <table id="dragContainment" tr="5" td="6">
+                </table>
+                <br>
+
+                <table id="SystemInfomation" style="display: none;">
+                    <tr >
+                        <th> <span > 資訊 </span>  </th>
+                        <td colspan="6"> 
+                            <div id="BattleInfomationScrollbar" class="content mCustomScrollbar">
+                                <div id="BattleInfomation"></div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr id="LabelInfomation">
+                        <th> <span >名稱</span> </th>
+                        <td><span></span></td> <td><span></span></td> <td><span></span></td>
+                        <td><span></span></td> <td><span></span></td> <td><span></span></td>
+                    </tr>
+                    <tr id="HealthInfomation">
+                        <th> <span>生命力</span> </th>
+                        <td><span></span></td> <td><span></span></td> <td><span></span></td>
+                        <td><span></span></td> <td><span></span></td> <td><span></span></td>
+                    </tr>
+                    <tr id="AttackInfomation">
+                        <th> <span>攻擊力</span> </th>
+                        <td><span></span></td> <td><span></span></td> <td><span></span></td>
+                        <td><span></span></td> <td><span></span></td> <td><span></span></td>
+                    </tr>
+                    <tr id="RecoveryInfomation">
+                        <th> <span>回復力</span> </th>
+                        <td><span></span></td> <td><span></span></td> <td><span></span></td>
+                        <td><span></span></td> <td><span></span></td> <td><span></span></td>
+                    </tr>
+                    <tr id="Wakes1Infomation">
+                        <th> <span>昇華一</span> </th>
+                        <td><span></span></td> <td><span></span></td> <td><span></span></td>
+                        <td><span></span></td> <td><span></span></td> <td><span></span></td>
+                    </tr>
+                    <tr id="Wakes2Infomation">
+                        <th> <span>昇華二</span> </th>
+                        <td><span></span></td> <td><span></span></td> <td><span></span></td>
+                        <td><span></span></td> <td><span></span></td> <td><span></span></td>
+                    </tr>
+                    <tr id="Wakes3Infomation">
+                        <th> <span>昇華三</span> </th>
+                        <td><span></span></td> <td><span></span></td> <td><span></span></td>
+                        <td><span></span></td> <td><span></span></td> <td><span></span></td>
+                    </tr>
+                    <tr id="Wakes4Infomation">
+                        <th> <span>昇華四</span> </th>
+                        <td><span></span></td> <td><span></span></td> <td><span></span></td>
+                        <td><span></span></td> <td><span></span></td> <td><span></span></td>
+                    </tr>
+                    <tr id="ActiveSkillInfomation">
+                        <th> <span> 主動技 </span> </th>
+                        <td><span></span></td> <td><span></span></td> <td><span></span></td>
+                        <td><span></span></td> <td><span></span></td> <td><span></span></td>
+                    </tr>
+                    <tr id="LeaderSkillInfomation">
+                        <th> <span> 隊長技 </span> </th>
+                        <td colspan="3"> 
+                            <span onclick="$('#LeaderSkillInfo').toggle()" class="labelInfo"></span> <br>
+                            <span id="LeaderSkillInfo" style="display: none;"></span>
+                        </td>
+                        <td colspan="3"> 
+                            <span onclick="$('#FriendSkillInfo').toggle()" class="labelInfo"></span> <br>
+                            <span id="FriendSkillInfo" style="display: none;"></span>
+                        </td>
+                    </tr>
+                    <tr id="TeamLeaderSkillInfomation">
+                        <th> <span> 隊伍技 </span> </th>
+                        <td id="TeamSkillInfoTD" colspan="6"> </td>
+                    </tr>
                 </table>
                 <br><br>
 
@@ -329,6 +394,7 @@
     <script type="text/javascript" src="js/html-drag/skill.js"></script>
     <script type="text/javascript" src="js/html-drag/teamSkill.js"></script>
     <script type="text/javascript" src="js/html-drag/leaderSkill.js"></script>
+    <script type="text/javascript" src="js/html-drag/activeSkill.js"></script>
     <script type="text/javascript" src="js/html-drag/wake.js"></script>
     <script type="text/javascript" src="js/html-drag/data.js"></script>
 
@@ -337,6 +403,10 @@
     <script type="text/javascript">
       String.prototype.format = function(){
         var args = arguments;
+        return this.replace(/\{(\d+)\}/g, function (m, n) { return args[n]; });
+      };
+      String.prototype.formatByArray = function(){
+        var args = arguments[0];
         return this.replace(/\{(\d+)\}/g, function (m, n) { return args[n]; });
       };
     </script>

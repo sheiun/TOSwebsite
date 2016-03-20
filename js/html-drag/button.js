@@ -29,6 +29,10 @@ $(document).ready( function(){
         },
         snapAmount: amount,
     });
+    $("#BattleInfomationScrollbar").mCustomScrollbar({
+        axis:"y",
+        theme:"inset-dark"
+    });
 
     //load history if exist
     if( $.url("?record") ){
@@ -38,6 +42,7 @@ $(document).ready( function(){
         initialTeamMember();
     }
     MAIN_STATE = "count";
+    PLAY_TURN = 0;
 
     closeCanvas();
     setComboShow();
@@ -188,6 +193,8 @@ function replay(){
         msdropdown.setIndexByValue( TEAM_MEMBERS[i]["id"] );
     });
     loadSkillVariable(HISTORY_SKILL_VARIABLE);
+    showTeamInfomation();
+    
     backInitColor();
     resetComboStack();
     resetAttackRecoverStack();
@@ -221,6 +228,35 @@ function toggleReviewPath(){
         closeCanvas();
         nextMoveWave();
     }
+}
+
+function startEditTeam(){
+    PLAY_TURN = 0;    
+    $("#StartTeam").hide();
+    $("#CloseTeam").show();
+    $("#TeamMember").show();
+    $("#SystemInfomation").show();
+    $("#BattleInfomation").children().remove();
+    resetTimeDiv();
+    showTeamInfomation();
+}
+function closeEditTeam(){
+    $("#StartTeam").show();
+    $("#CloseTeam").hide();
+    $("#TeamMember").hide();
+    $("#SystemInfomation").hide();
+    $("#TeamMember select").each(function(){
+        var msdropdown = $(this).msDropDown().data("dd");
+        msdropdown.setIndexByValue("NONE");
+    });
+
+    cleanColors();
+    reserDropColors();
+    resetTeamMembers();
+    resetMemberWakes();
+    resetTeamLeaderSkill();
+    resetTimeDiv();
+    resetColors();
 }
 
 //==============================================================
@@ -278,16 +314,29 @@ $("#locusSelect").change(function (){
 function showResult(){
     $("#AttackNumber td").children().remove();
     $("#RecoverNumber td").children().remove();
+    var total_attack = 0;
+    var total_recover = 0;
     $.each(ATTACK_STACK, function(i, attack){
         var atk = Math.round( attack["base"] * attack["factor"] );
+        total_attack += atk;
         if( attack["type"] == "person" ){
-            $("#AttackNumber td").eq( attack["place"] ).append( $("<sapn></span>").text(atk).addClass("AtkRecLabel") ).append( $("<br>") );
+            $("#AttackNumber td").eq( attack["place"] ).append( 
+                $("<sapn></span>").text(atk).addClass("AtkRecLabel") 
+            ).append( $("<br>") );
         }
     });
     $.each(RECOVER_STACK, function(i, recover){
         var rec = Math.round( recover["base"] * recover["factor"] );
-        $("#RecoverNumber td").eq( recover["place"] ).append( $("<sapn></span>").text(rec).addClass("AtkRecLabel") ).append( $("<br>") );
+        total_recover += rec;
+        $("#RecoverNumber td").eq( recover["place"] ).append(
+            $("<sapn></span>").text(rec).addClass("AtkRecLabel")
+        ).append( $("<br>") );
     });
+
+    PLAY_TURN += 1;
+    $("#BattleInfomation").append( $("<span></span>").text("第"+PLAY_TURN+"回合：") ).append("<br>");
+    $("#BattleInfomation").append( $("<span></span>").text("總共造成 "+total_attack+" 點傷害") ).append("<br>");
+    $("#BattleInfomation").append( $("<span></span>").text("總共回復 "+total_recover+" 點生命值") ).append("<br>");
 
     resetTimeDiv();
 }
@@ -450,31 +499,9 @@ function resetMemberSelect(){
             resetMemberWakes();
             resetTeamLeaderSkill();
             resetColors();
+            showTeamInfomation();
         });
     });
-}
-function startEditTeam(){
-    $("#StartTeam").hide();
-    $("#CloseTeam").show();
-    $("#TeamMember").show();
-    resetTimeDiv();
-}
-function closeEditTeam(){
-    $("#StartTeam").show();
-    $("#CloseTeam").hide();
-    $("#TeamMember").hide();
-    $("#TeamMember select").each(function(){
-        var msdropdown = $(this).msDropDown().data("dd");
-        msdropdown.setIndexByValue("NONE");
-    });
-
-    cleanColors();
-    reserDropColors();
-    resetTeamMembers();
-    resetMemberWakes();
-    resetTeamLeaderSkill();
-    resetTimeDiv();
-    resetColors();
 }
 
 function reserDropColors(){
@@ -601,6 +628,41 @@ function checkTeamSkill(){
             TEAM_SKILL_VAR[ teamSkill["id"] ] = teamSkill["preSet"]( TEAM_LEADER, TEAM_FRIEND );
         }
     }
+}
+
+function showTeamInfomation(){
+    $.each(TEAM_MEMBERS, function(place, member){
+        $("#LabelInfomation td span").eq(place).text( member['label'] );
+        $("#HealthInfomation td span").eq(place).text( member['health'] );
+        $("#AttackInfomation td span").eq(place).text( member['attack'] );
+        $("#RecoveryInfomation td span").eq(place).text( member['recovery'] );
+
+        $("#Wakes1Infomation td span").eq(place).text( member['wake_info'][0] );
+        $("#Wakes2Infomation td span").eq(place).text( member['wake_info'][1] );
+        $("#Wakes3Infomation td span").eq(place).text( member['wake_info'][2] );
+        $("#Wakes4Infomation td span").eq(place).text( member['wake_info'][3] );
+    });
+
+    var letterMap = TEAM_LEADER_SKILL['letter'];
+    var letter1 = COLOR_LETTERS[ letterMap[0] ][ TEAM_LEADER_SKILL_VAR['COLOR'] ];
+    var letter2 = COLOR_LETTERS[ letterMap[1] ][ TEAM_LEADER_SKILL_VAR['COLOR'] ];
+    $('#LeaderSkillInfomation td span').eq(0).text( TEAM_LEADER_SKILL['label'].format( letter1 ) );
+    $('#LeaderSkillInfomation td span').eq(1).text( TEAM_LEADER_SKILL['info'].format( letter2 ) );
+    letterMap = TEAM_FRIEND_SKILL['letter'];
+    letter1 = COLOR_LETTERS[ letterMap[0] ][ TEAM_FRIEND_SKILL_VAR['COLOR'] ];
+    letter2 = COLOR_LETTERS[ letterMap[1] ][ TEAM_FRIEND_SKILL_VAR['COLOR'] ];
+    $('#LeaderSkillInfomation td span').eq(2).text( TEAM_FRIEND_SKILL['label'].format( letter1 ) );
+    $('#LeaderSkillInfomation td span').eq(3).text( TEAM_FRIEND_SKILL['info'].format( letter2 ) );
+
+    $("#TeamSkillInfoTD").children().remove();
+    $.each(TEAM_SKILL, function(i, team_skill){
+        var label = $("<span></span>").text( team_skill['label'] );
+        label.addClass('labelInfo').attr("onclick","$('#teamSkillInfo"+i+"').toggle()");
+        var info = $("<span></span>").append("<br>").append(team_skill['info']).append("<br>");
+        info.attr("id","teamSkillInfo"+i).hide();
+        $("#TeamSkillInfoTD").append( [label, info] );
+    });
+
 }
 
 //==============================================================

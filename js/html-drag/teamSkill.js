@@ -29,10 +29,10 @@ var TeamNordicMapping = function(){
 }
 
 var TeamNordicOdinSetting = function( LEADER, FRIEND ){
-    LEADER['leader'] = "ElementFactor3_5";
-    FRIEND['leader'] = "ElementFactor3_5";
-    TEAM_LEADER_SKILL = LEADER_SKILLS_DATA[ "ElementFactor3_5" ];
-    TEAM_FRIEND_SKILL = LEADER_SKILLS_DATA[ "ElementFactor3_5" ];
+    LEADER['leader'] = "ELEMENT_FACTOR3_5";
+    FRIEND['leader'] = "ELEMENT_FACTOR3_5";
+    TEAM_LEADER_SKILL = LEADER_SKILLS_DATA[ "ELEMENT_FACTOR3_5" ];
+    TEAM_FRIEND_SKILL = LEADER_SKILLS_DATA[ "ELEMENT_FACTOR3_5" ];
     if( MEMBER_1['id'] == "BOSS_ODIN" ){
         MEMBER_1['color'] = LEADER['color'];
     }
@@ -84,6 +84,12 @@ var TeamBabylonMapping = function(){
         TEAM_SKILL.push( TEAM_SKILLS_DATA["BABYLON"] );
     }
 }
+var TeamBabylonSetting = function( LEADER, FRIEND ){
+    LEADER['leader'] = "BABYLON_PLUS";
+    FRIEND['leader'] = "BABYLON_PLUS";
+    TEAM_LEADER_SKILL = LEADER_SKILLS_DATA[ "BABYLON_PLUS" ];
+    TEAM_FRIEND_SKILL = LEADER_SKILLS_DATA[ "BABYLON_PLUS" ];
+}
 
 //==============================================================
 // DarkLucifer
@@ -132,10 +138,9 @@ var TeamDarkLuciferMapping = function(){
 //==============================================================
 // Greek
 //==============================================================
-var TeamGreekSetting = function( LEADER, FRIEND ){
+var TeamGreekComboSetting = function( LEADER, FRIEND ){
     return {
         COLOR       : LEADER['color'],
-        COUNT       : {'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0},
         EXTRA_COMBO : 0
     };
 }
@@ -149,6 +154,20 @@ var TeamGreekExtraCombo = function( VAR ){
         VAR['EXTRA_COMBO'] += 1;
         setExtraComboShow( VAR['EXTRA_COMBO'] );
     }
+}
+var TeamGreekComboAttack = function( VAR ){
+    COUNT_COMBO += VAR['EXTRA_COMBO'];
+}
+var TeamGreekComboMapping = function(){    
+    if( TEAM_LEADER['id'] == TEAM_FRIEND['id'] && TEAM_FRIEND['leader'] == "GREEK" ){
+        TEAM_SKILL.push( TEAM_SKILLS_DATA["GREEK_COMBO"] );
+    }
+}
+var TeamGreekSetting = function( LEADER, FRIEND ){
+    return {
+        COLOR       : LEADER['color'],
+        COUNT       : {'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0},
+    };
 }
 var TeamGreekSkill = function( VAR ){
     var color = VAR['COLOR'];
@@ -166,9 +185,6 @@ var TeamGreekSkill = function( VAR ){
         }
     }
     VAR['COUNT'] = comboTimes;
-}
-var TeamGreekAttack = function( VAR ){
-    COUNT_COMBO += VAR['EXTRA_COMBO'];
 }
 var TeamGreekMapping = function(){    
     if( TEAM_LEADER['id'] == TEAM_FRIEND['id'] && TEAM_FRIEND['leader'] == "GREEK" ){
@@ -292,61 +308,90 @@ var TeamDevilCircleMapping = function(){
 var TEAM_SKILLS_DATA = {
     NONE : {
         id        : 'NONE',
+        label     : '無',
+        info      : '',
         mapping   : NoneMapping,
-        ss        : 'asd',
     },
     NORDIC : {
         id        : 'NORDIC',
+        label     : '雙北歐神隊',
+        info      : '相應屬性符石掉落率提升至25%，強化符石的傷害提升至+30%',
         attack    : TeamNordicAttack,
         preSet    : TeamNordicSetting,
         mapping   : TeamNordicMapping,
     },
     NORDIC_ODIN : {
         id        : 'NORDIC_ODIN',
+        label     : '眾神之父奧丁',
+        info      : '北歐神系列隊長技能「屬性震怒」變為「屬性怒嘯」',
         preSet    : TeamNordicOdinSetting,
         mapping   : TeamNordicOdinMapping,
     },
-    GREEK : {
-        id        : 'GREEK',
-        newItem   : TeamGreekSkill,
+    GREEK_COMBO : {
+        id        : 'GREEK_COMBO',
+        label     : '元素連動',
+        info      : '每個連擊（Combo）均有 70% 機會額外計算多 1 連擊（Combo）（加乘不受其他技能影響）（木巫加成無效）（不影響Combo盾）',
         extraCombo: TeamGreekExtraCombo,
         extraReset: TeamGreekExtraComboReset,
-        attack    : TeamGreekAttack,
+        attack    : TeamGreekComboAttack,
+        preSet    : TeamGreekComboSetting,
+        mapping   : TeamGreekComboMapping,
+    },
+    GREEK : {
+        id        : 'GREEK',
+        label     : '元素湧現',
+        info      : '每消除 5 組符石，將產生 2 粒相應屬性符石',
+        newItem   : TeamGreekSkill,
         preSet    : TeamGreekSetting,
         mapping   : TeamGreekMapping,
     },
     BABYLON : {
         id        : 'BABYLON',
+        label     : '蒼穹祈願',
+        info      : '隊長技能變為指定屬性攻擊力 3 倍。2 或以上直行消除 4 粒或以上符石時（只計算首批消除的符石），全隊攻擊力提升，最大 1.5 倍',
         attack    : TeamBabylonAttack,
         mapping   : TeamBabylonMapping,
+        preSet    : TeamBabylonSetting,
     },
     DARK_LUCIFER : {
         id        : 'DARK_LUCIFER',
+        label     : '墮落之心 ‧ 妖精',
+        info      : '心符石兼具所有屬性符石效果。於 2 直行或以上消除 4 粒或以上符石時 (只計算首批消除的符石)，全隊攻擊力提升，最大 1.5 倍',
         attack    : TeamDarkLuciferAttack,
         mapping   : TeamDarkLuciferMapping,
     },
     COUPLE_FF : {
         id        : 'COUPLE_FF',
+        label     : '煉獄之巔峰',
+        info      : '火屬性攻擊力提升 6 倍',
         attack    : TeamCoupleAttackFF,
         mapping   : TeamCoupleFFMapping,
     },
     COUPLE_PP : {
         id        : 'COUPLE_PP',
+        label     : '大地之巔峰',
+        info      : '木屬性攻擊力提升 6 倍',
         attack    : TeamCoupleAttackPP,
         mapping   : TeamCouplePPMapping,
     },
     COUPLE_FP : {
         id        : 'COUPLE_FP',
+        label     : '雙消點燃符能震怒之術',
+        info      : '火及木屬性攻擊力提升 3 倍；木符石兼具火符石效果，同時火符石兼具木符石效果',
         attack    : TeamCoupleAttackFP,
         mapping   : TeamCoupleFPMapping,
     },
     DEVIL_ILLUSION : {
         id        : 'DEVIL_ILLUSION',
+        label     : '無垠幻像',
+        info      : '將隊長技能「無影幻像」變為「無垠幻像」',
         preSet    : TeamDevilIllusionSetting,
         mapping   : TeamDevilIllusionMapping,
     },
     DEVIL_CIRCLE : {
         id        : 'DEVIL_CIRCLE',
+        label     : '結陣 ‧ 繼',
+        info      : '消除一組 5 粒或以上的相應屬性符石時，下回合開始時隨機將 2 粒符石轉化為相應屬性符石',
         end       : TeamDevilCircleEndItem,
         attack    : TeamDevilCircleAttack,
         preSet    : TeamDevilCircleSetting,

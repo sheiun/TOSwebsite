@@ -131,8 +131,13 @@ var TEAM_LEADER_SKILL_VAR = null;
 var TEAM_FRIEND_SKILL_VAR = null;
 var TEAM_SKILL_VAR        = [];
 
+var ACTIVE_SKILL     = [];
+var ACTIVE_SKILL_VAR = [];
+
 var ATTACK_STACK = [];
 var RECOVER_STACK = [];
+
+var PLAY_TURN = 0;
 
 
 //==============================================================
