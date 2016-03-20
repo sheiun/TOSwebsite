@@ -48,7 +48,7 @@ var StraightRecover = function( wakeVar, place, i ){
         }
     }
     if( check ){
-        COUNT_FACTOR['StraightRecover_'+place+'_'+i] = {
+        COUNT_RECOVER_FACTOR['StraightRecover_'+place+'_'+i] = {
             factor    : function( member, membe_place ){
                 return eval(wakeVar)[0];
             },
