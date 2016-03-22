@@ -223,6 +223,48 @@ var TeamCoupleFPMapping = function(){
 }
 
 //==============================================================
+// Common Source
+//==============================================================
+var TeamCommonSourceSetting = function( LEADER, FRIEND ){
+    $.each(TEAM_MEMBERS, function(i, member){
+        if( member['id'] == "LIXIAOYAO" ){
+            member['health'] = Math.round( 1.3*member['health'] );
+            member['attack'] = Math.round( 1.3*member['attack'] );
+            member['recovery'] = Math.round( 1.3*member['recovery'] );
+            return false;
+        }
+    });
+    $.each(TEAM_MEMBERS, function(i, member){
+        if( member['id'] == "ZHAOLINGER" ){
+            member['health'] = Math.round( 1.3*member['health'] );
+            member['attack'] = Math.round( 1.3*member['attack'] );
+            member['recovery'] = Math.round( 1.3*member['recovery'] );
+            return false;
+        }
+    });
+    $.each(TEAM_MEMBERS, function(i, member){
+        if( member['id'] == "LINYUERU" ){
+            member['health'] = Math.round( 1.3*member['health'] );
+            member['attack'] = Math.round( 1.3*member['attack'] );
+            member['recovery'] = Math.round( 1.3*member['recovery'] );
+            return false;
+        }
+    });
+}
+var TeamCommonSourceMapping = function(){
+    if( ( ( TEAM_LEADER['id'] == "LIXIAOYAO" || TEAM_LEADER['id'] == "ZHAOLINGER" ||
+            TEAM_LEADER['id'] == "LINYUERU" ) || 
+          ( TEAM_FRIEND['id'] == "LIXIAOYAO" || TEAM_FRIEND['id'] == "ZHAOLINGER" ||
+            TEAM_FRIEND['id'] == "LINYUERU" ) ) &&
+        checkMembersIDByConfig( {
+            ID    : [ "LIXIAOYAO", "ZHAOLINGER", "LINYUERU" ],
+            check : [ '({0}>=1&&{1}>=1&&(({0}+{1})>=2))||({0}>=1&&{2}>=1&&(({0}+{2})>=2))||({1}>=1&&{2}>=1&&(({1}+{2})>=2))',  ],
+        } ) ){
+        TEAM_SKILL.push( TEAM_SKILLS_DATA["COMMON_SOURCE"] );
+    }
+}
+
+//==============================================================
 // DevilIllusion
 //==============================================================
 var TeamDevilIllusionSetting = function( LEADER, FRIEND ){
@@ -352,6 +394,13 @@ var TEAM_SKILLS_DATA = {
         info      : '火及木屬性攻擊力提升 3 倍；木符石兼具火符石效果，同時火符石兼具木符石效果',
         attack    : TeamCoupleAttackFP,
         mapping   : TeamCoupleFPMapping,
+    },
+    COMMON_SOURCE : {
+        id        : 'COMMON_SOURCE',
+        label     : '命定之聚',
+        info      : '最左方的李逍遙、趙靈兒、林月如及阿奴，其自身的生命力、攻擊力及回復力提升 1.3 倍',
+        preSet    : TeamCommonSourceSetting,
+        mapping   : TeamCommonSourceMapping,
     },
     DEVIL_ILLUSION : {
         id        : 'DEVIL_ILLUSION',

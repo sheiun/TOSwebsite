@@ -150,6 +150,29 @@ function checkMembersTypeByConfig( config ){
     }
     return check;
 }
+function checkMembersIDByConfig( config ){
+    var countId = {};
+    var check = true;
+    for(var id of config['ID']){
+        countId[id] = 0;
+    }
+    $.each(TEAM_MEMBERS, function(i, member){
+        if( member['id'] in countId ){
+            countId[ member['id'] ] += 1;
+        }else if( member['id'] == 'EMPTY' ){
+        }else if( 'OTHER' in countId ){
+            countId[ 'OTHER' ] += 1;
+        }
+    });
+    var countArr = getArrayOfObjectValue(countId);
+    for(var eq of config['check'] ){
+        eq = eq.formatByArray( countArr );
+        if( ! eval(eq) ){
+            check = false;
+        }
+    }
+    return check;
+}
 
 //==============================================================
 // color belongs function

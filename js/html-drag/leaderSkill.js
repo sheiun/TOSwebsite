@@ -358,7 +358,7 @@ var CommonSourcePlusAttack = function( VAR, direct ){
         COUNT_FACTOR['CommonSourcePlus'+direct] = {
             factor    : function( member, member_place ){ return 1.5; },
             prob      : 1,
-            condition : function( member, member_place ){ return false; },
+            condition : function( member, member_place ){ return true; },
         };
     }
 }
