@@ -806,6 +806,7 @@ function countAttack(){
             place  : membe_place,
             type   : "person",
             goal   : "single",
+            strong : false,
             color  : member["color"],
             base   : member["attack"],
             factor : 1,
@@ -822,6 +823,9 @@ function countAttack(){
 
         if( COUNT_MAX_AMOUNT[color] >= 5 || COUNT_BELONG_MAX_AMOUNT[color] >= 5 ){
             attack['goal'] = "all";
+        }
+        if( (COUNT_STRONG[color]+COUNT_BELONG_STRONG[color]) > 0 ){
+            attack['strong'] = true;
         }
 
         var atk       = ( 1+ ( COUNT_COMBO-1 ) * COUNT_COMBO_COEFF ) * 
@@ -856,7 +860,7 @@ function countAttack(){
                 if( randomBySeed() < COUNT_RECOVER_FACTOR[key]["prob"] ){
                     var factor = COUNT_RECOVER_FACTOR[key]["factor"]( member, membe_place ).toFixed(5);
                     rec *= factor;
-                    recover['log'] += "*"+factor;
+                    recover['log'] += "*"+factor+'('+key+')';
                 }
             }
         }
@@ -886,6 +890,8 @@ function endMoveWave(){
 function nextMoveWave(){
     resetDraggable();
     startDragging();
+
+    checkSkillByKey('findMaxC');
 }
 function newMoveWave(){
     //Maybe used in end attack effect
@@ -893,8 +899,6 @@ function newMoveWave(){
     resetAttackRecoverStack();
     resetHistory();
     renewTimeDiv();
-
-    checkSkillByKey('findMaxC');
 }
 
 function checkGroups(){

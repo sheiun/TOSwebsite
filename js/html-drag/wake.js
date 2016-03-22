@@ -20,13 +20,7 @@ var DropIncrease = function( MEMBER, place, wakeVar ){
 
 var StraightAttack = function( wakeVar, place, i ){
     // wakeVar = "[factor,straightSize]"
-    var check = false;
-    for( var set of ALL_GROUP_SET_STACK[0]['STRAIGHT_SETS'][place] ){
-        if( set.size >= eval(wakeVar)[1] ){
-            check = true;
-        }
-    }
-    if( check ){
+    if( checkFirstStraightByPlace( eval(wakeVar)[1], place ) ){
         COUNT_FACTOR['StraightAttack_'+place+'_'+i] = {
             factor    : function( member, membe_place ){
                 return eval(wakeVar)[0];
@@ -41,13 +35,7 @@ var StraightAttack = function( wakeVar, place, i ){
 
 var StraightRecover = function( wakeVar, place, i ){
     // wakeVar = "[factor,straightSize]"
-    var check = false;
-    for( var set of ALL_GROUP_SET_STACK[0]['STRAIGHT_SETS'][place] ){
-        if( set.size >= eval(wakeVar)[1] ){
-            check = true;
-        }
-    }
-    if( check ){
+    if( checkFirstStraightByPlace( eval(wakeVar)[1], place ) ){
         COUNT_RECOVER_FACTOR['StraightRecover_'+place+'_'+i] = {
             factor    : function( member, membe_place ){
                 return eval(wakeVar)[0];
@@ -62,13 +50,7 @@ var StraightRecover = function( wakeVar, place, i ){
 
 var StraightHeal = function( wakeVar, place, i ){
     // wakeVar = "[factor,straightSize]"
-    var check = false;
-    for( var set of ALL_GROUP_SET_STACK[0]['STRAIGHT_SETS'][place] ){
-        if( set.size >= eval(wakeVar)[1] ){
-            check = true;
-        }
-    }
-    if( check ){
+    if( checkFirstStraightByPlace( eval(wakeVar)[1], place ) ){
         var recover = {
             place  : place,
             color  : "h",

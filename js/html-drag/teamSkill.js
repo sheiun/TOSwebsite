@@ -61,19 +61,11 @@ var TeamNordicOdinMapping = function(){
 var TeamBabylonAttack = function( VAR ){
     COUNT_FACTOR['TeamBabylon'] = {
         factor    : function( member, membe_place ){
-            var straight = 0;
-            for(var i = 0; i < TD_NUM; i++ ){
-                for( var set of ALL_GROUP_SET_STACK[0]['STRAIGHT_SETS'][i] ){
-                    if( set.size >= 4 ){
-                        straight += 1;
-                        break;
-                    }
-                }
-            }
+            var straight = countFirstStraightNum( 4 );
             if( straight < 2 ){ return 1; }
             else{
                 return Math.min( 1+((straight-1)*0.1), 1.5 );
-            }            
+            }         
         },
         prob      : 1,
         condition : function( member, membe_place ){ return true; },
@@ -95,30 +87,16 @@ var TeamBabylonSetting = function( LEADER, FRIEND ){
 // DarkLucifer
 //==============================================================
 var TeamDarkLuciferAttack = function( VAR ){
-    if( TEAM_LEADER["type"] == "SPIRIT" && 
-        MEMBER_1["type"] == "SPIRIT" && 
-        MEMBER_1["type"] == "SPIRIT" && 
-        MEMBER_1["type"] == "SPIRIT" && 
-        MEMBER_1["type"] == "SPIRIT" && 
-        TEAM_FRIEND["type"] == "SPIRIT" ){
+    if( checkMembersTypeByConfig( { 
+            types : [ 'SPIRIT', 'OTHER' ],
+            check : [ '{0}>=2', '{1}==0' ]
+        } ) ){
 
-        COUNT_BELONG_COLOR['h']['w'] = 1;
-        COUNT_BELONG_COLOR['h']['f'] = 1;
-        COUNT_BELONG_COLOR['h']['p'] = 1;
-        COUNT_BELONG_COLOR['h']['l'] = 1;
-        COUNT_BELONG_COLOR['h']['d'] = 1;
+        setColorBelongsByConfig( { 'h' : { 'w': 1, 'f': 1, 'p': 1, 'l': 1, 'd': 1 } } );
 
         COUNT_FACTOR['TeamDarkLucifer'] = {
             factor    : function( member, membe_place ){
-                var straight = 0;
-                for(var i = 0; i < TD_NUM; i++ ){
-                    for( var set of ALL_GROUP_SET_STACK[0]['STRAIGHT_SETS'][i] ){
-                        if( set.size >= 4 ){
-                            straight += 1;
-                            break;
-                        }
-                    }
-                }
+                var straight = countFirstStraightNum( 4 );
                 if( straight < 2 ){ return 1; }
                 else{
                     return Math.min( 1+((straight-1)*0.1), 1.5 );
@@ -260,21 +238,21 @@ var TeamDevilIllusionMapping = function(){
     }
 }
 
+var TeamDevilCircleSetting = function( LEADER, FRIEND ){
+    return {
+        COLOR    : LEADER['color'],
+        END_ITEM : false,
+    };
+}
 var TeamDevilCircleEndItem = function( VAR ){
     if( VAR['END_ITEM'] ){
-        var color = VAR['COLOR'];
         var colorArr = ['w', 'f', 'p', 'l', 'd'];
-        colorArr.splice( colorArr.indexOf(color), 1 );
-        var stack = getStackOfPanelByColorArr( colorArr );
-
-        for( var num = 2; num > 0; num-- ){
-            if( stack.length > 0 ){
-                var rand_i = Math.floor( randomBySeed() * stack.length );
-                var id = stack[rand_i];
-                stack.splice(rand_i,1);
-                turnElementToColorByID(id, color);
-            }
-        }
+        colorArr.splice( colorArr.indexOf(VAR['COLOR']), 1 );
+        turnRandomElementToColorByConfig( {
+            color          : VAR['COLOR'],
+            num            : 2,
+            priorityColors : [ colorArr, ['h'] ],
+        } );
     }
 }
 var TeamDevilCircleAttack = function( VAR ){
@@ -286,12 +264,6 @@ var TeamDevilCircleAttack = function( VAR ){
         }
     }
     VAR['END_ITEM'] = check;
-}
-var TeamDevilCircleSetting = function( LEADER, FRIEND ){
-    return {
-        COLOR    : LEADER['color'],
-        END_ITEM : false,
-    };
 }
 var TeamDevilCircleMapping = function(){
     if( TEAM_LEADER['id'] == TEAM_FRIEND['id'] && TEAM_FRIEND['leader'] == 'DEVIL_CIRCLE' ){

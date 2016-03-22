@@ -20,11 +20,33 @@ function loadSkillVariable(msg){
 }
 
 //==============================================================
+//==============================================================
 // Base Skill
+//==============================================================
 //==============================================================
 var none = function(){}
 var noneSetting = function(){ return {}; }
 
+
+//==============================================================
+// utility function
+//==============================================================
+function randomBySeed(){    
+    var rand = Math.sin(COLOR_RANDOM++) * 10000;
+    return rand - Math.floor(rand);
+}
+function randomBySepcialSeed(seed){
+    var rand = Math.sin(seed) * 10000;
+    return rand - Math.floor(rand);
+}
+
+function getArrayOfObjectValue(Obj){
+    return $.map(Obj, function(value, index) { return [value]; });
+}
+
+//==============================================================
+// Panel function
+//==============================================================
 function getStackOfPanelByColor(color){
     var stack = [];
     for(var i = 0; i < TD_NUM*TR_NUM; i++){
@@ -63,28 +85,148 @@ function turnElementToColorByID(id, color){
         startDragging();
     });
 }
+function turnRandomElementToColorByConfig( config ){
+    var color = config['color'];
+    for( var num = config['num']; num > 0; num-- ){
+        for( var colors of config['priorityColors'] ){
+            var stack = getStackOfPanelByColorArr( colors );
+            if( stack.length > 0 ){
+                var rand_i = Math.floor( randomBySeed() * stack.length );
+                var id = stack[rand_i];
+                stack.splice(rand_i,1);
+                turnElementToColorByID(id, color);
+                break;
+            }
+        }
+    }
+}
 
-// 隊伍屬性包含全部 > colorArr
-function checkMembersColorHasColorArr( colorArr ){
+//==============================================================
+// check Team members 
+//==============================================================
+function checkMembersColorByConfig( config ){
+    var countColor = {};
+    var check = true;
+    for(var c of config['colors'] ){
+        countColor[c] = 0;
+    }
     $.each(TEAM_MEMBERS, function(i, member){
-        if( colorArr.indexOf( member['color'] ) >= 0 ){
-            colorArr.splice( colorArr.indexOf( member['color'] ), 1 );
+        if( member['color'] in countColor ){
+            countColor[ member['color'] ] += 1;
+        }else if( member['id'] == 'EMPTY' ){
+        }else if( 'OTHER' in countColor ){
+            countColor[ 'OTHER' ] += 1;
         }
     });
-    return colorArr.length == 0;
-
-}
-// 隊伍屬性包含只在 < colorArr
-function checkMembersColorInColorArr( colorArr ){
-    var check = true;
-    $.each(TEAM_MEMBERS, function(i, member){
-        if( colorArr.indexOf( member['color'] ) < 0 ){
+    var countArr = getArrayOfObjectValue(countColor);
+    for(var eq of config['check'] ){
+        eq = eq.formatByArray( countArr );
+        if( ! eval(eq) ){
             check = false;
         }
-    });
+    }
     return check;
 }
-// 隊伍屬性相當 == colorArr
-function checkMembersColorOnlyInColorArr( colorArr ){
-    return checkMembersColorInColorArr( colorArr ) && checkMembersColorHasColorArr( colorArr );
+function checkMembersTypeByConfig( config ){
+    var countType = {};
+    var check = true;
+    for(var type of config['types']){
+        countType[type] = 0;
+    }
+    $.each(TEAM_MEMBERS, function(i, member){
+        if( member['type'] in countType ){
+            countType[ member['type'] ] += 1;
+        }else if( member['id'] == 'EMPTY' ){
+        }else if( 'OTHER' in countType ){
+            countType[ 'OTHER' ] += 1;
+        }
+    });
+    var countArr = getArrayOfObjectValue(countType);
+    for(var eq of config['check'] ){
+        eq = eq.formatByArray( countArr );
+        if( ! eval(eq) ){
+            check = false;
+        }
+    }
+    return check;
+}
+
+//==============================================================
+// color belongs function
+//==============================================================
+function addColorBelongsByConfig( config ){
+    for( var c in config ){
+        for( var belong_color in config[c] ){
+            if( c in COUNT_BELONG_COLOR && belong_color in COUNT_BELONG_COLOR[c] ){
+                COUNT_BELONG_COLOR[c][belong_color] += config[c][belong_color];
+            }
+        }
+    }
+}
+function setColorBelongsByConfig( config ){
+    for( var c in config ){
+        for( var belong_color in config[c] ){
+            if( c in COUNT_BELONG_COLOR && belong_color in COUNT_BELONG_COLOR[c] ){
+                COUNT_BELONG_COLOR[c][belong_color] = config[c][belong_color];
+            }
+        }
+    }
+}
+
+//==============================================================
+// First Straight function
+//==============================================================
+function countFirstStraightNum( length ){
+    var straight = 0;
+    for(var i = 0; i < TD_NUM; i++ ){
+        if( checkFirstStraightByPlace( length, i ) ){
+            straight += 1;
+        }
+    }
+    return straight;
+}
+function checkFirstStraightByPlace( length, place ){
+    for( var set of ALL_GROUP_SET_STACK[0]['STRAIGHT_SETS'][place] ){
+        if( set.size >= length ){
+            return true;
+        }
+    }
+    return false;
+}
+function checkFirstHorizentalClearByPlace( place ){
+    var base_line = [];
+    for(var i = TD_NUM*( place ); i < TD_NUM*( place+1 ); i++){
+        base_line.push( i );
+    }
+    for(var obj of COMBO_STACK){
+        if( obj['drop_wave'] == 0 ){
+            for(var i of obj['set']){
+                if( base_line.indexOf(i) >= 0 ){
+                    base_line.splice( base_line.indexOf(i), 1 );
+                }
+            }
+        }
+    }
+    return base_line.length == 0;
+}
+
+function findMaxColorOfColorArr( colorArr ){
+    var colors = {};
+    var max = 0;
+    var tmp_colors = [];
+    for( var i = 0; i < TD_NUM*TR_NUM; i++ ){
+        var c = $("#dragContainment tr td img.over ").eq(i).attr("color");
+        if( colorArr.indexOf(c) >= 0 ){
+            colors[c] = ( c in colors ) ? colors[c]+1 : 0;
+        }
+    }
+    for(var c in colors){
+        if( colors[c] > max ){
+            max = colors[c];
+            tmp_colors = [ c ];
+        }else if( colors[c] == max && max > 0 ){
+            tmp_colors.push(c);
+        }
+    }
+    return { colors: tmp_colors, num: max };
 }

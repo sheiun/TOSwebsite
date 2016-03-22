@@ -93,130 +93,81 @@ var CoupleSetting = function( MEMBER ){
     };
 }
 var CoupleEndSkill = function( VAR, direct ){
-    var color = VAR['COLOR'];
-    for( var num = 2; num > 0; num-- ){
-        for( var colors of [ ['l', 'd'], ['w', 'h'], ['f', 'p'] ] ){
-            var stack = getStackOfPanelByColorArr( colors );
-            if( stack.length > 0 ){
-                var rand_i = Math.floor( randomBySeed() * stack.length );
-                var id = stack[rand_i];
-                stack.splice(rand_i,1);
-                turnElementToColorByID(id, color);
-                break;
-            }
-        }
-    }
+    turnRandomElementToColorByConfig( {
+        color          : VAR['COLOR'],
+        num            : 2,
+        priorityColors : [ ['l', 'd'], ['w', 'h'], ['f', 'p'] ],
+    } );
 }
 
 //==============================================================
 // Doll
 //==============================================================
 var DollHumanDragonAttack = function( VAR, direct ){
-    COUNT_FACTOR['DollHumanDragon'+direct] = {
-        factor    : function( member, member_place ){
-            if( member['type'] == "DRAGON" ){
-                return 2;
-            }else if( member['type'] == "HUMAN" ){
-                return 3.5;
-            }
-            return 1;
-        },
-        prob      : 1,
-        condition : function( member, member_place ){
-            var count_type = { 'HUMAN': 0, 'DRAGON': 0, 'OTHER': 0 };
-            $.each(TEAM_MEMBERS, function(i, member){
-                if( member['type'] == 'HUMAN' ){ count_type['HUMAN'] += 1; }
-                else if( member['type'] == 'DRAGON' ){ count_type['DRAGON'] += 1; }
-                else { count_type['OTHER'] += 1; }
-            });
-            if( count_type['HUMAN'] > 0 && count_type['DRAGON'] >= 2 && 
-                count_type['OTHER'] == 0 ){ 
-                return true;
-            }
-            return false;
-        },
-    };
+    if( checkMembersTypeByConfig( { 
+            types : [ 'HUMAN', 'DRAGON', 'OTHER' ],
+            check : [ '{0}>=1', '{1}>=2', '{2}==0' ],
+        } ) ){
+        COUNT_FACTOR['DollHumanDragon'+direct] = {
+            factor    : function( member, member_place ){
+                if( member['type'] == "DRAGON" ){ return 2; }
+                else if( member['type'] == "HUMAN" ){ return 3.5; }
+                else{ return 1; }
+            },
+            prob      : 1,
+            condition : function( member, member_place ){ return true; },
+        };
+    }
 }
 var DollHumanBeastSpiritAttack = function( VAR, direct ){
-    COUNT_FACTOR['DollHumanDragon'+direct] = {
-        factor    : function( member, member_place ){
-            if( member['type'] == "BEAST" || member['type'] == "SPIRIT" ){
-                return 2.5;
-            }else if( member['type'] == "HUMAN" ){
-                return 3.5;
-            }
-            return 1;
-        },
-        prob      : 1,
-        condition : function( member, member_place ){
-            var count_type = { 'HUMAN': 0, 'BEAST': 0, 'SPIRIT': 0, 'OTHER': 0 };
-            $.each(TEAM_MEMBERS, function(i, member){
-                if( member['type'] == 'HUMAN' ){ count_type['HUMAN'] += 1; }
-                else if( member['type'] == 'BEAST' ){ count_type['BEAST'] += 1; }
-                else if( member['type'] == 'SPIRIT' ){ count_type['SPIRIT'] += 1; }
-                else { count_type['OTHER'] += 1; }
-            });
-            if( count_type['HUMAN'] > 0 && ( count_type['BEAST'] + count_type['SPIRIT'] ) >= 2 && 
-                count_type['OTHER'] == 0 ){ 
-                return true;
-            }
-            return false;
-        },
-    };
+    if( checkMembersTypeByConfig( { 
+            types : [ 'HUMAN', 'BEAST', 'SPIRIT', 'OTHER' ],
+            check : [ '{0}>=1', '({1}+{2})>=2', '{3}==0' ],
+        } ) ){
+        COUNT_FACTOR['DollHumanBeastSpirit'+direct] = {
+            factor    : function( member, member_place ){
+                if( member['type'] == "BEAST" || member['type'] == "SPIRIT" ){ return 2.5; }
+                else if( member['type'] == "HUMAN" ){ return 3.5; }
+                else{ return 1; }            
+            },
+            prob      : 1,
+            condition : function( member, member_place ){ return true; },
+        };
+    }
 }
 var DollHumanDevilSpiritAttack = function( VAR, direct ){
-    COUNT_FACTOR['DollHumanDragon'+direct] = {
-        factor    : function( member, member_place ){
-            if( member['type'] == "DEVIL" || member['type'] == "SPIRIT" ){
-                return 2.5;
-            }else if( member['type'] == "HUMAN" ){
-                return 3.5;
-            }
-            return 1;
-        },
-        prob      : 1,
-        condition : function( member, member_place ){
-            var count_type = { 'HUMAN': 0, 'DEVIL': 0, 'SPIRIT': 0, 'OTHER': 0 };
-            $.each(TEAM_MEMBERS, function(i, member){
-                if( member['type'] == 'HUMAN' ){ count_type['HUMAN'] += 1; }
-                else if( member['type'] == 'DEVIL' ){ count_type['DEVIL'] += 1; }
-                else if( member['type'] == 'SPIRIT' ){ count_type['SPIRIT'] += 1; }
-                else { count_type['OTHER'] += 1; }
-            });
-            if( count_type['HUMAN'] > 0 && ( count_type['DEVIL'] + count_type['SPIRIT'] ) >= 2 && 
-                count_type['OTHER'] == 0 ){ 
-                return true;
-            }
-            return false;
-        },
-    };
+    if( checkMembersTypeByConfig( { 
+            types : [ 'HUMAN', 'DEVIL', 'SPIRIT', 'OTHER' ],
+            check : [ '{0}>=1', '({1}+{2})>=2', '{3}==0' ],
+        } ) ){
+        COUNT_FACTOR['DollHumanDevilSpirit'+direct] = {
+            factor    : function( member, member_place ){
+                if( member['type'] == "DEVIL" || member['type'] == "SPIRIT" ){ return 2.5; }
+                else if( member['type'] == "HUMAN" ){ return 3.5; }
+                else{ return 1; }            
+            },
+            prob      : 1,
+            condition : function( member, member_place ){ return true; },
+        };
+    }
 }
 var DollHumanGodAttack = function( VAR, direct ){
-    COUNT_FACTOR['DollHumanDragon'+direct] = {
-        factor    : function( member, member_place ){
-            if( member['type'] == "GOD" ){
-                return 2;
-            }else if( member['type'] == "HUMAN" ){
-                return 3.5;
-            }
-            return 1;
-        },
-        prob      : 1,
-        condition : function( member, member_place ){
-            var count_type = { 'HUMAN': 0, 'GOD': 0, 'OTHER': 0 };
-            $.each(TEAM_MEMBERS, function(i, member){
-                if( member['type'] == 'HUMAN' ){ count_type['HUMAN'] += 1; }
-                else if( member['type'] == 'GOD' ){ count_type['GOD'] += 1; }
-                else { count_type['OTHER'] += 1; }
-            });
-            if( count_type['HUMAN'] > 0 && count_type['GOD'] >= 2 && 
-                count_type['OTHER'] == 0 ){ 
-                return true;
-            }
-            return false;
-        },
-    };
+    if( checkMembersTypeByConfig( { 
+            types : [ 'HUMAN', 'GOD', 'OTHER' ],
+            check : [ '{0}>=1', '{1}>=2', '{2}==0' ],
+        } ) ){
+        COUNT_FACTOR['DollHumanGod'+direct] = {
+            factor    : function( member, member_place ){
+                if( member['type'] == "GOD" ){ return 2; }
+                else if( member['type'] == "HUMAN" ){ return 3.5; }
+                else{ return 1; }            
+            },
+            prob      : 1,
+            condition : function( member, member_place ){ return true; },
+        };
+    }
 }
+
 //==============================================================
 // Tribe Beast
 //==============================================================
@@ -244,9 +195,7 @@ var TribeBeastAttack = function( VAR, direct ){
         factor    : function( member, member_place ){ return 2.5; },
         prob      : 1,
         condition : function( member, member_place ){
-            if( member['type'] == 'BEAST' ){ 
-                return true;
-            }
+            if( member['type'] == 'BEAST' ){  return true; }
             return false;
         },
     };
@@ -256,15 +205,12 @@ var TribeBeastAttack = function( VAR, direct ){
 // Sword
 //==============================================================
 var SwordBrotherPlusAttack = function( VAR, direct ){
-    COUNT_BELONG_COLOR['l']['d'] += 0.5;
-    COUNT_BELONG_COLOR['d']['l'] += 0.5;
+    addColorBelongsByConfig( { 'l': { 'd': 0.5 }, 'd': { 'l': 0.5 } } );
     COUNT_FACTOR['SwordBrotherPlus'+direct] = {
         factor    : function( member, member_place ){ return 2.5; },
         prob      : 1,
         condition : function( member, member_place ){
-            if( member['color'] == 'l' ||  member['color'] == 'd' ){ 
-                return true;
-            }
+            if( member['color'] == 'l' ||  member['color'] == 'd' ){ return true; }
             return false;
         },
     };
@@ -272,9 +218,7 @@ var SwordBrotherPlusAttack = function( VAR, direct ){
         factor    : function( member, member_place ){ return 1.5; },
         prob      : 1,
         condition : function( member, member_place ){
-            if( COUNT_AMOUNT['l'] > 0 && COUNT_AMOUNT['d'] > 0 ){
-                return true;
-            }
+            if( COUNT_AMOUNT['l'] > 0 && COUNT_AMOUNT['d'] > 0 ){ return true; }
             return false;
         },
     };
@@ -348,8 +292,11 @@ var LIXIAOYAOAttack = function( VAR, direct ){
             factor    : function( member, member_place ){ return 1.5; },
             prob      : 0.5,
             condition : function( member, member_place ){
-                if( COUNT_AMOUNT['h'] > 0 ){                   
-                    return checkMembersColorOnlyInColorArr( ['w', 'f', 'p'] );
+                if( COUNT_AMOUNT['h'] > 0 ){
+                    return checkMembersColorByConfig( { 
+                        colors : [ 'w', 'f', 'p', 'OTHER' ],
+                        check  : [ '{0}>=1', '{1}>=1', '{2}>=1', '{3}==0' ]
+                    } );
                 }
                 return false;
             },
@@ -389,33 +336,31 @@ var CommonSourcePlusAttack = function( VAR, direct ){
             factor    : function( member, member_place ){ return 1.5; },
             prob      : 0.5,
             condition : function( member, member_place ){
-                if( COUNT_AMOUNT['h'] > 0 ){                   
-                    return checkMembersColorOnlyInColorArr( ['w', 'f', 'p'] );
+                if( COUNT_AMOUNT['h'] > 0 ){ 
+                    return checkMembersColorByConfig( { 
+                        colors : [ 'w', 'f', 'p', 'OTHER' ],
+                        check  : [ '{0}>=1', '{1}>=1', '{2}>=1', '{3}==0' ]
+                    } );
                 }
                 return false;
             },
         };
     }
 
-    if( checkMembersColorOnlyInColorArr( ['w', 'f', 'p'] ) ){
-        COUNT_BELONG_COLOR['w']['f'] = 1;
-        COUNT_BELONG_COLOR['w']['p'] = 1;
-        COUNT_BELONG_COLOR['f']['w'] = 1;
-        COUNT_BELONG_COLOR['f']['p'] = 1;
-        COUNT_BELONG_COLOR['p']['w'] = 1;
-        COUNT_BELONG_COLOR['p']['f'] = 1;
+    if( checkMembersColorByConfig( { 
+            colors : [ 'w', 'f', 'p', 'OTHER' ],
+            check  : [ '{0}>=1', '{1}>=1', '{2}>=1', '{3}==0' ]
+        } ) ){
+        setColorBelongsByConfig( { 'w' : { 'f': 1, 'p': 1 },  'f': { 'w': 1, 'p': 1 },  'p': { 'w': 1, 'f': 1 } } );
     }
 
-    COUNT_FACTOR['CommonSourcePlus'+direct] = {
+    if( COUNT_AMOUNT['w'] > 0 && COUNT_AMOUNT['f'] > 0 && COUNT_AMOUNT['p'] > 0 ){  
+        COUNT_FACTOR['CommonSourcePlus'+direct] = {
             factor    : function( member, member_place ){ return 1.5; },
             prob      : 1,
-            condition : function( member, member_place ){
-                if( COUNT_AMOUNT['w'] > 0 && COUNT_AMOUNT['f'] > 0 && COUNT_AMOUNT['p'] > 0 ){                   
-                    return true;
-                }
-                return false;
-            },
+            condition : function( member, member_place ){ return false; },
         };
+    }
 }
 
 //==============================================================
@@ -431,44 +376,22 @@ var WaterFairyAttack = function( VAR, direct ){
         factor    : function( member, member_place ){ return 2.5; },
         prob      : 1,
         condition : function( member, member_place ){
-            if( member['color'] == VAR['COLOR'] ){
-                return true;
-            }
+            if( member['color'] == VAR['COLOR'] ){ return true; }
             return false;
         },
     };
-    if( !('WaterFairyBaseLine' in COUNT_FACTOR) ){
-        COUNT_FACTOR['WaterFairyBaseLine'] = {
+
+    if( checkFirstHorizentalClearByPlace( TR_NUM-1 ) ){
+        COUNT_FACTOR['WaterFairyBaseLine'+direct] = {
             factor    : function( member, member_place ){
                 if( TEAM_MEMBERS[member_place]['id'] == 'WATER_FAIRY' && 
                     ( member_place == 0 || member_place == (TD_NUM-1) ) ){
-                    if( TEAM_LEADER['id'] == TEAM_FRIEND['id'] ){
-                        return 9;
-                    }
                     return 3;
                 }
                 return 1;
             },
             prob      : 1,
-            condition : function( member, member_place ){
-                var base_line = [];
-                for(var i = TD_NUM*(TR_NUM-1); i < TD_NUM*TR_NUM; i++){
-                    base_line.push( i );
-                }
-                for(var obj of COMBO_STACK){
-                    if( obj['drop_wave'] == 0 ){
-                        for(var i of obj['set']){
-                            if( base_line.indexOf(i) >= 0 ){
-                                base_line.splice( base_line.indexOf(i), 1 );
-                            }
-                        }
-                    }
-                }
-                if( base_line.length == 0 ){
-                    return true;
-                }
-                return false;
-            },
+            condition : function( member, member_place ){ return true; },
         };
     }
 }
@@ -490,30 +413,29 @@ var DarkLuciferAttack = function( VAR, direct ){
 //==============================================================
 var DevilIllusionSetting = function( MEMBER ){
     return {
-        COLOR      : MEMBER['color'],
-        MAX_COLORS : [],
+        COLOR     : MEMBER['color'],
+        MAX_COLOR : '',
     };
 }
 var DevilIllusionFindMaxColor = function( VAR, direct ){
-    var colors = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0 };
-    for( var i = 0; i < TD_NUM*TR_NUM; i++ ){
-        var c = $("#dragContainment tr td img.over ").eq(i).attr("color");
-        if( c in colors ){
-            colors[c] += 1;
+    var max_color = findMaxColorOfColorArr( [ 'w', 'f', 'p', 'l', 'd' ] );
+
+    VAR['MAX_COLOR'] = '';
+    if( max_color['num'] > 0 ){
+        if( max_color['colors'].indexOf( VAR['COLOR'] ) >= 0 ){
+            VAR['MAX_COLOR'] = VAR['COLOR'];
+        }else{
+            VAR['MAX_COLOR'] = max_color['colors'][ Math.floor( randomBySepcialSeed( max_colors['num'] ) * max_color['colors'].length) ];
         }
     }
-    var colorsNum = [ colors['w'], colors['f'], colors['p'], colors['l'], colors['d'] ];
-    var max = Math.max.apply(null, colorsNum);
-    VAR['MAX_COLORS'] = [];
-    for( var c in colors ){
-        if( colors[c] == max ){
-            VAR['MAX_COLORS'].push(c);
-        }
-    }
+
+    $("#BattleInfomation").append( 
+        $("<span></span>").text( "判定最多粒符石屬性為 : "+COLOR_LETTERS[0][ VAR['MAX_COLOR'] ] ) 
+    ).append("<br>");    
 }
 var DevilIllusionAttack = function( VAR, direct ){
     var color = VAR['COLOR'];
-    var max_colors = VAR['MAX_COLORS'];
+    var max_color = VAR['MAX_COLOR'];
     COUNT_FACTOR['DevilIllusion'+direct] = {
         factor    : function( member, member_place ){ return 3; },
         prob      : 1,
@@ -522,7 +444,7 @@ var DevilIllusionAttack = function( VAR, direct ){
             return false;
         },
     };
-    if( max_colors.indexOf(color) >= 0 ){
+    if( max_color == color ){
         COUNT_FACTOR['DevilIllusionBelong'+direct] = {
             factor    : function( member, member_place ){ return 1.4; },
             prob      : 1,
@@ -532,14 +454,14 @@ var DevilIllusionAttack = function( VAR, direct ){
             },
         };
     }else{
-        for( var c of max_colors){
-            COUNT_BELONG_COLOR[c][color] += 0.5;
+        if( max_color in COUNT_BELONG_COLOR ){
+            COUNT_BELONG_COLOR[max_color][color] += 0.5;
         }
     }
 }
 var DevilIllusionPlusAttack = function( VAR, direct ){
     var color = VAR['COLOR'];
-    var max_colors = VAR['MAX_COLORS'];
+    var max_color = VAR['MAX_COLOR'];
     COUNT_FACTOR['DevilIllusion'+direct] = {
         factor    : function( member, member_place ){ return 3.5; },
         prob      : 1,
@@ -548,7 +470,7 @@ var DevilIllusionPlusAttack = function( VAR, direct ){
             return false;
         },
     };
-    if( max_colors.indexOf(color) >= 0 ){
+    if( max_color == color ){
         COUNT_FACTOR['DevilIllusionBelong'+direct] = {
             factor    : function( member, member_place ){ return 1.4; },
             prob      : 1,
@@ -558,8 +480,8 @@ var DevilIllusionPlusAttack = function( VAR, direct ){
             },
         };
     }else{
-        for( var c of max_colors){
-            COUNT_BELONG_COLOR[c][color] += 0.5;
+        if( max_color in COUNT_BELONG_COLOR ){
+            COUNT_BELONG_COLOR[max_color][color] += 0.5;
         }
     }
 }

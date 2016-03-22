@@ -37,9 +37,13 @@ $(document).ready( function(){
     //load history if exist
     if( $.url("?record") ){
         parseUploadJson( LZString.decompressFromEncodedURIComponent( $.url("?record") ) );
+        resetMemberSelect();
+        resetTeamMembers();
     }else{
-        newRandomPlain();
         initialTeamMember();
+        resetMemberSelect();
+        resetTeamMembers();
+        newRandomPlain();
     }
     MAIN_STATE = "count";
     PLAY_TURN = 0;
@@ -47,8 +51,6 @@ $(document).ready( function(){
     closeCanvas();
     setComboShow();
     setHistoryShow();
-    resetMemberSelect();
-    resetTeamMembers();
 
     setTimeout( function(){
     resetTimeDiv();
@@ -535,6 +537,7 @@ function resetTeamMembers(){
     resetTeamLeaderSkill();
     resetColors();
     showTeamInfomation();
+    nextMoveWave();
 }
 function resetMemberWakes(){
     TEAM_LEADER_WAKES = [
