@@ -115,14 +115,6 @@ var MEMBER_3     = null;
 var MEMBER_4     = null;
 var TEAM_FRIEND  = null;
 
-var TEAM_WAKES        = [];
-var TEAM_LEADER_WAKES = null;
-var MEMBER_1_WAKES    = null;
-var MEMBER_2_WAKES    = null;
-var MEMBER_3_WAKES    = null;
-var MEMBER_4_WAKES    = null;
-var TEAM_FRIEND_WAKES = null;
-
 var TEAM_LEADER_SKILL = null;
 var TEAM_FRIEND_SKILL = null;
 var TEAM_SKILL        = [];
@@ -131,8 +123,12 @@ var TEAM_LEADER_SKILL_VAR = null;
 var TEAM_FRIEND_SKILL_VAR = null;
 var TEAM_SKILL_VAR        = [];
 
-var ACTIVE_SKILL     = [];
-var ACTIVE_SKILL_VAR = [];
+var TEAM_ACTIVE_SKILL     = [];
+var TEAM_ACTIVE_SKILL_VAR = [];
+
+var TEAM_WAKES            = [];
+
+var ADDITIONAL_EFFECT_STACK = [];
 
 var ATTACK_STACK = [];
 var RECOVER_STACK = [];
@@ -937,10 +933,9 @@ function checkGroups(){
 
     if( num == 0 ){
         if( TR_NUM > 5 ){
-            endBrokeBoundary()
-        }else{
-            checkAttack();
+            BrokeBoundaryEnd()
         }
+        checkAttack();
     }else{
         setTimeout( function(){
             removeGroups(TD_NUM*TR_NUM-1);

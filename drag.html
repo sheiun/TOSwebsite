@@ -26,7 +26,7 @@
     <!--[if lt IE 9]>
         <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
         <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
-    <![endif]-->
+    <![endif]
     <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -35,7 +35,7 @@
 
       ga('create', 'UA-74512169-1', 'auto');
       ga('send', 'pageview');
-    </script>
+    </script>-->
 
     <!--
 
@@ -99,9 +99,6 @@
                         <span id="timeLimit">限制時間<br></span>
                     </button>
                     <input type="number" id="timeRange" value="5" max="60" min="1" class="btn btn-default">
-                    <button class="btn btn-default" onclick="toggleAutoRemove()">
-                        <span id="autoRemove">自動消除</span>
-                    </button>
                     <button class="btn btn-default" onclick="toggleDropable()">
                         <span id="dropable">取消落珠</span>
                     </button>
@@ -227,8 +224,7 @@
                     </tr>
                     <tr id="ActiveSkillInfomation">
                         <th> <span> 主動技 </span> </th>
-                        <td><span></span></td> <td><span></span></td> <td><span></span></td>
-                        <td><span></span></td> <td><span></span></td> <td><span></span></td>
+                        <td></td> <td></td> <td></td> <td></td> <td></td> <td></td>
                     </tr>
                     <tr id="LeaderSkillInfomation">
                         <th> <span> 隊長技 </span> </th>
@@ -296,7 +292,7 @@
                 <br><br>
                     
                 <span class="teamLabel">進階選項：</span>
-                <button class="btn btn-default" onclick="startBrokeBoundary()">
+                <button class="btn btn-default" onclick="BrokeBoundaryStart()">
                     <span>界線突破</span>
                 </button>&nbsp;
 

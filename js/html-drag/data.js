@@ -15,7 +15,7 @@ var CHARACTERS = {
         wake_var     : [ 0, 0, 0, 0 ],
         wake_info    : [ "無", "無", "無", "無" ],
         leader       : "NONE",
-        active       : 0,
+        active       : [ "NONE" ],
     },
     NORDIC_W : {
         id           : "NORDIC_W",
@@ -30,7 +30,7 @@ var CHARACTERS = {
         wake_var     : [ "[0,0,30]", "[1.1,4]", "[0,180,0]", "[1.12,5]" ],
         wake_info    : [ "回復力+30", "4顆直排劍10%", "攻擊力+180", "5顆直排劍12%" ],
         leader       : "ELEMENT_FACTOR3",
-        active       : 0,
+        active       : [ "RUNE_STRENGTHEN" ],
     },
     NORDIC_F : {
         id           : "NORDIC_F",
@@ -45,7 +45,7 @@ var CHARACTERS = {
         wake_var     : [ "[0,0,30]", "[1.1,4]", "[0,180,0]", "[1.12,5]" ],
         wake_info    : [ "回復力+30", "4顆直排劍10%", "攻擊力+180", "5顆直排劍12%" ],
         leader       : "ELEMENT_FACTOR3",
-        active       : 0,
+        active       : [ "RUNE_STRENGTHEN" ],
     },
     NORDIC_P : {
         id           : "NORDIC_P",
@@ -60,7 +60,7 @@ var CHARACTERS = {
         wake_var     : [ "[0,0,30]", "[1.1,4]", "[0,180,0]", "[1.12,5]" ],
         wake_info    : [ "回復力+30", "4顆直排劍10%", "攻擊力+180", "5顆直排劍12%" ],
         leader       : "ELEMENT_FACTOR3",
-        active       : 0,
+        active       : [ "RUNE_STRENGTHEN" ],
     },
     NORDIC_L : {
         id           : "NORDIC_L",
@@ -75,7 +75,7 @@ var CHARACTERS = {
         wake_var     : [ "[0,0,30]", "[1.1,4]", "[0,180,0]", "[1.12,5]" ],
         wake_info    : [ "回復力+30", "4顆直排劍10%", "攻擊力+180", "5顆直排劍12%" ],
         leader       : "ELEMENT_FACTOR3",    
-        active       : 0,
+        active       : [ "RUNE_STRENGTHEN" ],
     },
     NORDIC_D : {
         id           : "NORDIC_D",
@@ -90,7 +90,7 @@ var CHARACTERS = {
         wake_var     : [ "[0,0,30]", "[1.1,4]", "[0,180,0]", "[1.12,5]" ],
         wake_info    : [ "回復力+30", "4顆直排劍10%", "攻擊力+180", "5顆直排劍12%" ],
         leader       : "ELEMENT_FACTOR3",
-        active       : 0,
+        active       : [ "RUNE_STRENGTHEN" ],
     },
     BOSS_ODIN : {
         id           : "BOSS_ODIN",
@@ -105,7 +105,7 @@ var CHARACTERS = {
         wake_var     : [ 0, 0, 0, 0 ],
         wake_info    : [ "無", "無", "無", "無" ],
         leader       : "WILL_POWER",
-        active       : 0,
+        active       : [ "NONE" ],
     },
     CHINA_D : {
         id           : "CHINA_D",
@@ -120,7 +120,7 @@ var CHARACTERS = {
         wake_var     : [ "[0,0,50]", "[1.1,3]", "[0,100,0]", "[1.1,4]" ],
         wake_info    : [ "回復力+50", "3顆直排心10%", "攻擊力+100", "4顆直排劍10%" ],
         leader       : "CHINA_D",
-        active       : 0,
+        active       : [ "NONE" ],
     },
     GREEK_W : {
         id           : "GREEK_W",
@@ -135,7 +135,7 @@ var CHARACTERS = {
         wake_var     : [ "[0,90,0]", "[1.1,4]", "[340,0,0]", "['w',0.4]" ],
         wake_info    : [ "攻擊力+90", "4顆直排劍10%", "生命力+340", "直排水符石掉落提升至40%" ],
         leader       : "GREEK",
-        active       : 0,
+        active       : [ "NONE" ],
     },
     GREEK_F : {
         id           : "GREEK_F",
@@ -150,7 +150,7 @@ var CHARACTERS = {
         wake_var     : [ "[0,90,0]", "[1.1,4]", "[340,0,0]", "['f',0.4]" ],
         wake_info    : [ "攻擊力+90", "4顆直排劍10%", "生命力+340", "直排火符石掉落提升至40%" ],
         leader       : "GREEK",
-        active       : 0,
+        active       : [ "NONE" ],
     },
     GREEK_P : {
         id           : "GREEK_P",
@@ -165,7 +165,7 @@ var CHARACTERS = {
         wake_var     : [ "[0,90,0]", "[1.1,4]", "[340,0,0]", "['p',0.4]" ],
         wake_info    : [ "攻擊力+90", "4顆直排劍10%", "生命力+340", "直排木符石掉落提升至40%" ],
         leader       : "GREEK",
-        active       : 0,
+        active       : [ "NONE" ],
     },
     GREEK_L : {
         id           : "GREEK_L",
@@ -180,7 +180,7 @@ var CHARACTERS = {
         wake_var     : [ "[0,90,0]", "[1.1,4]", "[340,0,0]", "['l',0.4]" ],
         wake_info    : [ "攻擊力+90", "4顆直排劍10%", "生命力+340", "直排光符石掉落提升至40%" ],
         leader       : "GREEK",
-        active       : 0,
+        active       : [ "NONE" ],
     },
     GREEK_D : {
         id           : "GREEK_D",
@@ -195,7 +195,7 @@ var CHARACTERS = {
         wake_var     : [ "[0,90,0]", "[1.1,4]", "[340,0,0]", "['d',0.4]" ],
         wake_info    : [ "攻擊力+90", "4顆直排劍10%", "生命力+340", "直排暗符石掉落提升至40%" ],
         leader       : "GREEK",
-        active       : 0,
+        active       : [ "NONE" ],
     },
     HEART_QUEEN : {
         id           : "HEART_QUEEN",
@@ -210,7 +210,7 @@ var CHARACTERS = {
         wake_var     : [ 0, 0, 0, 0 ],
         wake_info    : [ "無", "無", "無", "無" ],
         leader       : "HEART_QUEEN",
-        active       : 0,
+        active       : [ "NONE" ],
     },
     COUPLE_F : {
         id           : "COUPLE_F",
@@ -225,7 +225,7 @@ var CHARACTERS = {
         wake_var     : [ "[0,90,0]", 0, "[340,0,0]", 0 ],
         wake_info    : [ "攻擊力+90", "直排靈氣圍城", "生命力+340", "直排心強化" ],
         leader       : "COUPLE_F",
-        active       : 0,
+        active       : [ "NONE" ],
     },
     COUPLE_P : {
         id           : "COUPLE_P",
@@ -240,7 +240,7 @@ var CHARACTERS = {
         wake_var     : [ "[0,0,50]", 0, "[0,120,0]", "[1.1,4]" ],
         wake_info    : [ "回復力+50", "進關後冷卻回合-2", "攻擊力+120", "4顆直排劍10%" ],
         leader       : "COUPLE_P",
-        active       : 0,
+        active       : [ "NONE" ],
     },
     MACHINE_DOLL_W : {
         id           : "MACHINE_DOLL_W",
@@ -255,7 +255,7 @@ var CHARACTERS = {
         wake_var     : [ "[90,0,0]", 0, "[0,120,0]", "[1.1,3]" ],
         wake_info    : [ "生命力+90", "進關後冷卻回合-2", "攻擊力+120", "3顆直排劍10%" ],
         leader       : "DOLL_HUMAN_DRAGON" ,
-        active       : 0,
+        active       : [ "NONE" ],
     },
     MACHINE_DOLL_F : {
         id           : "MACHINE_DOLL_F",
@@ -270,7 +270,7 @@ var CHARACTERS = {
         wake_var     : [ "[90,0,0]", 0, "[0,120,0]", "[1.1,3]" ],
         wake_info    : [ "生命力+90", "進關後冷卻回合-2", "攻擊力+120", "3顆直排劍10%" ],
         leader       : "DOLL_HUMAN_DRAGON" ,
-        active       : 0,
+        active       : [ "NONE" ],
     },
     MACHINE_DOLL_P : {
         id           : "MACHINE_DOLL_P",
@@ -285,7 +285,7 @@ var CHARACTERS = {
         wake_var     : [ "[90,0,0]", 0, "[0,120,0]", "[1.1,3]" ],
         wake_info    : [ "生命力+90", "進關後冷卻回合-2", "攻擊力+120", "3顆直排劍10%" ],
         leader       : "DOLL_HUMAN_BEAST_SPIRIT" ,
-        active       : 0,
+        active       : [ "NONE" ],
     },
     MACHINE_DOLL_L : {
         id           : "MACHINE_DOLL_L",
@@ -300,7 +300,7 @@ var CHARACTERS = {
         wake_var     : [ "[90,0,0]", 0, "[0,120,0]", "[1.1,3]" ],
         wake_info    : [ "生命力+90", "進關後冷卻回合-2", "攻擊力+120", "3顆直排劍10%" ],
         leader       : "DOLL_HUMAN_DEVIL_SPIRIT" ,
-        active       : 0,
+        active       : [ "NONE" ],
     },
     MACHINE_DOLL_D : {
         id           : "MACHINE_DOLL_D",
@@ -315,7 +315,7 @@ var CHARACTERS = {
         wake_var     : [ "[90,0,0]", 0, "[0,120,0]", "[1.1,3]" ],
         wake_info    : [ "生命力+90", "進關後冷卻回合-2", "攻擊力+120", "3顆直排劍10%" ],
         leader       : "DOLL_HUMAN_GOD" ,
-        active       : 0,
+        active       : [ "NONE" ],
     },
     TRIBE_BEAST_W : {
         id           : "TRIBE_BEAST_W",
@@ -330,7 +330,7 @@ var CHARACTERS = {
         wake_var     : [ "[0,70,0]", "[1.1,3]", "[360,0,0]", "[10,4]" ],
         wake_info    : [ "攻擊力+70", "3顆直排劍10%", "生命力+360", "4顆直排10倍回血" ],
         leader       : "TRIBE_BEAST",
-        active       : 0,
+        active       : [ "NONE" ],
     },
     TRIBE_BEAST_F : {
         id           : "TRIBE_BEAST_F",
@@ -345,7 +345,7 @@ var CHARACTERS = {
         wake_var     : [ "[0,70,0]", 0, "[360,0,0]", "[10,4]" ],
         wake_info    : [ "攻擊力+70", "進關後冷卻回合-7", "生命力+360", "4顆直排10倍回血" ],
         leader       : "TRIBE_BEAST",
-        active       : 0,
+        active       : [ "NONE" ],
     },
     TRIBE_BEAST_P : {
         id           : "TRIBE_BEAST_P",
@@ -360,7 +360,7 @@ var CHARACTERS = {
         wake_var     : [ "[0,70,0]", "[1.1,3]", "[360,0,0]", "[10,4]" ],
         wake_info    : [ "攻擊力+70", "3顆直排劍10%", "生命力+360", "4顆直排10倍回血" ],
         leader       : "TRIBE_BEAST",
-        active       : 0,
+        active       : [ "NONE" ],
     },
     TRIBE_BEAST_L : {
         id           : "TRIBE_BEAST_L",
@@ -375,7 +375,7 @@ var CHARACTERS = {
         wake_var     : [ "[0,70,0]", "[1.1,3]", "[360,0,0]", "[10,4]" ],
         wake_info    : [ "攻擊力+70", "3顆直排劍10%", "生命力+360", "4顆直排10倍回血" ],
         leader       : "TRIBE_BEAST",
-        active       : 0,
+        active       : [ "NONE" ],
     },
     TRIBE_BEAST_D : {
         id           : "TRIBE_BEAST_D",
@@ -390,7 +390,7 @@ var CHARACTERS = {
         wake_var     : [ "[0,70,0]", "[1.1,3]", "[360,0,0]", "[10,4]" ],
         wake_info    : [ "攻擊力+70", "3顆直排劍10%", "生命力+360", "4顆直排10倍回血" ],
         leader       : "TRIBE_BEAST",
-        active       : 0,
+        active       : [ "NONE" ],
     },
     BABYLON_W : {
         id           : "BABYLON_W",
@@ -405,7 +405,7 @@ var CHARACTERS = {
         wake_var     : [ 0, 0, 0, 0 ],
         wake_info    : [ "無", "無", "無", "無" ],
         leader       : "BABYLON",
-        active       : 0,
+        active       : [ "NONE" ],
     },
     BABYLON_F : {
         id           : "BABYLON_F",
@@ -420,7 +420,7 @@ var CHARACTERS = {
         wake_var     : [ 0, 0, 0, 0 ],
         wake_info    : [ "無", "無", "無", "無" ],
         leader       : "BABYLON",
-        active       : 0,
+        active       : [ "NONE" ],
     },
     BABYLON_P : {
         id           : "BABYLON_P",
@@ -435,7 +435,7 @@ var CHARACTERS = {
         wake_var     : [ 0, 0, 0, 0 ],
         wake_info    : [ "無", "無", "無", "無" ],
         leader       : "BABYLON",
-        active       : 0,
+        active       : [ "NONE" ],
     },
     BABYLON_L : {
         id           : "BABYLON_L",
@@ -450,7 +450,7 @@ var CHARACTERS = {
         wake_var     : [ 0, 0, 0, 0 ],
         wake_info    : [ "無", "無", "無", "無" ],
         leader       : "BABYLON",
-        active       : 0,
+        active       : [ "NONE" ],
     },
     BABYLON_D : {
         id           : "BABYLON_D",
@@ -465,7 +465,7 @@ var CHARACTERS = {
         wake_var     : [ 0, 0, 0, 0 ],
         wake_info    : [ "無", "無", "無", "無" ],
         leader       : "BABYLON",
-        active       : 0,
+        active       : [ "NONE" ],
     },
     SWORD_BROTHER : {
         id           : "SWORD_BROTHER",
@@ -480,7 +480,7 @@ var CHARACTERS = {
         wake_var     : [ "[150,120,0]", "[1.1,3]", "['d',0.4]", 0 ],
         wake_info    : [ "攻擊力+120;生命力+150", "3顆直排劍10%", "直排暗符石掉落提升至40%", "隊長技改為陰陽煞陣 ‧ 強" ],
         leader       : "SWORD_BROTHER_PLUS",
-        active       : 0,
+        active       : [ "NONE" ],
     },
     ZHAOLINGER : {
         id           : "ZHAOLINGER",
@@ -495,7 +495,7 @@ var CHARACTERS = {
         wake_var     : [ "[150,0,0]", 0, "[0,120,0]", 0 ],
         wake_info    : [ "生命力+150", "冷卻回合永久-2", "攻擊力+120", "隊長技變為仙劍同源 ‧ 強" ],
         leader       : "COMMON_SOURCE_PLUS",
-        active       : 0,
+        active       : [ "NONE" ],
     },
     LINYUERU : {
         id           : "LINYUERU",
@@ -510,7 +510,7 @@ var CHARACTERS = {
         wake_var     : [ "[100,0,0]", 0, "[0,130,0]", 0 ],
         wake_info    : [ "生命力+100", "主動技變為靈血咒 ‧ 強", "攻擊力+130", "隊長技變為仙劍同源 ‧ 強" ],
         leader       : "COMMON_SOURCE_PLUS",
-        active       : 0,
+        active       : [ "NONE" ],
     },
     LIXIAOYAO : {
         id           : "LIXIAOYAO",
@@ -525,7 +525,7 @@ var CHARACTERS = {
         wake_var     : [ "[150,80,0]", "[1.1,3]", "[1.1,4]", 0 ],
         wake_info    : [ "攻擊力+80;生命力+150", "3顆直排心10%", "4顆直排劍10%", "進關後冷卻回合-2" ],
         leader       : "LIXIAOYAO",
-        active       : 0,
+        active       : [ "NONE" ],
     },
     WATER_FAIRY : {
         id           : "WATER_FAIRY",
@@ -540,7 +540,7 @@ var CHARACTERS = {
         wake_var     : [ "[110,0,0]", "[1.1,4]", "[0,110,0]", "['h',0.25]" ],
         wake_info    : [ "生命力+110", "4顆直排心10%", "攻擊力+110", "直排心符石掉落提升至25%" ],
         leader       : "WATER_FAIRY",
-        active       : 0,
+        active       : [ "NONE" ],
     },
     DARK_LUCIFER : {
         id           : "DARK_LUCIFER",
@@ -555,7 +555,7 @@ var CHARACTERS = {
         wake_var     : [ "[110,0,0]", "[1.1,4]", "[0,110,0]", "[1.1,4]" ],
         wake_info    : [ "生命力+110", "4顆直排心10%", "攻擊力+110", "4顆直排劍10%" ],
         leader       : "DARK_LUCIFER",
-        active       : 0,
+        active       : [ "NONE" ],
     },
     DEVIL_ANCESTOR_W : {
         id           : "DEVIL_ANCESTOR_W",
@@ -570,7 +570,7 @@ var CHARACTERS = {
         wake_var     : [ 0, 0, 0, 0 ],
         wake_info    : [ "無", "無", "無", "無" ],
         leader       : "DEVIL_ILLUSION",
-        active       : 0,
+        active       : [ "NONE" ],
     },
     DEVIL_ANCESTOR_F : {
         id           : "DEVIL_ANCESTOR_F",
@@ -599,7 +599,7 @@ var CHARACTERS = {
         wake_var     : [ 0, 0, 0, 0 ],
         wake_info    : [ "無", "無", "無", "無" ],
         leader       : "DEVIL_ILLUSION",
-        active       : 0,
+        active       : [ "NONE" ],
     },
     DEVIL_ANCESTOR_L : {
         id           : "DEVIL_ANCESTOR_L",
@@ -614,7 +614,7 @@ var CHARACTERS = {
         wake_var     : [ 0, 0, 0, 0 ],
         wake_info    : [ "無", "無", "無", "無" ],
         leader       : "DEVIL_CIRCLE",
-        active       : 0,
+        active       : [ "NONE" ],
     },
     DEVIL_ANCESTOR_D : {
         id           : "DEVIL_ANCESTOR_D",
@@ -629,7 +629,7 @@ var CHARACTERS = {
         wake_var     : [ 0, 0, 0, 0 ],
         wake_info    : [ "無", "無", "無", "無" ],
         leader       : "DEVIL_CIRCLE",
-        active       : 0,
+        active       : [ "NONE" ],
     },
 };
 

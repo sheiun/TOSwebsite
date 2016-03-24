@@ -37,8 +37,6 @@ $(document).ready( function(){
     //load history if exist
     if( $.url("?record") ){
         parseUploadJson( LZString.decompressFromEncodedURIComponent( $.url("?record") ) );
-        resetMemberSelect();
-        resetTeamMembers();
     }else{
         initialTeamMember();
         resetMemberSelect();
@@ -78,7 +76,6 @@ function newOptionalPlain(){
     $("#optionalPanel").closest("button").attr("onclick","endOptionalPlain()");
     $("#dragContainment tr td").mousedown( function(){ setElementByOption(this); } );
     MAIN_STATE = "create";
-    AUTO_REMOVE = false;
     resetMoveTime();
     stopDragging();
 }
@@ -135,23 +132,6 @@ function toggleTimeLimit(){
         MOVING = false;
     }
 }
-function toggleAutoRemove(){
-    if( $("#autoRemove").text() == "自動消除" ){
-        $("#autoRemove").text("保持待機");
-        AUTO_REMOVE = false;
-    }else{
-        $("#autoRemove").text("自動消除");
-        AUTO_REMOVE = true;
-        checkGroups();
-    }
-}
-function returnAutoRemove(){
-    if( $("#autoRemove").text() == "自動消除" ){
-        AUTO_REMOVE = true;
-    }else{
-        AUTO_REMOVE = false;
-    }
-}
 function toggleDropable(){
     if( $("#dropable").text() == "取消落珠" ){
         $("#dropable").text("隨機落珠");
@@ -188,7 +168,6 @@ function replay(){
     $("#replay").closest("button").prop("disabled", true);
 
     MAIN_STATE = "review";
-    AUTO_REMOVE = false;
 
     COLOR_RANDOM = HISTORY_RANDOM;
     loadTeamMembers(HISTORY_TEAM_MEMBER);
@@ -205,11 +184,11 @@ function replay(){
     resetAttackRecoverStack();
 
     checkSkillByKey('findMaxC');
+    
     replayHistory();
 }
 function endReplayHistory(){
     returnMainState();
-    returnAutoRemove();
     $("#randomPanel").closest("button").prop("disabled", false);
     $("#optionalPanel").closest("button").prop("disabled", false);
     $("#initial").closest("button").prop("disabled", false);
@@ -222,8 +201,7 @@ function endReplayHistory(){
 function toggleReviewPath(){
     if( $("#review").text() == "顯示軌跡" ){
         $("#review").text("隱藏軌跡");
-        MAIN_STATE = "review";        
-        AUTO_REMOVE = false;
+        MAIN_STATE = "review";
         resetCanvas();
         drawPath();
     }else{
@@ -534,57 +512,46 @@ function resetTeamMembers(){
     cleanColors();
     resetDropColors();
     resetMemberWakes();
+    resetMemberActiveSkill();
     resetTeamLeaderSkill();
     resetColors();
     showTeamInfomation();
     nextMoveWave();
 }
 function resetMemberWakes(){
-    TEAM_LEADER_WAKES = [
-        WAKES_DATA[ TEAM_LEADER["wake"][0] ], WAKES_DATA[ TEAM_LEADER["wake"][1] ],
-        WAKES_DATA[ TEAM_LEADER["wake"][2] ], WAKES_DATA[ TEAM_LEADER["wake"][3] ],
-    ];
-    MEMBER_1_WAKES = [
-        WAKES_DATA[ MEMBER_1["wake"][0] ], WAKES_DATA[ MEMBER_1["wake"][1] ],
-        WAKES_DATA[ MEMBER_1["wake"][2] ], WAKES_DATA[ MEMBER_1["wake"][3] ],
-    ];
-    MEMBER_2_WAKES = [
-        WAKES_DATA[ MEMBER_2["wake"][0] ], WAKES_DATA[ MEMBER_2["wake"][1] ],
-        WAKES_DATA[ MEMBER_2["wake"][2] ], WAKES_DATA[ MEMBER_2["wake"][3] ],
-    ];
-    MEMBER_3_WAKES = [
-        WAKES_DATA[ MEMBER_3["wake"][0] ], WAKES_DATA[ MEMBER_3["wake"][1] ],
-        WAKES_DATA[ MEMBER_3["wake"][2] ], WAKES_DATA[ MEMBER_3["wake"][3] ],
-    ];
-    MEMBER_4_WAKES = [
-        WAKES_DATA[ MEMBER_4["wake"][0] ], WAKES_DATA[ MEMBER_4["wake"][1] ],
-        WAKES_DATA[ MEMBER_4["wake"][2] ], WAKES_DATA[ MEMBER_4["wake"][3] ],
-    ];
-    TEAM_FRIEND_WAKES = [
-        WAKES_DATA[ TEAM_FRIEND["wake"][0] ], WAKES_DATA[ TEAM_FRIEND["wake"][1] ],
-        WAKES_DATA[ TEAM_FRIEND["wake"][2] ], WAKES_DATA[ TEAM_FRIEND["wake"][3] ],
-    ];
-
-    TEAM_WAKES = [
-        TEAM_LEADER_WAKES,
-        MEMBER_1_WAKES,
-        MEMBER_2_WAKES,
-        MEMBER_3_WAKES,
-        MEMBER_4_WAKES,
-        TEAM_FRIEND_WAKES,
-    ];
-
-    checkWakeSkill();
-}
-function checkWakeSkill(){
-    $.each(TEAM_WAKES, function(place, wakes){
-        $.each(wakes, function(i, wake){
+    TEAM_WAKES = [];
+    $.each(TEAM_MEMBERS, function(place, member){
+        var wakes = [];
+        $.each(member["wake"], function(i, wakeId){
+            var wake = WAKES_DATA[ wakeId ];
             if( "preSet" in wake ){
-                wake["preSet"]( TEAM_MEMBERS[place], place, TEAM_MEMBERS[place]['wake_var'][i] );
+                wake["preSet"](  member, place, member['wake_var'][i] );
             }
+            wakes.push( wake );
         });
+        TEAM_WAKES.push( wakes );
     });
 }
+
+function resetMemberActiveSkill(){
+    TEAM_ACTIVE_SKILL     = [];
+    TEAM_ACTIVE_SKILL_VAR = [];
+    $.each(TEAM_MEMBERS, function(place, member){
+        var actives = [];
+        var actives_var = [];
+        $.each(member['active'], function(i, activeId){
+            var active = ACTIVE_SKILLS[activeId];
+            if( "preSet" in active ){
+                var active_var = active['preSet']( member, place );
+                actives_var.push( active_var );
+            }
+            actives.push( active );
+        })
+        TEAM_ACTIVE_SKILL.push( actives );
+        TEAM_ACTIVE_SKILL_VAR.push( actives_var );
+    })
+}
+
 function resetTeamLeaderSkill(){
     TEAM_COLORS_CHANGEABLE = true;
     GROUP_SIZE = {'w':3, 'f':3, 'p':3, 'l':3, 'd':3, 'h':3};
@@ -624,6 +591,20 @@ function showTeamInfomation(){
         $("#Wakes2Infomation td span").eq(place).text( member['wake_info'][1] );
         $("#Wakes3Infomation td span").eq(place).text( member['wake_info'][2] );
         $("#Wakes4Infomation td span").eq(place).text( member['wake_info'][3] );
+
+        $("#ActiveSkillInfomation td").eq(place).children().remove();
+        $.each(TEAM_ACTIVE_SKILL[place], function(i, active){
+            var infoID = "activeSkillInfo_"+place+"_"+i;
+            var letterMap = active['letter'];
+            var letter1 = COLOR_LETTERS[ letterMap[0] ][ TEAM_ACTIVE_SKILL_VAR[place][i]['COLOR'] ];
+            var letter2 = COLOR_LETTERS[ letterMap[1] ][ TEAM_ACTIVE_SKILL_VAR[place][i]['COLOR'] ];
+            var label = $("<span></span>").text( active['label'].format( letter1 ) );
+            label.addClass('labelInfo').attr("onclick","$('#"+infoID+"').toggle()");
+            var info = $("<span></span>").append("<br>").append("CD時間 ： "+active['coolDown']).append($("<br>"));
+            info.append( active['info'].format( letter2 ) ).append("<br>");
+            info.attr("id", infoID).hide();
+            $("#ActiveSkillInfomation td").eq(place).append( [label, info, $("<br>")] );
+        });
     });
 
     var letterMap = TEAM_LEADER_SKILL['letter'];
@@ -639,10 +620,11 @@ function showTeamInfomation(){
 
     $("#TeamSkillInfoTD").children().remove();
     $.each(TEAM_SKILL, function(i, team_skill){
+        var infoID = "teamSkillInfo"+i;
         var label = $("<span></span>").text( team_skill['label'] );
-        label.addClass('labelInfo').attr("onclick","$('#teamSkillInfo"+i+"').toggle()");
+        label.addClass('labelInfo').attr("onclick","$('#"+infoID+"').toggle()");
         var info = $("<span></span>").append("<br>").append(team_skill['info']).append("<br>");
-        info.attr("id","teamSkillInfo"+i).hide();
+        info.attr("id",infoID).hide();
         $("#TeamSkillInfoTD").append( [label, info] );
     });
 

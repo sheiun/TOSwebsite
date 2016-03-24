@@ -1,8 +1,19 @@
 
+var BasicSetting = function( member ){
+    return {
+        COLOR    : member['color'],
+        TYPE     : member['type'],
+        COOLDOWN : this.coolDown,
+    }
+}
+
 //==============================================================
 // BrokeBoundary
 //==============================================================
-var startBrokeBoundary = function(){
+var BreakBoundarySetting = function(){
+
+}
+var BrokeBoundaryStart = function(){
     $('#timeRange').val(10);
     $("#timeLimit").text("限制時間");
     $("#freeDrag").text("一般移動");
@@ -80,7 +91,7 @@ var startBrokeBoundary = function(){
     window.scrollTo(0, $("#clock").offset().top);
 }
 
-var endBrokeBoundary = function(){ 
+var BrokeBoundaryEnd = function(){ 
     $('#timeRange').val(5);
     $("#randomPanel").closest("button").prop("disabled", false);
     $("#optionalPanel").closest("button").prop("disabled", false);
@@ -105,8 +116,48 @@ var endBrokeBoundary = function(){
             }
         }
     }
+
     window.scrollTo(0, $("#clock").offset().top-3*HEIGHT);
-    checkAttack();
+}
+
+var OverBeautyStart = function(){
+
+}
+
+//==============================================================
+// Transfer function
+//==============================================================
+var RuneStrengthenCheck= function(){
+
+}
+var RuneStrengthenTransfer = function(){
+
+}
+
+//==============================================================
+// Attack Effect function
+//==============================================================
+var AddtionalEffectCheck = function(){
+
+}
+var DesperateAttackEffect = function(){
+
+}
+
+//==============================================================
+// Member Switch function
+//==============================================================
+var TeamMemberSwitchCheck = function(){
+
+}
+var TraceOfNotionSetting = function(){
+
+}
+var TraceOfNotionUpdate = function(){
+
+}
+var TraceOfNotionSwitch = function(){
+
 }
 
 //==============================================================
@@ -117,8 +168,60 @@ var endBrokeBoundary = function(){
 
 var ACTIVE_SKILLS = {
 	NONE : {
-		id : 'NONE',
-		label : '無技能',
-		info  : '',
+		id        : 'NONE',
+		label     : '無技能',
+		info      : '',
+        letter    : [0,0],
+        coolDown  : 0,
+        preSet    : BasicSetting,
 	},
+    BREAK_BOUNDARY : {
+        id        : 'BREAK_BOUNDARY',
+        label     : '界線突破 ‧ {0}',
+        info      : '額外增加 3 行符石，大幅延長移動符石時間至 10 秒，並提升{0}屬性攻擊力',
+        letter    : [0,0],
+        coolDown  : 8,
+        preSet    : BreakBoundarySetting,
+        endCount  : BrokeBoundaryEnd,
+        startRun  : BrokeBoundaryStart,
+    },
+    RUNE_STRENGTHEN : {
+        id        : 'RUNE_STRENGTHEN',
+        label     : '符石強化 ‧ {0}',
+        info      : '{0}符石轉化為{0}強化符石',
+        letter    : [0,0],
+        coolDown  : 10,
+        check     : RuneStrengthenCheck,
+        preSet    : BasicSetting,
+        transfer  : RuneStrengthenTransfer,
+    },
+    DESPERATE_ATTACK : {
+        id        : 'DESPERATE_ATTACK',
+        label     : '拚死一擊',
+        info      : '1 回合內，自身生命力愈低，全隊攻擊力愈高，最大 3 倍',
+        letter    : [0,0],
+        coolDown  : 10,
+        check     : AddtionalEffectCheck,
+        preSet    : BasicSetting,
+        addEffect : DesperateAttackEffect,
+    },
+    OVER_BEAUTY   : {
+        id        : 'OVER_BEAUTY',
+        label     : '回眸傾城',
+        info      : '',
+        letter    : [0,0],
+        coolDown  : 8,
+        preSet    : BasicSetting,
+        startRun  : OverBeautyStart,
+    },
+    TRACE_OF_NOTION : {
+        id        : 'TRACE_OF_NOTION',
+        label     : '印記之念 ‧ {0}',
+        info      : '{0}屬性傷害持續提升，直至沒有消除一組 5 粒或以上的{0}屬性符石 (只計算首批消除的符石)。每累計消除 20 粒{0}符石，{0}屬性傷害加快提升。{0}屬性傷害會於每一層數 (Wave) 重置',
+        letter    : [0,0],
+        check     : TeamMemberSwitchCheck,
+        preSet    : TraceOfNotionSetting,
+        update    : TraceOfNotionUpdate,
+        addSwitch : TraceOfNotionSwitch,
+    }
 };

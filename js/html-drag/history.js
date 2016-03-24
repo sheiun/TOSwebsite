@@ -337,7 +337,6 @@ function parseDownloadJson(){
         FINAL_PANEL,
         HISTORY_RANDOM,
 
-        AUTO_REMOVE,
         DROPABLE,
 
         COLORS,
@@ -376,23 +375,21 @@ function parseUploadJson(msg){
         HISTORY_RANDOM         = json[6];
         COLOR_RANDOM = HISTORY_RANDOM;
 
-        AUTO_REMOVE            = json[7];
-        DROPABLE               = json[8];
-        if( !AUTO_REMOVE ){
-            $("#autoRemove").text("保持待機");
-        }
+        DROPABLE               = json[7];        
         if( DROPABLE ){
             $("#dropable").text("隨機落珠");
         }
 
-        COLORS                 = json[9];
-        COLOR_PROB             = json[10];
-        COLOR_MAP              = json[11];
-        GROUP_SIZE             = json[12];
+        COLORS                 = json[8];
+        COLOR_PROB             = json[9];
+        COLOR_MAP              = json[10];
+        GROUP_SIZE             = json[11];
 
-        HISTORY_TEAM_MEMBER    = json[13];
-        HISTORY_SKILL_VARIABLE = json[14];
+        HISTORY_TEAM_MEMBER    = json[12];
+        HISTORY_SKILL_VARIABLE = json[13];
         loadTeamMembers(HISTORY_TEAM_MEMBER);
+        resetMemberSelect();
+        resetTeamMembers();
         loadSkillVariable(HISTORY_SKILL_VARIABLE);
 
         if( INITIAL_PANEL.length > 0 ){
@@ -404,7 +401,7 @@ function parseUploadJson(msg){
         }
 
     }catch(e){
-        alert("檔案讀取失敗！！\n"+e);
+       alert("檔案讀取失敗！！\n"+e);
         newRandomPlain();
     }
 }
