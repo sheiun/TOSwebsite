@@ -97,3 +97,14 @@ var WAKES_DATA = {
         // wakeVar = "[factor,straightSize]"
     },
 }
+
+
+function checkWakeByKey( key ){
+    $.each(TEAM_WAKES, function(place, wakes){
+        $.each(wakes, function(i, wake){
+            if( key in wake ){
+                wake[ key ]( TEAM_MEMBERS[place]['wake_var'][i], place, i );
+            }
+        });
+    });
+}

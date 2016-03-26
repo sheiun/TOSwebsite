@@ -43,8 +43,9 @@ $(document).ready( function(){
         resetTeamMembers();
         newRandomPlain();
     }
-    MAIN_STATE = "count";
-    PLAY_TURN = 0;
+    MAIN_STATE = MAIN_STATE_ENUM.READY;
+    PLAY_TYPE = PLAY_TYPE_ENUM.DRAG;
+    PLAY_TURN  = 0;
 
     closeCanvas();
     setComboShow();
@@ -75,7 +76,7 @@ function newOptionalPlain(){
     $("#optionalPanel").text("版面製作中");
     $("#optionalPanel").closest("button").attr("onclick","endOptionalPlain()");
     $("#dragContainment tr td").mousedown( function(){ setElementByOption(this); } );
-    MAIN_STATE = "create";
+    MAIN_STATE = MAIN_STATE_ENUM.CREATE;
     resetMoveTime();
     stopDragging();
 }
@@ -85,7 +86,7 @@ function endOptionalPlain(){
     $("#dragContainment tr td").unbind("mousedown");
     $("#panelControl button").css('background','');
     CREATE_COLOR = null;
-    returnMainState();
+    returnPlayType();
     returnAutoRemove();
     nextMoveWave();
 
@@ -106,17 +107,26 @@ function setElementByOption(e){
 function toggleFreeDrag(){
     if( $("#freeDrag").text() == "自由移動" ){
         $("#freeDrag").text("一般移動");
-        MAIN_STATE = "count";
+        PLAY_TYPE  = PLAY_TYPE_ENUM.DRAG;
     }else{
         $("#freeDrag").text("自由移動");
-        MAIN_STATE = "freeDrag";
+        PLAY_TYPE  = PLAY_TYPE_ENUM.FREE;
     }
 }
-function returnMainState(){
+function returnPlayType(){
     if( $("#freeDrag").text() == "自由移動" ){
-        MAIN_STATE = "freeDrag";
+        PLAY_TYPE  = PLAY_TYPE_ENUM.FREE;
     }else{
-        MAIN_STATE = "count";
+        PLAY_TYPE  = PLAY_TYPE_ENUM.DRAG;
+    }
+}
+function setPlayType( type ){
+    if( type == PLAY_TYPE_ENUM.DRAG ){
+        $("#freeDrag").text("一般移動");
+        PLAY_TYPE  = PLAY_TYPE_ENUM.DRAG;
+    }else if( type == PLAY_TYPE_ENUM.FREE ){
+        $("#freeDrag").text("自由移動");
+        PLAY_TYPE  = PLAY_TYPE_ENUM.FREE;
     }
 }
 function toggleTimeLimit(){
@@ -129,8 +139,14 @@ function toggleTimeLimit(){
         $("#timeRange").show();
         TIME_IS_LIMIT = true;
         TIME_LIMIT = 5;
-        MOVING = false;
     }
+}
+function setTimeLimit( time ){
+    $("#timeLimit").text("限制時間");
+    $("#timeRange").show();
+    $('#timeRange').val( time );
+    TIME_IS_LIMIT = true;
+    TIME_LIMIT = time;
 }
 function toggleDropable(){
     if( $("#dropable").text() == "取消落珠" ){
@@ -167,7 +183,7 @@ function replay(){
     $("#final").closest("button").prop("disabled", true);
     $("#replay").closest("button").prop("disabled", true);
 
-    MAIN_STATE = "review";
+    MAIN_STATE = MAIN_STATE_ENUM.REVIEW;
 
     COLOR_RANDOM = HISTORY_RANDOM;
     loadTeamMembers(HISTORY_TEAM_MEMBER);
@@ -183,12 +199,12 @@ function replay(){
     resetComboStack();
     resetAttackRecoverStack();
 
-    checkSkillByKey('findMaxC');
+    checkTeamSkillByKey('findMaxC');
     
     replayHistory();
 }
 function endReplayHistory(){
-    returnMainState();
+    returnPlayType();
     $("#randomPanel").closest("button").prop("disabled", false);
     $("#optionalPanel").closest("button").prop("disabled", false);
     $("#initial").closest("button").prop("disabled", false);
@@ -201,13 +217,12 @@ function endReplayHistory(){
 function toggleReviewPath(){
     if( $("#review").text() == "顯示軌跡" ){
         $("#review").text("隱藏軌跡");
-        MAIN_STATE = "review";
+        MAIN_STATE = MAIN_STATE_ENUM.REVIEW;
         resetCanvas();
         drawPath();
     }else{
         $("#review").text("顯示軌跡");
-        returnMainState();
-        returnAutoRemove();
+        returnPlayType();
         closeCanvas();
         nextMoveWave();
     }
@@ -234,6 +249,14 @@ function closeEditTeam(){
     });
 
     resetTeamMembers();
+}
+
+function disbalePanelControl( bool ){
+    $("#randomPanel").closest("button").prop("disabled",  bool );
+    $("#optionalPanel").closest("button").prop("disabled",  bool );
+    $("#initial").closest("button").prop("disabled",  bool );
+    $("#final").closest("button").prop("disabled",  bool );
+    $("#replay").closest("button").prop("disabled",  bool );
 }
 
 //==============================================================
@@ -288,6 +311,7 @@ function showResult(){
     $("#RecoverNumber td").children().remove();
     var total_attack = 0;
     var total_recover = 0;
+
     $.each(ATTACK_STACK, function(i, attack){
         var atk = Math.round( attack["base"] * attack["factor"] );
         total_attack += atk;
@@ -305,7 +329,6 @@ function showResult(){
         ).append( $("<br>") );
     });
 
-    PLAY_TURN += 1;
     $("#BattleInfomation").append( $("<span></span>").text("第"+PLAY_TURN+"回合：") ).append("<br>");
     $("#BattleInfomation").append( $("<span></span>").text("總共造成 "+total_attack+" 點傷害") ).append("<br>");
     $("#BattleInfomation").append( $("<span></span>").text("總共回復 "+total_recover+" 點生命值") ).append("<br>");
@@ -515,8 +538,11 @@ function resetTeamMembers(){
     resetMemberActiveSkill();
     resetTeamLeaderSkill();
     resetColors();
+    resetHealthPoint();
     showTeamInfomation();
+    showActiveInfomation();
     nextMoveWave();
+    resetTimeDiv();
 }
 function resetMemberWakes(){
     TEAM_WAKES = [];
@@ -580,6 +606,12 @@ function checkTeamSkill(){
     }
 }
 
+function resetHealthPoint(){
+    HEALTH_POINT = 0;
+    $.each(TEAM_MEMBERS, function(place, member){
+        HEALTH_POINT += member['health'];
+    });
+}
 function showTeamInfomation(){
     $.each(TEAM_MEMBERS, function(place, member){
         $("#LabelInfomation td span").eq(place).text( member['label'] );
@@ -628,6 +660,31 @@ function showTeamInfomation(){
         $("#TeamSkillInfoTD").append( [label, info] );
     });
 
+}
+function showActiveInfomation(){
+    $.each(TEAM_ACTIVE_SKILL, function(place, actives){
+        $("#ActiveButtonTD td").eq(place).children().remove();
+        $.each(actives, function(i, active){
+            var letterMap = active['letter'];
+            var letter1 = COLOR_LETTERS[ letterMap[0] ][ TEAM_ACTIVE_SKILL_VAR[place][i]['COLOR'] ];
+            var label = $("<span></span>").text( active['label'].format( letter1 ) );
+            var button = $("<button></button>").addClass('activeButton').append( label );
+            button.attr( "onclick", "triggerActive("+place+","+i+")" );
+            $("#ActiveButtonTD td").eq(place).append( button );
+        });
+    });
+    updateActiveCoolDown();
+}
+function updateActiveCoolDown(){
+    $.each(TEAM_ACTIVE_SKILL_VAR, function(place, actives_var){
+        var coolDown_arr = $.map(actives_var, function(active_var){
+            return active_var['COOLDOWN'];
+        });
+        $("#ActiveCoolDownTD td").eq(place).children().remove();
+        $("#ActiveCoolDownTD td").eq(place).append(
+            $("<span></span>").text( coolDown_arr.join(',') ).addClass('CDTimeLabel')
+        );
+    });
 }
 
 //==============================================================

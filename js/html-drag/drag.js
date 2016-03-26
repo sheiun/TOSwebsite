@@ -66,8 +66,8 @@ var DRAG_ANIMATE_TIME = 100;
 var REMOVE_TIME = 100;
 var FADEOUT_TIME = 200;
 var DROP_TIME = 150;
+var ATTACK_INFO_TIME = 500;
 
-var MOVING = false;
 var MOVE_OUT_OF_TIME = false;
 var START_TIME = 0;
 var TIME_INTERVAL;
@@ -90,7 +90,8 @@ var LOCUS = true;
 var LOCUS_TYPE = null;
 var LOCUS_STACK = [];
 
-var MAIN_STATE;
+var PLAY_TYPE = null;
+var MAIN_STATE = null;
 
 //==============================================================
 // CONTROL PARAMETER
@@ -100,7 +101,6 @@ var CREATE_COLOR = null;
 var TIME_IS_LIMIT = true;
 var TIME_LIMIT = 5;
 var DROPABLE = false;
-var AUTO_REMOVE = true;
 var REPLAY_SPEED = 300;
 var AUDIO = true;
 
@@ -118,7 +118,6 @@ var TEAM_FRIEND  = null;
 var TEAM_LEADER_SKILL = null;
 var TEAM_FRIEND_SKILL = null;
 var TEAM_SKILL        = [];
-
 var TEAM_LEADER_SKILL_VAR = null;
 var TEAM_FRIEND_SKILL_VAR = null;
 var TEAM_SKILL_VAR        = [];
@@ -128,10 +127,18 @@ var TEAM_ACTIVE_SKILL_VAR = [];
 
 var TEAM_WAKES            = [];
 
+//==============================================================
+// STATUS
+//==============================================================
+var HEALTH_POINT = 0;
+
 var ADDITIONAL_EFFECT_STACK = [];
+var MEMBER_SWITCH_STACK = [];
 
 var ATTACK_STACK = [];
 var RECOVER_STACK = [];
+
+var ENEMY = null;
 
 var PLAY_TURN = 0;
 
@@ -146,26 +153,29 @@ function resetDraggable(){
         zIndex: 2500,
         start: function(event, ui){
             countGridPositon(this);
-            if( (MOVING && MAIN_STATE == "freeDrag") || TIME_RUNNING ){ 
-                return; 
+            if( MAIN_STATE == MAIN_STATE_ENUM.READY ){
+                initialMoveWave();
             }
-            initialMoveWave();
         },
         drag: function(event, ui) {
-            if( MOVE_OUT_OF_TIME ){ return false; }
-            dragPosition(this);
+            if( MAIN_STATE == MAIN_STATE_ENUM.READY ||
+                MAIN_STATE == MAIN_STATE_ENUM.TIME_TO_MOVE ||
+                MAIN_STATE == MAIN_STATE_ENUM.MOVING ){
+                dragPosition(this);
+            }
+            else{ return false; }
         },
         stop: function(){
             resetLocus();
             closeCanvas();
-            if( MOVING ){
+            if( MAIN_STATE == MAIN_STATE_ENUM.MOVING ){
                 endPosition(this);
             }
-            if( MAIN_STATE == "freeDrag" && MOVING ){
+            if( PLAY_TYPE == PLAY_TYPE_ENUM.FREE && MAIN_STATE == MAIN_STATE_ENUM.MOVING ){
                 HISTORY.push(null);
                 resetDraggable();
                 startDragging();
-            }else if( MAIN_STATE == "count" && MOVING ){
+            }else if( PLAY_TYPE == PLAY_TYPE_ENUM.DRAG && MAIN_STATE == MAIN_STATE_ENUM.MOVING ){
                 endMoveWave();
             }else{
                 resetDraggable();
@@ -253,7 +263,7 @@ function resetComboStack(){
     resetComboBox();
 
     // TeamGreek reset extraCombo
-    checkSkillByKey( 'extraReset' );
+    checkTeamSkillByKey( 'extraReset' );
 }
 function resetCount(){    
     COUNT_COMBO                = COMBO_TIMES;
@@ -299,8 +309,7 @@ function resetAttackRecoverStack(){
     RECOVER_STACK = [];
 }
 function resetMoveTime(){
-    MOVING = false;
-    START_TIME = 0;
+    START_TIME = new Date().getTime() / 1000;
     TIME_RUNNING = false;
     clearInterval(TIME_INTERVAL);
 }
@@ -448,10 +457,11 @@ function dragPosition(e){
     }
 
     if( left_index != TD_INDEX || top_index != TR_INDEX  ){
-        if( !MOVING && !MOVE_OUT_OF_TIME ){
+        if( ( MAIN_STATE == MAIN_STATE_ENUM.READY || MAIN_STATE == MAIN_STATE_ENUM.TIME_TO_MOVE )
+            && !MOVE_OUT_OF_TIME ){
             //Maybe used in end attack effect
             newMoveWave();
-            MOVING = true;
+            MAIN_STATE = MAIN_STATE_ENUM.MOVING;
             HISTORY.push( TR_INDEX*TD_NUM+TD_INDEX );
 
             // start timer
@@ -467,7 +477,8 @@ function dragPosition(e){
                 LOCUS_STACK.push( TR_INDEX*TD_NUM+TD_INDEX );
             }
         }
-        if( MAIN_STATE == "freeDrag" && MOVING && HISTORY.slice(-1)[0] == null ){
+        if( PLAY_TYPE == PLAY_TYPE_ENUM.FREE && MAIN_STATE == MAIN_STATE_ENUM.MOVING && 
+            HISTORY.slice(-1)[0] == null ){
             HISTORY.push( TR_INDEX*TD_NUM+TD_INDEX );   
             // start locus
             if( LOCUS ){
@@ -639,8 +650,13 @@ function dragTimer(){
     if( TIME_IS_LIMIT && ( (now - START_TIME) > TIME_LIMIT || MOVE_OUT_OF_TIME )  ){
         MOVE_OUT_OF_TIME = true;
         TIME_RUNNING = false;
-        MOVING = false;
-        endMoveWave();
+
+        if( MAIN_STATE == MAIN_STATE_ENUM.MOVING ){
+            endMoveWave();
+        }else{
+            checkActiveSkillByKey("endRun");
+            restartMoveWave();
+        }
     }
 }
 
@@ -681,7 +697,7 @@ function mapImgSrc(item){
     var plus = ( item.indexOf('+') >= 0 ) ? '+' : '';
     var _    = ( item.indexOf('_') >= 0 ) ? '_' : '';
     var x    = ( item.indexOf('x') >= 0 ) ? 'x' : '';
-    var i    = ( item.indexOf('i') >= 0 ) ? item.substr( item.indexOf('i'), item.indexOf('i')+1 ) : '';
+    var i    = ( item.indexOf('i') >= 0 ) ? item.substr( item.indexOf('i'), 2 ) : '';
 
     if( item.indexOf('X') >= 0 ){
         item = 'x'+i ;
@@ -745,34 +761,13 @@ function newElementByItem(item){
 //==============================================================
 //  Count Attack
 //==============================================================
-function checkSkillByKey( key ){
-    if( key in TEAM_LEADER_SKILL ){
-        TEAM_LEADER_SKILL[ key ](  TEAM_LEADER_SKILL_VAR, "leader" );
-    }
-    if( key in TEAM_FRIEND_SKILL ){
-        TEAM_FRIEND_SKILL[ key ]( TEAM_FRIEND_SKILL_VAR, "friend" );
-    }    
-    for( var teamSkill of TEAM_SKILL ){
-        if( key in teamSkill ){
-            teamSkill[ key ]( TEAM_SKILL_VAR[ teamSkill["id"] ] );
-        }
-    }
-}
-function checkWakeByKey( key ){
-    $.each(TEAM_WAKES, function(place, wakes){
-        $.each(wakes, function(i, wake){
-            if( key in wake ){
-                wake[ key ]( TEAM_MEMBERS[place]['wake_var'][i], place, i );
-            }
-        });
-    });
-}
-
 function countAttack(){
     resetCount();
 
-    checkSkillByKey( "attack" );
-    checkSkillByKey( "recover" );
+    checkLeaderSkillByKey( "attack" );
+    checkLeaderSkillByKey( "attack" );
+    checkTeamSkillByKey( "attack" );
+    checkTeamSkillByKey( "recover" );
     checkWakeByKey( "attack" );
     checkWakeByKey( "recover" );
 
@@ -876,6 +871,8 @@ function initialMoveWave(){
     resetMoveTime();
 }
 function endMoveWave(){
+    MAIN_STATE = MAIN_STATE_ENUM.COUNT_GROUP;
+
     resetLocus();
     closeCanvas();
     resetMoveTime();
@@ -884,10 +881,20 @@ function endMoveWave(){
     checkGroups();
 }
 function nextMoveWave(){
+    MAIN_STATE = MAIN_STATE_ENUM.READY;
+
     resetDraggable();
     startDragging();
 
-    checkSkillByKey('findMaxC');
+    checkLeaderSkillByKey('findMaxC');
+}
+function restartMoveWave(){
+    resetLocus();
+    closeCanvas();
+    resetMoveTime();
+    stopDragging();
+    recordFinal();    
+    nextMoveWave();
 }
 function newMoveWave(){
     //Maybe used in end attack effect
@@ -898,8 +905,6 @@ function newMoveWave(){
 }
 
 function checkGroups(){
-    if( !AUTO_REMOVE ){ return; }
-
     resetBase();
     resetColorGroupSet();
     resetDropStack();
@@ -932,9 +937,6 @@ function checkGroups(){
     }
 
     if( num == 0 ){
-        if( TR_NUM > 5 ){
-            BrokeBoundaryEnd()
-        }
         checkAttack();
     }else{
         setTimeout( function(){
@@ -944,14 +946,26 @@ function checkGroups(){
 }
 
 function checkAttack(){
-    frozenUpdate();
+    MAIN_STATE = MAIN_STATE_ENUM.COUNT_ATK;
+    $("#dragContainment img.over").addClass("img-gray");
+
+    checkActiveSkillByKey("endRun");
     countAttack();
+
+    MAIN_STATE = MAIN_STATE_ENUM.BATTLE_INFO;
     showResult();
 
     setTimeout( function(){
-        checkSkillByKey( 'end' );
-        nextMoveWave();
-    }, 1000);
+        endPlayTurn();
+    }, ATTACK_INFO_TIME);
+}
+function endPlayTurn(){
+    $("#dragContainment img.over").removeClass("img-gray");
+    checkLeaderSkillByKey( 'end' );
+    checkTeamSkillByKey( 'end' );
+    PLAY_TURN += 1;
+    frozenUpdate();
+    nextMoveWave();    
 }
 
 //==============================================================
@@ -1066,7 +1080,6 @@ function countGroup(){
 // remove & new group
 //==============================================================
 function removeGroups(next){    
-    if( !AUTO_REMOVE ){ return; }
 
     var i = next;
     for( ; i >= 0; i--){
@@ -1087,7 +1100,6 @@ function removePeriod(set, next){
     var setArr = Array.from(set);
     var comboSet = makeComboSet( Array.from(set) );
     for(var id of setArr){
-        if( !AUTO_REMOVE ){ break; }
         REMOVE_STACK.push(id);
         $("#dragContainment tr td").eq(id).find("img").fadeOut( FADEOUT_TIME, function (){
             $(this).remove();
@@ -1099,7 +1111,7 @@ function removePeriod(set, next){
     playAudioRemove();
 
     // greek skill extracombo
-    checkSkillByKey( 'extraCombo' );
+    checkTeamSkillByKey( 'extraCombo' );
 
     setTimeout( function(){
         removeGroups(next-1);
@@ -1117,12 +1129,12 @@ function inGroup(id){
 }
 
 function newGroups(){
-    if( !AUTO_REMOVE ){ return; }
 
     REMOVE_STACK.sort(function(a, b){return a-b});
 
     //  希臘/巴比隊長技使用
-    checkSkillByKey( 'newItem' );
+    checkLeaderSkillByKey( 'newItem' );
+    checkTeamSkillByKey( 'newItem' );
 
     for(var color in GROUP_SETS){
         for(var set of GROUP_SETS[color]){
@@ -1162,7 +1174,6 @@ function newGroups(){
 // drop new element from stack
 //==============================================================
 function dropGroups(){
-    if( !AUTO_REMOVE ){ return; }
 
     for(var i = 0; i < TD_NUM; i++){
         var num = 0;

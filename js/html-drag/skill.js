@@ -45,8 +45,16 @@ function getArrayOfObjectValue(Obj){
 }
 
 //==============================================================
-// Panel function
+// Panel Element function
 //==============================================================
+function checkHasElementByColor(color){
+    var color_stack = getStackOfPanelByColor(color);
+    return color_stack.length > 0;
+}
+function checkHasElementByColorArr(colorArr){
+    var color_stack = getStackOfPanelByColorArr(colorArr);
+    return color_stack.length > 0;
+}
 function getStackOfPanelByColor(color){
     var stack = [];
     for(var i = 0; i < TD_NUM*TR_NUM; i++){
@@ -86,6 +94,7 @@ function turnElementToColorByID(id, color){
     });
 }
 function turnRandomElementToColorByConfig( config ){
+    // config: color, num, priorityColors
     var color = config['color'];
     for( var num = config['num']; num > 0; num-- ){
         for( var colors of config['priorityColors'] ){
@@ -99,6 +108,43 @@ function turnRandomElementToColorByConfig( config ){
             }
         }
     }
+}
+function turnElementToStrongByID(id){
+    var imgs = $("#dragContainment tr td").eq(id).find("img");
+    var item = imgs.attr("item");
+    item = item + "+";
+    var hide_items = newElementByItem(item);
+
+    $(hide_items[0]).hide();
+    $(hide_items[1]).hide();
+    $("#dragContainment tr td").eq(id).find("img").fadeOut( FADEOUT_TIME, function(){
+        $(this).remove();
+        $("#dragContainment tr td").eq(id).append( hide_items );
+        $("#dragContainment tr td").eq(id).find("img").fadeIn( FADEOUT_TIME );
+        resetDraggable();
+        startDragging();
+    });
+}
+
+function findMaxColorOfColorArr( colorArr ){
+    var colors = {};
+    var max = 0;
+    var tmp_colors = [];
+    for( var i = 0; i < TD_NUM*TR_NUM; i++ ){
+        var c = $("#dragContainment tr td img.over ").eq(i).attr("color");
+        if( colorArr.indexOf(c) >= 0 ){
+            colors[c] = ( c in colors ) ? colors[c]+1 : 0;
+        }
+    }
+    for(var c in colors){
+        if( colors[c] > max ){
+            max = colors[c];
+            tmp_colors = [ c ];
+        }else if( colors[c] == max && max > 0 ){
+            tmp_colors.push(c);
+        }
+    }
+    return { colors: tmp_colors, num: max };
 }
 
 //==============================================================
@@ -197,7 +243,7 @@ function setColorBelongsByConfig( config ){
 }
 
 //==============================================================
-// First Straight function
+// count First Straight/Horizental function
 //==============================================================
 function countFirstStraightNum( length ){
     var straight = 0;
@@ -233,23 +279,15 @@ function checkFirstHorizentalClearByPlace( place ){
     return base_line.length == 0;
 }
 
-function findMaxColorOfColorArr( colorArr ){
-    var colors = {};
-    var max = 0;
-    var tmp_colors = [];
-    for( var i = 0; i < TD_NUM*TR_NUM; i++ ){
-        var c = $("#dragContainment tr td img.over ").eq(i).attr("color");
-        if( colorArr.indexOf(c) >= 0 ){
-            colors[c] = ( c in colors ) ? colors[c]+1 : 0;
-        }
-    }
-    for(var c in colors){
-        if( colors[c] > max ){
-            max = colors[c];
-            tmp_colors = [ c ];
-        }else if( colors[c] == max && max > 0 ){
-            tmp_colors.push(c);
-        }
-    }
-    return { colors: tmp_colors, num: max };
+//==============================================================
+// StartRun function
+//==============================================================
+function setStartRunByPlayTypeAndTime( play_type, time ){
+    setTimeLimit( time );
+    setPlayType( play_type );
+
+    START_TIME = new Date().getTime() / 1000;
+    TIME_RUNNING = true;
+    TIME_INTERVAL = setInterval( function(){ dragTimer(); }, 10);
+    MAIN_STATE = MAIN_STATE_ENUM.TIME_TO_MOVE;    
 }

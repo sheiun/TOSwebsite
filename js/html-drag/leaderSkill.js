@@ -4,12 +4,26 @@
 //==============================================================
 //==============================================================
 
+var BasicLeaderSetting = function( member ){
+    return {
+        COLOR    : member['color'],
+        TYPE     : member['type'],
+    }
+}
+
 //==============================================================
 // ElementFactor
 //==============================================================
-var ElementFactor3Setting = function( MEMBER ){
-    return {
-        COLOR : MEMBER['color'],
+
+var ElementFactor2Attack = function( VAR, direct ){
+    var color = VAR['COLOR'];
+    COUNT_FACTOR['ElementFactor2'+direct] = {
+        factor    : function( member, member_place ){ return 2; },
+        prob      : 1,
+        condition : function( member, member_place ){
+            if( member['color'] == color ){ return true; }
+            return false;
+        },
     };
 }
 var ElementFactor3Attack = function( VAR, direct ){
@@ -21,11 +35,6 @@ var ElementFactor3Attack = function( VAR, direct ){
             if( member['color'] == color ){ return true; }
             return false;
         },
-    };
-}
-var ElementFactor3_5Setting = function( MEMBER ){
-    return {
-        COLOR : MEMBER['color'],
     };
 }
 var ElementFactor3_5Attack = function( VAR, direct ){
@@ -171,11 +180,6 @@ var DollHumanGodAttack = function( VAR, direct ){
 //==============================================================
 // Tribe Beast
 //==============================================================
-var TribeBeastSetting = function( MEMBER ){
-    return {
-        COLOR : MEMBER['color'],
-    };
-}
 var TribeBeastAttack = function( VAR, direct ){
     var color = VAR['COLOR'];
     var colorArr = ['w', 'f', 'p', 'l', 'd'];
@@ -227,11 +231,6 @@ var SwordBrotherPlusAttack = function( VAR, direct ){
 //==============================================================
 // Babylon
 //==============================================================
-var BabylonSetting = function( MEMBER ){
-    return {
-        COLOR : MEMBER['color'],
-    };
-}
 var BabylonSkill = function( VAR, direct ){
     var color = VAR['COLOR'];
     for(var i = 0; i < TD_NUM; i++){
@@ -279,11 +278,6 @@ var BabylonAttackPlus = function( VAR, direct ){
 //==============================================================
 // Chinese Paladin
 //==============================================================
-var LIXIAOYAOSetting = function( MEMBER ){
-    return {
-        COLOR : MEMBER['color'],
-    };
-}
 var LIXIAOYAOAttack = function( VAR, direct ){
     if( 'HeartProb' in COUNT_FACTOR ){
         COUNT_FACTOR['HeartProb']['prob'] += 0.5;
@@ -366,11 +360,6 @@ var CommonSourcePlusAttack = function( VAR, direct ){
 //==============================================================
 // DarkLucifer
 //==============================================================
-var WaterFairySetting = function( MEMBER ){
-    return {
-        COLOR : MEMBER['color'],
-    };
-}
 var WaterFairyAttack = function( VAR, direct ){
     COUNT_FACTOR['WaterFairy'+direct] = {
         factor    : function( member, member_place ){ return 2.5; },
@@ -549,14 +538,22 @@ var LEADER_SKILLS_DATA = {
         label     : "靈魂收割 ‧ 結",
         info      : "當敵方生命力 40% 以下，無視防禦力和屬性，每回合以自身攻擊力 6 倍追打 1 次",
         letter    : [0,0],
-        preSet    : noneSetting,
+        preSet    : BasicLeaderSetting,
     },
     WILL_POWER : {
         id        : 'WILL_POWER',
         label     : "絕境意志",
         info      : "當前生命力大於 50% 時，下一次所受傷害不會使你死亡 (同一回合只會發動一次）",
         letter    : [0,0],
-        preSet    : noneSetting,
+        preSet    : BasicLeaderSetting,
+    },
+    ELEMENT_FACTOR2 : {
+        id        : "ELEMENT_FACTOR2",
+        label     : "{0}之怒",
+        info      : "{0}屬性攻擊力 2 倍",
+        letter    : [4,0],
+        attack    : ElementFactor2Attack,
+        preSet    : BasicLeaderSetting,
     },
     ELEMENT_FACTOR3 : {
         id        : "ELEMENT_FACTOR3",
@@ -564,7 +561,7 @@ var LEADER_SKILLS_DATA = {
         info      : "{0}屬性攻擊力 3 倍",
         letter    : [0,0],
         attack    : ElementFactor3Attack,
-        preSet    : ElementFactor3Setting,
+        preSet    : BasicLeaderSetting,
     },
     ELEMENT_FACTOR3_5 : {
         id        : "ELEMENT_FACTOR3_5",
@@ -572,7 +569,7 @@ var LEADER_SKILLS_DATA = {
         info      : "{0}屬性攻擊力 3.5 倍",
         letter    : [3,0],
         attack    : ElementFactor3_5Attack,
-        preSet    : ElementFactor3_5Setting,
+        preSet    : BasicLeaderSetting,
     },
     CHINA_D : {
         id        : "CHINA_D",
@@ -580,7 +577,7 @@ var LEADER_SKILLS_DATA = {
         info      : "連擊 (Combo) 時攻擊力大幅提升 125%",
         letter    : [0,0],
         attack    : ChinaDAttack,
-        preSet    : noneSetting,
+        preSet    : BasicLeaderSetting,
     },
     GREEK : {
         id        : 'GREEK',
@@ -620,7 +617,7 @@ var LEADER_SKILLS_DATA = {
         info      : '當隊伍中只有人類及 2 個或以上龍類成員時，人類攻擊力 3.5 倍，龍類攻擊力 2 倍',
         letter    : [0,0],
         attack    : DollHumanDragonAttack,
-        preSet    : noneSetting,
+        preSet    : BasicLeaderSetting,
     },
     DOLL_HUMAN_BEAST_SPIRIT : {
         id        : 'DOLL_HUMAN_BEAST_SPIRIT',
@@ -628,7 +625,7 @@ var LEADER_SKILLS_DATA = {
         info      : '當隊伍中只有人類、2 個或以上獸類或妖精類成員時，人類攻擊力 3.5 倍，獸類及妖精類攻擊力 2.5 倍',
         letter    : [0,0],
         attack    : DollHumanBeastSpiritAttack,
-        preSet    : noneSetting,
+        preSet    : BasicLeaderSetting,
     },
     DOLL_HUMAN_DEVIL_SPIRIT : {
         id        : 'DOLL_HUMAN_DEVIL_SPIRIT',
@@ -636,7 +633,7 @@ var LEADER_SKILLS_DATA = {
         info      : '當隊伍中只有人類、2 個或以上魔族或妖精類成員時，人類攻擊力 3.5 倍，魔族及妖精類攻擊力 2.5 倍',
         letter    : [0,0],
         attack    : DollHumanDevilSpiritAttack,
-        preSet    : noneSetting,
+        preSet    : BasicLeaderSetting,
     },
     DOLL_HUMAN_GOD : {
         id        : 'DOLL_HUMAN_GOD',
@@ -644,7 +641,7 @@ var LEADER_SKILLS_DATA = {
         info      : '當隊伍中只有人類及 2 個或以上神族成員時，人類攻擊力 3.5 倍，神族攻擊力 2 倍',
         letter    : [0,0],
         attack    : DollHumanGodAttack,
-        preSet    : noneSetting,
+        preSet    : BasicLeaderSetting,
     },
     TRIBE_BEAST : {
         id        : 'TRIBE_BEAST',
@@ -652,7 +649,7 @@ var LEADER_SKILLS_DATA = {
         info      : '獸類攻擊力 2.5 倍；{0}符石兼具所有屬性符石效果，每個獸類成員提升 10% 效果，最高 50% (效果可以疊加)',
         letter    : [2,0],
         attack    : TribeBeastAttack,
-        preSet    : TribeBeastSetting,
+        preSet    : BasicLeaderSetting,
     },
     BABYLON : {
         id        : 'BABYLON',
@@ -661,7 +658,7 @@ var LEADER_SKILLS_DATA = {
         letter    : [0,0],
         newItem   : BabylonSkill,
         attack    : BabylonAttack,
-        preSet    : BabylonSetting,
+        preSet    : BasicLeaderSetting,
     },
     BABYLON_PLUS : {
         id        : 'BABYLON_PLUS',
@@ -670,7 +667,7 @@ var LEADER_SKILLS_DATA = {
         letter    : [3,0],
         newItem   : BabylonSkill,
         attack    : BabylonAttackPlus,
-        preSet    : BabylonSetting,
+        preSet    : BasicLeaderSetting,
     },
     SWORD_BROTHER_PLUS : {
         id        : 'SWORD_BROTHER_PLUS',
@@ -678,7 +675,7 @@ var LEADER_SKILLS_DATA = {
         info      : '光和暗屬性攻擊力 2.5 倍；光符石兼具 50% 暗符石效果，暗符石兼具 50% 光符石效果 (效果可以疊加)；同時消除光符石及暗符石，光和暗屬性攻擊力額外提升 1.5 倍 (效果可以疊加)',
         letter    : [0,0],
         attack    : SwordBrotherPlusAttack,
-        preSet    : noneSetting,
+        preSet    : BasicLeaderSetting,
     },
     COMMON_SOURCE_PLUS : {
         id        : 'COMMON_SOURCE_PLUS',
@@ -686,7 +683,7 @@ var LEADER_SKILLS_DATA = {
         info      : '隊伍中只有水、火及木屬性的成員時，水符石兼具火及木符石效果、火符石兼具水及木符石效果，同時木符石兼具水及火符石效果 (不能疊加)；消除心符石時攻擊力有 50% 機會額外提升 1.5 倍 (機率可以疊加)。同時消除水、火及木符石時，全隊攻擊力額外提升 1.5 倍',
         letter    : [0,0],
         attack    : CommonSourcePlusAttack,
-        preSet    : noneSetting,
+        preSet    : BasicLeaderSetting,
     },
     LIXIAOYAO : {
         id        : 'LIXIAOYAO',
@@ -694,7 +691,7 @@ var LEADER_SKILLS_DATA = {
         info      : '全隊攻擊力 1.8 倍；消除的符石數量愈多 (主動技能除外)，全隊攻擊力額外提升愈多 (不能疊加)。隊伍中只有水、火及木屬性的成員時，消除心符石時攻擊力有 50% 機會額外提升 1.5 倍 (機率可以疊加)',
         letter    : [0,0],
         attack    : LIXIAOYAOAttack,
-        preSet    : LIXIAOYAOSetting,
+        preSet    : BasicLeaderSetting,
     },
     WATER_FAIRY : {
         id        : 'WATER_FAIRY',
@@ -702,7 +699,7 @@ var LEADER_SKILLS_DATA = {
         info      : '水屬性攻擊力 2.5 倍；消除最底一橫行內的所有符石時，自身攻擊力額外提升 3 倍，若使用相同的隊長及戰友時，自身攻擊力額外提升至 9 倍',
         letter    : [0,0],
         attack    : WaterFairyAttack,
-        preSet    : WaterFairySetting,
+        preSet    : BasicLeaderSetting,
     },
     DARK_LUCIFER : {
         id        : 'DARK_LUCIFER',
@@ -740,3 +737,12 @@ var LEADER_SKILLS_DATA = {
         preSet    : DevilCircleSetting,
     },
 };
+
+function checkLeaderSkillByKey( key ){
+    if( key in TEAM_LEADER_SKILL ){
+        TEAM_LEADER_SKILL[ key ](  TEAM_LEADER_SKILL_VAR, "leader" );
+    }
+    if( key in TEAM_FRIEND_SKILL ){
+        TEAM_FRIEND_SKILL[ key ]( TEAM_FRIEND_SKILL_VAR, "friend" );
+    }
+}

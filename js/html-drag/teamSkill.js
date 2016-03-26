@@ -419,3 +419,11 @@ var TEAM_SKILLS_DATA = {
         mapping   : TeamDevilCircleMapping,
     },
 };
+
+function checkTeamSkillByKey( key ){
+    $.each(TEAM_SKILL, function(i, teamSkill){
+        if( key in teamSkill ){
+            teamSkill[ key ]( TEAM_SKILL_VAR[ teamSkill["id"] ] );
+        }
+    });
+}

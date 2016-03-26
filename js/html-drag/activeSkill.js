@@ -1,5 +1,10 @@
+//==============================================================
+//==============================================================
+// Active Skill Function
+//==============================================================
+//==============================================================
 
-var BasicSetting = function( member ){
+var BasicActiveSetting = function( member ){
     return {
         COLOR    : member['color'],
         TYPE     : member['type'],
@@ -7,36 +12,31 @@ var BasicSetting = function( member ){
     }
 }
 
-//==============================================================
-// BrokeBoundary
-//==============================================================
-var BreakBoundarySetting = function(){
-
+var BasicActiveCheck = function( place, VAR ){
+    if( MAIN_STATE == MAIN_STATE_ENUM.READY ){
+        return true;
+    }
+    return false;
 }
-var BrokeBoundaryStart = function(){
-    $('#timeRange').val(10);
-    $("#timeLimit").text("限制時間");
-    $("#freeDrag").text("一般移動");
-    $("#randomPanel").closest("button").prop("disabled", true);
-    $("#optionalPanel").closest("button").prop("disabled", true);
-    $("#initial").closest("button").prop("disabled", true);
-    $("#final").closest("button").prop("disabled", true);
-    $("#replay").closest("button").prop("disabled", true);
 
-    MOVE_OUT_OF_TIME = false;
-    TIME_LIMIT = 10;
-    TIME_IS_LIMIT = true;
-    START_TIME = new Date().getTime() / 1000;
-    TIME_RUNNING = true;
-    TIME_INTERVAL = setInterval( function(){ dragTimer(); }, 10);
-    MAIN_STATE = "count";
-
+//==============================================================
+// BrokeBoundary / Start Run Function
+//==============================================================
+var BrokeBoundarySetting = function( member ){
+    return {
+        COLOR     : member['color'],
+        TYPE      : member['type'],
+        COOLDOWN  : this.coolDown,
+        START_RUN : false,
+    }
+}
+var BrokeBoundaryStart = function( place, VAR ){
+    VAR['START_RUN'] = true;
+    disbalePanelControl( true );
+    setStartRunByPlayTypeAndTime( PLAY_TYPE_ENUM.DRAG, 10 );
 
     $("#dragContainment").attr("td", 6).attr("tr", 8);
     resetHistory();
-    resetDropStack();
-    resetComboStack();
-    resetColors();
     resetBase();
     initialTable();
 
@@ -83,28 +83,25 @@ var BrokeBoundaryStart = function(){
             $(this).removeAttr("drop").removeAttr("toTop").removeAttr("toLeft");
         }
     });
+    window.scrollTo(0, $("#clock").offset().top);
+
     setTimeout( function(){
         resetDraggable();
         startDragging();
     }, max_drop*DROP_TIME );
-
-    window.scrollTo(0, $("#clock").offset().top);
 }
 
-var BrokeBoundaryEnd = function(){ 
-    $('#timeRange').val(5);
-    $("#randomPanel").closest("button").prop("disabled", false);
-    $("#optionalPanel").closest("button").prop("disabled", false);
-    $("#initial").closest("button").prop("disabled", false);
-    $("#final").closest("button").prop("disabled", false);
-    $("#replay").closest("button").prop("disabled", false);
-    $("#dragContainment").attr("td", 6).attr("tr", 5);
+var BrokeBoundaryEnd = function( place, VAR ){
+    if( !VAR['START_RUN'] ){ return false; }
+
+    disbalePanelControl( false );
+    setTimeLimit( 5 );
+
     $('#clipboard').attr("data-clipboard-text", "null");
-    TIME_LIMIT = 5;
+    $("#dragContainment").attr("td", 6).attr("tr", 5);
     resetHistory();
     resetBase();
     initialTable();
-
     for(var i = 0; i < TR_NUM; i++){
         for(var j = 0; j < TD_NUM; j++){
             id = (i+3)*TD_NUM+j;
@@ -116,47 +113,63 @@ var BrokeBoundaryEnd = function(){
             }
         }
     }
-
     window.scrollTo(0, $("#clock").offset().top-3*HEIGHT);
 }
 
-var OverBeautyStart = function(){
-
+var OverBeautyStart = function( place, VAR ){
+    VAR['START_RUN'] = true;
+    disbalePanelControl( true );
+    setStartRunByPlayTypeAndTime( PLAY_TYPE_ENUM.FREE, 10 );
+    resetHistory();
+    resetBase();
+}
+var OverBeautyEnd = function( place, VAR ){
+    if( !VAR['START_RUN'] ){ return false; }
+    disbalePanelControl( false );
+    setTimeLimit( 5 );
+    setPlayType( PLAY_TYPE_ENUM.DRAG );
 }
 
 //==============================================================
 // Transfer function
 //==============================================================
-var RuneStrengthenCheck= function(){
-
+var RuneStrengthenCheck= function( place, VAR ){
+    if( MAIN_STATE == MAIN_STATE_ENUM.READY && 
+        checkHasElementByColor( VAR['COLOR'] ) ){
+        return true;
+    }
+    return false;
 }
-var RuneStrengthenTransfer = function(){
-
+var RuneStrengthenTransfer = function( place, VAR ){
+    var stack = getStackOfPanelByColor( VAR['COLOR'] );
+    for(var id of stack){
+        turnElementToStrongByID(id);
+    }
 }
 
 //==============================================================
 // Attack Effect function
 //==============================================================
-var AddtionalEffectCheck = function(){
+var AddtionalEffectCheck = function( place, VAR ){
 
 }
-var DesperateAttackEffect = function(){
+var DesperateAttackEffect = function( place, VAR ){
 
 }
 
 //==============================================================
 // Member Switch function
 //==============================================================
-var TeamMemberSwitchCheck = function(){
+var TeamMemberSwitchCheck = function( place, VAR ){
 
 }
-var TraceOfNotionSetting = function(){
+var TraceOfNotionSetting = function( place, VAR ){
 
 }
-var TraceOfNotionUpdate = function(){
+var TraceOfNotionUpdate = function( place, VAR ){
 
 }
-var TraceOfNotionSwitch = function(){
+var TraceOfNotionSwitch = function( place, VAR ){
 
 }
 
@@ -173,7 +186,8 @@ var ACTIVE_SKILLS = {
 		info      : '',
         letter    : [0,0],
         coolDown  : 0,
-        preSet    : BasicSetting,
+        check     : BasicActiveCheck,
+        preSet    : BasicActiveSetting,
 	},
     BREAK_BOUNDARY : {
         id        : 'BREAK_BOUNDARY',
@@ -181,9 +195,10 @@ var ACTIVE_SKILLS = {
         info      : '額外增加 3 行符石，大幅延長移動符石時間至 10 秒，並提升{0}屬性攻擊力',
         letter    : [0,0],
         coolDown  : 8,
-        preSet    : BreakBoundarySetting,
-        endCount  : BrokeBoundaryEnd,
+        check     : BasicActiveCheck,
+        preSet    : BrokeBoundarySetting,
         startRun  : BrokeBoundaryStart,
+        endRun    : BrokeBoundaryEnd,
     },
     RUNE_STRENGTHEN : {
         id        : 'RUNE_STRENGTHEN',
@@ -192,7 +207,7 @@ var ACTIVE_SKILLS = {
         letter    : [0,0],
         coolDown  : 10,
         check     : RuneStrengthenCheck,
-        preSet    : BasicSetting,
+        preSet    : BasicActiveSetting,
         transfer  : RuneStrengthenTransfer,
     },
     DESPERATE_ATTACK : {
@@ -202,7 +217,7 @@ var ACTIVE_SKILLS = {
         letter    : [0,0],
         coolDown  : 10,
         check     : AddtionalEffectCheck,
-        preSet    : BasicSetting,
+        preSet    : BasicActiveSetting,
         addEffect : DesperateAttackEffect,
     },
     OVER_BEAUTY   : {
@@ -211,8 +226,10 @@ var ACTIVE_SKILLS = {
         info      : '',
         letter    : [0,0],
         coolDown  : 8,
-        preSet    : BasicSetting,
+        check     : BasicActiveCheck,
+        preSet    : BasicActiveSetting,
         startRun  : OverBeautyStart,
+        endRun    : OverBeautyEnd,
     },
     TRACE_OF_NOTION : {
         id        : 'TRACE_OF_NOTION',
@@ -225,3 +242,29 @@ var ACTIVE_SKILLS = {
         addSwitch : TraceOfNotionSwitch,
     }
 };
+
+function triggerActive(place, i){
+    if( TEAM_ACTIVE_SKILL.length <= place || TEAM_ACTIVE_SKILL[place].length <= i ){
+        return false;
+    }
+
+    if( TEAM_ACTIVE_SKILL[place][i]['check']( place, TEAM_ACTIVE_SKILL_VAR[place][i] ) ){
+        triggerActiveByKey( place, i, "startRun" );
+        triggerActiveByKey( place, i, "transfer" );
+    }
+}
+function triggerActiveByKey( place, i, key ){
+    if( key in TEAM_ACTIVE_SKILL[place][i] ){
+        console.log("trigger"+key);
+        TEAM_ACTIVE_SKILL[place][i][ key ]( place, TEAM_ACTIVE_SKILL_VAR[place][i] );
+    }
+}
+function checkActiveSkillByKey( key ){
+    $.each(TEAM_ACTIVE_SKILL, function(place, actives){
+        $.each(actives, function(i, active){
+            if( key in active ){
+                active[ key ]( place, TEAM_ACTIVE_SKILL_VAR[place][i] );
+            }
+        });
+    });    
+}
