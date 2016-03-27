@@ -5,25 +5,25 @@
 //==============================================================
 var HealthAttackRecoveryIncrease = function( MEMBER, place, wakeVar ){
     // wakeVar = "[+health,+attack,+recovery]"
-    MEMBER['health']   += eval(wakeVar)[0];
-    MEMBER['attack']   += eval(wakeVar)[1];
-    MEMBER['recovery'] += eval(wakeVar)[2];
+    MEMBER['health']   += wakeVar[0];
+    MEMBER['attack']   += wakeVar[1];
+    MEMBER['recovery'] += wakeVar[2];
 }
 
 var DropIncrease = function( MEMBER, place, wakeVar ){
     // wakeVar = "[color,prob]"
-    var color = eval(wakeVar)[0];
+    var color = wakeVar[0];
     if( COLORS.indexOf(color) >= 0 ){
-        COLOR_PROB[ place ][ color ] = eval(wakeVar)[1];
+        COLOR_PROB[ place ][ color ] = wakeVar[1];
     }
 }
 
 var StraightAttack = function( wakeVar, place, i ){
     // wakeVar = "[factor,straightSize]"
-    if( checkFirstStraightByPlace( eval(wakeVar)[1], place ) ){
+    if( checkFirstStraightByPlace( wakeVar[1], place ) ){
         COUNT_FACTOR['StraightAttack_'+place+'_'+i] = {
             factor    : function( member, membe_place ){
-                return eval(wakeVar)[0];
+                return wakeVar[0];
             },
             prob      : 1,
             condition : function( member, membe_place ){
@@ -35,10 +35,10 @@ var StraightAttack = function( wakeVar, place, i ){
 
 var StraightRecover = function( wakeVar, place, i ){
     // wakeVar = "[factor,straightSize]"
-    if( checkFirstStraightByPlace( eval(wakeVar)[1], place ) ){
+    if( checkFirstStraightByPlace( wakeVar[1], place ) ){
         COUNT_RECOVER_FACTOR['StraightRecover_'+place+'_'+i] = {
             factor    : function( member, membe_place ){
-                return eval(wakeVar)[0];
+                return wakeVar[0];
             },
             prob      : 1,
             condition : function( member, membe_place ){
@@ -50,16 +50,24 @@ var StraightRecover = function( wakeVar, place, i ){
 
 var StraightHeal = function( wakeVar, place, i ){
     // wakeVar = "[factor,straightSize]"
-    if( checkFirstStraightByPlace( eval(wakeVar)[1], place ) ){
+    if( checkFirstStraightByPlace( wakeVar[1], place ) ){
         var recover = {
             place  : place,
             color  : "h",
             base   : TEAM_MEMBERS[place]["recovery"],
-            factor : eval(wakeVar)[0],
+            factor : wakeVar[0],
             log    : "StraightHeal_from_"+place,
         };
         RECOVER_STACK.push(recover);
     }
+}
+
+var ActiveCoolDownForever = function( MEMBER, place, wakeVar ){
+    TEAM_ACTIVE_SKILL[place][0]['coolDown'] -= wakeVar;
+    TEAM_ACTIVE_SKILL_VAR[place][0]['COOLDOWN'] -= wakeVar;
+}
+var ActiveCoolDownBegining = function(MEMBER, place, wakeVar ){
+    TEAM_ACTIVE_SKILL_VAR[place][0]['COOLDOWN'] -= wakeVar;
 }
 
 //==============================================================
@@ -95,6 +103,16 @@ var WAKES_DATA = {
         id        : "STRAIGHT_HEAL",
         recover   : StraightHeal,
         // wakeVar = "[factor,straightSize]"
+    },
+    ACTIVE_COOLDOWN_FOREVER : {
+        id        : "ACTIVE_COOLDOWN_FOREVER",
+        preSet    : ActiveCoolDownForever,
+        // wakeVar = "[turn]"
+    },
+    ACTIVE_COOLDOWN_BEGINING : {
+        id        : "ACTIVE_COOLDOWN_BEGINING",  
+        preSet    : ActiveCoolDownBegining,  
+        // wakeVar = "[turn]"    
     },
 }
 

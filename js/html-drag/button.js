@@ -232,6 +232,7 @@ function startEditTeam(){
     PLAY_TURN = 0;    
     $("#StartTeam").hide();
     $("#CloseTeam").show();
+    $("#ActiveCoolDown").show();
     $("#TeamMember").show();
     $("#SystemInfomation").show();
     $("#BattleInfomation").children().remove();
@@ -241,13 +242,13 @@ function startEditTeam(){
 function closeEditTeam(){
     $("#StartTeam").show();
     $("#CloseTeam").hide();
+    $("#ActiveCoolDown").hide();
     $("#TeamMember").hide();
     $("#SystemInfomation").hide();
     $("#TeamMember select").each(function(){
         var msdropdown = $(this).msDropDown().data("dd");
         msdropdown.setIndexByValue("NONE");
     });
-
     resetTeamMembers();
 }
 
@@ -306,35 +307,6 @@ $("#locusSelect").change(function (){
 //==============================================================
 // Show Result
 //==============================================================
-function showResult(){
-    $("#AttackNumber td").children().remove();
-    $("#RecoverNumber td").children().remove();
-    var total_attack = 0;
-    var total_recover = 0;
-
-    $.each(ATTACK_STACK, function(i, attack){
-        var atk = Math.round( attack["base"] * attack["factor"] );
-        total_attack += atk;
-        if( attack["type"] == "person" ){
-            $("#AttackNumber td").eq( attack["place"] ).append( 
-                $("<sapn></span>").text(atk).addClass("AtkRecLabel") 
-            ).append( $("<br>") );
-        }
-    });
-    $.each(RECOVER_STACK, function(i, recover){
-        var rec = Math.round( recover["base"] * recover["factor"] );
-        total_recover += rec;
-        $("#RecoverNumber td").eq( recover["place"] ).append(
-            $("<sapn></span>").text(rec).addClass("AtkRecLabel")
-        ).append( $("<br>") );
-    });
-
-    $("#BattleInfomation").append( $("<span></span>").text("第"+PLAY_TURN+"回合：") ).append("<br>");
-    $("#BattleInfomation").append( $("<span></span>").text("總共造成 "+total_attack+" 點傷害") ).append("<br>");
-    $("#BattleInfomation").append( $("<span></span>").text("總共回復 "+total_recover+" 點生命值") ).append("<br>");
-
-    resetTimeDiv();
-}
 function showTime(now){    
     var timeFraction = ( TIME_LIMIT - ( now - START_TIME ) )/TIME_LIMIT;
     $("#timeRect").css( "clip", "rect(0px, "+
@@ -534,9 +506,9 @@ function resetTeamMembers(){
 
     cleanColors();
     resetDropColors();
-    resetMemberWakes();
     resetMemberActiveSkill();
     resetTeamLeaderSkill();
+    resetMemberWakes();
     resetColors();
     resetHealthPoint();
     showTeamInfomation();
@@ -566,7 +538,7 @@ function resetMemberActiveSkill(){
         var actives = [];
         var actives_var = [];
         $.each(member['active'], function(i, activeId){
-            var active = ACTIVE_SKILLS[activeId];
+            var active = NewActiveSkill( activeId );
             if( "preSet" in active ){
                 var active_var = active['preSet']( member, place );
                 actives_var.push( active_var );
@@ -607,10 +579,47 @@ function checkTeamSkill(){
 }
 
 function resetHealthPoint(){
+    TOTAL_HEALTH_POINT = 0;
     HEALTH_POINT = 0;
     $.each(TEAM_MEMBERS, function(place, member){
         HEALTH_POINT += member['health'];
+        TOTAL_HEALTH_POINT += member['health'];
     });
+}
+
+//==============================================================
+// SHOW Infomation
+//==============================================================
+function showResult(){
+    $("#AttackNumber td").children().remove();
+    $("#RecoverNumber td").children().remove();
+    var total_attack = 0;
+    var total_recover = 0;
+
+    $.each(ATTACK_STACK, function(i, attack){
+        var atk = Math.round( attack["base"] * attack["factor"] );
+        total_attack += atk;
+        if( attack["type"] == "person" ){
+            $("#AttackNumber td").eq( attack["place"] ).append( 
+                $("<sapn></span>").text(atk).addClass("AtkRecLabel") 
+            ).append( $("<br>") );
+        }
+    });
+    $.each(RECOVER_STACK, function(i, recover){
+        var rec = Math.round( recover["base"] * recover["factor"] );
+        total_recover += rec;
+        $("#RecoverNumber td").eq( recover["place"] ).append(
+            $("<sapn></span>").text(rec).addClass("AtkRecLabel")
+        ).append( $("<br>") );
+    });
+    HEALTH_POINT = Math.min( TOTAL_HEALTH_POINT, Math.round( HEALTH_POINT+total_recover ) );
+
+    $("#BattleInfomation").append( $("<span></span>").text("第"+PLAY_TURN+"回合：") ).append("<br>");
+    $("#BattleInfomation").append( $("<span></span>").text("總共造成 "+total_attack+" 點傷害") ).append("<br>");
+    $("#BattleInfomation").append( $("<span></span>").text("總共回復 "+total_recover+" 點生命值") ).append("<br>");
+    $("#BattleInfomation").append( $("<span></span>").text("現在生命值 : "+HEALTH_POINT+" 點") ).append("<br>");
+
+    resetTimeDiv();
 }
 function showTeamInfomation(){
     $.each(TEAM_MEMBERS, function(place, member){
@@ -669,14 +678,19 @@ function showActiveInfomation(){
             var letter1 = COLOR_LETTERS[ letterMap[0] ][ TEAM_ACTIVE_SKILL_VAR[place][i]['COLOR'] ];
             var label = $("<span></span>").text( active['label'].format( letter1 ) );
             var button = $("<button></button>").addClass('activeButton').append( label );
-            button.attr( "onclick", "triggerActive("+place+","+i+")" );
+            button.attr( "onclick", "triggerActive("+place+","+i+")" ).prop("disabled", true);
             $("#ActiveButtonTD td").eq(place).append( button );
         });
     });
-    updateActiveCoolDown();
+    updateActiveCoolDownLabel();
 }
-function updateActiveCoolDown(){
+function updateActiveCoolDownLabel(){
     $.each(TEAM_ACTIVE_SKILL_VAR, function(place, actives_var){
+        $.each(actives_var, function(i, active_var){
+            if( active_var['COOLDOWN'] == 0 ){
+                $("#ActiveButtonTD td").eq(place).find("button").eq(i).prop("disabled", false);
+            }
+        });
         var coolDown_arr = $.map(actives_var, function(active_var){
             return active_var['COOLDOWN'];
         });
@@ -685,6 +699,27 @@ function updateActiveCoolDown(){
             $("<span></span>").text( coolDown_arr.join(',') ).addClass('CDTimeLabel')
         );
     });
+}
+function ActiveCoolDownToZero(){
+    $.each(TEAM_ACTIVE_SKILL_VAR, function(place, actives_var){
+        $.each(actives_var, function(i, active_var){
+            active_var['COOLDOWN'] = 0;
+        });
+    });
+    updateActiveCoolDownLabel();
+}
+function updateAdditionalEffectLabel(){
+    $("#AdditionalEffectTD td").children().remove();
+    $.each(ADDITIONAL_EFFECT_STACK, function(i, effect){
+        var place = effect['var']['PLACE'];
+        var i = effect['var']['i'];
+        var active = TEAM_ACTIVE_SKILL[place][i];
+        var letterMap = active['letter'];
+        var letter1 = COLOR_LETTERS[ letterMap[0] ][ TEAM_ACTIVE_SKILL_VAR[place][i]['COLOR'] ];
+        var text = active['label'].format( letter1 )+"("+effect['var']['DURATION']+")";
+        var label = $("<span></span>").text( text ).addClass('EffectLabel');
+        $("#AdditionalEffectTD td").append( label )
+    })
 }
 
 //==============================================================

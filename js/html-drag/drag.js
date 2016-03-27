@@ -131,6 +131,7 @@ var TEAM_WAKES            = [];
 // STATUS
 //==============================================================
 var HEALTH_POINT = 0;
+var TOTAL_HEALTH_POINT = 0;
 
 var ADDITIONAL_EFFECT_STACK = [];
 var MEMBER_SWITCH_STACK = [];
@@ -765,11 +766,15 @@ function countAttack(){
     resetCount();
 
     checkLeaderSkillByKey( "attack" );
-    checkLeaderSkillByKey( "attack" );
+    checkLeaderSkillByKey( "recover" );
     checkTeamSkillByKey( "attack" );
     checkTeamSkillByKey( "recover" );
     checkWakeByKey( "attack" );
     checkWakeByKey( "recover" );
+    checkActiveSkillByKey( "attack" );
+    checkActiveSkillByKey( "recover" );
+    checkAdditionEffectByKey( "attack" );
+    checkAdditionEffectByKey( "recover" );
 
     for(var obj of COMBO_STACK){
         var c = obj['color'];
@@ -963,8 +968,11 @@ function endPlayTurn(){
     $("#dragContainment img.over").removeClass("img-gray");
     checkLeaderSkillByKey( 'end' );
     checkTeamSkillByKey( 'end' );
+
     PLAY_TURN += 1;
     frozenUpdate();
+    ActiveCoolDownUpdate();
+    AdditionalEffectUpdate();
     nextMoveWave();    
 }
 

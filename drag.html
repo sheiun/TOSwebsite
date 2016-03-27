@@ -148,6 +148,9 @@
                     <tr id="RecoverNumber">
                         <td> </td> <td> </td> <td> </td> <td> </td> <td> </td> <td> </td>
                     </tr>
+                    <tr id="AdditionalEffectTD">
+                        <td colspan="6"></td>
+                    </tr>
                     <tr id="MemberSelectTD" >
                         <td> <select name="MemberSelect" id="TeamLeaderSelect"></select>  </td>
                         <td> <select name="MemberSelect" id="TeamMember1Select"></select> </td>
@@ -329,6 +332,9 @@
                 <button id="CloseTeam" onclick="closeEditTeam()" class="btn btn-default" style="display: none;">
                     <span>關閉隊伍編輯</span>
                 </button>
+                <button id="ActiveCoolDown" onclick="ActiveCoolDownToZero()" class="btn btn-default" style="display: none;">
+                    <span>主動技快速冷卻</span>
+                </button>
                 <br><br>
 
                 <div id="HorizontalScrollbar" class="content horizontal-images" style="display: none;">
@@ -395,6 +401,7 @@
     <script type="text/javascript" src="js/html-drag/leaderSkill.js"></script>
     <script type="text/javascript" src="js/html-drag/activeSkill.js"></script>
     <script type="text/javascript" src="js/html-drag/wake.js"></script>
+    <script type="text/javascript" src="js/html-drag/additionalEffect.js"></script>
     <script type="text/javascript" src="js/html-drag/data.js"></script>
 
     <script type="text/javascript" src="js/html-drag/history.js"></script>

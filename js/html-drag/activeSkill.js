@@ -12,8 +12,9 @@ var BasicActiveSetting = function( member ){
     }
 }
 
-var BasicActiveCheck = function( place, VAR ){
-    if( MAIN_STATE == MAIN_STATE_ENUM.READY ){
+var BasicActiveCheck = function( place, i, VAR ){
+    if( MAIN_STATE == MAIN_STATE_ENUM.READY &&
+        VAR['COOLDOWN'] == 0 ){
         return true;
     }
     return false;
@@ -22,7 +23,7 @@ var BasicActiveCheck = function( place, VAR ){
 //==============================================================
 // BrokeBoundary / Start Run Function
 //==============================================================
-var BrokeBoundarySetting = function( member ){
+var StartRunSetting = function( member ){
     return {
         COLOR     : member['color'],
         TYPE      : member['type'],
@@ -30,8 +31,10 @@ var BrokeBoundarySetting = function( member ){
         START_RUN : false,
     }
 }
-var BrokeBoundaryStart = function( place, VAR ){
+var BrokeBoundaryStart = function( place, i, VAR ){
+    VAR['COOLDOWN'] = this.coolDown;
     VAR['START_RUN'] = true;
+
     disbalePanelControl( true );
     setStartRunByPlayTypeAndTime( PLAY_TYPE_ENUM.DRAG, 10 );
 
@@ -90,9 +93,9 @@ var BrokeBoundaryStart = function( place, VAR ){
         startDragging();
     }, max_drop*DROP_TIME );
 }
-
-var BrokeBoundaryEnd = function( place, VAR ){
+var BrokeBoundaryEnd = function( place, i, VAR ){
     if( !VAR['START_RUN'] ){ return false; }
+    VAR['START_RUN'] = false;
 
     disbalePanelControl( false );
     setTimeLimit( 5 );
@@ -116,15 +119,19 @@ var BrokeBoundaryEnd = function( place, VAR ){
     window.scrollTo(0, $("#clock").offset().top-3*HEIGHT);
 }
 
-var OverBeautyStart = function( place, VAR ){
+var OverBeautyStart = function( place, i, VAR ){
+    VAR['COOLDOWN'] = this.coolDown;
     VAR['START_RUN'] = true;
+
     disbalePanelControl( true );
     setStartRunByPlayTypeAndTime( PLAY_TYPE_ENUM.FREE, 10 );
     resetHistory();
     resetBase();
 }
-var OverBeautyEnd = function( place, VAR ){
+var OverBeautyEnd = function( place, i, VAR ){
     if( !VAR['START_RUN'] ){ return false; }
+    VAR['START_RUN'] = false;
+
     disbalePanelControl( false );
     setTimeLimit( 5 );
     setPlayType( PLAY_TYPE_ENUM.DRAG );
@@ -133,14 +140,15 @@ var OverBeautyEnd = function( place, VAR ){
 //==============================================================
 // Transfer function
 //==============================================================
-var RuneStrengthenCheck= function( place, VAR ){
-    if( MAIN_STATE == MAIN_STATE_ENUM.READY && 
-        checkHasElementByColor( VAR['COLOR'] ) ){
+var RuneStrengthenCheck= function( place, i, VAR ){
+    if( MAIN_STATE == MAIN_STATE_ENUM.READY && VAR['COOLDOWN'] == 0 &&
+        checkHasElementByColorWithoutStrong( VAR['COLOR'] ) ){
         return true;
     }
     return false;
 }
-var RuneStrengthenTransfer = function( place, VAR ){
+var RuneStrengthenTransfer = function( place, i, VAR ){
+    VAR['COOLDOWN'] = this.coolDown;
     var stack = getStackOfPanelByColor( VAR['COLOR'] );
     for(var id of stack){
         turnElementToStrongByID(id);
@@ -150,26 +158,63 @@ var RuneStrengthenTransfer = function( place, VAR ){
 //==============================================================
 // Attack Effect function
 //==============================================================
-var AddtionalEffectCheck = function( place, VAR ){
-
+var AddtionalEffectCheck = function( place, i, VAR ){
+    var check = true;
+    $.each(ADDITIONAL_EFFECT_STACK, function(i, effect){
+        if( effect['id'] == this.id ){
+            check = false;
+            return false;
+        }
+    });
+    if( MAIN_STATE == MAIN_STATE_ENUM.READY &&
+        VAR['COOLDOWN'] == 0 && check ){
+        return true;
+    }
+    return false;
 }
-var DesperateAttackEffect = function( place, VAR ){
+var DesperateAttackEffect = function( place, i, VAR ){
+    VAR['COOLDOWN'] = this.coolDown;
+    var effect = NewAdditionalEffect( this.id );
+    effect['var'] = effect['preSet']( place, i, VAR );
 
+    AdditionalEffectAdd( effect );
 }
 
 //==============================================================
 // Member Switch function
 //==============================================================
-var TeamMemberSwitchCheck = function( place, VAR ){
-
+var TeamMemberSwitchCheck = function( place, i, VAR ){
+    var check = true;
+    $.each(TEAM_ACTIVE_SKILL, function(place, actives){
+        $.each(actives, function(i, active){
+            if( active['id'] == this.id && active['USING'] 
+                check = false;
+                return false;
+            }
+        });
+    });
+    if( MAIN_STATE == MAIN_STATE_ENUM.READY &&
+        VAR['COOLDOWN'] == 0 && check ){
+        return true;
+    }
+    return false;
 }
-var TraceOfNotionSetting = function( place, VAR ){
 
+var TraceOfNotionSetting = function( member ){
+    return {
+        COLOR    : member['color'],
+        TYPE     : member['type'],
+        COOLDOWN : this.coolDown,
+        USING    : false,
+        COUNT    : 0,
+        FACTOR   : 1.2,
+    }
 }
-var TraceOfNotionUpdate = function( place, VAR ){
-
+var TraceOfNotionUpdate = function( place, i, VAR ){
+    if( !VAR['USING'] ){ return false; }
 }
-var TraceOfNotionSwitch = function( place, VAR ){
+var TraceOfNotionAttack = function( place, i, VAR ){
+    if( !VAR['USING'] ){ return false; }
 
 }
 
@@ -196,9 +241,9 @@ var ACTIVE_SKILLS = {
         letter    : [0,0],
         coolDown  : 8,
         check     : BasicActiveCheck,
-        preSet    : BrokeBoundarySetting,
-        startRun  : BrokeBoundaryStart,
         endRun    : BrokeBoundaryEnd,
+        preSet    : StartRunSetting,
+        startRun  : BrokeBoundaryStart,
     },
     RUNE_STRENGTHEN : {
         id        : 'RUNE_STRENGTHEN',
@@ -207,8 +252,8 @@ var ACTIVE_SKILLS = {
         letter    : [0,0],
         coolDown  : 10,
         check     : RuneStrengthenCheck,
-        preSet    : BasicActiveSetting,
         transfer  : RuneStrengthenTransfer,
+        preSet    : BasicActiveSetting,
     },
     DESPERATE_ATTACK : {
         id        : 'DESPERATE_ATTACK',
@@ -216,9 +261,9 @@ var ACTIVE_SKILLS = {
         info      : '1 回合內，自身生命力愈低，全隊攻擊力愈高，最大 3 倍',
         letter    : [0,0],
         coolDown  : 10,
+        addEffect : DesperateAttackEffect,
         check     : AddtionalEffectCheck,
         preSet    : BasicActiveSetting,
-        addEffect : DesperateAttackEffect,
     },
     OVER_BEAUTY   : {
         id        : 'OVER_BEAUTY',
@@ -227,44 +272,65 @@ var ACTIVE_SKILLS = {
         letter    : [0,0],
         coolDown  : 8,
         check     : BasicActiveCheck,
-        preSet    : BasicActiveSetting,
-        startRun  : OverBeautyStart,
         endRun    : OverBeautyEnd,
+        preSet    : StartRunSetting,
+        startRun  : OverBeautyStart,
     },
     TRACE_OF_NOTION : {
         id        : 'TRACE_OF_NOTION',
         label     : '印記之念 ‧ {0}',
         info      : '{0}屬性傷害持續提升，直至沒有消除一組 5 粒或以上的{0}屬性符石 (只計算首批消除的符石)。每累計消除 20 粒{0}符石，{0}屬性傷害加快提升。{0}屬性傷害會於每一層數 (Wave) 重置',
         letter    : [0,0],
+        attack    : TraceOfNotionAttack,
         check     : TeamMemberSwitchCheck,
         preSet    : TraceOfNotionSetting,
         update    : TraceOfNotionUpdate,
-        addSwitch : TraceOfNotionSwitch,
     }
 };
 
+
+function NewActiveSkill( id ){
+    var activeObj = {};
+    for( var key in ACTIVE_SKILLS[id] ){
+        activeObj[key] = ACTIVE_SKILLS[id][key];
+    }
+    return activeObj;
+}
 function triggerActive(place, i){
     if( TEAM_ACTIVE_SKILL.length <= place || TEAM_ACTIVE_SKILL[place].length <= i ){
         return false;
     }
 
-    if( TEAM_ACTIVE_SKILL[place][i]['check']( place, TEAM_ACTIVE_SKILL_VAR[place][i] ) ){
+    if( TEAM_ACTIVE_SKILL[place][i]['check']( place, i, TEAM_ACTIVE_SKILL_VAR[place][i] ) ){
         triggerActiveByKey( place, i, "startRun" );
         triggerActiveByKey( place, i, "transfer" );
+        triggerActiveByKey( place, i, "addEffect" );
     }
+    updateActiveCoolDownLabel();
 }
 function triggerActiveByKey( place, i, key ){
     if( key in TEAM_ACTIVE_SKILL[place][i] ){
         console.log("trigger"+key);
-        TEAM_ACTIVE_SKILL[place][i][ key ]( place, TEAM_ACTIVE_SKILL_VAR[place][i] );
+        TEAM_ACTIVE_SKILL[place][i][ key ]( place, i, TEAM_ACTIVE_SKILL_VAR[place][i] );
     }
 }
 function checkActiveSkillByKey( key ){
     $.each(TEAM_ACTIVE_SKILL, function(place, actives){
         $.each(actives, function(i, active){
             if( key in active ){
-                active[ key ]( place, TEAM_ACTIVE_SKILL_VAR[place][i] );
+                active[ key ]( place, i, TEAM_ACTIVE_SKILL_VAR[place][i] );
             }
         });
     });    
+}
+
+function ActiveCoolDownUpdate(){
+    $.each(TEAM_ACTIVE_SKILL_VAR, function(place, actives_var){
+        $.each(actives_var, function(i, active_var){
+            if( active_var['COOLDOWN'] > 0 ){
+                active_var['COOLDOWN'] -= 1;
+            }
+        });
+    });
+    updateActiveCoolDownLabel();
 }

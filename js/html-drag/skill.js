@@ -47,6 +47,10 @@ function getArrayOfObjectValue(Obj){
 //==============================================================
 // Panel Element function
 //==============================================================
+function checkHasElementByColorWithoutStrong(color){
+    var color_stack = getStackOfPanelByColorWithoutStrong(color);
+    return color_stack.length > 0;
+}
 function checkHasElementByColor(color){
     var color_stack = getStackOfPanelByColor(color);
     return color_stack.length > 0;
@@ -54,6 +58,17 @@ function checkHasElementByColor(color){
 function checkHasElementByColorArr(colorArr){
     var color_stack = getStackOfPanelByColorArr(colorArr);
     return color_stack.length > 0;
+}
+function getStackOfPanelByColorWithoutStrong(color){
+    var stack = [];
+    for(var i = 0; i < TD_NUM*TR_NUM; i++){
+        var c = $("#dragContainment tr td").eq(i).find("img.over").attr("color");
+        var strong = parseInt( $("#dragContainment tr td").eq(i).find("img.over").attr("strong") );
+        if( c == color && !(strong > 0) ){
+            stack.push(i);
+        }
+    }
+    return stack;
 }
 function getStackOfPanelByColor(color){
     var stack = [];
