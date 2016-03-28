@@ -156,9 +156,7 @@ var TeamGreekSkill = function( VAR ){
     while( comboTimes >= 5 ){
         comboTimes -= 5;
         for(var num = 0; num < REMOVE_STACK.length && num < 2; num ++){
-            var rand_i = Math.floor( randomBySeed() * REMOVE_STACK.length );
-            var id = REMOVE_STACK[rand_i];
-            REMOVE_STACK.splice(rand_i,1);
+            var id = SelectAndRemoveRandomItemFromArrBySeed( REMOVE_STACK );
             STRONG_STACK[id] = color;
         }
     }

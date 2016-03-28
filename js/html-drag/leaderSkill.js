@@ -414,7 +414,7 @@ var DevilIllusionFindMaxColor = function( VAR, direct ){
         if( max_color['colors'].indexOf( VAR['COLOR'] ) >= 0 ){
             VAR['MAX_COLOR'] = VAR['COLOR'];
         }else{
-            VAR['MAX_COLOR'] = max_color['colors'][ Math.floor( randomBySepcialSeed( max_colors['num'] ) * max_color['colors'].length) ];
+            VAR['MAX_COLOR'] = SelectRandomItemFromArrBySeed( max_color['colors'], max_color['num'] );
         }
     }
 

@@ -39,6 +39,17 @@ function randomBySepcialSeed(seed){
     var rand = Math.sin(seed) * 10000;
     return rand - Math.floor(rand);
 }
+function SelectRandomItemFromArrBySeed( array, seed = 'COLOR_RANDOM' ){
+    var rand = ( seed == 'COLOR_RANDOM' ) ? randomBySeed() : randomBySepcialSeed( seed );
+    return array[ Math.floor( rand * array.length ) ];
+}
+function SelectAndRemoveRandomItemFromArrBySeed( array, seed = 'COLOR_RANDOM' ){
+    var rand = ( seed == 'COLOR_RANDOM' ) ? randomBySeed() : randomBySepcialSeed( seed );
+    var rand_i = Math.floor( rand * array.length );
+    var id = array[rand_i];
+    array.splice(rand_i, 1);
+    return id;
+}
 
 function getArrayOfObjectValue(Obj){
     return $.map(Obj, function(value, index) { return [value]; });
@@ -115,9 +126,7 @@ function turnRandomElementToColorByConfig( config ){
         for( var colors of config['priorityColors'] ){
             var stack = getStackOfPanelByColorArr( colors );
             if( stack.length > 0 ){
-                var rand_i = Math.floor( randomBySeed() * stack.length );
-                var id = stack[rand_i];
-                stack.splice(rand_i,1);
+                var id = SelectAndRemoveRandomItemFromArrBySeed( stack );
                 turnElementToColorByID(id, color);
                 break;
             }
