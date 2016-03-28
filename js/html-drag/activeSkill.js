@@ -187,7 +187,7 @@ var TeamMemberSwitchCheck = function( place, i, VAR ){
     var check = true;
     $.each(TEAM_ACTIVE_SKILL, function(place, actives){
         $.each(actives, function(i, active){
-            if( active['id'] == this.id && active['USING'] 
+            if( active['id'] == this.id && active['USING'] ){
                 check = false;
                 return false;
             }
