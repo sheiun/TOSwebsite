@@ -15,7 +15,7 @@ var CHARACTERS = {
         wake_var     : [ 0, 0, 0, 0 ],
         wake_info    : [ "無", "無", "無", "無" ],
         leader       : "NONE",
-        active       : [ "NONE" ],
+        active       : [ "NONE", "BREAK_BOUNDARY" ],
     },
     PROTAGONIST_W : {
         id           : "PROTAGONIST_W",

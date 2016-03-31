@@ -34,9 +34,10 @@ var DesperateAttack = function(){
 
 var ADDITIONAL_EFFECT_DATA = {
 	DESPERATE_ATTACK : {
-		id     : 'DESPERATE_ATTACK',
-		preSet : BasicEffectSetting,
-		attack : DesperateAttack,
+		id       : 'DESPERATE_ATTACK',
+        variable : {},
+		preSet   : BasicEffectSetting,
+		attack   : DesperateAttack,
 	},
 };
 
@@ -45,7 +46,7 @@ function NewAdditionalEffect( id ){
     for( var key in ADDITIONAL_EFFECT_DATA[id] ){
         effectObj[key] = ADDITIONAL_EFFECT_DATA[id][key];
     }
-    effectObj['var'] = {};
+    effectObj['variable'] = {};
     return effectObj;
 }
 function AdditionalEffectAdd( effect ){
@@ -68,8 +69,8 @@ function checkAdditionEffectByKey( key ){
 function AdditionalEffectUpdate(){
 	var tmp_effect_stack = [];
 	$.each(ADDITIONAL_EFFECT_STACK, function(i, effect){
-		effect['var']["DURATION"] -= 1;
-		if( effect['var']["DURATION"] > 0 ){
+		effect['variable']["DURATION"] -= 1;
+		if( effect['variable']["DURATION"] > 0 ){
 			tmp_effect_stack.push(effect);
 		}
 	});

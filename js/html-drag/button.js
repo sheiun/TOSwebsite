@@ -533,20 +533,17 @@ function resetMemberWakes(){
 
 function resetMemberActiveSkill(){
     TEAM_ACTIVE_SKILL     = [];
-    TEAM_ACTIVE_SKILL_VAR = [];
     $.each(TEAM_MEMBERS, function(place, member){
         var actives = [];
-        var actives_var = [];
         $.each(member['active'], function(i, activeId){
             var active = NewActiveSkill( activeId );
             if( "preSet" in active ){
-                var active_var = active['preSet']( member, place );
-                actives_var.push( active_var );
+                var active_var = active['preSet']( member, place, i );
+                active['variable'] = active_var;
             }
             actives.push( active );
         })
         TEAM_ACTIVE_SKILL.push( actives );
-        TEAM_ACTIVE_SKILL_VAR.push( actives_var );
     })
 }
 
@@ -637,8 +634,8 @@ function showTeamInfomation(){
         $.each(TEAM_ACTIVE_SKILL[place], function(i, active){
             var infoID = "activeSkillInfo_"+place+"_"+i;
             var letterMap = active['letter'];
-            var letter1 = COLOR_LETTERS[ letterMap[0] ][ TEAM_ACTIVE_SKILL_VAR[place][i]['COLOR'] ];
-            var letter2 = COLOR_LETTERS[ letterMap[1] ][ TEAM_ACTIVE_SKILL_VAR[place][i]['COLOR'] ];
+            var letter1 = COLOR_LETTERS[ letterMap[0] ][ active['variable']['COLOR'] ];
+            var letter2 = COLOR_LETTERS[ letterMap[1] ][ active['variable']['COLOR'] ];
             var label = $("<span></span>").text( active['label'].format( letter1 ) );
             label.addClass('labelInfo').attr("onclick","$('#"+infoID+"').toggle()");
             var info = $("<span></span>").append("<br>").append("CD時間 ： "+active['coolDown']).append($("<br>"));
@@ -675,7 +672,7 @@ function showActiveInfomation(){
         $("#ActiveButtonTD td").eq(place).children().remove();
         $.each(actives, function(i, active){
             var letterMap = active['letter'];
-            var letter1 = COLOR_LETTERS[ letterMap[0] ][ TEAM_ACTIVE_SKILL_VAR[place][i]['COLOR'] ];
+            var letter1 = COLOR_LETTERS[ letterMap[0] ][ active['variable']['COLOR'] ];
             var label = $("<span></span>").text( active['label'].format( letter1 ) );
             var button = $("<button></button>").addClass('activeButton').append( label );
             button.attr( "onclick", "triggerActive("+place+","+i+")" ).prop("disabled", true);
@@ -685,25 +682,24 @@ function showActiveInfomation(){
     updateActiveCoolDownLabel();
 }
 function updateActiveCoolDownLabel(){
-    $.each(TEAM_ACTIVE_SKILL_VAR, function(place, actives_var){
-        $.each(actives_var, function(i, active_var){
-            if( active_var['COOLDOWN'] == 0 ){
+    $.each(TEAM_ACTIVE_SKILL, function(place, actives){
+        var coolDown_arr = [];
+        $.each(actives, function(i, active){
+            if( active['variable']['COOLDOWN'] == 0 ){
                 $("#ActiveButtonTD td").eq(place).find("button").eq(i).prop("disabled", false);
             }
-        });
-        var coolDown_arr = $.map(actives_var, function(active_var){
-            return active_var['COOLDOWN'];
+            coolDown_arr.push( active['variable']['COOLDOWN'] );
         });
         $("#ActiveCoolDownTD td").eq(place).children().remove();
         $("#ActiveCoolDownTD td").eq(place).append(
-            $("<span></span>").text( coolDown_arr.join(',') ).addClass('CDTimeLabel')
+            $("<span></span>").text( coolDown_arr.join(' / ') ).addClass('CDTimeLabel')
         );
     });
 }
 function ActiveCoolDownToZero(){
-    $.each(TEAM_ACTIVE_SKILL_VAR, function(place, actives_var){
-        $.each(actives_var, function(i, active_var){
-            active_var['COOLDOWN'] = 0;
+    $.each(TEAM_ACTIVE_SKILL, function(place, actives){
+        $.each(actives, function(i, active){
+            active['variable']['COOLDOWN'] = 0;
         });
     });
     updateActiveCoolDownLabel();
@@ -711,12 +707,12 @@ function ActiveCoolDownToZero(){
 function updateAdditionalEffectLabel(){
     $("#AdditionalEffectTD td").children().remove();
     $.each(ADDITIONAL_EFFECT_STACK, function(i, effect){
-        var place = effect['var']['PLACE'];
-        var i = effect['var']['i'];
+        var place = effect['variable']['PLACE'];
+        var i = effect['variable']['i'];
         var active = TEAM_ACTIVE_SKILL[place][i];
         var letterMap = active['letter'];
-        var letter1 = COLOR_LETTERS[ letterMap[0] ][ TEAM_ACTIVE_SKILL_VAR[place][i]['COLOR'] ];
-        var text = active['label'].format( letter1 )+"("+effect['var']['DURATION']+")";
+        var letter1 = COLOR_LETTERS[ letterMap[0] ][ active['variable']['COLOR'] ];
+        var text = active['label'].format( letter1 )+"("+effect['variable']['DURATION']+")";
         var label = $("<span></span>").text( text ).addClass('EffectLabel');
         $("#AdditionalEffectTD td").append( label )
     })
