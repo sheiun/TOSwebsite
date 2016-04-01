@@ -5,9 +5,6 @@
 //==============================================================
 //==============================================================
 
-var NoneMapping = function(){
-    return 0;
-}
 
 //==============================================================
 // Nordic
@@ -156,7 +153,7 @@ var TeamGreekSkill = function( VAR ){
     while( comboTimes >= 5 ){
         comboTimes -= 5;
         for(var num = 0; num < REMOVE_STACK.length && num < 2; num ++){
-            var id = SelectAndRemoveRandomItemFromArrBySeed( REMOVE_STACK );
+            var id = selectAndRemoveRandomItemFromArrBySeed( REMOVE_STACK );
             STRONG_STACK[id] = color;
         }
     }
@@ -323,39 +320,40 @@ var TEAM_SKILLS_DATA = {
         label     : '無',
         info      : '',
         mapping   : NoneMapping,
+        preSet    : NoneSetting,
     },
     NORDIC : {
         id        : 'NORDIC',
         label     : '雙北歐神隊',
         info      : '相應屬性符石掉落率提升至25%，強化符石的傷害提升至+30%',
         attack    : TeamNordicAttack,
-        preSet    : TeamNordicSetting,
         mapping   : TeamNordicMapping,
+        preSet    : TeamNordicSetting,
     },
     NORDIC_ODIN : {
         id        : 'NORDIC_ODIN',
         label     : '眾神之父奧丁',
         info      : '北歐神系列隊長技能「屬性震怒」變為「屬性怒嘯」',
-        preSet    : TeamNordicOdinSetting,
         mapping   : TeamNordicOdinMapping,
+        preSet    : TeamNordicOdinSetting,
     },
     GREEK_COMBO : {
         id        : 'GREEK_COMBO',
         label     : '元素連動',
         info      : '每個連擊（Combo）均有 70% 機會額外計算多 1 連擊（Combo）（加乘不受其他技能影響）（木巫加成無效）（不影響Combo盾）',
+        attack    : TeamGreekComboAttack,
         extraCombo: TeamGreekExtraCombo,
         extraReset: TeamGreekExtraComboReset,
-        attack    : TeamGreekComboAttack,
-        preSet    : TeamGreekComboSetting,
         mapping   : TeamGreekComboMapping,
+        preSet    : TeamGreekComboSetting,
     },
     GREEK : {
         id        : 'GREEK',
         label     : '元素湧現',
         info      : '每消除 5 組符石，將產生 2 粒相應屬性符石',
+        mapping   : TeamGreekMapping,
         newItem   : TeamGreekSkill,
         preSet    : TeamGreekSetting,
-        mapping   : TeamGreekMapping,
     },
     BABYLON : {
         id        : 'BABYLON',
@@ -371,6 +369,7 @@ var TEAM_SKILLS_DATA = {
         info      : '心符石兼具所有屬性符石效果。於 2 直行或以上消除 4 粒或以上符石時 (只計算首批消除的符石)，全隊攻擊力提升，最大 1.5 倍',
         attack    : TeamDarkLuciferAttack,
         mapping   : TeamDarkLuciferMapping,
+        preSet    : NoneSetting,
     },
     COUPLE_FF : {
         id        : 'COUPLE_FF',
@@ -378,6 +377,7 @@ var TEAM_SKILLS_DATA = {
         info      : '火屬性攻擊力提升 6 倍',
         attack    : TeamCoupleAttackFF,
         mapping   : TeamCoupleFFMapping,
+        preSet    : NoneSetting,
     },
     COUPLE_PP : {
         id        : 'COUPLE_PP',
@@ -385,6 +385,7 @@ var TEAM_SKILLS_DATA = {
         info      : '木屬性攻擊力提升 6 倍',
         attack    : TeamCoupleAttackPP,
         mapping   : TeamCouplePPMapping,
+        preSet    : NoneSetting,
     },
     COUPLE_FP : {
         id        : 'COUPLE_FP',
@@ -392,29 +393,30 @@ var TEAM_SKILLS_DATA = {
         info      : '火及木屬性攻擊力提升 3 倍；木符石兼具火符石效果，同時火符石兼具木符石效果',
         attack    : TeamCoupleAttackFP,
         mapping   : TeamCoupleFPMapping,
+        preSet    : NoneSetting,
     },
     COMMON_SOURCE : {
         id        : 'COMMON_SOURCE',
         label     : '命定之聚',
         info      : '最左方的李逍遙、趙靈兒、林月如及阿奴，其自身的生命力、攻擊力及回復力提升 1.3 倍',
-        preSet    : TeamCommonSourceSetting,
         mapping   : TeamCommonSourceMapping,
+        preSet    : TeamCommonSourceSetting,
     },
     DEVIL_ILLUSION : {
         id        : 'DEVIL_ILLUSION',
         label     : '無垠幻像',
         info      : '將隊長技能「無影幻像」變為「無垠幻像」',
-        preSet    : TeamDevilIllusionSetting,
         mapping   : TeamDevilIllusionMapping,
+        preSet    : TeamDevilIllusionSetting,
     },
     DEVIL_CIRCLE : {
         id        : 'DEVIL_CIRCLE',
         label     : '結陣 ‧ 繼',
         info      : '消除一組 5 粒或以上的相應屬性符石時，下回合開始時隨機將 2 粒符石轉化為相應屬性符石',
-        end       : TeamDevilCircleEndItem,
         attack    : TeamDevilCircleAttack,
-        preSet    : TeamDevilCircleSetting,
+        end       : TeamDevilCircleEndItem,
         mapping   : TeamDevilCircleMapping,
+        preSet    : TeamDevilCircleSetting,
     },
 };
 

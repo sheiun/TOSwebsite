@@ -123,7 +123,10 @@ var TEAM_FRIEND_SKILL_VAR = null;
 var TEAM_SKILL_VAR        = [];
 
 var TEAM_ACTIVE_SKILL     = [];
-var TEAM_ACTIVE_SKILL_VAR = [];
+var TEAM_COMBINE_SKILL    = [];
+
+var ADDITIONAL_EFFECT_STACK = [];
+var USING_ACTIVE_SKILL_STACK = [];
 
 var TEAM_WAKES            = [];
 
@@ -133,16 +136,12 @@ var TEAM_WAKES            = [];
 var HEALTH_POINT = 0;
 var TOTAL_HEALTH_POINT = 0;
 
-var ADDITIONAL_EFFECT_STACK = [];
-var MEMBER_SWITCH_STACK = [];
-
 var ATTACK_STACK = [];
 var RECOVER_STACK = [];
 
 var ENEMY = null;
 
 var PLAY_TURN = 0;
-
 
 //==============================================================
 // reset functions
@@ -971,8 +970,8 @@ function endPlayTurn(){
 
     PLAY_TURN += 1;
     frozenUpdate();
-    ActiveCoolDownUpdate();
-    AdditionalEffectUpdate();
+    activeCoolDownUpdate();
+    additionalEffectUpdate();
     nextMoveWave();    
 }
 

@@ -24,8 +24,11 @@ function loadSkillVariable(msg){
 // Base Skill
 //==============================================================
 //==============================================================
-var none = function(){}
-var noneSetting = function(){ return {}; }
+var None = function(){}
+var NoneSetting = function(){ return {}; }
+var NoneMapping = function(){
+    return 0;
+}
 
 
 //==============================================================
@@ -39,11 +42,11 @@ function randomBySepcialSeed(seed){
     var rand = Math.sin(seed) * 10000;
     return rand - Math.floor(rand);
 }
-function SelectRandomItemFromArrBySeed( array, seed = 'COLOR_RANDOM' ){
+function selectRandomItemFromArrBySeed( array, seed = 'COLOR_RANDOM' ){
     var rand = ( seed == 'COLOR_RANDOM' ) ? randomBySeed() : randomBySepcialSeed( seed );
     return array[ Math.floor( rand * array.length ) ];
 }
-function SelectAndRemoveRandomItemFromArrBySeed( array, seed = 'COLOR_RANDOM' ){
+function selectAndRemoveRandomItemFromArrBySeed( array, seed = 'COLOR_RANDOM' ){
     var rand = ( seed == 'COLOR_RANDOM' ) ? randomBySeed() : randomBySepcialSeed( seed );
     var rand_i = Math.floor( rand * array.length );
     var id = array[rand_i];
@@ -126,7 +129,7 @@ function turnRandomElementToColorByConfig( config ){
         for( var colors of config['priorityColors'] ){
             var stack = getStackOfPanelByColorArr( colors );
             if( stack.length > 0 ){
-                var id = SelectAndRemoveRandomItemFromArrBySeed( stack );
+                var id = selectAndRemoveRandomItemFromArrBySeed( stack );
                 turnElementToColorByID(id, color);
                 break;
             }
@@ -233,6 +236,32 @@ function checkMembersIDByConfig( config ){
         }else if( 'OTHER' in countId ){
             countId[ 'OTHER' ] += 1;
         }
+    });
+    var countArr = getArrayOfObjectValue(countId);
+    for(var eq of config['check'] ){
+        eq = eq.formatByArray( countArr );
+        if( ! eval(eq) ){
+            check = false;
+        }
+    }
+    return check;
+}
+function checkActiveSkillIDByConfig( config ){
+    var countId = {};
+    var check = true;
+    for(var id of config['ID']){
+        countId[id] = 0;
+    }
+
+    $.each(TEAM_ACTIVE_SKILL, function(place, actives){
+        $.each(actives, function(i, active){
+            if( active['id'] in countId ){
+                countId[ active['id'] ] += 1;
+            }else if( active['id'] == 'EMPTY' ){
+            }else if( 'OTHER' in countId ){
+                countId[ 'OTHER' ] += 1;
+            }
+        });
     });
     var countArr = getArrayOfObjectValue(countId);
     for(var eq of config['check'] ){

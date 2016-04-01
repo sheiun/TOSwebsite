@@ -11,14 +11,12 @@ var BasicActiveSetting = function( member, place, i ){
         COOLDOWN : this.coolDown,
         PLACE    : place,
         i        : i,
-        NEED     : [],
-    }
+    };
 }
 
 var BasicActiveCheck = function( place, i ){
     VAR = this.variable;
-    var check = checkActiveCoolDownByConfig( VAR['NEED'] );
-    if( MAIN_STATE == MAIN_STATE_ENUM.READY && check ){
+    if( MAIN_STATE == MAIN_STATE_ENUM.READY && this.variable['COOLDOWN'] == 0 ){
         return true;
     }
     return false;
@@ -32,13 +30,14 @@ var StartRunSetting = function( member ){
         COLOR     : member['color'],
         TYPE      : member['type'],
         COOLDOWN  : this.coolDown,
-        START_RUN : false,
+        USING     : false,
     }
 }
 var BrokeBoundaryStart = function( place, i ){
     VAR = this.variable;
     VAR['COOLDOWN'] = this.coolDown;
-    VAR['START_RUN'] = true;
+    VAR['USING'] = true;
+    USING_ACTIVE_SKILL_STACK[ this.id ] = { PLACE: place, i: i };
 
     disbalePanelControl( true );
     setStartRunByPlayTypeAndTime( PLAY_TYPE_ENUM.DRAG, 10 );
@@ -100,8 +99,9 @@ var BrokeBoundaryStart = function( place, i ){
 }
 var BrokeBoundaryEnd = function( place, i ){
     VAR = this.variable;
-    if( !VAR['START_RUN'] ){ return false; }
-    VAR['START_RUN'] = false;
+    if( !VAR['USING'] ){ return false; }
+    VAR['USING'] = false;
+    delete USING_ACTIVE_SKILL_STACK[ this.id ];
 
     disbalePanelControl( false );
     setTimeLimit( 5 );
@@ -128,7 +128,8 @@ var BrokeBoundaryEnd = function( place, i ){
 var OverBeautyStart = function( place, i ){
     VAR = this.variable;
     VAR['COOLDOWN'] = this.coolDown;
-    VAR['START_RUN'] = true;
+    VAR['USING'] = true;
+    USING_ACTIVE_SKILL_STACK[ this.id ] = { PLACE: place, i: i };
 
     disbalePanelControl( true );
     setStartRunByPlayTypeAndTime( PLAY_TYPE_ENUM.FREE, 10 );
@@ -137,8 +138,9 @@ var OverBeautyStart = function( place, i ){
 }
 var OverBeautyEnd = function( place, i ){
     VAR = this.variable;
-    if( !VAR['START_RUN'] ){ return false; }
-    VAR['START_RUN'] = false;
+    if( !VAR['USING'] ){ return false; }
+    VAR['USING'] = false;
+    delete USING_ACTIVE_SKILL_STACK[ this.id ];
 
     disbalePanelControl( false );
     setTimeLimit( 5 );
@@ -150,8 +152,8 @@ var OverBeautyEnd = function( place, i ){
 //==============================================================
 var RuneStrengthenCheck= function( place, i ){
     VAR = this.variable;
-    var check = checkActiveCoolDownByConfig( VAR['NEED'] );
-    if( MAIN_STATE == MAIN_STATE_ENUM.READY && check &&
+    if( MAIN_STATE == MAIN_STATE_ENUM.READY && 
+        this.variable['COOLDOWN'] == 0 &&
         checkHasElementByColorWithoutStrong( VAR['COLOR'] ) ){
         return true;
     }
@@ -190,7 +192,7 @@ var DesperateAttackEffect = function( place, i ){
     var effect = NewAdditionalEffect( this.id );
     effect['variable'] = effect['preSet']( place, i, VAR );
 
-    AdditionalEffectAdd( effect );
+    additionalEffectAdd( effect );
 }
 
 //==============================================================
@@ -207,8 +209,8 @@ var TeamMemberSwitchCheck = function( place, i ){
             }
         });
     });
-    var checkCoolDown = checkActiveCoolDownByConfig( VAR['NEED'] );
-    if( MAIN_STATE == MAIN_STATE_ENUM.READY && checkCoolDown && check ){
+    if( MAIN_STATE == MAIN_STATE_ENUM.READY && 
+        this.variable['COOLDOWN'] == 0 && check ){
         return true;
     }
     return false;
@@ -236,11 +238,11 @@ var TraceOfNotionAttack = function( place, i ){
 
 //==============================================================
 //==============================================================
-// Skill Database
+// Active Skill Database
 //==============================================================
 //==============================================================
 
-var ACTIVE_SKILLS = {
+var ACTIVE_SKILLS_DATA = {
 	NONE : {
 		id        : 'NONE',
 		label     : '無技能',
@@ -251,11 +253,10 @@ var ACTIVE_SKILLS = {
         check     : BasicActiveCheck,
         preSet    : BasicActiveSetting,
 	},
-    BREAK_BOUNDARY : {
-        id        : 'BREAK_BOUNDARY',
-        label     : '界線突破 ‧ {0}',
-        info      : '額外增加 3 行符石，大幅延長移動符石時間至 10 秒，並提升{0}屬性攻擊力',
-        letter    : [0,0],
+    BREAK_BOUNDARY_W : {
+        id        : 'BREAK_BOUNDARY_W',
+        label     : '界線突破 ‧ 水',
+        info      : '額外增加 3 行符石，大幅延長移動符石時間至 10 秒，並提升水屬性攻擊力',
         coolDown  : 8,
         variable  : {},
         check     : BasicActiveCheck,
@@ -263,11 +264,94 @@ var ACTIVE_SKILLS = {
         preSet    : StartRunSetting,
         startRun  : BrokeBoundaryStart,
     },
-    RUNE_STRENGTHEN : {
-        id        : 'RUNE_STRENGTHEN',
-        label     : '符石強化 ‧ {0}',
-        info      : '{0}符石轉化為{0}強化符石',
-        letter    : [0,0],
+    BREAK_BOUNDARY_F : {
+        id        : 'BREAK_BOUNDARY_F',
+        label     : '界線突破 ‧ 火',
+        info      : '額外增加 3 行符石，大幅延長移動符石時間至 10 秒，並提升火屬性攻擊力',
+        coolDown  : 8,
+        variable  : {},
+        check     : BasicActiveCheck,
+        endRun    : BrokeBoundaryEnd,
+        preSet    : StartRunSetting,
+        startRun  : BrokeBoundaryStart,
+    },
+    BREAK_BOUNDARY_P : {
+        id        : 'BREAK_BOUNDARY_P',
+        label     : '界線突破 ‧ 木',
+        info      : '額外增加 3 行符石，大幅延長移動符石時間至 10 秒，並提升木屬性攻擊力',
+        coolDown  : 8,
+        variable  : {},
+        check     : BasicActiveCheck,
+        endRun    : BrokeBoundaryEnd,
+        preSet    : StartRunSetting,
+        startRun  : BrokeBoundaryStart,
+    },
+    BREAK_BOUNDARY_L : {
+        id        : 'BREAK_BOUNDARY_L',
+        label     : '界線突破 ‧ 光',
+        info      : '額外增加 3 行符石，大幅延長移動符石時間至 10 秒，並提升光屬性攻擊力',
+        coolDown  : 8,
+        variable  : {},
+        check     : BasicActiveCheck,
+        endRun    : BrokeBoundaryEnd,
+        preSet    : StartRunSetting,
+        startRun  : BrokeBoundaryStart,
+    },
+    BREAK_BOUNDARY_D : {
+        id        : 'BREAK_BOUNDARY_D',
+        label     : '界線突破 ‧ 暗',
+        info      : '額外增加 3 行符石，大幅延長移動符石時間至 10 秒，並提升暗屬性攻擊力',
+        coolDown  : 8,
+        variable  : {},
+        check     : BasicActiveCheck,
+        endRun    : BrokeBoundaryEnd,
+        preSet    : StartRunSetting,
+        startRun  : BrokeBoundaryStart,
+    },
+    RUNE_STRENGTHEN_W : {
+        id        : 'RUNE_STRENGTHEN_W',
+        label     : '符石強化 ‧ 水',
+        info      : '水符石轉化為水強化符石',
+        coolDown  : 10,
+        variable  : {},
+        check     : RuneStrengthenCheck,
+        transfer  : RuneStrengthenTransfer,
+        preSet    : BasicActiveSetting,
+    },
+    RUNE_STRENGTHEN_F : {
+        id        : 'RUNE_STRENGTHEN_F',
+        label     : '符石強化 ‧ 火',
+        info      : '火符石轉化為火強化符石',
+        coolDown  : 10,
+        variable  : {},
+        check     : RuneStrengthenCheck,
+        transfer  : RuneStrengthenTransfer,
+        preSet    : BasicActiveSetting,
+    },
+    RUNE_STRENGTHEN_P : {
+        id        : 'RUNE_STRENGTHEN_P',
+        label     : '符石強化 ‧ 木',
+        info      : '木符石轉化為木強化符石',
+        coolDown  : 10,
+        variable  : {},
+        check     : RuneStrengthenCheck,
+        transfer  : RuneStrengthenTransfer,
+        preSet    : BasicActiveSetting,
+    },
+    RUNE_STRENGTHEN_L : {
+        id        : 'RUNE_STRENGTHEN_L',
+        label     : '符石強化 ‧ 光',
+        info      : '光符石轉化為光強化符石',
+        coolDown  : 10,
+        variable  : {},
+        check     : RuneStrengthenCheck,
+        transfer  : RuneStrengthenTransfer,
+        preSet    : BasicActiveSetting,
+    },
+    RUNE_STRENGTHEN_D : {
+        id        : 'RUNE_STRENGTHEN_D',
+        label     : '符石強化 ‧ 暗',
+        info      : '暗符石轉化為暗強化符石',
         coolDown  : 10,
         variable  : {},
         check     : RuneStrengthenCheck,
@@ -278,7 +362,6 @@ var ACTIVE_SKILLS = {
         id        : 'DESPERATE_ATTACK',
         label     : '拚死一擊',
         info      : '1 回合內，自身生命力愈低，全隊攻擊力愈高，最大 3 倍',
-        letter    : [0,0],
         coolDown  : 10,
         variable  : {},
         addEffect : DesperateAttackEffect,
@@ -289,7 +372,6 @@ var ACTIVE_SKILLS = {
         id        : 'OVER_BEAUTY',
         label     : '回眸傾城',
         info      : '',
-        letter    : [0,0],
         coolDown  : 8,
         variable  : {},
         check     : BasicActiveCheck,
@@ -297,25 +379,67 @@ var ACTIVE_SKILLS = {
         preSet    : StartRunSetting,
         startRun  : OverBeautyStart,
     },
-    TRACE_OF_NOTION : {
-        id        : 'TRACE_OF_NOTION',
-        label     : '印記之念 ‧ {0}',
-        info      : '{0}屬性傷害持續提升，直至沒有消除一組 5 粒或以上的{0}屬性符石 (只計算首批消除的符石)。每累計消除 20 粒{0}符石，{0}屬性傷害加快提升。{0}屬性傷害會於每一層數 (Wave) 重置',
-        letter    : [0,0],
+    TRACE_OF_NOTION_W : {
+        id        : 'TRACE_OF_NOTION_W',
+        label     : '印記之念 ‧ 水',
+        info      : '水屬性傷害持續提升，直至沒有消除一組 5 粒或以上的水屬性符石 (只計算首批消除的符石)。每累計消除 20 粒水符石，水屬性傷害加快提升。水屬性傷害會於每一層數 (Wave) 重置',
         coolDown  : 10,
         variable  : {},
         attack    : TraceOfNotionAttack,
         check     : TeamMemberSwitchCheck,
         preSet    : TraceOfNotionSetting,
         update    : TraceOfNotionUpdate,
-    }
+    },
+    TRACE_OF_NOTION_F : {
+        id        : 'TRACE_OF_NOTION_F',
+        label     : '印記之念 ‧ 火',
+        info      : '火屬性傷害持續提升，直至沒有消除一組 5 粒或以上的火屬性符石 (只計算首批消除的符石)。每累計消除 20 粒火符石，火屬性傷害加快提升。火屬性傷害會於每一層數 (Wave) 重置',
+        coolDown  : 10,
+        variable  : {},
+        attack    : TraceOfNotionAttack,
+        check     : TeamMemberSwitchCheck,
+        preSet    : TraceOfNotionSetting,
+        update    : TraceOfNotionUpdate,
+    },
+    TRACE_OF_NOTION_P : {
+        id        : 'TRACE_OF_NOTION_P',
+        label     : '印記之念 ‧ 木',
+        info      : '木屬性傷害持續提升，直至沒有消除一組 5 粒或以上的木屬性符石 (只計算首批消除的符石)。每累計消除 20 粒木符石，木屬性傷害加快提升。木屬性傷害會於每一層數 (Wave) 重置',
+        coolDown  : 10,
+        variable  : {},
+        attack    : TraceOfNotionAttack,
+        check     : TeamMemberSwitchCheck,
+        preSet    : TraceOfNotionSetting,
+        update    : TraceOfNotionUpdate,
+    },
+    TRACE_OF_NOTION_L : {
+        id        : 'TRACE_OF_NOTION_L',
+        label     : '印記之念 ‧ 光',
+        info      : '光屬性傷害持續提升，直至沒有消除一組 5 粒或以上的光屬性符石 (只計算首批消除的符石)。每累計消除 20 粒光符石，光屬性傷害加快提升。光屬性傷害會於每一層數 (Wave) 重置',
+        coolDown  : 10,
+        variable  : {},
+        attack    : TraceOfNotionAttack,
+        check     : TeamMemberSwitchCheck,
+        preSet    : TraceOfNotionSetting,
+        update    : TraceOfNotionUpdate,
+    },
+    TRACE_OF_NOTION_D : {
+        id        : 'TRACE_OF_NOTION_D',
+        label     : '印記之念 ‧ 暗',
+        info      : '暗屬性傷害持續提升，直至沒有消除一組 5 粒或以上的暗屬性符石 (只計算首批消除的符石)。每累計消除 20 粒暗符石，暗屬性傷害加快提升。暗屬性傷害會於每一層數 (Wave) 重置',
+        coolDown  : 10,
+        variable  : {},
+        attack    : TraceOfNotionAttack,
+        check     : TeamMemberSwitchCheck,
+        preSet    : TraceOfNotionSetting,
+        update    : TraceOfNotionUpdate,
+    },
 };
-
 
 function NewActiveSkill( id ){
     var activeObj = {};
-    for( var key in ACTIVE_SKILLS[id] ){
-        activeObj[key] = ACTIVE_SKILLS[id][key];
+    for( var key in ACTIVE_SKILLS_DATA[id] ){
+        activeObj[key] = ACTIVE_SKILLS_DATA[id][key];
     }
     return activeObj;
 }
@@ -346,7 +470,7 @@ function checkActiveSkillByKey( key ){
     });    
 }
 
-function ActiveCoolDownUpdate(){
+function activeCoolDownUpdate(){
     $.each(TEAM_ACTIVE_SKILL, function(place, actives){
         $.each(actives, function(i, active){
             if( active['variable']['COOLDOWN'] > 0 ){
@@ -355,8 +479,4 @@ function ActiveCoolDownUpdate(){
         });
     });
     updateActiveCoolDownLabel();
-}
-
-function checkActiveCoolDownByConfig( config ){
-    return true;
 }

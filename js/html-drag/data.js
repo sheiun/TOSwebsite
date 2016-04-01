@@ -15,7 +15,7 @@ var CHARACTERS = {
         wake_var     : [ 0, 0, 0, 0 ],
         wake_info    : [ "無", "無", "無", "無" ],
         leader       : "NONE",
-        active       : [ "NONE", "BREAK_BOUNDARY" ],
+        active       : [ "NONE" ],
     },
     PROTAGONIST_W : {
         id           : "PROTAGONIST_W",
@@ -30,7 +30,7 @@ var CHARACTERS = {
         wake_var     : [ [0,0,20], 2, [0,120,0], [1.1,4] ],
         wake_info    : [ "回復力+20", "進關後冷卻回合-2", "攻擊力+120", "4顆直排劍10%" ],
         leader       : "ELEMENT_FACTOR2",
-        active       : [ "BREAK_BOUNDARY" ],
+        active       : [ "BREAK_BOUNDARY_W" ],
     },
     PROTAGONIST_F : {
         id           : "PROTAGONIST_F",
@@ -45,7 +45,7 @@ var CHARACTERS = {
         wake_var     : [ [0,0,20], 2, [0,120,0], [1.1,4] ],
         wake_info    : [ "回復力+20", "進關後冷卻回合-2", "攻擊力+120", "4顆直排劍10%" ],
         leader       : "ELEMENT_FACTOR2",
-        active       : [ "BREAK_BOUNDARY" ],
+        active       : [ "BREAK_BOUNDARY_F" ],
     },
     PROTAGONIST_P : {
         id           : "PROTAGONIST_P",
@@ -60,7 +60,7 @@ var CHARACTERS = {
         wake_var     : [ [0,0,20], 2, [0,120,0], [1.1,4] ],
         wake_info    : [ "回復力+20", "進關後冷卻回合-2", "攻擊力+120", "4顆直排劍10%" ],
         leader       : "ELEMENT_FACTOR2",
-        active       : [ "BREAK_BOUNDARY" ],
+        active       : [ "BREAK_BOUNDARY_P" ],
     },
     PROTAGONIST_L : {
         id           : "PROTAGONIST_L",
@@ -75,7 +75,7 @@ var CHARACTERS = {
         wake_var     : [ [0,0,20], 2, [0,120,0], [1.1,4] ],
         wake_info    : [ "回復力+20", "進關後冷卻回合-2", "攻擊力+120", "4顆直排劍10%" ],
         leader       : "ELEMENT_FACTOR2",
-        active       : [ "BREAK_BOUNDARY" ],
+        active       : [ "BREAK_BOUNDARY_L" ],
     },
     PROTAGONIST_D : {
         id           : "PROTAGONIST_D",
@@ -90,7 +90,7 @@ var CHARACTERS = {
         wake_var     : [ [0,0,20], 2, [0,120,0], [1.1,4] ],
         wake_info    : [ "回復力+20", "進關後冷卻回合-2", "攻擊力+120", "4顆直排劍10%" ],
         leader       : "ELEMENT_FACTOR2",
-        active       : [ "BREAK_BOUNDARY" ],
+        active       : [ "BREAK_BOUNDARY_D" ],
     },
     NORDIC_W : {
         id           : "NORDIC_W",
@@ -105,7 +105,7 @@ var CHARACTERS = {
         wake_var     : [ [0,0,30], [1.1,4], [0,180,0], [1.12,5] ],
         wake_info    : [ "回復力+30", "4顆直排劍10%", "攻擊力+180", "5顆直排劍12%" ],
         leader       : "ELEMENT_FACTOR3",
-        active       : [ "RUNE_STRENGTHEN" ],
+        active       : [ "RUNE_STRENGTHEN_W" ],
     },
     NORDIC_F : {
         id           : "NORDIC_F",
@@ -120,7 +120,7 @@ var CHARACTERS = {
         wake_var     : [ [0,0,30], [1.1,4], [0,180,0], [1.12,5] ],
         wake_info    : [ "回復力+30", "4顆直排劍10%", "攻擊力+180", "5顆直排劍12%" ],
         leader       : "ELEMENT_FACTOR3",
-        active       : [ "RUNE_STRENGTHEN" ],
+        active       : [ "RUNE_STRENGTHEN_F","RUNE_STRENGTHEN_D" ],
     },
     NORDIC_P : {
         id           : "NORDIC_P",
@@ -135,7 +135,7 @@ var CHARACTERS = {
         wake_var     : [ [0,0,30], [1.1,4], [0,180,0], [1.12,5] ],
         wake_info    : [ "回復力+30", "4顆直排劍10%", "攻擊力+180", "5顆直排劍12%" ],
         leader       : "ELEMENT_FACTOR3",
-        active       : [ "RUNE_STRENGTHEN" ],
+        active       : [ "RUNE_STRENGTHEN_P" ],
     },
     NORDIC_L : {
         id           : "NORDIC_L",
@@ -150,7 +150,7 @@ var CHARACTERS = {
         wake_var     : [ [0,0,30], [1.1,4], [0,180,0], [1.12,5] ],
         wake_info    : [ "回復力+30", "4顆直排劍10%", "攻擊力+180", "5顆直排劍12%" ],
         leader       : "ELEMENT_FACTOR3",    
-        active       : [ "RUNE_STRENGTHEN" ],
+        active       : [ "RUNE_STRENGTHEN_L" ],
     },
     NORDIC_D : {
         id           : "NORDIC_D",
@@ -165,7 +165,7 @@ var CHARACTERS = {
         wake_var     : [ [0,0,30], [1.1,4], [0,180,0], [1.12,5] ],
         wake_info    : [ "回復力+30", "4顆直排劍10%", "攻擊力+180", "5顆直排劍12%" ],
         leader       : "ELEMENT_FACTOR3",
-        active       : [ "RUNE_STRENGTHEN" ],
+        active       : [ "RUNE_STRENGTHEN_D" ],
     },
     BOSS_ODIN : {
         id           : "BOSS_ODIN",

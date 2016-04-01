@@ -251,6 +251,14 @@ function closeEditTeam(){
     });
     resetTeamMembers();
 }
+function ActiveCoolDownToZero(){
+    $.each(TEAM_ACTIVE_SKILL, function(place, actives){
+        $.each(actives, function(i, active){
+            active['variable']['COOLDOWN'] = 0;
+        });
+    });
+    updateActiveCoolDownLabel();
+}
 
 function disbalePanelControl( bool ){
     $("#randomPanel").closest("button").prop("disabled",  bool );
@@ -495,93 +503,12 @@ function resetTeamMembers(){
     MEMBER_3    = NewCharacter( $("#TeamMember3Select").val() );
     MEMBER_4    = NewCharacter( $("#TeamMember4Select").val() );
     TEAM_FRIEND = NewCharacter( $("#TeamFriendSelect").val() );
-    TEAM_MEMBERS = [
-        TEAM_LEADER,
-        MEMBER_1,
-        MEMBER_2,
-        MEMBER_3,
-        MEMBER_4,
-        TEAM_FRIEND,
-    ];
 
-    cleanColors();
-    resetDropColors();
-    resetMemberActiveSkill();
-    resetTeamLeaderSkill();
-    resetMemberWakes();
-    resetColors();
-    resetHealthPoint();
+    resetTeamComposition();
     showTeamInfomation();
     showActiveInfomation();
     nextMoveWave();
     resetTimeDiv();
-}
-function resetMemberWakes(){
-    TEAM_WAKES = [];
-    $.each(TEAM_MEMBERS, function(place, member){
-        var wakes = [];
-        $.each(member["wake"], function(i, wakeId){
-            var wake = WAKES_DATA[ wakeId ];
-            if( "preSet" in wake ){
-                wake["preSet"](  member, place, member['wake_var'][i] );
-            }
-            wakes.push( wake );
-        });
-        TEAM_WAKES.push( wakes );
-    });
-}
-
-function resetMemberActiveSkill(){
-    TEAM_ACTIVE_SKILL     = [];
-    $.each(TEAM_MEMBERS, function(place, member){
-        var actives = [];
-        $.each(member['active'], function(i, activeId){
-            var active = NewActiveSkill( activeId );
-            if( "preSet" in active ){
-                var active_var = active['preSet']( member, place, i );
-                active['variable'] = active_var;
-            }
-            actives.push( active );
-        })
-        TEAM_ACTIVE_SKILL.push( actives );
-    })
-}
-
-function resetTeamLeaderSkill(){
-    TEAM_COLORS_CHANGEABLE = true;
-    GROUP_SIZE = {'w':3, 'f':3, 'p':3, 'l':3, 'd':3, 'h':3};
-
-    TEAM_LEADER_SKILL = LEADER_SKILLS_DATA[ TEAM_LEADER['leader'] ];
-    TEAM_FRIEND_SKILL = LEADER_SKILLS_DATA[ TEAM_FRIEND['leader'] ];
-    checkTeamSkill();
-
-    if( "preSet" in TEAM_LEADER_SKILL ){
-        TEAM_LEADER_SKILL_VAR = TEAM_LEADER_SKILL['preSet']( TEAM_LEADER );
-    }
-    if( "preSet" in TEAM_FRIEND_SKILL ){
-        TEAM_FRIEND_SKILL_VAR = TEAM_FRIEND_SKILL['preSet']( TEAM_FRIEND );
-    }
-}
-function checkTeamSkill(){
-    TEAM_SKILL = [];
-    TEAM_SKILL_VAR = {};
-    for( var teamSkillKey in TEAM_SKILLS_DATA ){
-        TEAM_SKILLS_DATA[teamSkillKey]["mapping"]();
-    }
-    for( var teamSkill of TEAM_SKILL ){
-        if( "preSet" in teamSkill ){
-            TEAM_SKILL_VAR[ teamSkill["id"] ] = teamSkill["preSet"]( TEAM_LEADER, TEAM_FRIEND );
-        }
-    }
-}
-
-function resetHealthPoint(){
-    TOTAL_HEALTH_POINT = 0;
-    HEALTH_POINT = 0;
-    $.each(TEAM_MEMBERS, function(place, member){
-        HEALTH_POINT += member['health'];
-        TOTAL_HEALTH_POINT += member['health'];
-    });
 }
 
 //==============================================================
@@ -633,15 +560,15 @@ function showTeamInfomation(){
         $("#ActiveSkillInfomation td").eq(place).children().remove();
         $.each(TEAM_ACTIVE_SKILL[place], function(i, active){
             var infoID = "activeSkillInfo_"+place+"_"+i;
-            var letterMap = active['letter'];
-            var letter1 = COLOR_LETTERS[ letterMap[0] ][ active['variable']['COLOR'] ];
-            var letter2 = COLOR_LETTERS[ letterMap[1] ][ active['variable']['COLOR'] ];
-            var label = $("<span></span>").text( active['label'].format( letter1 ) );
+            var label = $("<span></span>").append( active['label'] );
             label.addClass('labelInfo').attr("onclick","$('#"+infoID+"').toggle()");
-            var info = $("<span></span>").append("<br>").append("CD時間 ： "+active['coolDown']).append($("<br>"));
-            info.append( active['info'].format( letter2 ) ).append("<br>");
+            var info = $("<span></span>").append($("<br>")).append("CD時間 ： "+active['coolDown']);
+            info.append($("<br>")).append( active['info'] );
             info.attr("id", infoID).hide();
-            $("#ActiveSkillInfomation td").eq(place).append( [label, info, $("<br>")] );
+            if( i > 0 ){ 
+                $("#ActiveSkillInfomation td").eq(place).append($("<br>"));
+            }
+            $("#ActiveSkillInfomation td").eq(place).append( [ label, info ] );
         });
     });
 
@@ -671,9 +598,7 @@ function showActiveInfomation(){
     $.each(TEAM_ACTIVE_SKILL, function(place, actives){
         $("#ActiveButtonTD td").eq(place).children().remove();
         $.each(actives, function(i, active){
-            var letterMap = active['letter'];
-            var letter1 = COLOR_LETTERS[ letterMap[0] ][ active['variable']['COLOR'] ];
-            var label = $("<span></span>").text( active['label'].format( letter1 ) );
+            var label = $("<span></span>").text( active['label'] );
             var button = $("<button></button>").addClass('activeButton').append( label );
             button.attr( "onclick", "triggerActive("+place+","+i+")" ).prop("disabled", true);
             $("#ActiveButtonTD td").eq(place).append( button );
@@ -696,23 +621,13 @@ function updateActiveCoolDownLabel(){
         );
     });
 }
-function ActiveCoolDownToZero(){
-    $.each(TEAM_ACTIVE_SKILL, function(place, actives){
-        $.each(actives, function(i, active){
-            active['variable']['COOLDOWN'] = 0;
-        });
-    });
-    updateActiveCoolDownLabel();
-}
 function updateAdditionalEffectLabel(){
     $("#AdditionalEffectTD td").children().remove();
     $.each(ADDITIONAL_EFFECT_STACK, function(i, effect){
         var place = effect['variable']['PLACE'];
         var i = effect['variable']['i'];
         var active = TEAM_ACTIVE_SKILL[place][i];
-        var letterMap = active['letter'];
-        var letter1 = COLOR_LETTERS[ letterMap[0] ][ active['variable']['COLOR'] ];
-        var text = active['label'].format( letter1 )+"("+effect['variable']['DURATION']+")";
+        var text = active['label']+"("+effect['variable']['DURATION']+")";
         var label = $("<span></span>").text( text ).addClass('EffectLabel');
         $("#AdditionalEffectTD td").append( label )
     })

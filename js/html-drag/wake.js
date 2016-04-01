@@ -64,10 +64,10 @@ var StraightHeal = function( wakeVar, place, i ){
 
 var ActiveCoolDownForever = function( MEMBER, place, wakeVar ){
     TEAM_ACTIVE_SKILL[place][0]['coolDown'] -= wakeVar;
-    TEAM_ACTIVE_SKILL_VAR[place][0]['COOLDOWN'] -= wakeVar;
+    TEAM_ACTIVE_SKILL[place][0]['variable']['COOLDOWN'] -= wakeVar;
 }
 var ActiveCoolDownBegining = function(MEMBER, place, wakeVar ){
-    TEAM_ACTIVE_SKILL_VAR[place][0]['COOLDOWN'] -= wakeVar;
+    TEAM_ACTIVE_SKILL[place][0]['variable']['COOLDOWN'] -= wakeVar;
 }
 
 //==============================================================
