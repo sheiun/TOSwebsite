@@ -42,25 +42,28 @@ var DROP_WAVES = 0;
 var COMBO_TIMES = 0;
 var COMBO_SHOW = 0;
 
-var COUNT_COMBO                = 0;
-var COUNT_COMBO_COEFF          = 0.25;
-var COUNT_AMOUNT               = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
-var COUNT_MAX_AMOUNT           = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
-var COUNT_AMOUNT_COEFF         = 0.25;
-var COUNT_STRONG               = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
-var COUNT_STRONG_COEFF         = 0.15;
-var COUNT_SETS                 = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
-var COUNT_FIRST_SETS           = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
-var COUNT_BELONG_COLOR         = { };
-var COUNT_BELONG_AMOUNT        = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
-var COUNT_BELONG_MAX_AMOUNT    = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
-var COUNT_BELONG_STRONG        = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
-var COUNT_BELONG_SETS          = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
-var COUNT_FACTOR               = {};
-var COUNT_RECOVER_COMBO_COEFF  = 0.25;
-var COUNT_RECOVER_AMOUNT_COEFF = 0.25;
-var COUNT_RECOVER_STRONG_COEFF = 0.15;
-var COUNT_RECOVER_FACTOR       = {};
+// in battle.js
+var COUNT_COMBO                 = 0;
+var COUNT_COMBO_COEFF           = 0.25;
+var COUNT_AMOUNT                = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
+var COUNT_MAX_AMOUNT            = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
+var COUNT_AMOUNT_COEFF          = 0.25;
+var COUNT_STRONG                = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
+var COUNT_STRONG_COEFF          = 0.15;
+var COUNT_SETS                  = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
+var COUNT_FIRST_SETS            = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
+var COUNT_BELONG_COLOR          = { };
+var COUNT_BELONG_AMOUNT         = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
+var COUNT_BELONG_MAX_AMOUNT     = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
+var COUNT_BELONG_STRONG         = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
+var COUNT_BELONG_SETS           = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
+var COUNT_FACTOR                = {};
+var COUNT_RECOVER_COMBO_COEFF   = 0.25;
+var COUNT_RECOVER_AMOUNT_COEFF  = 0.25;
+var COUNT_RECOVER_STRONG_COEFF  = 0.15;
+var COUNT_RECOVER_FACTOR        = {};
+var COUNT_COLOR_FACTOR          = { 'w': 1, 'f': 1, 'p': 1, 'l': 1, 'd': 1, '': 1 };
+var COUNT_COLOR_TO_COLOR_FACTOR = { 'w': {}, 'f': {}, 'p': {}, 'l': {}, 'd': {}, '': {} };
 
 var DRAG_ANIMATE_TIME = 100;
 var REMOVE_TIME = 100;
@@ -125,8 +128,8 @@ var TEAM_SKILL_VAR        = [];
 var TEAM_ACTIVE_SKILL     = [];
 var TEAM_COMBINE_SKILL    = [];
 
-var ADDITIONAL_EFFECT_STACK = [];
-var USING_ACTIVE_SKILL_STACK = [];
+var ADDITIONAL_EFFECT_STACK  = [];
+var USING_ACTIVE_SKILL_STACK = {};
 
 var TEAM_WAKES            = [];
 
@@ -136,8 +139,9 @@ var TEAM_WAKES            = [];
 var HEALTH_POINT = 0;
 var TOTAL_HEALTH_POINT = 0;
 
-var ATTACK_STACK = [];
+var ATTACK_STACK  = [];
 var RECOVER_STACK = [];
+var SUFFER_STACK  = [];
 
 var ENEMY = null;
 
@@ -264,45 +268,6 @@ function resetComboStack(){
 
     // TeamGreek reset extraCombo
     checkTeamSkillByKey( 'extraReset' );
-}
-function resetCount(){    
-    COUNT_COMBO                = COMBO_TIMES;
-    COUNT_COMBO_COEFF          = 0.25;
-    COUNT_AMOUNT               = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
-    COUNT_AMOUNT_COEFF         = 0.25;
-    COUNT_MAX_AMOUNT           = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
-    COUNT_STRONG               = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
-    COUNT_STRONG_COEFF         = 0.15;
-    COUNT_SETS                 = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
-    COUNT_FIRST_SETS           = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
-    COUNT_BELONG_COLOR         = {
-    'w': { 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 },
-    'f': { 'w': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 },
-    'p': { 'w': 0, 'f': 0, 'l': 0, 'd': 0, 'h': 0 },
-    'l': { 'w': 0, 'f': 0, 'p': 0, 'd': 0, 'h': 0 },
-    'd': { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'h': 0 },
-    'h': { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0 } };
-    COUNT_BELONG_AMOUNT        = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
-    COUNT_BELONG_MAX_AMOUNT    = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
-    COUNT_BELONG_STRONG        = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
-    COUNT_BELONG_SETS          = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
-    COUNT_FACTOR               = { 'NORMAL': 
-        { 
-            factor    : function( member ){ return 1; } ,
-            prob      : 1,
-            condition : function( member ){ return true; } 
-        } 
-    };
-    COUNT_RECOVER_COMBO_COEFF  = 0.25;
-    COUNT_RECOVER_AMOUNT_COEFF = 0.25;
-    COUNT_RECOVER_STRONG_COEFF = 0.15;
-    COUNT_RECOVER_FACTOR       = { 'NORMAL': 
-        { 
-            factor    : function( member ){ return 1; } ,
-            prob      : 1,
-            condition : function( member ){ return true; } 
-        } 
-    };;
 }
 function resetAttackRecoverStack(){
     ATTACK_STACK = [];
@@ -759,115 +724,6 @@ function newElementByItem(item){
 }
 
 //==============================================================
-//  Count Attack
-//==============================================================
-function countAttack(){
-    resetCount();
-
-    checkLeaderSkillByKey( "attack" );
-    checkLeaderSkillByKey( "recover" );
-    checkTeamSkillByKey( "attack" );
-    checkTeamSkillByKey( "recover" );
-    checkWakeByKey( "attack" );
-    checkWakeByKey( "recover" );
-    checkActiveSkillByKey( "attack" );
-    checkActiveSkillByKey( "recover" );
-    checkAdditionEffectByKey( "attack" );
-    checkAdditionEffectByKey( "recover" );
-
-    for(var obj of COMBO_STACK){
-        var c = obj['color'];
-        COUNT_AMOUNT[c] += obj['amount'];
-        COUNT_MAX_AMOUNT[c] = Math.max( COUNT_MAX_AMOUNT[c], obj['amount'] );
-        COUNT_STRONG[c] += obj['strong_amount'];
-        COUNT_SETS[c] += 1;
-
-        for(var belong_color in COUNT_BELONG_COLOR[c]){
-            if( COUNT_BELONG_COLOR[c][belong_color] > 0 ){
-                COUNT_BELONG_AMOUNT[belong_color] += obj['amount'] * COUNT_BELONG_COLOR[c][belong_color];
-                COUNT_BELONG_MAX_AMOUNT[c] = Math.max( COUNT_BELONG_MAX_AMOUNT[c], obj['amount'] );
-                COUNT_BELONG_STRONG[belong_color] += obj['strong_amount'] * COUNT_BELONG_COLOR[c][belong_color];
-                COUNT_BELONG_SETS[belong_color] += 1;
-            }
-        }
-
-        if( obj['drop_wave'] == 0 ){
-            COUNT_FIRST_SETS[c] += 1;
-        }
-    }
-
-    $.each(TEAM_MEMBERS, function(membe_place, member){
-        var attack = {
-            place  : membe_place,
-            type   : "person",
-            goal   : "single",
-            strong : false,
-            color  : member["color"],
-            base   : member["attack"],
-            factor : 1,
-            log    : "",
-        };
-        var recover = {
-            place  : membe_place,
-            color  : "h",
-            base   : member["recovery"],
-            factor : 1,
-            log    : "",
-        };
-        var color = member["color"];
-
-        if( COUNT_MAX_AMOUNT[color] >= 5 || COUNT_BELONG_MAX_AMOUNT[color] >= 5 ){
-            attack['goal'] = "all";
-        }
-        if( (COUNT_STRONG[color]+COUNT_BELONG_STRONG[color]) > 0 ){
-            attack['strong'] = true;
-        }
-
-        var atk       = ( 1+ ( COUNT_COMBO-1 ) * COUNT_COMBO_COEFF ) * 
-                        ( ( COUNT_AMOUNT[color] + COUNT_BELONG_AMOUNT[color] +
-                            COUNT_SETS[color]   + COUNT_BELONG_SETS[color]     ) * COUNT_AMOUNT_COEFF +
-                          ( COUNT_STRONG[color] + COUNT_BELONG_STRONG[color]   ) * COUNT_STRONG_COEFF );
-        attack['log'] = "(1+("+(COUNT_COMBO-1)+")*"+COUNT_COMBO_COEFF+")*"+
-                        "(("+COUNT_AMOUNT[color]+"+"+COUNT_BELONG_AMOUNT[color]+"+"+
-                             COUNT_SETS[color]  +"+"+COUNT_BELONG_SETS[color]  +")*"+COUNT_AMOUNT_COEFF+"+"+
-                         "("+COUNT_STRONG[color]+"+"+COUNT_BELONG_STRONG[color]+")*"+COUNT_STRONG_COEFF+")";
-
-        for(var key in COUNT_FACTOR){
-            if( COUNT_FACTOR[key]["condition"]( member, membe_place ) ){
-                if( randomBySeed() < COUNT_FACTOR[key]["prob"] ){
-                    var factor = COUNT_FACTOR[key]["factor"]( member, membe_place ).toFixed(5);
-                    atk *= factor;
-                    attack['log'] += "*"+factor+'('+key+')';
-                }
-            }
-        }
-
-        var rec        = ( 1+ ( COUNT_COMBO-1 ) * COUNT_RECOVER_COMBO_COEFF ) *
-                         ( ( COUNT_AMOUNT['h'] + COUNT_BELONG_AMOUNT['h'] +
-                             COUNT_SETS['h']   + COUNT_BELONG_SETS['h']     ) * COUNT_RECOVER_AMOUNT_COEFF +
-                           ( COUNT_STRONG['h'] + COUNT_BELONG_STRONG['h']   ) * COUNT_RECOVER_STRONG_COEFF );
-        recover['log'] = "(1+("+(COUNT_COMBO-1)+")*"+COUNT_RECOVER_COMBO_COEFF+")"+"*"+
-                         "(("+COUNT_AMOUNT['h']+"+"+COUNT_BELONG_AMOUNT['h']+"+"+
-                              COUNT_SETS['h']  +"+"+COUNT_BELONG_SETS['h']  +")*"+COUNT_RECOVER_AMOUNT_COEFF+"+"+
-                          "("+COUNT_STRONG['h']+"+"+COUNT_BELONG_STRONG['h']+")*"+COUNT_RECOVER_STRONG_COEFF+")";
-        for(var key in COUNT_RECOVER_FACTOR){
-            if( COUNT_RECOVER_FACTOR[key]["condition"]( member, membe_place ) ){
-                if( randomBySeed() < COUNT_RECOVER_FACTOR[key]["prob"] ){
-                    var factor = COUNT_RECOVER_FACTOR[key]["factor"]( member, membe_place ).toFixed(5);
-                    rec *= factor;
-                    recover['log'] += "*"+factor+'('+key+')';
-                }
-            }
-        }
-
-        attack["factor"]  = atk;
-        ATTACK_STACK.push( attack );
-        recover["factor"] = rec;
-        RECOVER_STACK.push( recover );
-    });
-}
-
-//==============================================================
 //  stage define 
 //==============================================================
 function initialMoveWave(){    
@@ -886,9 +742,10 @@ function endMoveWave(){
 }
 function nextMoveWave(){
     MAIN_STATE = MAIN_STATE_ENUM.READY;
-
+    resetTimeDiv();
     resetDraggable();
     startDragging();
+    showPlayTurnLevel();
 
     checkLeaderSkillByKey('findMaxC');
 }
@@ -955,6 +812,7 @@ function checkAttack(){
 
     checkActiveSkillByKey("endRun");
     countAttack();
+    countEnemyAction();
 
     MAIN_STATE = MAIN_STATE_ENUM.BATTLE_INFO;
     showResult();
@@ -972,7 +830,8 @@ function endPlayTurn(){
     frozenUpdate();
     activeCoolDownUpdate();
     additionalEffectUpdate();
-    nextMoveWave();    
+    usingActiveSkillUpdate();
+    nextMoveWave();
 }
 
 //==============================================================

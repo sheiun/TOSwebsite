@@ -1,3 +1,9 @@
+//==============================================================
+//==============================================================
+// Team Composition
+//==============================================================
+//==============================================================
+
 function resetTeamComposition(){  
     TEAM_MEMBERS = [
         TEAM_LEADER,
@@ -10,7 +16,6 @@ function resetTeamComposition(){
     cleanColors();
     resetDropColors();
     resetMemberActiveSkill();
-    resetMemberCombineSkill();
     resetTeamLeaderSkill();
     resetMemberWakes();
     resetColors();
@@ -43,13 +48,17 @@ function resetMemberActiveSkill(){
         });
         TEAM_ACTIVE_SKILL.push( actives );
     });
+    checkCombineSkill();
 }
-function resetMemberCombineSkill(){
+function checkCombineSkill(){
     TEAM_COMBINE_SKILL = [];
     $.each(TEAM_MEMBERS, function(place, member){
         var actives = [];
         TEAM_COMBINE_SKILL.push( actives );
     });
+    for( var combineSkillKey in COMBINE_SKILLS_DATA ){
+        COMBINE_SKILLS_DATA[combineSkillKey]["mapping"]();
+    }
     //update Combine in every turn end
 }
 
@@ -88,4 +97,16 @@ function resetHealthPoint(){
         HEALTH_POINT += member['health'];
         TOTAL_HEALTH_POINT += member['health'];
     });
+}
+
+//==============================================================
+//==============================================================
+// Enemy
+//==============================================================
+//==============================================================
+
+function resetEnemy(){
+    ENEMY = [];
+    var enemy = NewEnemy("EMPTY");
+    ENEMY.push(enemy);
 }

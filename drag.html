@@ -89,9 +89,11 @@
         </div>
 
         <div class="row">
-            <div class="col-lg-2" align="center">
-                <br><br>
-                <div id="playBtn" class="btn-group-vertical" role="group">
+
+            <div  id="main_workplace" class="col-lg-10" align="center">
+                <p id="title">轉珠模擬器</p>
+
+                <div id="playBtn" class="btn-group" role="group">
                     <button class="btn btn-default" onclick="toggleFreeDrag()">
                         <sapn id="freeDrag">一般移動</span>
                     </button>
@@ -105,7 +107,7 @@
                     <button class="btn btn-default" onclick="toggleAudio()">
                         <span id="playAudio">播放音效</span>
                     </button>
-                    <button class="btn btn-default"></button>
+                    <br><br>
 
                     <button class="btn btn-default" onclick="initialPlain()">
                         <span id="initial">初始版面</span>
@@ -131,15 +133,11 @@
                       <option value="60"   >須臾</option>
                       <option value="15"   >剎那</option>
                     </select>
-                    <button class="btn btn-default"></button>
                     <span id="clipboard" class="btn btn-default" data-clipboard-text="null" >
-                        &nbsp;<br>產生網址<br>&nbsp;
+                        &nbsp;產生網址&nbsp;
                     </span>
+                    <br><br>
                 </div>
-            </div>
-
-            <div  id="main_workplace" class="col-lg-8" align="center">
-                <p id="title">轉珠模擬器</p>
 
                 <table id="TeamMember" style="display: none;">
                     <tr id="AttackNumber">
@@ -298,10 +296,6 @@
                 <br><br>
                     
                 <span class="teamLabel">進階選項：</span>
-                <button class="btn btn-default" onclick="BrokeBoundaryStart()">
-                    <span>界線突破</span>
-                </button>&nbsp;
-
                 <select id="dropColorSelect" class="selectpicker" data-width="100px" title="落珠選擇">
                     <option value="w,f,p,l,d,h" >正常分布</option>
                     <option value="w,f,p,l,d" >禁心珠</option>
@@ -313,7 +307,6 @@
                     <option value="question" >問號掉落</option>
                     <option value="optional" >自訂義</option>
                 </select>
-
                 <select id="locusSelect" class="selectpicker" data-width="100px" title="軌跡選擇">
                     <option value="null" >無軌跡</option>
                     <option value="_" >軌跡黑白</option>
@@ -404,6 +397,8 @@
     <script type="text/javascript" src="js/html-drag/combineSkill.js"></script>
     <script type="text/javascript" src="js/html-drag/wake.js"></script>
     <script type="text/javascript" src="js/html-drag/additionalEffect.js"></script>
+    <script type="text/javascript" src="js/html-drag/enemy.js"></script>
+    <script type="text/javascript" src="js/html-drag/battle.js"></script>
     <script type="text/javascript" src="js/html-drag/data.js"></script>
 
     <script type="text/javascript" src="js/html-drag/history.js"></script>

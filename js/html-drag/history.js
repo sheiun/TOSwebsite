@@ -252,6 +252,9 @@ function hafStartMove(i){
         var id_goal = HISTORY[i+1];
         var imgs_start = $("#dragContainment tr td").eq(id_start).find("img.over");
         var imgs_goal = $("#dragContainment tr td").eq(id_goal).find("img");
+        if( $("#dragContainment tr td").eq(id_goal).children().length == 0 ){
+            var imgs_goal = $("#dragContainment tr td").eq(id_goal);
+        }
         var offset_start = $(imgs_start).offset();
         var offset_goal = $(imgs_goal).offset();
         var top_vector = offset_goal.top - offset_start.top;
@@ -273,6 +276,9 @@ function hafGoalMove(i){
         var id_goal = HISTORY[i+1];
         var imgs_base = $("#dragContainment tr td").eq(id_base).find("img.under");
         var imgs_goal = $("#dragContainment tr td").eq(id_goal).find("img");
+        if( $("#dragContainment tr td").eq(id_goal).children().length == 0 ){
+            var imgs_goal = $("#dragContainment tr td").eq(id_goal);
+        }
         var offset_base = $(imgs_base).offset();
         var offset_goal = $(imgs_goal).offset();
         var top_vector = (offset_base.top - offset_goal.top);
@@ -284,9 +290,11 @@ function hafGoalMove(i){
         $("#dragContainment tr td").eq(id_goal).append(imgs);
 
         $(imgs_base).offset(offset_goal);
-        $(imgs_goal).offset(offset_goal);
-        $(imgs_goal).animate({top: "+="+top_vector+"px",left: "+="+left_vector+"px"},
-                            {duration: REPLAY_SPEED/3} );
+        if( $("#dragContainment tr td").eq(id_goal).children().length == 0 ){
+            $(imgs_goal).offset(offset_goal);
+            $(imgs_goal).animate({top: "+="+top_vector+"px",left: "+="+left_vector+"px"},
+                                {duration: REPLAY_SPEED/3} );
+        }
 
         setTimeout( function(){
             var next = i+1;

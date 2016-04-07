@@ -17,9 +17,9 @@ var BasicCombineSkillCheck = function( trigger_place, trigger_i ){
 	return basicFunctionCombineSkillCheck( VAR, trigger_place, trigger_i );
 }
 function basicFunctionCombineSkillCheck( VAR, trigger_place, trigger_i ){
-	for( var key in VAR['COMBINE'] ){
-		var place = VAR['COMBINE'][key]['PLACE'];
-		var i =  VAR['COMBINE'][key]['i'];
+	for( var location of VAR['COMBINE'] ){
+		var place = location['PLACE'];
+		var i =  location['i'];
 		if( TEAM_ACTIVE_SKILL[place][i]['variable']['COOLDOWN'] != 0 ){
 			return false;
 		}
@@ -30,13 +30,14 @@ function basicFunctionCombineSkillCheck( VAR, trigger_place, trigger_i ){
 var EnchantedInjunctionWCheck = function( trigger_place, trigger_i ){
 	var VAR = this.variable;
 	var check = basicFunctionCombineSkillCheck( VAR, trigger_place, trigger_i );
+	return check;
 }
 var EnchantedInjunctionWMapping = function(){
 	if( checkActiveSkillIDByConfig({
             ID    : [ "RUNE_STRENGTHEN_W", "DESPERATE_ATTACK" ],
             check : [ "{0}>0", "{1}>0" ],
         }) ){
-		CombineSkillMapping( 'ENCHANTED_INJUNCTION_W', [ "RUNE_STRENGTHEN_W", "DESPERATE_ATTACK" ] );
+		combineSkillMapping( 'ENCHANTED_INJUNCTION_W', [ ["RUNE_STRENGTHEN_W"], ["DESPERATE_ATTACK"] ] );
 	}
 }
 
@@ -51,7 +52,6 @@ var COMBINE_SKILLS_DATA = {
 		id       : 'ENCHANTED_INJUNCTION_W',
 		label    : '敕令強化 ‧ 水靈',
 		info     : '水符石，火符石與心符石轉化為水強化符石；同時木符石轉化為心強化符石',
-		variable : {},
 		check    : EnchantedInjunctionWCheck,
 		mapping  : EnchantedInjunctionWMapping,
 		preSet   : BasicCombineSkillSetting,
@@ -59,43 +59,61 @@ var COMBINE_SKILLS_DATA = {
 };
 
 function NewCombineSkill( id ){
-    var activeObj = {};
-    for( var key in COMBINE_SKILLS_DATA[id] ){
-        activeObj[key] = ACTIVE_SKILLS_DATA[id][key];
-    }
+    var activeObj = $.extend(true, {}, COMBINE_SKILLS_DATA[id]);
+    activeObj['variable'] = {};
     return activeObj;
 }
 
-function CombineSkillMapping( combineID, needArr ){
+function combineSkillMapping( combineID, needArr ){
+	var combine = {};
+	$.each(needArr, function(n, needSkills){
+		combine[n] = [];
+	});
+
 	$.each(TEAM_ACTIVE_SKILL, function(trigger_place, trigger_actives){
 		$.each(trigger_actives, function(trigger_i, trigger_active){
-
-			if( needArr.indexOf( trigger_active['id'] ) > 0 ){
-				// find each needed active
-				var COMBINE = {};
-				for( var activeID of needArr ){
-					if( activeID == trigger_active['id'] ){
-						COMBINE[ activeID ] = { PLACE: trigger_place, i: trigger_i };
-					}else{
-						// get leftest
-					    $.each(TEAM_ACTIVE_SKILL, function(place, actives){
-						    $.each(actives, function(i, active){
-								if( activeID == active['id'] ){
-									COMBINE[ activeID ] = { PLACE: place, i: i };
-									return false;
-								}
-					        });
-					    });
-					}
+			var check = false;
+			var needType = -1;
+			$.each(needArr, function(n, needSkills){
+console.log(trigger_active['id']);
+console.log(needSkills.indexOf( trigger_active['id'] ));
+				if( needSkills.indexOf( trigger_active['id'] ) >= 0 ){
+					check = true;
+					needType = n;
+					return false;
 				}
-				// put combine skill in actives
-				var combineSkill = NewCombineSkill( combineID );
-				var member = TEAM_MEMBERS[trigger_place];
-				combineSkill['variable'] = combineSkill['preSet']( member, COMBINE );
-				TEAM_COMBINE_SKILL[trigger_place].push( combineSkill );
+			});
+			if( check ){
+console.log(trigger_active['id']);
+				combine[needType].push( { ID: trigger_active['id'], PLACE: trigger_place, i: trigger_i } );
 			}
 		});
 	});
+console.log(combine);
+	for(var needType in combine){
+		for(var location of combine[needType]){
+			var id    = location['ID'];
+			var place = location['PLACE'];
+			var i     = location['i'];
+			var check = true;
+			var need  = $.extend(true, {}, combine);
+			$.each(needArr, function(n, needSkills){
+				if( needType == n ){
+					need[n] = [ { id: id, PLACE: place, i: i } ];
+				}else if( combine[n].length == 0 ){
+					check = false;
+					return false;
+				}
+			});
+console.log(check);
+			if( check ){
+				var combineSkill = NewCombineSkill( combineID );
+				var member = TEAM_MEMBERS[place];
+				combineSkill['variable'] = combineSkill['preSet']( member, need );
+				TEAM_COMBINE_SKILL[place].push( combineSkill );
+			}
+		}
+	}
 }
 
 function triggerCombine(place, i){
@@ -124,3 +142,4 @@ function checkCombineSkillByKey( key ){
         });
     });    
 }
+

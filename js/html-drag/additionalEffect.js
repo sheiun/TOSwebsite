@@ -35,17 +35,13 @@ var DesperateAttack = function(){
 var ADDITIONAL_EFFECT_DATA = {
 	DESPERATE_ATTACK : {
 		id       : 'DESPERATE_ATTACK',
-        variable : {},
 		attack   : DesperateAttack,
 		preSet   : BasicEffectSetting,
 	},
 };
 
 function NewAdditionalEffect( id ){
-    var effectObj = {};
-    for( var key in ADDITIONAL_EFFECT_DATA[id] ){
-        effectObj[key] = ADDITIONAL_EFFECT_DATA[id][key];
-    }
+    var effectObj = $.extend(true, {}, ADDITIONAL_EFFECT_DATA[id]);
     effectObj['variable'] = {};
     return effectObj;
 }

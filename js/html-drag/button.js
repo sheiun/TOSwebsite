@@ -50,6 +50,7 @@ $(document).ready( function(){
     closeCanvas();
     setComboShow();
     setHistoryShow();
+    resetEnemy();
 
     setTimeout( function(){
     resetTimeDiv();
@@ -514,15 +515,16 @@ function resetTeamMembers(){
 //==============================================================
 // SHOW Infomation
 //==============================================================
+function showPlayTurnLevel(){
+    $("#BattleInfomation").append( $("<span></span>").text("第"+PLAY_TURN+"回合：") ).append("<br>");    
+}
 function showResult(){
     $("#AttackNumber td").children().remove();
     $("#RecoverNumber td").children().remove();
-    var total_attack = 0;
     var total_recover = 0;
 
     $.each(ATTACK_STACK, function(i, attack){
         var atk = Math.round( attack["base"] * attack["factor"] );
-        total_attack += atk;
         if( attack["type"] == "person" ){
             $("#AttackNumber td").eq( attack["place"] ).append( 
                 $("<sapn></span>").text(atk).addClass("AtkRecLabel") 
@@ -538,8 +540,6 @@ function showResult(){
     });
     HEALTH_POINT = Math.min( TOTAL_HEALTH_POINT, Math.round( HEALTH_POINT+total_recover ) );
 
-    $("#BattleInfomation").append( $("<span></span>").text("第"+PLAY_TURN+"回合：") ).append("<br>");
-    $("#BattleInfomation").append( $("<span></span>").text("總共造成 "+total_attack+" 點傷害") ).append("<br>");
     $("#BattleInfomation").append( $("<span></span>").text("總共回復 "+total_recover+" 點生命值") ).append("<br>");
     $("#BattleInfomation").append( $("<span></span>").text("現在生命值 : "+HEALTH_POINT+" 點") ).append("<br>");
 

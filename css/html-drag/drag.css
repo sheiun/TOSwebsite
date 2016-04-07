@@ -163,34 +163,27 @@ body{
     border-collapse: collapse;
 }
 #TeamMember select{
-    width: 110px;
+    width: 130px;
+}
+#TeamMember td{
+    height: 30px;
+    width: 130px;
+    border: 1px solid Gray;
 }
 #TeamMember img{
-    width: 60px;
+    width: 80px;
 }
 #AttackNumber td{
-    height: 30px;
-    width: 110px;
     background: PaleTurquoise;
-    border: 1px solid Gray;
 }
 #RecoverNumber td{
-    height: 30px;
-    width: 110px;
     background: LightPink;
-    border: 1px solid Gray;
 }
 #ActiveButtonTD td{
-    height: 30px;
-    width: 110px;
     background: Ivory;
-    border: 1px solid Gray;
 }
 #ActiveCoolDownTD td{
-    height: 30px;
-    width: 110px;
     background: Ivory;
-    border: 1px solid Gray;
 }
 .AtkRecLabel, .EffectLabel{
     color: black;
@@ -207,13 +200,13 @@ body{
 .activeButton{
     color: black;
     font-family: "Microsoft JhengHei", Helvetica, Arial, Sans;
-    font-size: 20px;
-    width: 110px;
+    font-size: 18px;
+    width: 130px;
     overflow: hidden;
 }
 #AdditionalEffectTD td{
     height: 30px;
-    width: 660px;
+    width: 780px;
     background: Ivory;
     border: 1px solid Gray;
 }
@@ -224,12 +217,12 @@ body{
     background: #EFEFEF;
 }
 #SystemInfomation th{
-    width: 80px;
+    width: 100px;
     border: 1px solid Gray;
     color: black;
 }
 #SystemInfomation td{
-    width: 100px;
+    width: 130px;
     border: 1px solid Gray;
     color: black;
 }
@@ -239,8 +232,8 @@ body{
     font-size: 18px;
 }
 #BattleInfomationScrollbar{
-    width: 600px;
-    height: 150px;
+    width: 750px;
+    height: 200px;
     background: white;
 }
 span.labelInfo{

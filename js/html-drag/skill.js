@@ -175,6 +175,153 @@ function findMaxColorOfColorArr( colorArr ){
 }
 
 //==============================================================
+// color belongs function
+//==============================================================
+function addColorBelongsByConfig( config ){
+    for( var c in config ){
+        for( var belong_color in config[c] ){
+            if( c in COUNT_BELONG_COLOR && belong_color in COUNT_BELONG_COLOR[c] ){
+                COUNT_BELONG_COLOR[c][belong_color] += config[c][belong_color];
+            }
+        }
+    }
+}
+function setColorBelongsByConfig( config ){
+    for( var c in config ){
+        for( var belong_color in config[c] ){
+            if( c in COUNT_BELONG_COLOR && belong_color in COUNT_BELONG_COLOR[c] ){
+                COUNT_BELONG_COLOR[c][belong_color] = config[c][belong_color];
+            }
+        }
+    }
+}
+
+//==============================================================
+// count First Straight/Horizental function
+//==============================================================
+function countFirstStraightNum( length ){
+    var straight = 0;
+    for(var i = 0; i < TD_NUM; i++ ){
+        if( checkFirstStraightByPlace( length, i ) ){
+            straight += 1;
+        }
+    }
+    return straight;
+}
+function checkFirstStraightByPlace( length, place ){
+    for( var set of ALL_GROUP_SET_STACK[0]['STRAIGHT_SETS'][place] ){
+        if( set.size >= length ){
+            return true;
+        }
+    }
+    return false;
+}
+function checkFirstHorizentalClearByPlace( place ){
+    var base_line = [];
+    for(var i = TD_NUM*( place ); i < TD_NUM*( place+1 ); i++){
+        base_line.push( i );
+    }
+    for(var obj of COMBO_STACK){
+        if( obj['drop_wave'] == 0 ){
+            for(var i of obj['set']){
+                if( base_line.indexOf(i) >= 0 ){
+                    base_line.splice( base_line.indexOf(i), 1 );
+                }
+            }
+        }
+    }
+    return base_line.length == 0;
+}
+function checkComboColorAmountByConfig( config ){
+    var countId = {};
+    var check = true;
+    for(var id of config['ID']){
+        countId[id] = 0;
+    }
+
+    $.each(COMBO_STACK, function(i, combo){
+        if(combo['color'] in countId){
+            countId[ combo['color'] ] += combo['amount'];
+        }
+    });
+    var countArr = getArrayOfObjectValue(countId);
+    for(var eq of config['check'] ){
+        eq = eq.formatByArray( countArr );
+        if( ! eval(eq) ){
+            check = false;
+        }
+    }
+    return check;
+}
+function checkComboColorMaxAmountByConfig( config ){
+    var countId = {};
+    var check = true;
+    for(var id of config['ID']){
+        countId[id] = 0;
+    }
+
+    $.each(COMBO_STACK, function(i, combo){
+        if(combo['color'] in countId){
+            if( combo['amount'] > countId[ combo['color'] ] ){
+                countId[ combo['color'] ] = combo['amount'];
+            }
+        }
+    });
+    var countArr = getArrayOfObjectValue(countId);
+    for(var eq of config['check'] ){
+        eq = eq.formatByArray( countArr );
+        if( ! eval(eq) ){
+            check = false;
+        }
+    }
+    return check;
+}
+function checkComboColorFirstMaxAmountByConfig( config ){
+    var countId = {};
+    var check = true;
+    for(var id of config['ID']){
+        countId[id] = 0;
+    }
+
+    $.each(COMBO_STACK, function(i, combo){
+        if(combo['color'] in countId && combo['drop_wave'] == 0 ){
+            if( combo['amount'] > countId[ combo['color'] ] ){
+                countId[ combo['color'] ] = combo['amount'];
+            }
+        }
+    });
+    var countArr = getArrayOfObjectValue(countId);
+    for(var eq of config['check'] ){
+        eq = eq.formatByArray( countArr );
+        if( ! eval(eq) ){
+            check = false;
+        }
+    }
+    return check;
+}
+function checkComboColorStrongByConfig( config ){
+    var countId = {};
+    var check = true;
+    for(var id of config['ID']){
+        countId[id] = 0;
+    }
+
+    $.each(COMBO_STACK, function(i, combo){
+        if(combo['color'] in countId){
+            countId[ combo['color'] ] += combo['strong_amount'];
+        }
+    });
+    var countArr = getArrayOfObjectValue(countId);
+    for(var eq of config['check'] ){
+        eq = eq.formatByArray( countArr );
+        if( ! eval(eq) ){
+            check = false;
+        }
+    }
+    return check;
+}
+
+//==============================================================
 // check Team members 
 //==============================================================
 function checkMembersColorByConfig( config ){
@@ -272,64 +419,14 @@ function checkActiveSkillIDByConfig( config ){
     }
     return check;
 }
-
-//==============================================================
-// color belongs function
-//==============================================================
-function addColorBelongsByConfig( config ){
-    for( var c in config ){
-        for( var belong_color in config[c] ){
-            if( c in COUNT_BELONG_COLOR && belong_color in COUNT_BELONG_COLOR[c] ){
-                COUNT_BELONG_COLOR[c][belong_color] += config[c][belong_color];
-            }
-        }
+function checkActiveCoolDownByConfig( config ){
+    var countId = {};
+    var check = true;
+    for(var id of config['ID']){
+        countId[id] = 0;
     }
-}
-function setColorBelongsByConfig( config ){
-    for( var c in config ){
-        for( var belong_color in config[c] ){
-            if( c in COUNT_BELONG_COLOR && belong_color in COUNT_BELONG_COLOR[c] ){
-                COUNT_BELONG_COLOR[c][belong_color] = config[c][belong_color];
-            }
-        }
-    }
-}
-
-//==============================================================
-// count First Straight/Horizental function
-//==============================================================
-function countFirstStraightNum( length ){
-    var straight = 0;
-    for(var i = 0; i < TD_NUM; i++ ){
-        if( checkFirstStraightByPlace( length, i ) ){
-            straight += 1;
-        }
-    }
-    return straight;
-}
-function checkFirstStraightByPlace( length, place ){
-    for( var set of ALL_GROUP_SET_STACK[0]['STRAIGHT_SETS'][place] ){
-        if( set.size >= length ){
-            return true;
-        }
-    }
-    return false;
-}
-function checkFirstHorizentalClearByPlace( place ){
-    var base_line = [];
-    for(var i = TD_NUM*( place ); i < TD_NUM*( place+1 ); i++){
-        base_line.push( i );
-    }
-    for(var obj of COMBO_STACK){
-        if( obj['drop_wave'] == 0 ){
-            for(var i of obj['set']){
-                if( base_line.indexOf(i) >= 0 ){
-                    base_line.splice( base_line.indexOf(i), 1 );
-                }
-            }
-        }
-    }
-    return base_line.length == 0;
+    
+    return check;
 }
 
 //==============================================================

@@ -120,7 +120,7 @@ var CHARACTERS = {
         wake_var     : [ [0,0,30], [1.1,4], [0,180,0], [1.12,5] ],
         wake_info    : [ "回復力+30", "4顆直排劍10%", "攻擊力+180", "5顆直排劍12%" ],
         leader       : "ELEMENT_FACTOR3",
-        active       : [ "RUNE_STRENGTHEN_F","RUNE_STRENGTHEN_D" ],
+        active       : [ "RUNE_STRENGTHEN_F" ],
     },
     NORDIC_P : {
         id           : "NORDIC_P",
@@ -210,7 +210,7 @@ var CHARACTERS = {
         wake_var     : [ [0,90,0], [1.1,4], [340,0,0], ['w',0.4] ],
         wake_info    : [ "攻擊力+90", "4顆直排劍10%", "生命力+340", "直排水符石掉落提升至40%" ],
         leader       : "GREEK",
-        active       : [ "NONE" ],
+        active       : [ "TRACE_OF_NOTION_W" ],
     },
     GREEK_F : {
         id           : "GREEK_F",
@@ -225,7 +225,7 @@ var CHARACTERS = {
         wake_var     : [ [0,90,0], [1.1,4], [340,0,0], ['f',0.4] ],
         wake_info    : [ "攻擊力+90", "4顆直排劍10%", "生命力+340", "直排火符石掉落提升至40%" ],
         leader       : "GREEK",
-        active       : [ "NONE" ],
+        active       : [ "TRACE_OF_NOTION_F" ],
     },
     GREEK_P : {
         id           : "GREEK_P",
@@ -240,7 +240,7 @@ var CHARACTERS = {
         wake_var     : [ [0,90,0], [1.1,4], [340,0,0], ['p',0.4] ],
         wake_info    : [ "攻擊力+90", "4顆直排劍10%", "生命力+340", "直排木符石掉落提升至40%" ],
         leader       : "GREEK",
-        active       : [ "NONE" ],
+        active       : [ "TRACE_OF_NOTION_P" ],
     },
     GREEK_L : {
         id           : "GREEK_L",
@@ -255,7 +255,7 @@ var CHARACTERS = {
         wake_var     : [ [0,90,0], [1.1,4], [340,0,0], ['l',0.4] ],
         wake_info    : [ "攻擊力+90", "4顆直排劍10%", "生命力+340", "直排光符石掉落提升至40%" ],
         leader       : "GREEK",
-        active       : [ "NONE" ],
+        active       : [ "TRACE_OF_NOTION_L" ],
     },
     GREEK_D : {
         id           : "GREEK_D",
@@ -270,7 +270,7 @@ var CHARACTERS = {
         wake_var     : [ [0,90,0], [1.1,4], [340,0,0], ['d',0.4] ],
         wake_info    : [ "攻擊力+90", "4顆直排劍10%", "生命力+340", "直排暗符石掉落提升至40%" ],
         leader       : "GREEK",
-        active       : [ "NONE" ],
+        active       : [ "TRACE_OF_NOTION_D" ],
     },
     HEART_QUEEN : {
         id           : "HEART_QUEEN",
