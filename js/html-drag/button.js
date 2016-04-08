@@ -563,12 +563,17 @@ function showTeamInfomation(){
             var label = $("<span></span>").append( active['label'] );
             label.addClass('labelInfo').attr("onclick","$('#"+infoID+"').toggle()");
             var info = $("<span></span>").append($("<br>")).append("CD時間 ： "+active['coolDown']);
-            info.append($("<br>")).append( active['info'] );
-            info.attr("id", infoID).hide();
-            if( i > 0 ){ 
-                $("#ActiveSkillInfomation td").eq(place).append($("<br>"));
-            }
+            info.append($("<br>")).append( active['info'] ).attr("id", infoID).hide();
+            if( i > 0 ){ $("#ActiveSkillInfomation td").eq(place).append($("<br>")); }
             $("#ActiveSkillInfomation td").eq(place).append( [ label, info ] );
+        });
+
+        $.each(TEAM_COMBINE_SKILL[place], function(i, combine){
+            var infoID = "combineSkillinfo_"+place+"_"+i;
+            var label = $("<span></span>").append( combine['label'] );
+            label.addClass('labelInfo').attr("onclick","$('#"+infoID+"').toggle()");
+            var info = $("<span></span>").append($("<br>")).append( combine['info'] ).attr("id", infoID).hide();
+            $("#ActiveSkillInfomation td").eq(place).append( [ "<br>", label, info ] );
         });
     });
 
@@ -588,20 +593,29 @@ function showTeamInfomation(){
         var infoID = "teamSkillInfo"+i;
         var label = $("<span></span>").text( team_skill['label'] );
         label.addClass('labelInfo').attr("onclick","$('#"+infoID+"').toggle()");
-        var info = $("<span></span>").append("<br>").append(team_skill['info']).append("<br>");
-        info.attr("id",infoID).hide();
+        var info = $("<span></span>").append("<br>").append(team_skill['info']);
+        info.append("<br>").attr("id",infoID).hide();
         $("#TeamSkillInfoTD").append( [label, info] );
     });
 
 }
 function showActiveInfomation(){
     $.each(TEAM_ACTIVE_SKILL, function(place, actives){
-        $("#ActiveButtonTD td").eq(place).children().remove();
+        $("#ActiveButtonTD td div.activeBtn").eq(place).children().remove();
         $.each(actives, function(i, active){
             var label = $("<span></span>").text( active['label'] );
             var button = $("<button></button>").addClass('activeButton').append( label );
             button.attr( "onclick", "triggerActive("+place+","+i+")" ).prop("disabled", true);
-            $("#ActiveButtonTD td").eq(place).append( button );
+            $("#ActiveButtonTD td div.activeBtn").eq(place).append( button );
+        });
+    });
+    $.each(TEAM_COMBINE_SKILL, function(place, combines){
+        $("#ActiveButtonTD td div.combineBtn").eq(place).children().remove();
+        $.each(combines, function(i, combine){
+            var label = $("<span></span>").text( combine['label'] );
+            var button = $("<button></button>").addClass('activeButton').append( label );
+            button.attr( "onclick", "triggerCombine("+place+","+i+")" ).prop("disabled", true);
+            $("#ActiveButtonTD td div.combineBtn").eq(place).append( button );
         });
     });
     updateActiveCoolDownLabel();
@@ -610,15 +624,20 @@ function updateActiveCoolDownLabel(){
     $.each(TEAM_ACTIVE_SKILL, function(place, actives){
         var coolDown_arr = [];
         $.each(actives, function(i, active){
-            if( active['variable']['COOLDOWN'] == 0 ){
-                $("#ActiveButtonTD td").eq(place).find("button").eq(i).prop("disabled", false);
-            }
+            var check = active['variable']['COOLDOWN'] != 0
+            $("#ActiveButtonTD td div.activeBtn").eq(place).find("button").eq(i).prop("disabled", check);
             coolDown_arr.push( active['variable']['COOLDOWN'] );
         });
         $("#ActiveCoolDownTD td").eq(place).children().remove();
         $("#ActiveCoolDownTD td").eq(place).append(
             $("<span></span>").text( coolDown_arr.join(' / ') ).addClass('CDTimeLabel')
         );
+    });    
+    $.each(TEAM_COMBINE_SKILL, function(place, combines){
+        $.each(combines, function(i, combine){
+            var useable = checkCombineUseable( TEAM_COMBINE_SKILL[place][i]['variable']['COMBINE'] );
+            $("#ActiveButtonTD td div.combineBtn").eq(place).find("button").eq(i).prop("disabled", !useable['check']);
+        });
     });
 }
 function updateAdditionalEffectLabel(){

@@ -175,15 +175,18 @@ var RuneStrengthenTransfer = function( place, i ){
 // Attack Effect function
 //==============================================================
 var AddtionalEffectCheck = function( place, i ){
-    var checkEffect = true;
+    return basicAdditionalEffectCheck( this.id ) && basicActiveCheck( this.variable, place, i );
+}
+function basicAdditionalEffectCheck( effectID ){
     $.each(ADDITIONAL_EFFECT_STACK, function(i, effect){
-        if( effect['id'] == this.id ){
+        if( effect['id'] == effectID ){
             checkEffect = false;
             return false;
         }
     });
-    return basicActiveCheck( this.variable, place, i ) && checkEffect;
+    return true;
 }
+
 var DesperateAttackEffect = function( place, i ){
     VAR = this.variable;
     VAR['COOLDOWN'] = this.coolDown;
@@ -450,8 +453,8 @@ function triggerActive(place, i){
         return false;
     }
 
-        console.log( TEAM_ACTIVE_SKILL[place][i]['check']( place, i ));
     if( TEAM_ACTIVE_SKILL[place][i]['check']( place, i ) ){
+console.log("check-true");
         triggerActiveByKey( place, i, "startRun" );
         triggerActiveByKey( place, i, "start" );
         triggerActiveByKey( place, i, "transfer" );
@@ -461,6 +464,7 @@ function triggerActive(place, i){
 }
 function triggerActiveByKey( place, i, key ){
     if( key in TEAM_ACTIVE_SKILL[place][i] ){
+console.log("trigger-"+key);
         TEAM_ACTIVE_SKILL[place][i][ key ]( place, i );
     }
 }

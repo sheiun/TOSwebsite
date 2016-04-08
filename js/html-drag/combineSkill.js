@@ -17,20 +17,17 @@ var BasicCombineSkillCheck = function( trigger_place, trigger_i ){
 	return basicFunctionCombineSkillCheck( VAR, trigger_place, trigger_i );
 }
 function basicFunctionCombineSkillCheck( VAR, trigger_place, trigger_i ){
-	for( var location of VAR['COMBINE'] ){
-		var place = location['PLACE'];
-		var i =  location['i'];
-		if( TEAM_ACTIVE_SKILL[place][i]['variable']['COOLDOWN'] != 0 ){
-			return false;
-		}
-	}
-	return true;	
+    var useable = checkCombineUseable( VAR['COMBINE'] )
+	return useable['check'];
 }
 
+//==============================================================
+// Enchanted Injunction
+//==============================================================
 var EnchantedInjunctionWCheck = function( trigger_place, trigger_i ){
 	var VAR = this.variable;
-	var check = basicFunctionCombineSkillCheck( VAR, trigger_place, trigger_i );
-	return check;
+    var useable = checkCombineUseable( VAR['COMBINE'] )
+	return useable['check'];
 }
 var EnchantedInjunctionWMapping = function(){
 	if( checkActiveSkillIDByConfig({
@@ -75,8 +72,6 @@ function combineSkillMapping( combineID, needArr ){
 			var check = false;
 			var needType = -1;
 			$.each(needArr, function(n, needSkills){
-console.log(trigger_active['id']);
-console.log(needSkills.indexOf( trigger_active['id'] ));
 				if( needSkills.indexOf( trigger_active['id'] ) >= 0 ){
 					check = true;
 					needType = n;
@@ -84,12 +79,11 @@ console.log(needSkills.indexOf( trigger_active['id'] ));
 				}
 			});
 			if( check ){
-console.log(trigger_active['id']);
 				combine[needType].push( { ID: trigger_active['id'], PLACE: trigger_place, i: trigger_i } );
 			}
 		});
 	});
-console.log(combine);
+
 	for(var needType in combine){
 		for(var location of combine[needType]){
 			var id    = location['ID'];
@@ -105,7 +99,6 @@ console.log(combine);
 					return false;
 				}
 			});
-console.log(check);
 			if( check ){
 				var combineSkill = NewCombineSkill( combineID );
 				var member = TEAM_MEMBERS[place];
@@ -122,6 +115,7 @@ function triggerCombine(place, i){
     }
 
     if( TEAM_COMBINE_SKILL[place][i]['check']( place, i ) ){
+console.log("check-true");
         triggerCombineByKey( place, i, "startRun" );
         triggerCombineByKey( place, i, "transfer" );
         triggerCombineByKey( place, i, "addEffect" );
@@ -130,6 +124,7 @@ function triggerCombine(place, i){
 }
 function triggerCombineByKey( place, i, key ){
     if( key in TEAM_COMBINE_SKILL[place][i] ){
+console.log("trigger-"+key);
         TEAM_COMBINE_SKILL[place][i][ key ]( place, i );
     }
 }
@@ -143,3 +138,27 @@ function checkCombineSkillByKey( key ){
     });    
 }
 
+function checkCombineUseable( COMBINE ){
+    var combineCheck = true;
+    var locations = {};
+    for( var key in COMBINE ){
+        var check = false;
+        $.each(COMBINE[key], function(i, location){
+            var active = TEAM_ACTIVE_SKILL[location.PLACE][location.i];
+            if( active['variable']['COOLDOWN'] == 0 ){
+                check = true;
+                locations[key] = i;
+                return false;
+            }
+        });
+        if( !check ){
+            combineCheck = false;
+            break;
+        }
+    }
+
+    return {
+        check    : combineCheck,
+        locations: locations,
+    };
+}
