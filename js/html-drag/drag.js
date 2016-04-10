@@ -5,8 +5,8 @@
 var WIDTH = 80;
 var HEIGHT = 80;
 
-var TR_INDEX;
-var TD_INDEX;
+var TR_INDEX = 5;
+var TD_INDEX = 6;
 var BASE_LEFT;
 var BASE_TOP;
 var TR_NUM = parseInt( $("#dragContainment").attr("tr") );
@@ -24,6 +24,7 @@ var COLORS = ['w', 'f', 'p', 'l', 'd', 'h'];
 var TEAM_COLORS = [];
 var COLOR_MAP = {};
 var COLOR_PROB = [ {}, {}, {}, {}, {}, {} ];
+var TEAM_COLORS_CHANGEABLE = true;
 
 var STRAIGHT_SETS = [];
 var HORIZONTAL_SETS = [];
@@ -42,7 +43,46 @@ var DROP_WAVES = 0;
 var COMBO_TIMES = 0;
 var COMBO_SHOW = 0;
 
-// in battle.js
+var DRAG_ANIMATE_TIME = 100;
+var REMOVE_TIME = 100;
+var FADEOUT_TIME = 200;
+var DROP_TIME = 150;
+var ATTACK_INFO_TIME = 500;
+
+var MOVE_OUT_OF_TIME = false;
+var START_TIME = 0;
+var TIME_INTERVAL;
+var TIME_RUNNING = false;
+var TIME_GRADIENT;
+var TIME_RECT;
+
+//==============================================================
+// HISTORY
+//==============================================================
+var HISTORY = [];
+var INITIAL_PANEL = [];
+var FINAL_PANEL = [];
+var HISTORY_SHOW = 0;
+var COLOR_RANDOM = Math.floor( Math.random() * 1000 );
+var HISTORY_RANDOM = COLOR_RANDOM;
+var HISTORY_SKILL_VARIABLE;
+var HISTORY_TEAM_MEMBER;
+var CLIPBOARD;
+
+//==============================================================
+// ENEMY
+//==============================================================
+var LOCUS_LENGTH = 6;
+var LOCUS = true;
+var LOCUS_TYPE = null;
+var LOCUS_STACK = [];
+
+//==============================================================
+// BATTLE
+//==============================================================
+var HEALTH_POINT = 0;
+var TOTAL_HEALTH_POINT = 0;
+
 var COUNT_COMBO                 = 0;
 var COUNT_COMBO_COEFF           = 0.25;
 var COUNT_AMOUNT                = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
@@ -64,48 +104,25 @@ var COUNT_RECOVER_STRONG_COEFF  = 0.15;
 var COUNT_RECOVER_FACTOR        = {};
 var COUNT_COLOR_FACTOR          = { 'w': 1, 'f': 1, 'p': 1, 'l': 1, 'd': 1, '': 1 };
 var COUNT_COLOR_TO_COLOR_FACTOR = { 'w': {}, 'f': {}, 'p': {}, 'l': {}, 'd': {}, '': {} };
+var COUNT_INJURE_REDUCE         = 1;
 
-var DRAG_ANIMATE_TIME = 100;
-var REMOVE_TIME = 100;
-var FADEOUT_TIME = 200;
-var DROP_TIME = 150;
-var ATTACK_INFO_TIME = 500;
-
-var MOVE_OUT_OF_TIME = false;
-var START_TIME = 0;
-var TIME_INTERVAL;
-var TIME_RUNNING = false;
-var TIME_GRADIENT;
-var TIME_RECT;
-
-var HISTORY = [];
-var INITIAL_PANEL = [];
-var FINAL_PANEL = [];
-var HISTORY_SHOW = 0;
-var COLOR_RANDOM = Math.floor( Math.random() * 1000 );
-var HISTORY_RANDOM = COLOR_RANDOM;
-var HISTORY_SKILL_VARIABLE;
-var HISTORY_TEAM_MEMBER;
-var CLIPBOARD;
-
-var LOCUS_LENGTH = 6;
-var LOCUS = true;
-var LOCUS_TYPE = null;
-var LOCUS_STACK = [];
-
-var PLAY_TYPE = null;
-var MAIN_STATE = null;
+var ATTACK_STACK  = [];
+var RECOVER_STACK = [];
+var INJURE_STACK  = [];
 
 //==============================================================
 // CONTROL PARAMETER
 //==============================================================
-var TEAM_COLORS_CHANGEABLE = true;
-var CREATE_COLOR = null;
+var FREE_DRAGABLE = false;
+var DROPABLE = false;
+var AUDIO = true;
+
 var TIME_IS_LIMIT = true;
 var TIME_LIMIT = 5;
-var DROPABLE = false;
+
 var REPLAY_SPEED = 300;
-var AUDIO = true;
+var REVIEW_PATH = false;
+var CREATE_COLOR = null;
 
 //==============================================================
 // TEAM MEMBER
@@ -136,16 +153,12 @@ var TEAM_WAKES            = [];
 //==============================================================
 // STATUS
 //==============================================================
-var HEALTH_POINT = 0;
-var TOTAL_HEALTH_POINT = 0;
-
-var ATTACK_STACK  = [];
-var RECOVER_STACK = [];
-var SUFFER_STACK  = [];
 
 var ENEMY = null;
 
 var PLAY_TURN = 0;
+var PLAY_TYPE = null;
+var MAIN_STATE = null;
 
 //==============================================================
 // reset functions
@@ -272,6 +285,7 @@ function resetComboStack(){
 function resetAttackRecoverStack(){
     ATTACK_STACK = [];
     RECOVER_STACK = [];
+    INJURE_STACK = [];
 }
 function resetMoveTime(){
     START_TIME = new Date().getTime() / 1000;
@@ -825,11 +839,15 @@ function endPlayTurn(){
     $("#dragContainment img.over").removeClass("img-gray");
     checkLeaderSkillByKey( 'end' );
     checkTeamSkillByKey( 'end' );
+    checkActiveSkillByKey( 'end' );
+    checkAdditionEffectByKey( 'end' );
+    checkEnemyEffectByKey( 'end' );
 
     PLAY_TURN += 1;
     frozenUpdate();
     activeCoolDownUpdate();
     additionalEffectUpdate();
+    enemyEffectUpdate();
     usingActiveSkillUpdate();
     nextMoveWave();
 }

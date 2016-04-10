@@ -70,6 +70,23 @@ var ActiveCoolDownBegining = function(MEMBER, place, wakeVar ){
     TEAM_ACTIVE_SKILL[place][0]['variable']['COOLDOWN'] -= wakeVar;
 }
 
+var StraightEncirclementTransfer = function( wakeVar, place, i ){
+    var stack = getStackOfStraightByColorArr( place, ['w','f','p','l','d','h'] );
+console.log(stack);
+    for(var id of stack){
+console.log(id);
+        turnElementToColorByID(id, wakeVar);
+    }
+}
+var StraightEnchantmentTransfer = function( wakeVar, place, i ){
+    var stack = getStackOfStraightByColor( place, wakeVar );
+console.log(stack);
+    for(var id of stack){
+console.log(id);
+        turnElementToStrongByID(id);
+    }
+}
+
 //==============================================================
 //==============================================================
 // Wake Database
@@ -114,6 +131,14 @@ var WAKES_DATA = {
         preSet    : ActiveCoolDownBegining,  
         // wakeVar = "[turn]"    
     },
+    STRAIGHT_ENCIRCLEMENT : {
+        id        : "STRAIGHT_ENCIRCLEMENT",
+        transfer  : StraightEncirclementTransfer,
+    },
+    STRAIGHT_ENCHANTMENT : {
+        id        : "STRAIGHT_ENCHANTMENT",
+        transfer  : StraightEnchantmentTransfer,
+    },
 }
 
 
@@ -125,4 +150,10 @@ function checkWakeByKey( key ){
             }
         });
     });
+}
+
+function checkWakeFromOrderByKey( key, place, i ){
+    if( TEAM_WAKES[place].length > i && key in TEAM_WAKES[place][i] ){
+        TEAM_WAKES[place][i][ key ]( TEAM_MEMBERS[place]['wake_var'][i], place, i );
+    }
 }

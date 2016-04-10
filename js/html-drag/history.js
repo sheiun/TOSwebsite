@@ -160,8 +160,10 @@ function drawPath(){
         });
     }
 
-    drawTerminalCircle( shift_analysis, line_history[0], 'start' );
-    drawTerminalCircle( shift_analysis, line_history[ line_history.length-1 ], 'goal' );
+    if( line_history.length > 1 ){
+        drawTerminalCircle( shift_analysis, line_history[0], 'start' );
+        drawTerminalCircle( shift_analysis, line_history[ line_history.length-1 ], 'goal' );
+    }
 }
 function findEmptyShift( shift_analysis, array, vector ){
     var total_shift = new Set();

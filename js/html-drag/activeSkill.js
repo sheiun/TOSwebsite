@@ -18,10 +18,7 @@ var BasicActiveCheck = function( place, i ){
     return basicActiveCheck( this.variable, place, i );
 }
 function basicActiveCheck( VAR, place, i ){
-    if( MAIN_STATE == MAIN_STATE_ENUM.READY && VAR['COOLDOWN'] == 0 ){
-        return true;
-    }
-    return false;
+    return (MAIN_STATE == MAIN_STATE_ENUM.READY) && (VAR['COOLDOWN'] == 0);
 }
 
 //==============================================================
@@ -129,6 +126,7 @@ var BrokeBoundaryEnd = function( place, i ){
     window.scrollTo(0, $("#clock").offset().top-3*HEIGHT);
 }
 
+//==============================================================
 var OverBeautyStart = function( place, i ){
     VAR = this.variable;
     VAR['COOLDOWN'] = this.coolDown;
@@ -151,16 +149,14 @@ var OverBeautyEnd = function( place, i ){
     setPlayType( PLAY_TYPE_ENUM.DRAG );
 }
 
+
 //==============================================================
 // Transfer function
 //==============================================================
-var RuneStrengthenCheck= function( place, i ){
+var RuneStrengthenCheck = function( place, i ){
     VAR = this.variable;
-    if( basicActiveCheck( VAR, place, i ) &&
-        checkHasElementByColorWithoutStrong( VAR['COLOR'] ) ){
-        return true;
-    }
-    return false;
+    return basicActiveCheck( VAR, place, i ) &&
+        checkHasElementByColorWithoutStrong( VAR['COLOR'] );
 }
 var RuneStrengthenTransfer = function( place, i ){
     VAR = this.variable;
@@ -172,29 +168,103 @@ var RuneStrengthenTransfer = function( place, i ){
 }
 
 //==============================================================
-// Attack Effect function
-//==============================================================
-var AddtionalEffectCheck = function( place, i ){
-    return basicAdditionalEffectCheck( this.id ) && basicActiveCheck( this.variable, place, i );
+var DeffensiveStanceCheck = function( place, i ){
+    VAR = this.variable;
+    return basicActiveCheck( VAR, place, i ) &&
+        checkHasElementByColor( COLOR_EXCLUSIVE[VAR['COLOR']] );
 }
-function basicAdditionalEffectCheck( effectID ){
-    $.each(ADDITIONAL_EFFECT_STACK, function(i, effect){
-        if( effect['id'] == effectID ){
-            checkEffect = false;
-            return false;
-        }
-    });
-    return true;
-}
-
-var DesperateAttackEffect = function( place, i ){
+var DeffensiveStanceTransfer = function( place, i ){
     VAR = this.variable;
     VAR['COOLDOWN'] = this.coolDown;
-    var effect = NewAdditionalEffect( this.id );
-    effect['variable'] = effect['preSet']( place, i, VAR );
-
-    additionalEffectAdd( effect );
+    var stack = getStackOfPanelByColor( COLOR_EXCLUSIVE[VAR['COLOR']] );
+    for(var id of stack){
+        turnElementToColorByID(id, 'h');
+    }
 }
+var DeffensiveStanceEXTransfer = function( place, i ){
+    VAR = this.variable;
+    VAR['COOLDOWN'] = this.coolDown;
+    var stack = getStackOfPanelByColor( COLOR_EXCLUSIVE[VAR['COLOR']] );
+    for(var id of stack){
+        turnElementToColorByID(id, 'h+');
+    }
+}
+
+//==============================================================
+var TransformationCheck = function( place, i ){
+    VAR = this.variable;
+    return basicActiveCheck( VAR, place, i ) &&
+        checkHasElementByColorArr( getOtherColorsFromColorArr(VAR['COLOR']) );
+}
+var TransformationH_Check = function( place, i ){
+    VAR = this.variable;
+    return basicActiveCheck( VAR, place, i ) &&
+        getStackOfPanelByColorArr( getOtherColorsFromColorArr('h') ).length >= VAR['COUNT'];
+}
+var TransformationSetting = function( member, place, i ){
+    return {
+        COLOR     : member['color'],
+        TYPE      : member['type'],
+        COOLDOWN  : this.coolDown,
+        PLACE     : place,
+        i         : i,
+        COUNT     : 0,
+    }
+}
+var TransformationTransfer = function( place, i ){
+    VAR = this.variable;
+    if( VAR['COUNT'] == 0 ){ return false; }
+    VAR['COOLDOWN'] = this.coolDown;
+
+    var otherColors = getOtherColorsFromColorArr(['h', COLOR_EXCLUSIVE[VAR['COLOR']], VAR['COLOR']]);
+    turnRandomElementToColorByConfig( {
+        color          : VAR['COLOR'],
+        num            : VAR['COUNT']+1,
+        priorityColors : [ ['h'], [ COLOR_EXCLUSIVE[VAR['COLOR']] ], otherColors, [VAR['COLOR']] ],
+    } );
+    VAR['COUNT'] = 0;
+}
+var TransformationPlusTransfer = function( place, i ){
+    VAR = this.variable;
+    if( VAR['COUNT'] == 0 ){ return false; }
+    VAR['COOLDOWN'] = this.coolDown;
+
+    var color = (VAR['COUNT'] == 7) ? VAR['COLOR']+'+' : VAR['COLOR'];
+    var otherColors = getOtherColorsFromColorArr(['h', COLOR_EXCLUSIVE[VAR['COLOR']], VAR['COLOR']]);
+    turnRandomElementToColorByConfig( {
+        color          : color,
+        num            : VAR['COUNT']+1,
+        priorityColors : [ ['h'], [ COLOR_EXCLUSIVE[VAR['COLOR']] ], otherColors, [VAR['COLOR']] ],
+    } );
+    VAR['COUNT'] = 0;
+}
+var TransformationH_Transfer = function( place, i ){
+    VAR = this.variable;
+    if( VAR['COUNT'] == 0 ){ return false; }
+    VAR['COOLDOWN'] = this.coolDown;
+
+    turnRandomElementToColorByProb( {
+        color      : 'h',
+        num        : VAR['COUNT'],
+        probColors : {
+            'w': 5/18, 'f': 10/18, 'p': 15/18, 'l': 11/12, 'd': 12/12
+        },
+    } );
+    VAR['COUNT'] = 0;
+}
+var TransformationEnd = function( place, i ){
+    VAR = this.variable;
+    if( COMBO_STACK.length > 0 ){
+        VAR['COUNT'] = Math.min( 7, VAR['COUNT']+1 );    
+    }
+}
+var TransfigurationEnd = function( place, i ){
+    VAR = this.variable;
+    if( COMBO_STACK.length > 0 ){
+        VAR['COUNT'] = Math.min( 5, VAR['COUNT']+1 );    
+    }
+}
+
 
 //==============================================================
 // Member Switch function
@@ -255,6 +325,114 @@ var TraceOfNotionAttack = function( place, i ){
     }
 
     COUNT_COLOR_FACTOR[ VAR['COLOR'] ] *= VAR['FACTOR'];
+}
+
+
+//==============================================================
+// Attack Effect function
+//==============================================================
+var AddtionalEffectCheck = function( place, i ){
+    return basicAdditionalEffectCheck( this.id ) && basicActiveCheck( this.variable, place, i );
+}
+function basicAdditionalEffectCheck( effectID ){
+    var checkEffect = true;
+    $.each(ADDITIONAL_EFFECT_STACK, function(i, effect){
+        if( effect['id'] == effectID ){
+            checkEffect = false;
+            return false;
+        }
+    });
+    return checkEffect;
+}
+function basicAdditionalEffectCheckByTag( effectTag ){
+    var checkEffect = true;
+    $.each(ADDITIONAL_EFFECT_STACK, function(i, effect){
+        if( effect['tag'].indexOf( effectTag ) >= 0 ){
+            checkEffect = false;
+            return false;
+        }
+    });
+    return checkEffect;
+}
+//==============================================================
+var PlaySafeCheck = function( place, i ){
+    return basicAdditionalEffectCheck( this.id ) &&
+        basicAdditionalEffectCheckByTag( "injureReduce" ) &&
+        basicActiveCheck( this.variable, place, i );
+}
+var PlayWildCheck = function( place, i ){
+    return basicAdditionalEffectCheck( this.id ) &&
+        basicAdditionalEffectCheckByTag( "defenceReduce" ) &&
+        basicActiveCheck( this.variable, place, i );
+}
+var BladesEffectCheck = function( place, i ){
+    return basicAdditionalEffectCheck( this.id ) &&
+        basicAdditionalEffectCheckByTag( "addTimeLimit" ) &&
+        basicActiveCheck( this.variable, place, i );
+}
+
+var BasicAddtionalEffectAdd = function( place, i ){
+    VAR = this.variable;
+    VAR['COOLDOWN'] = this.coolDown;
+    var effect = NewAdditionalEffect( this.id );
+    effect['variable'] = effect['preSet']( place, i, VAR );
+
+    additionalEffectAdd( effect );
+}
+
+//==============================================================
+// Enemy Effect function
+//==============================================================
+var EnemyEffectCheck = function( place, i ){
+    return basicEnemyEffectCheck( this.id ) && basicActiveCheck( this.variable, place, i );
+}
+function basicEnemyEffectCheck( effectID ){
+    var checkEffect = true;
+    $.each(ENEMY, function(e, enemy){
+        $.each(enemy['variable']['EFFECT'], function(i, effect){
+            if( effect['id'] == effectID ){
+                checkEffect = false;
+                return false;
+            }
+        });
+    });
+    return checkEffect;
+}
+function basicEnemyEffectCheckByTag( effectTag ){
+    var checkEffect = true;
+    $.each(ENEMY, function(e, enemy){
+        $.each(enemy['variable']['EFFECT'], function(i, effect){
+            if( effect['tag'].indexOf( effectTag ) >= 0 ){
+                checkEffect = false;
+                return false;
+            }
+        });
+    });
+    return checkEffect;
+}
+//==============================================================
+var BattleFieldCheck = function( place, i ){
+    return basicEnemyEffectCheck( this.id ) &&
+        basicEnemyEffectCheckByTag( 'changeColor' ) &&
+        basicActiveCheck( this.variable, place, i );
+}
+var BlazingCircleCheck = function( place, i ){
+    return basicEnemyEffectCheck( this.id ) &&
+        basicEnemyEffectCheckByTag( 'changeColor' ) &&
+        basicEnemyEffectCheckByTag( 'addCoolDown' ) &&
+        basicActiveCheck( this.variable, place, i );
+}
+
+var BasicEnemyEffectAdd = function( place, i ){
+    VAR = this.variable;
+    VAR['COOLDOWN'] = this.coolDown;
+    var effectID = this.id;
+
+    $.each(ENEMY, function(e, enemy){
+        var effect = NewEnemyEffect( effectID );
+        effect['variable'] = effect['preSet']( place, i, VAR, enemy );
+        enemy['variable']['EFFECT'].push( effect );
+    });
 }
 
 //==============================================================
@@ -372,7 +550,7 @@ var ACTIVE_SKILLS_DATA = {
         label     : '拚死一擊',
         info      : '1 回合內，自身生命力愈低，全隊攻擊力愈高，最大 3 倍',
         coolDown  : 10,
-        addEffect : DesperateAttackEffect,
+        addEffect : BasicAddtionalEffectAdd,
         check     : AddtionalEffectCheck,
         preSet    : BasicActiveSetting,
     },
@@ -441,6 +619,136 @@ var ACTIVE_SKILLS_DATA = {
         start     : TraceOfNotionStart,
         update    : TraceOfNotionUpdate,
     },
+    TRANSFORMATION_W : {
+        id        : 'TRANSFORMATION_W',
+    },
+    TRANSFIGURATION_H : {
+        id        : 'TRANSFIGURATION_H', 
+        label     : '蓄能傳承 ‧ 心',
+        info      : '將與累積戰鬥回合數同等數量的符石轉為心符石，最多 7 粒。發動技能後會將累積戰鬥回合數重置',
+        coolDown  : 1,
+        check     : TransformationCheck,
+        preSet    : TransformationSetting,
+        transfer  : TransformationH_Transfer,
+        end       : TransformationEnd,
+    },
+    DEFENSIVE_STANCE_EX_F : {
+        id        : 'DEFENSIVE_STANCE_EX_F',
+        label     : '鐵壁陣勢 ‧ 火',
+        info      : '木符石轉化為心強化符石',
+        coolDown  : 5,
+        check     : DeffensiveStanceCheck,
+        preSet    : BasicActiveSetting,
+        transfer  : DeffensiveStanceEXTransfer,
+    },
+    BATTLEFIELD_P : {
+        id        : 'BATTLEFIELD_P',
+        label     : '枯朽的戰場',
+        info      : '2 回合內，敵方全體轉為水屬性，並提升木屬性對水屬性目標的攻擊力',
+        coolDown  : 12,
+        addEffect : BasicEnemyEffectAdd,
+        check     : BattleFieldCheck,
+        preSet    : BasicActiveSetting,
+    },
+    FIGHT_SAFE : {
+        id        : 'FIGHT_SAFE',
+        label     : '攻守自如',
+        info      : '1 回合內，達成 4 連擊 (Combo) 或以下，回復 20,000 點生命力；反之，所有成員攻擊力 2 倍。連擊 (Combo) 只計算首批消除的符石',
+        coolDown  : 10,
+        addEffect : BasicAddtionalEffectAdd,
+        check     : AddtionalEffectCheck,
+        preSet    : BasicActiveSetting,
+    },
+    PLAY_SAFE : {
+        id        : 'PLAY_SAFE',
+        label     : '進退自如',
+        info      : '1 回合內，達成 4 連擊 (Combo) 或以下，所受傷害減少 80%；反之，所有成員攻擊力 2 倍。連擊 (Combo) 只計算首批消除的符石',
+        coolDown  : 10,
+        addEffect : BasicAddtionalEffectAdd,
+        check     : PlaySafeCheck,
+        preSet    : BasicActiveSetting,
+    },
+    PLAY_WILD : {
+        id        : 'PLAY_WILD',
+        label     : '攻勢如虹',
+        info      : '1 回合內，達成 4 連擊 (Combo) 或以下時，敵方全體防禦力變 0；反之，所有成員攻擊力 2 倍。連擊 (Combo) 只計算首批消除的符石',
+        coolDown  : 10,
+        addEffect : BasicAddtionalEffectAdd,
+        check     : PlayWildCheck,
+        preSet    : BasicActiveSetting,
+    },
+    HUNTING_MODE : {
+        id        : 'HUNTING_MODE',
+        label     : '狩獵之勢',
+        info      : '2 回合內，自身攻擊力 3 倍。若身旁的成員同為獸類，同得此效果',
+        coolDown  : 10,
+        addEffect : BasicAddtionalEffectAdd,
+        check     : AddtionalEffectCheck,
+        preSet    : BasicActiveSetting,
+    },
+    BLAZING_CIRCLE : {
+        id        : 'BLAZING_CIRCLE',
+        label     : '燄之結界',
+        info      : '敵方全體點燃，使受影響目標無法行動並轉為火屬性，持續 3 回合',
+        coolDown  : 15,
+        addEffect : BasicEnemyEffectAdd,
+        check     : BlazingCircleCheck,
+        preSet    : BasicActiveSetting,
+    },
+    SAVAGE_ATTACK : {
+        id        : 'SAVAGE_ATTACK',
+        label     : '窮兇極怒',
+        info      : '1 回合內，自身攻擊力 10 倍。(攻擊力不可與其他成員共享)',
+        coolDown  : 10,
+        addEffect : BasicAddtionalEffectAdd,
+        check     : AddtionalEffectCheck,
+        preSet    : BasicActiveSetting,
+    },
+    BLADES_OF_WATER : {
+        id        : 'BLADES_OF_WATER',
+        label     : '水刃之能',
+        info      : '1 回合內，延長移動符石時間 3 秒；消除一組 6 粒或以上的水符石，水屬性攻擊力 1.5 倍',
+        coolDown  : 12,
+        addEffect : BasicAddtionalEffectAdd,
+        check     : BladesEffectCheck,
+        preSet    : BasicActiveSetting,
+    },
+    BLADES_OF_FLAME : {
+        id        : 'BLADES_OF_FLAME',
+        label     : '燄刃之能',
+        info      : '1 回合內，延長移動符石時間 3 秒；消除一組 6 粒或以上的火符石，火屬性攻擊力 1.5 倍',
+        coolDown  : 12,
+        addEffect : BasicAddtionalEffectAdd,
+        check     : BladesEffectCheck,
+        preSet    : BasicActiveSetting,
+    },
+    BLADES_OF_VINE : {
+        id        : 'BLADES_OF_VINE',
+        label     : '藤刃之能',
+        info      : '1 回合內，延長移動符石時間 3 秒；消除一組 6 粒或以上的木符石，木屬性攻擊力 1.5 倍',
+        coolDown  : 12,
+        addEffect : BasicAddtionalEffectAdd,
+        check     : BladesEffectCheck,
+        preSet    : BasicActiveSetting,
+    },
+    BLADES_OF_LIGHT : {
+        id        : 'BLADES_OF_LIGHT',
+        label     : '光刃之能',
+        info      : '1 回合內，延長移動符石時間 3 秒；同時消除心符石、光符石及暗符石，光屬性攻擊力 1.5 倍',
+        coolDown  : 12,
+        addEffect : BasicAddtionalEffectAdd,
+        check     : BladesEffectCheck,
+        preSet    : BasicActiveSetting,
+    },
+    BLADES_OF_PHANTOM : {
+        id        : 'PHANTOM',
+        label     : '魅刃之能',
+        info      : '1 回合內，延長移動符石時間 3 秒；同時消除心符石、光符石及暗符石，暗屬性攻擊力 1.5 倍',
+        coolDown  : 12,
+        addEffect : BasicAddtionalEffectAdd,
+        check     : BladesEffectCheck,
+        preSet    : BasicActiveSetting,
+    },
 };
 
 function NewActiveSkill( id ){
@@ -459,6 +767,10 @@ console.log("check-true");
         triggerActiveByKey( place, i, "start" );
         triggerActiveByKey( place, i, "transfer" );
         triggerActiveByKey( place, i, "addEffect" );
+
+        for(var w = 0; w < 4; w++){
+            checkWakeFromOrderByKey( "transfer", place, w );
+        }
     }
     updateActiveCoolDownLabel();
 }
@@ -481,8 +793,10 @@ function checkActiveSkillByKey( key ){
 function activeCoolDownUpdate(){
     $.each(TEAM_ACTIVE_SKILL, function(place, actives){
         $.each(actives, function(i, active){
-            if( active['variable']['COOLDOWN'] > 0 ){
-                active['variable']['COOLDOWN'] -= 1;
+            if( COMBO_STACK.length > 0 ){
+                if( active['variable']['COOLDOWN'] > 0 ){
+                    active['variable']['COOLDOWN'] -= 1;
+                }
             }
         });
     });

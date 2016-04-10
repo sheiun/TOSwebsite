@@ -161,6 +161,7 @@ body{
 #TeamMember{
     cursor: default;
     border-collapse: collapse;
+    border: 1px solid Gray;
 }
 #TeamMember select{
     width: 130px;
@@ -181,6 +182,7 @@ body{
 }
 #ActiveButtonTD td{
     background: Ivory;
+    border: none;
 }
 #ActiveCoolDownTD td{
     background: Ivory;
@@ -198,11 +200,24 @@ body{
     font-size: 18px;
 }
 .activeButton{
-    color: black;
-    font-family: "Microsoft JhengHei", Helvetica, Arial, Sans;
-    font-size: 18px;
+    cursor: pointer;
     width: 130px;
+    min-height: 30px;
+    display: inline-block;
+    margin: auto;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    font-family: "Microsoft JhengHei", Helvetica, Arial, Sans;
     overflow: hidden;
+    background-image: none;
+    border: 1px solid gray;
+    border-radius: 14px;
+}
+.activeButton[disabled]{
+    cursor: not-allowed;
+    box-shadow: none;
+    opacity: .65;
 }
 #AdditionalEffectTD td{
     height: 30px;
@@ -240,5 +255,5 @@ span.labelInfo{
     cursor: pointer;
     margin-left: 10px;
     font-family: "Microsoft JhengHei", Helvetica, Arial, Sans;
-    font-size: 18px;
+    font-size: 16px;
 }

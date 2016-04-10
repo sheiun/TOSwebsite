@@ -26,7 +26,7 @@
     <!--[if lt IE 9]>
         <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
         <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
-    <![endif]-->
+    <![endif]
     <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -35,7 +35,7 @@
 
       ga('create', 'UA-74512169-1', 'auto');
       ga('send', 'pageview');
-    </script>
+    </script>-->
 
     <!--
 
@@ -94,35 +94,43 @@
                 <p id="title">轉珠模擬器</p>
 
                 <div id="playBtn" class="btn-group" role="group">
-                    <button class="btn btn-default" onclick="toggleFreeDrag()">
-                        <sapn id="freeDrag">一般移動</span>
-                    </button>
-                    <button class="btn btn-default" onclick="toggleTimeLimit()">
-                        <span id="timeLimit">限制時間<br></span>
-                    </button>
-                    <input type="number" id="timeRange" value="5" max="60" min="1" class="btn btn-default">
-                    <button class="btn btn-default" onclick="toggleDropable()">
-                        <span id="dropable">取消落珠</span>
-                    </button>
-                    <button class="btn btn-default" onclick="toggleAudio()">
-                        <span id="playAudio">播放音效</span>
-                    </button>
-                    <br><br>
+                    <button id="normalDrag" class="btn btn-default btn-lg" onclick="toggleFreeDrag()">
+                        <sapn >一般移動</span></button>
+                    <button id="freeDrag" class="btn btn-default btn-lg" onclick="toggleFreeDrag()" style="display: none;">
+                        <sapn>自由移動</span></button>
 
-                    <button class="btn btn-default" onclick="initialPlain()">
-                        <span id="initial">初始版面</span>
-                    </button>
-                    <button class="btn btn-default"onclick="finalPlain()">
-                        <span id="final">最終版面</span>
-                    </button>
-                    <button class="btn btn-default"onclick="replay()">
-                        <span id="replay">重播紀錄</span>
-                    </button>
-                    <button class="btn btn-default"onclick="toggleReviewPath()">
-                        <span id="review">顯示軌跡</span>
-                    </button>
+                    <button id="timeLimit" class="btn btn-default btn-lg" onclick="toggleTimeLimit()">
+                        <span>限制時間</span></button>
+                    <button id="timeNoLimit" class="btn btn-default btn-lg" onclick="toggleTimeLimit()" style="display: none;">
+                        <span>無限時間</span></button>
+                    <input type="number" id="timeRange" value="5" max="60" min="1" class="btn btn-default btn-lg">
 
-                    <select id="speedSelect" class="selectpicker" data-width="100px" title="重播速度">
+                    <button id="Dropable" class="btn btn-default btn-lg" onclick="toggleDropable()">
+                        <span>取消落珠</span></button>
+                    <button id="NoDropable" class="btn btn-default btn-lg" onclick="toggleDropable()" style="display: none;">
+                        <span>隨機落珠</span></button>
+
+                    <button id="NoAudio" class="btn btn-default btn-lg" onclick="toggleAudio()" style="display: none;">
+                        <span>關閉音效</span></button>
+                    <button id="PlayAudio" class="btn btn-default btn-lg" onclick="toggleAudio()">
+                        <span>播放音效</span></button>
+                </div>
+                <br><br>
+
+                <div id="reviewBtn" class="btn-group" role="group">
+                    <button class="btn btn-default btn-lg" onclick="initialPlain()">
+                        <span id="initial">初始版面</span></button>
+                    <button class="btn btn-default btn-lg"onclick="finalPlain()">
+                        <span id="final">最終版面</span></button>
+
+                    <button class="btn btn-default btn-lg"onclick="replay()">
+                        <span id="replay">重播紀錄</span></button>
+                    <button id="ShowReview" class="btn btn-default btn-lg"onclick="toggleReviewPath()">
+                        <span>顯示軌跡</span></button>
+                    <button id="CloseReview" class="btn btn-default btn-lg"onclick="toggleReviewPath()" style="display: none;">
+                        <span>隱藏軌跡</span></button>
+
+                    <select id="speedSelect" class="selectpicker" data-width="130px" title="重播速度" >
                       <option value="2400" >龜速</option>
                       <option value="1200" >極慢</option>
                       <option value="900"  >緩慢</option>
@@ -133,11 +141,11 @@
                       <option value="60"   >須臾</option>
                       <option value="15"   >剎那</option>
                     </select>
-                    <span id="clipboard" class="btn btn-default" data-clipboard-text="null" >
-                        &nbsp;產生網址&nbsp;
-                    </span>
-                    <br><br>
                 </div>
+                    <button id="clipboard"  class="btn btn-danger btn-lg" data-clipboard-text="null" >
+                        <span> &nbsp;產生網址&nbsp;</span>
+                    </button>
+                <br><br>
 
                 <table id="TeamMember" style="display: none;">
                     <tr id="AttackNumber">
@@ -254,13 +262,13 @@
                 <br><br>
 
                 <div id="panelButton" class="btn-group" role="group">
-                    <button class="btn btn-default" onclick="newRandomPlain()">
-                        <span id="randomPanel" >隨機版面</span>
-                    </button>
-                    <button class="btn btn-default" onclick="newOptionalPlain()">
-                        <span id="optionalPanel" >開始自選版面</span>
-                    </button>
-                    <select id="colorSelect" class="selectpicker" data-width="100px" title="符石花色">
+                    <button class="btn btn-default btn-lg" onclick="newRandomPlain()">
+                        <span id="randomPanel" >隨機版面</span> </button>
+                    <button id="OptionalPanel" class="btn btn-default btn-lg" onclick="newOptionalPlain()">
+                        <span>開始自選版面</span></button>
+                    <button id="EndOptionalPanel" class="btn btn-default btn-lg" onclick="endOptionalPlain()" style="display: none;">
+                        <span >完成版面製作</span></button>
+                    <select id="colorSelect" class="selectpicker" data-width="150px" title="符石花色">
                       <option value="w,f,p,l,d,h" >普通</option>
                       <option value="w+,f+,p+,l+,d+,h+" >強化</option>
                       <option value="w_,f_,p_,l_,d_,h_" >黑白普通</option>
@@ -301,7 +309,7 @@
                 <br><br>
                     
                 <span class="teamLabel">進階選項：</span>
-                <select id="dropColorSelect" class="selectpicker" data-width="100px" title="落珠選擇">
+                <select id="dropColorSelect" class="selectpicker" data-width="150px" title="落珠選擇">
                     <option value="w,f,p,l,d,h" >正常分布</option>
                     <option value="w,f,p,l,d" >禁心珠</option>
                     <option value="MAP,h,w" >亡命感應 ‧ 水</option>
@@ -312,7 +320,7 @@
                     <option value="question" >問號掉落</option>
                     <option value="optional" >自訂義</option>
                 </select>
-                <select id="locusSelect" class="selectpicker" data-width="100px" title="軌跡選擇">
+                <select id="locusSelect" class="selectpicker" data-width="150px" title="軌跡選擇">
                     <option value="null" >無軌跡</option>
                     <option value="_" >軌跡黑白</option>
                     <option value="_Inf" >持續軌跡黑白</option>
@@ -323,14 +331,22 @@
                     <option value="rot" >軌跡腐蝕</option>
                     <option value="rotInf" >持續軌跡腐蝕</option>
                 </select>
+                <br><br>
 
-                <button id="StartTeam" onclick="startEditTeam()" class="btn btn-default">
+                <span class="teamLabel">隊伍選項：</span>
+                <button id="StartTeam" onclick="startEditTeam()" class="btn btn-default btn-lg">
                     <span>開啟隊伍編輯</span>
                 </button>
-                <button id="CloseTeam" onclick="closeEditTeam()" class="btn btn-default" style="display: none;">
+                <button id="CloseTeam" onclick="closeEditTeam()" class="btn btn-default btn-lg" style="display: none;">
                     <span>關閉隊伍編輯</span>
                 </button>
-                <button id="ActiveCoolDown" onclick="ActiveCoolDownToZero()" class="btn btn-default" style="display: none;">
+                <button id="OpenSysInfo" onclick="toggleSystemInfomation()" class="btn btn-default btn-lg" style="display: none;">
+                    <span>開啟隊伍資訊</span>
+                </button>
+                <button id="CloseSysInfo" onclick="toggleSystemInfomation()" class="btn btn-default btn-lg" style="display: none;">
+                    <span>關閉隊伍資訊</span>
+                </button>
+                <button id="ActiveCoolDown" onclick="ActiveCoolDownToZero()" class="btn btn-default btn-lg" style="display: none;">
                     <span>主動技快速冷卻</span>
                 </button>
                 <br><br>

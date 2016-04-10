@@ -12,7 +12,7 @@ $(document).ready( function(){
         alert("\n\n此次模擬結果網址：\n\n"+$("#clipboard").attr("data-clipboard-text")+"\n\n此網址已複製到剪貼簿。\n\n");
     });
     CLIPBOARD.on('error', function(e) {
-        alert("製造網址時產生錯誤，敬請見諒。\n\n建議使用Chrome進行作業。");
+        alert("製造網址時產生錯誤，敬請見諒。\n\n建議使用電腦Chrome瀏覽器進行作業。");
     });
 
     //initial Scrollbar
@@ -33,6 +33,7 @@ $(document).ready( function(){
         axis:"y",
         theme:"inset-dark"
     });
+    $('.selectpicker').selectpicker({ style:'btn-default btn-lg' });
 
     //load history if exist
     if( $.url("?record") ){
@@ -53,6 +54,7 @@ $(document).ready( function(){
     resetEnemy();
 
     setTimeout( function(){
+    resetHistory();
     resetTimeDiv();
     }, 10);
 });
@@ -67,30 +69,29 @@ function newRandomPlain(){
 
     autoCheckDropGroups();
 
-    if( $("#optionalPanel").text() == "版面製作中" ){
+    if( MAIN_STATE == MAIN_STATE_ENUM.CREATE ){
         $("#dragContainment tr td").mousedown( function(){ setElementByOption(this); } );
     }else{
         nextMoveWave();
     }
 }
 function newOptionalPlain(){
-    $("#optionalPanel").text("版面製作中");
-    $("#optionalPanel").closest("button").attr("onclick","endOptionalPlain()");
+    $("#OptionalPanel").toggle();
+    $("#EndOptionalPanel").toggle();
     $("#dragContainment tr td").mousedown( function(){ setElementByOption(this); } );
+    $("#dragContainment tr td").css( "cursor","url('img/cursor_createItem.png'), default" );
     MAIN_STATE = MAIN_STATE_ENUM.CREATE;
     resetMoveTime();
     stopDragging();
 }
 function endOptionalPlain(){
-    $("#optionalPanel").text("開始自選版面");
-    $("#optionalPanel").closest("button").attr("onclick","newOptionalPlain()");
+    $("#OptionalPanel").toggle();
+    $("#EndOptionalPanel").toggle();
     $("#dragContainment tr td").unbind("mousedown");
+    $("#dragContainment tr td").css( "cursor","" );
     $("#panelControl button").css('background','');
     CREATE_COLOR = null;
-    returnPlayType();
-    returnAutoRemove();
     nextMoveWave();
-
 }
 function setColor(color, n){
     CREATE_COLOR = color;
@@ -106,67 +107,45 @@ function setElementByOption(e){
 }
 
 function toggleFreeDrag(){
-    if( $("#freeDrag").text() == "自由移動" ){
-        $("#freeDrag").text("一般移動");
-        PLAY_TYPE  = PLAY_TYPE_ENUM.DRAG;
-    }else{
-        $("#freeDrag").text("自由移動");
-        PLAY_TYPE  = PLAY_TYPE_ENUM.FREE;
-    }
-}
-function returnPlayType(){
-    if( $("#freeDrag").text() == "自由移動" ){
-        PLAY_TYPE  = PLAY_TYPE_ENUM.FREE;
-    }else{
-        PLAY_TYPE  = PLAY_TYPE_ENUM.DRAG;
-    }
+    FREE_DRAGABLE = !FREE_DRAGABLE;
+    $("#normalDrag").toggle();
+    $("#freeDrag").toggle();
+    PLAY_TYPE = FREE_DRAGABLE ? PLAY_TYPE_ENUM.FREE : PLAY_TYPE_ENUM.DRAG;
+    buttonGroupAdjust();
 }
 function setPlayType( type ){
-    if( type == PLAY_TYPE_ENUM.DRAG ){
-        $("#freeDrag").text("一般移動");
-        PLAY_TYPE  = PLAY_TYPE_ENUM.DRAG;
-    }else if( type == PLAY_TYPE_ENUM.FREE ){
-        $("#freeDrag").text("自由移動");
-        PLAY_TYPE  = PLAY_TYPE_ENUM.FREE;
+    if( FREE_DRAGABLE != (type == PLAY_TYPE_ENUM.FREE) ){
+        toggleFreeDrag();
     }
 }
 function toggleTimeLimit(){
-    if( $("#timeLimit").text() == "限制時間" ){
-        $("#timeLimit").text("無限時間");
-        $("#timeRange").hide();
-        TIME_IS_LIMIT = false;
-    }else{
-        $("#timeLimit").text("限制時間");
-        $("#timeRange").show();
-        TIME_IS_LIMIT = true;
-        TIME_LIMIT = 5;
-    }
+    TIME_IS_LIMIT = !TIME_IS_LIMIT;
+    $("#timeLimit").toggle();
+    $("#timeNoLimit").toggle();
+    $("#timeRange").toggle();
+    buttonGroupAdjust();
 }
 function setTimeLimit( time ){
-    $("#timeLimit").text("限制時間");
+    $("#timeLimit").show();
+    $("#timeNoLimit").hide();
     $("#timeRange").show();
     $('#timeRange').val( time );
     TIME_IS_LIMIT = true;
     TIME_LIMIT = time;
+    buttonGroupAdjust();
 }
 function toggleDropable(){
-    if( $("#dropable").text() == "取消落珠" ){
-        $("#dropable").text("隨機落珠");
-        DROPABLE = true;
-        resetColors();
-    }else{
-        $("#dropable").text("取消落珠");
-        DROPABLE = false;
-    }
+    DROPABLE = !DROPABLE;
+    $("#Dropable").toggle();
+    $("#NoDropable").toggle();
+    resetColors();
+    buttonGroupAdjust();
 }
 function toggleAudio(){
-    if( $("#playAudio").text() == "播放音效" ){
-        $("#playAudio").text("關閉音效");
-        AUDIO = false;
-    }else{
-        $("#playAudio").text("播放音效");
-        AUDIO = true;
-    }
+    AUDIO = !AUDIO;
+    $("#PlayAudio").toggle();
+    $("#NoAudio").toggle();
+    buttonGroupAdjust();
 }
 
 function initialPlain(){
@@ -178,14 +157,9 @@ function finalPlain(){
     nextMoveWave();
 }
 function replay(){
-    $("#randomPanel").closest("button").prop("disabled", true);
-    $("#optionalPanel").closest("button").prop("disabled", true);
-    $("#initial").closest("button").prop("disabled", true);
-    $("#final").closest("button").prop("disabled", true);
-    $("#replay").closest("button").prop("disabled", true);
-
     MAIN_STATE = MAIN_STATE_ENUM.REVIEW;
 
+    disbalePanelControl( true );
     COLOR_RANDOM = HISTORY_RANDOM;
     loadTeamMembers(HISTORY_TEAM_MEMBER);
     $("#TeamMember select").each(function(i){
@@ -205,25 +179,22 @@ function replay(){
     replayHistory();
 }
 function endReplayHistory(){
-    returnPlayType();
-    $("#randomPanel").closest("button").prop("disabled", false);
-    $("#optionalPanel").closest("button").prop("disabled", false);
-    $("#initial").closest("button").prop("disabled", false);
-    $("#final").closest("button").prop("disabled", false);
-    $("#replay").closest("button").prop("disabled", false);
-    $("#review").text("顯示軌跡");
+    disbalePanelControl( false );
+    SHOW_REVIEW = false;
+    $("#ShowReview").show();
+    $("#CloseReview").hide();
     closeCanvas();;
     endMoveWave();
 }
 function toggleReviewPath(){
-    if( $("#review").text() == "顯示軌跡" ){
-        $("#review").text("隱藏軌跡");
+    REVIEW_PATH = !REVIEW_PATH;
+    $("#ShowReview").toggle();
+    $("#CloseReview").toggle();
+    if( REVIEW_PATH ){
         MAIN_STATE = MAIN_STATE_ENUM.REVIEW;
         resetCanvas();
         drawPath();
     }else{
-        $("#review").text("顯示軌跡");
-        returnPlayType();
         closeCanvas();
         nextMoveWave();
     }
@@ -235,7 +206,8 @@ function startEditTeam(){
     $("#CloseTeam").show();
     $("#ActiveCoolDown").show();
     $("#TeamMember").show();
-    $("#SystemInfomation").show();
+    $("#OpenSysInfo").show();
+    $("#CloseSysInfo").hide();
     $("#BattleInfomation").children().remove();
     resetTimeDiv();
     showTeamInfomation();
@@ -244,13 +216,20 @@ function closeEditTeam(){
     $("#StartTeam").show();
     $("#CloseTeam").hide();
     $("#ActiveCoolDown").hide();
-    $("#TeamMember").hide();
+    $("#TeamMember").hide();   
+    $("#OpenSysInfo").hide();
+    $("#CloseSysInfo").hide();
     $("#SystemInfomation").hide();
     $("#TeamMember select").each(function(){
         var msdropdown = $(this).msDropDown().data("dd");
         msdropdown.setIndexByValue("NONE");
     });
     resetTeamMembers();
+}
+function toggleSystemInfomation(){
+    $("#SystemInfomation").toggle();
+    $("#OpenSysInfo").toggle();
+    $("#CloseSysInfo").toggle();
 }
 function ActiveCoolDownToZero(){
     $.each(TEAM_ACTIVE_SKILL, function(place, actives){
@@ -268,6 +247,17 @@ function disbalePanelControl( bool ){
     $("#final").closest("button").prop("disabled",  bool );
     $("#replay").closest("button").prop("disabled",  bool );
 }
+function buttonGroupAdjust(){
+    $('.btn-group').has('.btn:hidden').find('.btn').css('border-radius', 0);
+    $('.btn-group').has('.btn:hidden').find('.btn:visible:last').css({
+        'border-top-right-radius': '3px',
+        'border-bottom-right-radius': '3px',
+    });
+    $('.btn-group').has('.btn:hidden').find('.btn:visible:first').css({
+        'border-top-left-radius': '3px',
+        'border-bottom-left-radius': '3px',
+    });
+}
 
 //==============================================================
 // Change Function
@@ -280,7 +270,7 @@ $("#file").change(function (){
 });
 $('#timeRange').change(function (){
     $(this).val( Math.max( parseInt($(this).attr("min")), 
-        Math.min( parseInt($(this).attr("max")), parseInt($(this).val()) ) ) );
+                 Math.min( parseInt($(this).attr("max")), parseInt($(this).val()) ) ) );
     TIME_LIMIT = parseInt( $(this).val() );
 });
 $('#speedSelect').change(function (){
@@ -604,7 +594,7 @@ function showActiveInfomation(){
         $("#ActiveButtonTD td div.activeBtn").eq(place).children().remove();
         $.each(actives, function(i, active){
             var label = $("<span></span>").text( active['label'] );
-            var button = $("<button></button>").addClass('activeButton').append( label );
+            var button = $("<button></button>").addClass('activeButton btn-default').append( label );
             button.attr( "onclick", "triggerActive("+place+","+i+")" ).prop("disabled", true);
             $("#ActiveButtonTD td div.activeBtn").eq(place).append( button );
         });
@@ -613,7 +603,7 @@ function showActiveInfomation(){
         $("#ActiveButtonTD td div.combineBtn").eq(place).children().remove();
         $.each(combines, function(i, combine){
             var label = $("<span></span>").text( combine['label'] );
-            var button = $("<button></button>").addClass('activeButton').append( label );
+            var button = $("<button></button>").addClass('activeButton btn-default').append( label );
             button.attr( "onclick", "triggerCombine("+place+","+i+")" ).prop("disabled", true);
             $("#ActiveButtonTD td div.combineBtn").eq(place).append( button );
         });

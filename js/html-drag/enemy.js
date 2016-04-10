@@ -12,6 +12,7 @@ var BasicEnemySetting = function( enemy ){
 		COLOR    : enemy['color'],
 		COOLDOWN : enemy['coolDown'],
 		SUFFER   : 0,
+		EFFECT   : [],
 	};
 }
 
@@ -34,9 +35,9 @@ var ENEMY_DATA = {
 		label    : '標靶',
 		info     : '普通的練習目標',
 		health   : 1000000,
-		attack   : 1000,
-		defence  : 0,
-		color    : '',
+		attack   : 3000,
+		defence  : 100,
+		color    : 'w',
 		coolDown : 2,
 		ability  : [ "NONE" ],
 		preSet   : BasicEnemySetting,

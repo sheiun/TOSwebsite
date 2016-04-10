@@ -47,6 +47,14 @@ function resetCount(){
         'd': { 'w': 1,   'f': 1,   'p': 1,   'l': 1.5, 'd': 1,   '': 1 },
         '' : { 'w': 1,   'f': 1,   'p': 1,   'l': 1,   'd': 1,   '': 1 },
     };
+    COUNT_INJURE_REDUCE         = 1;
+}
+function resetEnemyStatus(){
+    $.each(ENEMY, function(e, enemy){
+        enemy['variable']['COLOR'] = enemy['color'];
+        enemy['variable']['DEFENCE'] = enemy['defence'];
+        enemy['variable']['ATTACK'] = enemy['attack'];
+    });
 }
 
 //==============================================================
@@ -54,6 +62,7 @@ function resetCount(){
 //==============================================================
 function countAttack(){
     resetCount();
+    resetEnemyStatus();
 
     checkAttackRecoverBeforeBattle();
 
@@ -81,6 +90,7 @@ function countEnemyAction(){
         $.each(ENEMY, function(i, enemy){
             enemyActionUpdate(i, enemy);
         });
+        healthStatusUpdate();
     }
 }
 
@@ -95,7 +105,8 @@ function checkAttackRecoverBeforeBattle(){
     checkActiveSkillByKey( "attack" );
     checkActiveSkillByKey( "recover" );
     checkAdditionEffectByKey( "attack" );
-    checkAdditionEffectByKey( "recover" );    
+    checkAdditionEffectByKey( "recover" );
+    checkEnemyEffectByKey("attack");  
 }
 function checkAttackRecoverMapping(){
 }
@@ -203,7 +214,7 @@ function mapAttackToEnemy( i, attack ){
         // TODO : enemy priority select
         var target = 0;
         $.each(ENEMY, function(i, enemy){
-            if( enemy['suffer'] < enemy['variable']['HEALTH'] ){
+            if( enemy['variable']['SUFFER'] < enemy['variable']['HEALTH'] ){
                 target = i;
                 return false;
             }
@@ -249,7 +260,7 @@ function enemyStackUpdate(){
         }else{
             if(enemy['id'] != 'EMPTY'){                
                 $("#BattleInfomation").append( 
-                    $("<span></span>").text("敵人"+enemy['id']+'死亡') ).append("<br>");
+                    $("<span></span>").text("敵人"+enemy['label']+'死亡') ).append("<br>");
             }
         }
     });
@@ -264,5 +275,24 @@ function enemyActionUpdate(i, enemy){
     enemy['variable']['COOLDOWN'] -= 1;
     if( enemy['variable']['COOLDOWN'] == 0 ){
         enemy['variable']['COOLDOWN'] = enemy['coolDown'];
+
+        var injure = {
+            enemyOrder   : i,
+            damage       : enemy['variable']['ATTACK'],
+            color        : enemy['variable']['COLOR'],
+        };
+        if( !("INJURE_REDUCEABLE" in enemy['variable']) || enemy['variable']["INJURE_REDUCEABLE"] ){
+            injure['damage'] *= COUNT_INJURE_REDUCE;
+        }
+        INJURE_STACK.push(injure);
+        $("#BattleInfomation").append( 
+            $("<span></span>").text("敵人"+(i+1)+enemy['label']+'攻擊， 受到 '+injure['damage']+' 點傷害')
+        ).append("<br>");
     }
+}
+
+function healthStatusUpdate(){
+    $.each(INJURE_STACK, function(i, injure){
+        HEALTH_POINT -= injure['damage'];
+    });
 }

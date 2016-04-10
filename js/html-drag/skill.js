@@ -57,6 +57,15 @@ function selectAndRemoveRandomItemFromArrBySeed( array, seed = 'COLOR_RANDOM' ){
 function getArrayOfObjectValue(Obj){
     return $.map(Obj, function(value, index) { return [value]; });
 }
+function getOtherColorsFromColorArr( colorArr ){
+    var colors = [ 'w', 'f', 'p', 'l', 'd', 'h' ];
+    for(var c of colorArr){
+        if( colors.indexOf(c) >= 0 ){
+            colors.splice(colors.indexOf(c), 1);
+        }
+    }
+    return colors;
+}
 
 //==============================================================
 // Panel Element function
@@ -72,17 +81,6 @@ function checkHasElementByColor(color){
 function checkHasElementByColorArr(colorArr){
     var color_stack = getStackOfPanelByColorArr(colorArr);
     return color_stack.length > 0;
-}
-function getStackOfPanelByColorWithoutStrong(color){
-    var stack = [];
-    for(var i = 0; i < TD_NUM*TR_NUM; i++){
-        var c = $("#dragContainment tr td").eq(i).find("img.over").attr("color");
-        var strong = parseInt( $("#dragContainment tr td").eq(i).find("img.over").attr("strong") );
-        if( c == color && !(strong > 0) ){
-            stack.push(i);
-        }
-    }
-    return stack;
 }
 function getStackOfPanelByColor(color){
     var stack = [];
@@ -104,18 +102,69 @@ function getStackOfPanelByColorArr(colorArr){
     }
     return stack;
 }
+function getStackOfPanelByColorWithoutStrong(color){
+    var stack = [];
+    for(var i = 0; i < TD_NUM*TR_NUM; i++){
+        var c = $("#dragContainment tr td").eq(i).find("img.over").attr("color");
+        var strong = parseInt( $("#dragContainment tr td").eq(i).find("img.over").attr("strong") );
+        if( c == color && !(strong > 0) ){
+            stack.push(i);
+        }
+    }
+    return stack;
+}
+function getStackOfStraightByColor(place, color){
+    var stack = [];
+    for(var i = 0; i < TR_NUM; i++){
+        var c = $("#dragContainment tr td").eq(i*TD_NUM+place).find("img.over").attr("color");
+    console.log(i*TD_NUM+place+': '+c);
+        if( c == color ){
+            stack.push(i*TD_NUM+place);
+        }
+    }
+    return stack;
+}
+function getStackOfStraightByColorArr(place, colorArr){
+    var stack = [];
+    for(var i = 0; i < TR_NUM; i++){
+        var c = $("#dragContainment tr td").eq(i*TD_NUM+place).find("img.over").attr("color");
+    console.log(i*TD_NUM+place+': '+c);
+        if( colorArr.indexOf(c) >= 0 ){
+            stack.push(i*TD_NUM+place);
+        }
+    }
+    return stack;
+}
 
 function turnElementToColorByID(id, color){
     var imgs = $("#dragContainment tr td").eq(id).find("img");
-    imgs.attr('color', color);
-    var item = imgs.attr("item");
+    imgs.attr('color', color[0] );
+    var item = imgs.attr('item');
     item = color + item.substr(1);
+    imgs.attr('item', item);
     var hide_items = newElementByItem(item);
 
     $(hide_items[0]).hide();
     $(hide_items[1]).hide();
-    $("#dragContainment tr td").eq(id).find("img").fadeOut( FADEOUT_TIME, function(){
-        $(this).remove();
+    $("#dragContainment tr td").eq(id).find("img").stop().fadeOut( FADEOUT_TIME, function(){
+        $(this).remove();console.log("-");
+        $("#dragContainment tr td").eq(id).append( hide_items );
+        $("#dragContainment tr td").eq(id).find("img").fadeIn( FADEOUT_TIME );
+        resetDraggable();
+        startDragging();
+    });
+}
+function turnElementToStrongByID(id){
+    var imgs = $("#dragContainment tr td").eq(id).find("img");
+    var item = imgs.attr("item");
+    item = item + "+";
+    imgs.attr('item', item);
+    var hide_items = newElementByItem(item);
+
+    $(hide_items[0]).hide();
+    $(hide_items[1]).hide();
+    $("#dragContainment tr td").eq(id).find("img").stop().fadeOut( FADEOUT_TIME, function(){
+        $(this).remove();console.log("++");
         $("#dragContainment tr td").eq(id).append( hide_items );
         $("#dragContainment tr td").eq(id).find("img").fadeIn( FADEOUT_TIME );
         resetDraggable();
@@ -136,21 +185,25 @@ function turnRandomElementToColorByConfig( config ){
         }
     }
 }
-function turnElementToStrongByID(id){
-    var imgs = $("#dragContainment tr td").eq(id).find("img");
-    var item = imgs.attr("item");
-    item = item + "+";
-    var hide_items = newElementByItem(item);
-
-    $(hide_items[0]).hide();
-    $(hide_items[1]).hide();
-    $("#dragContainment tr td").eq(id).find("img").fadeOut( FADEOUT_TIME, function(){
-        $(this).remove();
-        $("#dragContainment tr td").eq(id).append( hide_items );
-        $("#dragContainment tr td").eq(id).find("img").fadeIn( FADEOUT_TIME );
-        resetDraggable();
-        startDragging();
-    });
+function turnRandomElementToColorByProb( config ){
+    // config: color, num, probColors
+    var color = config['color'];
+    var probs = config['probColors'];
+    for( var num = config['num']; num > 0; ){
+        var rand = randomBySeed();
+        for( var c in probs ){
+            if( rand <= probs[c] ){
+                color = c;
+                break;
+            }
+        }
+        var stack = getStackOfPanelByColor( color );
+        if( stack.length > 0 ){
+            var id = selectAndRemoveRandomItemFromArrBySeed( stack );
+            turnElementToColorByID(id, config['color']);
+            num--;
+        }
+    }    
 }
 
 function findMaxColorOfColorArr( colorArr ){
@@ -231,6 +284,19 @@ function checkFirstHorizentalClearByPlace( place ){
         }
     }
     return base_line.length == 0;
+}
+
+//==============================================================
+// check Combo color
+//==============================================================
+function countComboAtFirstWave(){
+    var combos = 0;
+    $.each(COMBO_STACK, function(i, combo){
+        if(combo['drop_wave'] == 0){
+            combos += 1;
+        }
+    });
+    return combos;
 }
 function checkComboColorAmountByConfig( config ){
     var countId = {};

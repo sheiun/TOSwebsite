@@ -15,8 +15,8 @@ function resetTeamComposition(){
     ];  
     cleanColors();
     resetDropColors();
-    resetMemberActiveSkill();
     resetTeamLeaderSkill();
+    resetMemberActiveSkill();
     resetMemberWakes();
     resetColors();
     resetHealthPoint();

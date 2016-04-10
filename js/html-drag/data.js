@@ -285,7 +285,7 @@ var CHARACTERS = {
         wake_var     : [ 0, 0, 0, 0 ],
         wake_info    : [ "無", "無", "無", "無" ],
         leader       : "HEART_QUEEN",
-        active       : [ "NONE" ],
+        active       : [ "TRANSFIGURATION_H" ],
     },
     COUPLE_F : {
         id           : "COUPLE_F",
@@ -296,11 +296,11 @@ var CHARACTERS = {
         health       : 3102,
         attack       : 1604,
         recovery     : 376,
-        wake         : [ "H_A_R_INCREASE", "NONE", "H_A_R_INCREASE", "NONE" ],
-        wake_var     : [ [0,90,0], 0, [340,0,0], 0 ],
+        wake         : [ "H_A_R_INCREASE", "STRAIGHT_ENCIRCLEMENT", "H_A_R_INCREASE", "STRAIGHT_ENCHANTMENT" ],
+        wake_var     : [ [0,90,0], 'h', [340,0,0], 'h' ],
         wake_info    : [ "攻擊力+90", "直排靈氣圍城", "生命力+340", "直排心強化" ],
         leader       : "COUPLE_F",
-        active       : [ "NONE" ],
+        active       : [ "DEFENSIVE_STANCE_EX_F" ],
     },
     COUPLE_P : {
         id           : "COUPLE_P",
@@ -315,7 +315,7 @@ var CHARACTERS = {
         wake_var     : [ [0,0,50], 2, [0,120,0], [1.1,4] ],
         wake_info    : [ "回復力+50", "進關後冷卻回合-2", "攻擊力+120", "4顆直排劍10%" ],
         leader       : "COUPLE_P",
-        active       : [ "NONE" ],
+        active       : [ "BATTLEFIELD_P" ],
     },
     MACHINE_DOLL_W : {
         id           : "MACHINE_DOLL_W",
@@ -330,7 +330,7 @@ var CHARACTERS = {
         wake_var     : [ [90,0,0], 2, [0,120,0], [1.1,3] ],
         wake_info    : [ "生命力+90", "進關後冷卻回合-2", "攻擊力+120", "3顆直排劍10%" ],
         leader       : "DOLL_HUMAN_DRAGON" ,
-        active       : [ "NONE" ],
+        active       : [ "FIGHT_SAFE" ],
     },
     MACHINE_DOLL_F : {
         id           : "MACHINE_DOLL_F",
@@ -345,7 +345,7 @@ var CHARACTERS = {
         wake_var     : [ [90,0,0], 2, [0,120,0], [1.1,3] ],
         wake_info    : [ "生命力+90", "進關後冷卻回合-2", "攻擊力+120", "3顆直排劍10%" ],
         leader       : "DOLL_HUMAN_DRAGON" ,
-        active       : [ "NONE" ],
+        active       : [ "FIGHT_SAFE" ],
     },
     MACHINE_DOLL_P : {
         id           : "MACHINE_DOLL_P",
@@ -360,7 +360,7 @@ var CHARACTERS = {
         wake_var     : [ [90,0,0], 2, [0,120,0], [1.1,3] ],
         wake_info    : [ "生命力+90", "進關後冷卻回合-2", "攻擊力+120", "3顆直排劍10%" ],
         leader       : "DOLL_HUMAN_BEAST_SPIRIT" ,
-        active       : [ "NONE" ],
+        active       : [ "PLAY_WILD" ],
     },
     MACHINE_DOLL_L : {
         id           : "MACHINE_DOLL_L",
@@ -375,7 +375,7 @@ var CHARACTERS = {
         wake_var     : [ [90,0,0], 2, [0,120,0], [1.1,3] ],
         wake_info    : [ "生命力+90", "進關後冷卻回合-2", "攻擊力+120", "3顆直排劍10%" ],
         leader       : "DOLL_HUMAN_DEVIL_SPIRIT" ,
-        active       : [ "NONE" ],
+        active       : [ "PLAY_SAFE" ],
     },
     MACHINE_DOLL_D : {
         id           : "MACHINE_DOLL_D",
@@ -390,7 +390,7 @@ var CHARACTERS = {
         wake_var     : [ [90,0,0], 2, [0,120,0], [1.1,3] ],
         wake_info    : [ "生命力+90", "進關後冷卻回合-2", "攻擊力+120", "3顆直排劍10%" ],
         leader       : "DOLL_HUMAN_GOD" ,
-        active       : [ "NONE" ],
+        active       : [ "PLAY_WILD" ],
     },
     TRIBE_BEAST_W : {
         id           : "TRIBE_BEAST_W",
@@ -405,7 +405,7 @@ var CHARACTERS = {
         wake_var     : [ [0,70,0], [1.1,3], [360,0,0], [10,4] ],
         wake_info    : [ "攻擊力+70", "3顆直排劍10%", "生命力+360", "4顆直排10倍回血" ],
         leader       : "TRIBE_BEAST",
-        active       : [ "NONE" ],
+        active       : [ "HUNTING_MODE" ],
     },
     TRIBE_BEAST_F : {
         id           : "TRIBE_BEAST_F",
@@ -420,7 +420,7 @@ var CHARACTERS = {
         wake_var     : [ [0,70,0], 7, [360,0,0], [10,4] ],
         wake_info    : [ "攻擊力+70", "進關後冷卻回合-7", "生命力+360", "4顆直排10倍回血" ],
         leader       : "TRIBE_BEAST",
-        active       : [ "NONE" ],
+        active       : [ "BLAZING_CIRCLE" ],
     },
     TRIBE_BEAST_P : {
         id           : "TRIBE_BEAST_P",
@@ -435,7 +435,7 @@ var CHARACTERS = {
         wake_var     : [ [0,70,0], [1.1,3], [360,0,0], [10,4] ],
         wake_info    : [ "攻擊力+70", "3顆直排劍10%", "生命力+360", "4顆直排10倍回血" ],
         leader       : "TRIBE_BEAST",
-        active       : [ "NONE" ],
+        active       : [ "SAVAGE_ATTACK" ],
     },
     TRIBE_BEAST_L : {
         id           : "TRIBE_BEAST_L",
@@ -450,7 +450,7 @@ var CHARACTERS = {
         wake_var     : [ [0,70,0], [1.1,3], [360,0,0], [10,4] ],
         wake_info    : [ "攻擊力+70", "3顆直排劍10%", "生命力+360", "4顆直排10倍回血" ],
         leader       : "TRIBE_BEAST",
-        active       : [ "NONE" ],
+        active       : [ "HUNTING_MODE" ],
     },
     TRIBE_BEAST_D : {
         id           : "TRIBE_BEAST_D",
@@ -465,7 +465,7 @@ var CHARACTERS = {
         wake_var     : [ [0,70,0], [1.1,3], [360,0,0], [10,4] ],
         wake_info    : [ "攻擊力+70", "3顆直排劍10%", "生命力+360", "4顆直排10倍回血" ],
         leader       : "TRIBE_BEAST",
-        active       : [ "NONE" ],
+        active       : [ "SAVAGE_ATTACK" ],
     },
     BABYLON_W : {
         id           : "BABYLON_W",
@@ -480,7 +480,7 @@ var CHARACTERS = {
         wake_var     : [ 0, 0, 0, 0 ],
         wake_info    : [ "無", "無", "無", "無" ],
         leader       : "BABYLON",
-        active       : [ "NONE" ],
+        active       : [ "BLADES_OF_WATER" ],
     },
     BABYLON_F : {
         id           : "BABYLON_F",
@@ -495,7 +495,7 @@ var CHARACTERS = {
         wake_var     : [ 0, 0, 0, 0 ],
         wake_info    : [ "無", "無", "無", "無" ],
         leader       : "BABYLON",
-        active       : [ "NONE" ],
+        active       : [ "BLADES_OF_FLAME" ],
     },
     BABYLON_P : {
         id           : "BABYLON_P",
@@ -510,7 +510,7 @@ var CHARACTERS = {
         wake_var     : [ 0, 0, 0, 0 ],
         wake_info    : [ "無", "無", "無", "無" ],
         leader       : "BABYLON",
-        active       : [ "NONE" ],
+        active       : [ "BLADES_OF_VINE" ],
     },
     BABYLON_L : {
         id           : "BABYLON_L",
@@ -525,7 +525,7 @@ var CHARACTERS = {
         wake_var     : [ 0, 0, 0, 0 ],
         wake_info    : [ "無", "無", "無", "無" ],
         leader       : "BABYLON",
-        active       : [ "NONE" ],
+        active       : [ "BLADES_OF_LIGHT" ],
     },
     BABYLON_D : {
         id           : "BABYLON_D",
@@ -540,7 +540,7 @@ var CHARACTERS = {
         wake_var     : [ 0, 0, 0, 0 ],
         wake_info    : [ "無", "無", "無", "無" ],
         leader       : "BABYLON",
-        active       : [ "NONE" ],
+        active       : [ "BLADES_OF_PHANTOM" ],
     },
     SWORD_BROTHER : {
         id           : "SWORD_BROTHER",
@@ -750,8 +750,16 @@ var COLOR_LETTERS = [
     { 'w': '浪濤', 'f': '熾燄', 'p': '藤木', 'l': '流螢', 'd': '幽冥', 'h': '心' },
     { 'w': '水', 'f': '焰', 'p': '森', 'l': '光', 'd': '魅', 'h': '心' },
     { 'w': '浪濤', 'f': '熾燄', 'p': '藤木', 'l': '玄光', 'd': '幽冥', 'h': '護心' },
-    { 'w': '海', 'f': '炎', 'p': '森', 'l': '聖', 'd': '邪', 'h': '心', '': '無' }
+    { 'w': '海', 'f': '炎', 'p': '森', 'l': '聖', 'd': '邪', 'h': '心', '': '無' },
+    { 'w': '波濤', 'f': '火烈', 'p': '枯朽', 'l': '天雷', 'd': '背叛', 'h': '心', '': '無'}
 ];
+
+var COLOR_EXCLUSIVE = {
+    'w': 'f', 'f': 'p', 'p': 'w', 'l': 'd', 'd': 'l', 'h': 'w', '': 'w'
+};
+var COLOR_ANTI_EXCLUSIVE = {
+    'w': 'p', 'f': 'w', 'p': 'f', 'l': 'd', 'd': 'l', 'h': 'w', '': 'w'
+};
 
 var MAIN_STATE_ENUM = {
     READY          : 0,
