@@ -208,9 +208,30 @@ var TribeBeastAttack = function( VAR, direct ){
 //==============================================================
 // Sword
 //==============================================================
-var SwordBrotherPlusAttack = function( VAR, direct ){
+var SwordBrotherAttack = function( VAR, direct ){
+    COUNT_FACTOR['SwordBrother'+direct] = {
+        factor    : function( member, member_place ){ return 2; },
+        prob      : 1,
+        condition : function( member, member_place ){
+            if( member['color'] == 'l' ||  member['color'] == 'd' ){ return true; }
+            return false;
+        },
+    };
+    COUNT_FACTOR['SwordBrotherBoth'+direct] = {
+        factor    : function( member, member_place ){ 
+            if( COUNT_AMOUNT['l'] > 0 && COUNT_AMOUNT['d'] > 0 ){ return 1.5; }
+            return 1;
+        },
+        prob      : 1,
+        condition : function( member, member_place ){
+            if( member['color'] == 'l' ||  member['color'] == 'd' ){ return true; }
+            return false;
+        },
+    };
+}
+var SwordBrotherEXAttack = function( VAR, direct ){
     addColorBelongsByConfig( { 'l': { 'd': 0.5 }, 'd': { 'l': 0.5 } } );
-    COUNT_FACTOR['SwordBrotherPlus'+direct] = {
+    COUNT_FACTOR['SwordBrotherEX'+direct] = {
         factor    : function( member, member_place ){ return 2.5; },
         prob      : 1,
         condition : function( member, member_place ){
@@ -218,11 +239,14 @@ var SwordBrotherPlusAttack = function( VAR, direct ){
             return false;
         },
     };
-    COUNT_FACTOR['SwordBrotherPlusBoth'+direct] = {
-        factor    : function( member, member_place ){ return 1.5; },
+    COUNT_FACTOR['SwordBrotherBoth'+direct] = {
+        factor    : function( member, member_place ){ 
+            if( COUNT_AMOUNT['l'] > 0 && COUNT_AMOUNT['d'] > 0 ){ return 1.5; }
+            return 1;
+        },
         prob      : 1,
         condition : function( member, member_place ){
-            if( COUNT_AMOUNT['l'] > 0 && COUNT_AMOUNT['d'] > 0 ){ return true; }
+            if( member['color'] == 'l' ||  member['color'] == 'd' ){ return true; }
             return false;
         },
     };
@@ -322,7 +346,7 @@ var LIXIAOYAOAttack = function( VAR, direct ){
         condition : function( member, member_place ){ return true; },
     };
 }
-var CommonSourcePlusAttack = function( VAR, direct ){
+var CommonSourceAttack = function( VAR, direct ){
     if( 'HeartProb' in COUNT_FACTOR ){
         COUNT_FACTOR['HeartProb']['prob'] += 0.5;
     }else{
@@ -347,14 +371,16 @@ var CommonSourcePlusAttack = function( VAR, direct ){
         } ) ){
         setColorBelongsByConfig( { 'w' : { 'f': 1, 'p': 1 },  'f': { 'w': 1, 'p': 1 },  'p': { 'w': 1, 'f': 1 } } );
     }
-
-    if( COUNT_AMOUNT['w'] > 0 && COUNT_AMOUNT['f'] > 0 && COUNT_AMOUNT['p'] > 0 ){  
-        COUNT_FACTOR['CommonSourcePlus'+direct] = {
-            factor    : function( member, member_place ){ return 1.5; },
-            prob      : 1,
-            condition : function( member, member_place ){ return true; },
-        };
-    }
+}
+var CommonSourceEXAttack = function( VAR, direct ){
+    CommonSourceAttack( VAR, direct );
+    COUNT_FACTOR['CommonSourceEX'+direct] = {
+        factor    : function( member, member_place ){ return 1.5; },
+        prob      : 1,
+        condition : function( member, member_place ){ 
+            return COUNT_AMOUNT['w'] > 0 && COUNT_AMOUNT['f'] > 0 && COUNT_AMOUNT['p'] > 0;
+        },
+    };
 }
 
 //==============================================================
@@ -669,20 +695,36 @@ var LEADER_SKILLS_DATA = {
         attack    : BabylonAttackPlus,
         preSet    : BasicLeaderSetting,
     },
-    SWORD_BROTHER_PLUS : {
-        id        : 'SWORD_BROTHER_PLUS',
+    SWORD_BROTHER : {
+        id        : 'SWORD_BROTHER',
+        label     : '陰陽煞陣',
+        info      : '光和暗屬性攻擊力 2 倍；同時消除光符石及暗符石，光和暗屬性攻擊力額外提升 1.5 倍 (效果可以疊加)',
+        letter    : [0,0],
+        attack    : SwordBrotherAttack,
+        preSet    : BasicLeaderSetting,
+    },
+    SWORD_BROTHER_EX : {
+        id        : 'SWORD_BROTHER_EX',
         label     : '陰陽煞陣 ‧ 強',
         info      : '光和暗屬性攻擊力 2.5 倍；光符石兼具 50% 暗符石效果，暗符石兼具 50% 光符石效果 (效果可以疊加)；同時消除光符石及暗符石，光和暗屬性攻擊力額外提升 1.5 倍 (效果可以疊加)',
         letter    : [0,0],
-        attack    : SwordBrotherPlusAttack,
+        attack    : SwordBrotherEXAttack,
         preSet    : BasicLeaderSetting,
     },
-    COMMON_SOURCE_PLUS : {
-        id        : 'COMMON_SOURCE_PLUS',
+    COMMON_SOURCE : {
+        id        : 'COMMON_SOURCE',
+        label     : '仙劍同源',
+        info      : '隊伍中只有水、火及木屬性的成員時，水符石兼具火及木符石效果、火符石兼具水及木符石效果，同時木符石兼具水及火符石效果 (不能疊加)；消除心符石時攻擊力有 50% 機會額外提升 1.5 倍 (機率可以疊加)',
+        letter    : [0,0],
+        attack    : CommonSourceAttack,
+        preSet    : BasicLeaderSetting,
+    },
+    COMMON_SOURCE_EX : {
+        id        : 'COMMON_SOURCE_EX',
         label     : '仙劍同源 ‧ 強',
         info      : '隊伍中只有水、火及木屬性的成員時，水符石兼具火及木符石效果、火符石兼具水及木符石效果，同時木符石兼具水及火符石效果 (不能疊加)；消除心符石時攻擊力有 50% 機會額外提升 1.5 倍 (機率可以疊加)。同時消除水、火及木符石時，全隊攻擊力額外提升 1.5 倍',
         letter    : [0,0],
-        attack    : CommonSourcePlusAttack,
+        attack    : CommonSourceEXAttack,
         preSet    : BasicLeaderSetting,
     },
     LIXIAOYAO : {
@@ -738,11 +780,17 @@ var LEADER_SKILLS_DATA = {
     },
 };
 
+function NewLeaderSkill( id ){
+    var leaderSkillObj = $.extend(true, {}, LEADER_SKILLS_DATA[id]);
+    leaderSkillObj['variable'] = {};
+    return leaderSkillObj;
+}
+
 function checkLeaderSkillByKey( key ){
     if( key in TEAM_LEADER_SKILL ){
-        TEAM_LEADER_SKILL[ key ](  TEAM_LEADER_SKILL_VAR, "leader" );
+        TEAM_LEADER_SKILL[ key ](  TEAM_LEADER_SKILL["variable"], "leader" );
     }
     if( key in TEAM_FRIEND_SKILL ){
-        TEAM_FRIEND_SKILL[ key ]( TEAM_FRIEND_SKILL_VAR, "friend" );
+        TEAM_FRIEND_SKILL[ key ]( TEAM_FRIEND_SKILL["variable"], "friend" );
     }
 }

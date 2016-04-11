@@ -13,8 +13,7 @@ var BasicCombineSkillSetting = function( member, COMBINE ){
 }
 
 var BasicCombineSkillCheck = function( trigger_place, trigger_i ){
-	var VAR = this.variable;
-	return basicFunctionCombineSkillCheck( VAR, trigger_place, trigger_i );
+	return basicFunctionCombineSkillCheck( this.variable, trigger_place, trigger_i );
 }
 function basicFunctionCombineSkillCheck( VAR, trigger_place, trigger_i ){
     var useable = checkCombineUseable( VAR['COMBINE'] )
@@ -35,26 +34,24 @@ var EnchantedInjunctionSetting = function( member, COMBINE ){
 	};
 }
 var EnchantedInjunctionCheck = function( place, i ){
-	var VAR = this.variable;
-    var useable = checkCombineUseable( VAR['COMBINE'] );
+    var useable = checkCombineUseable( this.variable['COMBINE'] );
 	return useable['check'] && 
-		checkHasElementByColorArr( [ VAR['COLOR_TO_H'], VAR['COLOR_EXCLUSIVE'], 'h' ] ) &&
-		checkHasElementByColorWithoutStrong( VAR['COLOR_MAIN'] );
+		checkHasElementByColorArr( [ this.variable['COLOR_TO_H'], this.variable['COLOR_EXCLUSIVE'], 'h' ] ) &&
+		checkHasElementByColorWithoutStrong( this.variable['COLOR_MAIN'] );
 }
 var EnchantedInjunctionTransfer = function( place, i ){
-	var VAR = this.variable;
-    var useable = checkCombineUseable( VAR['COMBINE'] );
+    var useable = checkCombineUseable( this.variable['COMBINE'] );
     for(var key in useable['locations']){
     	var i = useable['locations'][key];
-    	var location = VAR['COMBINE'][key][i];
+    	var location = this.variable['COMBINE'][key][i];
     	var action = TEAM_ACTIVE_SKILL[ location.PLACE ][ location.i ];
     	action['variable']['COOLDOWN'] = action['coolDown'];
     }
 
-    for(var id of getStackOfPanelByColorArr( [ VAR['COLOR_MAIN'], VAR['COLOR_EXCLUSIVE'], 'h' ] ) ){
-    	turnElementToColorByID( id, VAR['COLOR_MAIN']+"+" );
+    for(var id of getStackOfPanelByColorArr( [ this.variable['COLOR_MAIN'], this.variable['COLOR_EXCLUSIVE'], 'h' ] ) ){
+    	turnElementToColorByID( id, this.variable['COLOR_MAIN']+"+" );
     }
-    for(var id of getStackOfPanelByColor( VAR['COLOR_TO_H'] )){
+    for(var id of getStackOfPanelByColor( this.variable['COLOR_TO_H'] )){
     	turnElementToColorByID( id, 'h' );
     }
 }

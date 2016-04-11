@@ -18,6 +18,10 @@ function resetTeamComposition(){
     resetTeamLeaderSkill();
     resetMemberActiveSkill();
     resetMemberWakes();
+
+    checkCombineSkill();    
+    checkTeamSkill();
+
     resetColors();
     resetHealthPoint();
 }
@@ -48,7 +52,6 @@ function resetMemberActiveSkill(){
         });
         TEAM_ACTIVE_SKILL.push( actives );
     });
-    checkCombineSkill();
 }
 function checkCombineSkill(){
     TEAM_COMBINE_SKILL = [];
@@ -59,34 +62,22 @@ function checkCombineSkill(){
     for( var combineSkillKey in COMBINE_SKILLS_DATA ){
         COMBINE_SKILLS_DATA[combineSkillKey]["mapping"]();
     }
-    //update Combine in every turn end
 }
 
 function resetTeamLeaderSkill(){
     TEAM_COLORS_CHANGEABLE = true;
     GROUP_SIZE = {'w':3, 'f':3, 'p':3, 'l':3, 'd':3, 'h':3};
 
-    TEAM_LEADER_SKILL = LEADER_SKILLS_DATA[ TEAM_LEADER['leader'] ];
-    TEAM_FRIEND_SKILL = LEADER_SKILLS_DATA[ TEAM_FRIEND['leader'] ];
-    checkTeamSkill();
+    TEAM_LEADER_SKILL = NewLeaderSkill( TEAM_LEADER['leader'] );
+    TEAM_FRIEND_SKILL = NewLeaderSkill( TEAM_FRIEND['leader'] );
 
-    if( "preSet" in TEAM_LEADER_SKILL ){
-        TEAM_LEADER_SKILL_VAR = TEAM_LEADER_SKILL['preSet']( TEAM_LEADER );
-    }
-    if( "preSet" in TEAM_FRIEND_SKILL ){
-        TEAM_FRIEND_SKILL_VAR = TEAM_FRIEND_SKILL['preSet']( TEAM_FRIEND );
-    }
+    TEAM_LEADER_SKILL["variable"] = TEAM_LEADER_SKILL['preSet']( TEAM_LEADER );
+    TEAM_FRIEND_SKILL["variable"] = TEAM_FRIEND_SKILL['preSet']( TEAM_FRIEND );
 }
 function checkTeamSkill(){
     TEAM_SKILL = [];
-    TEAM_SKILL_VAR = {};
     for( var teamSkillKey in TEAM_SKILLS_DATA ){
         TEAM_SKILLS_DATA[teamSkillKey]["mapping"]();
-    }
-    for( var teamSkill of TEAM_SKILL ){
-        if( "preSet" in teamSkill ){
-            TEAM_SKILL_VAR[ teamSkill["id"] ] = teamSkill["preSet"]( TEAM_LEADER, TEAM_FRIEND );
-        }
     }
 }
 

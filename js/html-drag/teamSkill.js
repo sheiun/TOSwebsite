@@ -4,7 +4,11 @@
 // Team Skill Function
 //==============================================================
 //==============================================================
-
+function basicTeamSkillAdd( teamSkillID ){
+    var teamSkill = NewTeamSkill( teamSkillID );
+    teamSkill['variable'] = teamSkill['preSet']( TEAM_LEADER, TEAM_FRIEND );
+    TEAM_SKILL.push( teamSkill );
+}
 
 //==============================================================
 // Nordic
@@ -21,40 +25,47 @@ var TeamNordicSetting = function( LEADER, FRIEND ){
 }
 var TeamNordicMapping = function(){
     if( TEAM_LEADER['id'] == TEAM_FRIEND['id'] && TEAM_FRIEND['id'].indexOf("NORDIC") >= 0 ){
-        TEAM_SKILL.push( TEAM_SKILLS_DATA["NORDIC"] );
+        basicTeamSkillAdd( this.id );
     }
 }
 
 var TeamNordicOdinSetting = function( LEADER, FRIEND ){
     LEADER['leader'] = "ELEMENT_FACTOR3_5";
     FRIEND['leader'] = "ELEMENT_FACTOR3_5";
-    TEAM_LEADER_SKILL = LEADER_SKILLS_DATA[ "ELEMENT_FACTOR3_5" ];
-    TEAM_FRIEND_SKILL = LEADER_SKILLS_DATA[ "ELEMENT_FACTOR3_5" ];
-    if( MEMBER_1['id'] == "BOSS_ODIN" ){
-        MEMBER_1['color'] = LEADER['color'];
-    }
-    if( MEMBER_2['id'] == "BOSS_ODIN" ){
-        MEMBER_2['color'] = LEADER['color'];
-    }
-    if( MEMBER_3['id'] == "BOSS_ODIN" ){
-        MEMBER_3['color'] = LEADER['color'];
-    }
-    if( MEMBER_4['id'] == "BOSS_ODIN" ){
-        MEMBER_4['color'] = LEADER['color'];
-    }
-    return {};
+    TEAM_LEADER_SKILL = NewLeaderSkill( "ELEMENT_FACTOR3_5" );
+    TEAM_FRIEND_SKILL = NewLeaderSkill( "ELEMENT_FACTOR3_5" );
+    TEAM_LEADER_SKILL["variable"] = TEAM_LEADER_SKILL['preSet']( LEADER );
+    TEAM_FRIEND_SKILL["variable"] = TEAM_FRIEND_SKILL['preSet']( FRIEND );
+
+    $.each(TEAM_MEMBERS, function(place, member){
+        if( member['id'] == "BOSS_ODIN" ){
+            member['color'] = LEADER['color'];
+        }
+    });
+    return { COLOR : LEADER['color'] };
 }
 var TeamNordicOdinMapping = function(){
     if( TEAM_LEADER['id'] == TEAM_FRIEND['id'] && TEAM_FRIEND['id'].indexOf("NORDIC") >= 0 &&
-        ( MEMBER_1['id'] == "BOSS_ODIN" || MEMBER_2['id'] == "BOSS_ODIN" || 
-          MEMBER_3['id'] == "BOSS_ODIN" || MEMBER_4['id'] == "BOSS_ODIN" ) ){
-        TEAM_SKILL.push( TEAM_SKILLS_DATA["NORDIC_ODIN"] );
+        checkMembersIDByConfig( {
+            ID    : [ "BOSS_ODIN" ],
+            check : [ "{0}>0"  ],
+        } ) ){
+        basicTeamSkillAdd( this.id );
     }
 }
 
 //==============================================================
 // Babylon
 //==============================================================
+var TeamBabylonSetting = function( LEADER, FRIEND ){
+    LEADER['leader'] = "BABYLON_PLUS";
+    FRIEND['leader'] = "BABYLON_PLUS";
+    TEAM_LEADER_SKILL = NewLeaderSkill( "BABYLON_PLUS" );
+    TEAM_FRIEND_SKILL = NewLeaderSkill( "BABYLON_PLUS" );
+    TEAM_LEADER_SKILL["variable"] = TEAM_LEADER_SKILL['preSet']( LEADER );
+    TEAM_FRIEND_SKILL["variable"] = TEAM_FRIEND_SKILL['preSet']( FRIEND );
+    return { COLOR : LEADER['color'] };
+}
 var TeamBabylonAttack = function( VAR ){
     COUNT_FACTOR['TeamBabylon'] = {
         factor    : function( member, membe_place ){
@@ -70,14 +81,8 @@ var TeamBabylonAttack = function( VAR ){
 }
 var TeamBabylonMapping = function(){
     if( TEAM_LEADER['id'] == TEAM_FRIEND['id'] && TEAM_FRIEND['leader'] == "BABYLON" ){
-        TEAM_SKILL.push( TEAM_SKILLS_DATA["BABYLON"] );
+        basicTeamSkillAdd( this.id );
     }
-}
-var TeamBabylonSetting = function( LEADER, FRIEND ){
-    LEADER['leader'] = "BABYLON_PLUS";
-    FRIEND['leader'] = "BABYLON_PLUS";
-    TEAM_LEADER_SKILL = LEADER_SKILLS_DATA[ "BABYLON_PLUS" ];
-    TEAM_FRIEND_SKILL = LEADER_SKILLS_DATA[ "BABYLON_PLUS" ];
 }
 
 //==============================================================
@@ -106,7 +111,7 @@ var TeamDarkLuciferAttack = function( VAR ){
 }
 var TeamDarkLuciferMapping = function(){
     if( TEAM_LEADER['id'] == TEAM_FRIEND['id'] && TEAM_FRIEND['leader'] == "DARK_LUCIFER" ){
-        TEAM_SKILL.push( TEAM_SKILLS_DATA["DARK_LUCIFER"] );
+        basicTeamSkillAdd( this.id );
     }
 }
 
@@ -135,17 +140,19 @@ var TeamGreekComboAttack = function( VAR ){
 }
 var TeamGreekComboMapping = function(){    
     if( TEAM_LEADER['id'] == TEAM_FRIEND['id'] && TEAM_FRIEND['leader'] == "GREEK" ){
-        TEAM_SKILL.push( TEAM_SKILLS_DATA["GREEK_COMBO"] );
+        basicTeamSkillAdd( this.id );
     }
 }
 var TeamGreekSetting = function( LEADER, FRIEND ){
     return {
         COLOR       : LEADER['color'],
-        COUNT       : {'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0},
+        COUNT       : 0,
     };
 }
+var TeamGreekReset = function( VAR ){
+    VAR['COUNT'] = 0;
+}
 var TeamGreekSkill = function( VAR ){
-    var color = VAR['COLOR'];
     var comboTimes = VAR['COUNT'];
     for(var key in GROUP_SETS){
         comboTimes += GROUP_SETS[key].length;
@@ -154,14 +161,14 @@ var TeamGreekSkill = function( VAR ){
         comboTimes -= 5;
         for(var num = 0; num < REMOVE_STACK.length && num < 2; num ++){
             var id = selectAndRemoveRandomItemFromArrBySeed( REMOVE_STACK );
-            STRONG_STACK[id] = color;
+            STRONG_STACK[id] = VAR['COLOR'];
         }
     }
     VAR['COUNT'] = comboTimes;
 }
 var TeamGreekMapping = function(){    
     if( TEAM_LEADER['id'] == TEAM_FRIEND['id'] && TEAM_FRIEND['leader'] == "GREEK" ){
-        TEAM_SKILL.push( TEAM_SKILLS_DATA["GREEK"] );
+        basicTeamSkillAdd( this.id );
     }
 }
 
@@ -202,18 +209,18 @@ var TeamCoupleAttackFP = function( VAR ){
 }
 var TeamCoupleFFMapping = function(){
     if( TEAM_LEADER['id'] == TEAM_FRIEND['id'] && TEAM_FRIEND['leader'] == "COUPLE_F" ){
-        TEAM_SKILL.push( TEAM_SKILLS_DATA["COUPLE_FF"] );
+        basicTeamSkillAdd( this.id );
     }
 }
 var TeamCouplePPMapping = function(){
     if( TEAM_LEADER['id'] == TEAM_FRIEND['id'] && TEAM_FRIEND['leader'] == "COUPLE_P" ){
-        TEAM_SKILL.push( TEAM_SKILLS_DATA["COUPLE_PP"] );
+        basicTeamSkillAdd( this.id );
     }
 }
 var TeamCoupleFPMapping = function(){
     if( (TEAM_LEADER['leader'] == "COUPLE_F" && TEAM_FRIEND['leader'] == "COUPLE_P") || 
         (TEAM_LEADER['leader'] == "COUPLE_P" && TEAM_FRIEND['leader'] == "COUPLE_F") ){
-        TEAM_SKILL.push( TEAM_SKILLS_DATA["COUPLE_FP"] );
+        basicTeamSkillAdd( this.id );
     }
 }
 
@@ -255,7 +262,7 @@ var TeamCommonSourceMapping = function(){
             ID    : [ "LIXIAOYAO", "ZHAOLINGER", "LINYUERU" ],
             check : [ '({0}>=1&&{1}>=1&&(({0}+{1})>=2))||({0}>=1&&{2}>=1&&(({0}+{2})>=2))||({1}>=1&&{2}>=1&&(({1}+{2})>=2))',  ],
         } ) ){
-        TEAM_SKILL.push( TEAM_SKILLS_DATA["COMMON_SOURCE"] );
+        basicTeamSkillAdd( this.id );
     }
 }
 
@@ -265,13 +272,15 @@ var TeamCommonSourceMapping = function(){
 var TeamDevilIllusionSetting = function( LEADER, FRIEND ){
     LEADER['leader'] = "DEVIL_ILLUSION_PLUS";
     FRIEND['leader'] = "DEVIL_ILLUSION_PLUS";
-    TEAM_LEADER_SKILL = LEADER_SKILLS_DATA[ "DEVIL_ILLUSION_PLUS" ];
-    TEAM_FRIEND_SKILL = LEADER_SKILLS_DATA[ "DEVIL_ILLUSION_PLUS" ];
+    TEAM_LEADER_SKILL = NewLeaderSkill( "DEVIL_ILLUSION_PLUS" );
+    TEAM_FRIEND_SKILL = NewLeaderSkill( "DEVIL_ILLUSION_PLUS" );
+    TEAM_LEADER_SKILL["variable"] = TEAM_LEADER_SKILL['preSet']( LEADER );
+    TEAM_FRIEND_SKILL["variable"] = TEAM_FRIEND_SKILL['preSet']( FRIEND );
     return {};
 }
 var TeamDevilIllusionMapping = function(){
     if( TEAM_LEADER['id'] == TEAM_FRIEND['id'] && TEAM_FRIEND['leader'] == 'DEVIL_ILLUSION' ){
-        TEAM_SKILL.push( TEAM_SKILLS_DATA["DEVIL_ILLUSION"] );
+        basicTeamSkillAdd( this.id );
     }
 }
 
@@ -304,7 +313,7 @@ var TeamDevilCircleAttack = function( VAR ){
 }
 var TeamDevilCircleMapping = function(){
     if( TEAM_LEADER['id'] == TEAM_FRIEND['id'] && TEAM_FRIEND['leader'] == 'DEVIL_CIRCLE' ){
-        TEAM_SKILL.push( TEAM_SKILLS_DATA["DEVIL_CIRCLE"] );
+        basicTeamSkillAdd( this.id );
     }
 }
 
@@ -351,6 +360,7 @@ var TEAM_SKILLS_DATA = {
         id        : 'GREEK',
         label     : '元素湧現',
         info      : '每消除 5 組符石，將產生 2 粒相應屬性符石',
+        extraReset: TeamGreekReset,
         mapping   : TeamGreekMapping,
         newItem   : TeamGreekSkill,
         preSet    : TeamGreekSetting,
@@ -420,10 +430,16 @@ var TEAM_SKILLS_DATA = {
     },
 };
 
+function NewTeamSkill( id ){
+    var teamSkillObj = $.extend(true, {}, TEAM_SKILLS_DATA[id]);
+    teamSkillObj['variable'] = {};
+    return teamSkillObj;
+}
+
 function checkTeamSkillByKey( key ){
     $.each(TEAM_SKILL, function(i, teamSkill){
         if( key in teamSkill ){
-            teamSkill[ key ]( TEAM_SKILL_VAR[ teamSkill["id"] ] );
+            teamSkill[ key ]( teamSkill["variable"] );
         }
     });
 }

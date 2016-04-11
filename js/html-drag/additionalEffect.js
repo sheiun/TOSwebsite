@@ -135,6 +135,14 @@ var BladesOfLightPhantomAttack = function(){
 var BladesEndEffects = function(){
 	setTimeLimit( 5 );
 }
+//==============================================================
+var SpellOfBloodSpiritsEXAttack = function(){
+	COUNT_FACTOR['SpellOfBloodSpiritsEXAttack'] = {
+		factor    : function( member, member_place ){ return 1.5; },
+		prob      : 1,
+		condition : function( member, member_place ){ return true; },
+	};
+}
 
 //==============================================================
 //==============================================================
@@ -154,9 +162,8 @@ var BattleFieldSetting = function( place, i, VAR, enemy ){
 	}
 };
 var BattleFieldAttack = function(){
-	var VAR = this.variable;
-	COUNT_COLOR_FACTOR[ VAR['COLOR'] ] *= 1.5;
-	VAR['ENEMY']['variable']['COLOR'] = COLOR_EXCLUSIVE[ VAR['COLOR'] ];
+	COUNT_COLOR_FACTOR[ this.variable['COLOR'] ] *= 1.5;
+	this.variable['ENEMY']['variable']['COLOR'] = COLOR_EXCLUSIVE[ this.variable['COLOR'] ];
 };
 //==============================================================
 var BlazingCircleSetting = function( place, i, VAR, enemy ){
@@ -172,8 +179,7 @@ var BlazingCircleSetting = function( place, i, VAR, enemy ){
 	}
 };
 var BlazingCircleAttack = function(){
-	var VAR = this.variable;
-	VAR['ENEMY']['variable']['COLOR'] = COLOR_EXCLUSIVE[ 'f' ];
+	this.variable['ENEMY']['variable']['COLOR'] = COLOR_EXCLUSIVE[ 'f' ];
 };
 
 //==============================================================
@@ -258,6 +264,12 @@ var ADDITIONAL_EFFECT_DATA = {
 		preSet    : BladesSetting,
 		tag       : ['attack', 'addTimeLimit'],
 	},
+	SPELL_OF_BLOOD_SPIRITS_EX : {
+		id        : 'SPELL_OF_BLOOD_SPIRITS_EX',
+		attack    : SpellOfBloodSpiritsEXAttack,
+		preSet    : BasicEffectSetting,
+		tag       : ['attack'],
+	}
 };
 
 var ENEMY_EFFECT_DATA = {

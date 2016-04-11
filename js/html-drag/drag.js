@@ -138,9 +138,6 @@ var TEAM_FRIEND  = null;
 var TEAM_LEADER_SKILL = null;
 var TEAM_FRIEND_SKILL = null;
 var TEAM_SKILL        = [];
-var TEAM_LEADER_SKILL_VAR = null;
-var TEAM_FRIEND_SKILL_VAR = null;
-var TEAM_SKILL_VAR        = [];
 
 var TEAM_ACTIVE_SKILL     = [];
 var TEAM_COMBINE_SKILL    = [];

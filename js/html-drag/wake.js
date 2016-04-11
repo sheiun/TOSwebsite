@@ -18,6 +18,34 @@ var DropIncrease = function( MEMBER, place, wakeVar ){
     }
 }
 
+var ActiveCoolDownForever = function( MEMBER, place, wakeVar ){
+    TEAM_ACTIVE_SKILL[place][0]['coolDown'] -= wakeVar;
+    TEAM_ACTIVE_SKILL[place][0]['variable']['COOLDOWN'] -= wakeVar;
+}
+var ActiveCoolDownBegining = function(MEMBER, place, wakeVar ){
+    TEAM_ACTIVE_SKILL[place][0]['variable']['COOLDOWN'] -= wakeVar;
+}
+
+var ChangeActiveSkillBegining = function(MEMBER, place, wakeVar ){ 
+    // wakeVar = [i, "skill_ID"]
+    var active = NewActiveSkill( wakeVar[1] );
+    active['variable'] = active['preSet']( MEMBER, place, wakeVar[0] );
+    TEAM_ACTIVE_SKILL[place][ wakeVar[0] ] = active;
+}
+var ChangeLeaderSkillBegining = function(MEMBER, place, wakeVar ){ 
+    // wakeVar = "skill_ID"
+    if( MEMBER == TEAM_LEADER ){
+        TEAM_LEADER['leader'] = wakeVar;
+        TEAM_LEADER_SKILL = NewLeaderSkill( TEAM_LEADER['leader'] );
+        TEAM_LEADER_SKILL["variable"] = TEAM_LEADER_SKILL['preSet']( TEAM_LEADER );
+    }else if( MEMBER == TEAM_FRIEND ){
+        TEAM_FRIEND['leader'] = wakeVar;
+        TEAM_FRIEND_SKILL = NewLeaderSkill( TEAM_FRIEND['leader'] );
+        TEAM_FRIEND_SKILL["variable"] = TEAM_FRIEND_SKILL['preSet']( TEAM_FRIEND );
+    }
+}
+
+//==============================================================
 var StraightAttack = function( wakeVar, place, i ){
     // wakeVar = "[factor,straightSize]"
     if( checkFirstStraightByPlace( wakeVar[1], place ) ){
@@ -62,27 +90,15 @@ var StraightHeal = function( wakeVar, place, i ){
     }
 }
 
-var ActiveCoolDownForever = function( MEMBER, place, wakeVar ){
-    TEAM_ACTIVE_SKILL[place][0]['coolDown'] -= wakeVar;
-    TEAM_ACTIVE_SKILL[place][0]['variable']['COOLDOWN'] -= wakeVar;
-}
-var ActiveCoolDownBegining = function(MEMBER, place, wakeVar ){
-    TEAM_ACTIVE_SKILL[place][0]['variable']['COOLDOWN'] -= wakeVar;
-}
-
 var StraightEncirclementTransfer = function( wakeVar, place, i ){
     var stack = getStackOfStraightByColorArr( place, ['w','f','p','l','d','h'] );
-console.log(stack);
     for(var id of stack){
-console.log(id);
         turnElementToColorByID(id, wakeVar);
     }
 }
 var StraightEnchantmentTransfer = function( wakeVar, place, i ){
     var stack = getStackOfStraightByColor( place, wakeVar );
-console.log(stack);
     for(var id of stack){
-console.log(id);
         turnElementToStrongByID(id);
     }
 }
@@ -124,12 +140,12 @@ var WAKES_DATA = {
     ACTIVE_COOLDOWN_FOREVER : {
         id        : "ACTIVE_COOLDOWN_FOREVER",
         preSet    : ActiveCoolDownForever,
-        // wakeVar = "[turn]"
+        // wakeVar = "turn"
     },
     ACTIVE_COOLDOWN_BEGINING : {
         id        : "ACTIVE_COOLDOWN_BEGINING",  
         preSet    : ActiveCoolDownBegining,  
-        // wakeVar = "[turn]"    
+        // wakeVar = "turn"    
     },
     STRAIGHT_ENCIRCLEMENT : {
         id        : "STRAIGHT_ENCIRCLEMENT",
@@ -138,6 +154,16 @@ var WAKES_DATA = {
     STRAIGHT_ENCHANTMENT : {
         id        : "STRAIGHT_ENCHANTMENT",
         transfer  : StraightEnchantmentTransfer,
+    },
+    CHANGE_ACTIVE_SKILL : {
+        id        : "CHANGE_ACTIVE_SKILL",
+        preSet    : ChangeActiveSkillBegining,
+        // wakeVar = [i, "skill_ID"]
+    },
+    CHANGE_LEADER_SKILL : {
+        id        : "CHANGE_LEADER_SKILL",
+        preSet    : ChangeLeaderSkillBegining,
+        // wakeVar = [i, "skill_ID"]
     },
 }
 

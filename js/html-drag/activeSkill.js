@@ -35,9 +35,7 @@ var StartRunSetting = function( member, place, i ){
     }
 }
 var BrokeBoundaryStart = function( place, i ){
-    VAR = this.variable;
-    VAR['COOLDOWN'] = this.coolDown;
-    VAR['USING'] = true;
+    this.variable['USING'] = true;
     USING_ACTIVE_SKILL_STACK[ this.id ] = { PLACE: place, i: i };
 
     disbalePanelControl( true );
@@ -99,9 +97,8 @@ var BrokeBoundaryStart = function( place, i ){
     }, max_drop*DROP_TIME );
 }
 var BrokeBoundaryEnd = function( place, i ){
-    VAR = this.variable;
-    if( !VAR['USING'] ){ return false; }
-    VAR['USING'] = false;
+    if( !this.variable['USING'] ){ return false; }
+    this.variable['USING'] = false;
     delete USING_ACTIVE_SKILL_STACK[ this.id ];
 
     disbalePanelControl( false );
@@ -125,12 +122,9 @@ var BrokeBoundaryEnd = function( place, i ){
     }
     window.scrollTo(0, $("#clock").offset().top-3*HEIGHT);
 }
-
 //==============================================================
 var OverBeautyStart = function( place, i ){
-    VAR = this.variable;
-    VAR['COOLDOWN'] = this.coolDown;
-    VAR['USING'] = true;
+    this.variable['USING'] = true;
     USING_ACTIVE_SKILL_STACK[ this.id ] = { PLACE: place, i: i };
 
     disbalePanelControl( true );
@@ -139,9 +133,9 @@ var OverBeautyStart = function( place, i ){
     resetBase();
 }
 var OverBeautyEnd = function( place, i ){
-    VAR = this.variable;
-    if( !VAR['USING'] ){ return false; }
-    VAR['USING'] = false;
+    this.variable = this.variable;
+    if( !this.variable['USING'] ){ return false; }
+    this.variable['USING'] = false;
     delete USING_ACTIVE_SKILL_STACK[ this.id ];
 
     disbalePanelControl( false );
@@ -154,52 +148,94 @@ var OverBeautyEnd = function( place, i ){
 // Transfer function
 //==============================================================
 var RuneStrengthenCheck = function( place, i ){
-    VAR = this.variable;
-    return basicActiveCheck( VAR, place, i ) &&
-        checkHasElementByColorWithoutStrong( VAR['COLOR'] );
+    return basicActiveCheck( this.variable, place, i ) &&
+        checkHasElementByColorWithoutStrong( this.variable['COLOR'] );
 }
 var RuneStrengthenTransfer = function( place, i ){
-    VAR = this.variable;
-    VAR['COOLDOWN'] = this.coolDown;
-    var stack = getStackOfPanelByColor( VAR['COLOR'] );
+    var stack = getStackOfPanelByColor( this.variable['COLOR'] );
     for(var id of stack){
         turnElementToStrongByID(id);
     }
 }
-
 //==============================================================
 var DeffensiveStanceCheck = function( place, i ){
-    VAR = this.variable;
-    return basicActiveCheck( VAR, place, i ) &&
-        checkHasElementByColor( COLOR_EXCLUSIVE[VAR['COLOR']] );
+    return basicActiveCheck( this.variable, place, i ) &&
+        checkHasElementByColor( COLOR_EXCLUSIVE[ this.variable['COLOR'] ] );
 }
 var DeffensiveStanceTransfer = function( place, i ){
-    VAR = this.variable;
-    VAR['COOLDOWN'] = this.coolDown;
-    var stack = getStackOfPanelByColor( COLOR_EXCLUSIVE[VAR['COLOR']] );
+    var stack = getStackOfPanelByColor( COLOR_EXCLUSIVE[ this.variable['COLOR'] ] );
     for(var id of stack){
         turnElementToColorByID(id, 'h');
     }
 }
 var DeffensiveStanceEXTransfer = function( place, i ){
-    VAR = this.variable;
-    VAR['COOLDOWN'] = this.coolDown;
-    var stack = getStackOfPanelByColor( COLOR_EXCLUSIVE[VAR['COLOR']] );
+    var stack = getStackOfPanelByColor( COLOR_EXCLUSIVE[ this.variable['COLOR'] ] );
     for(var id of stack){
         turnElementToColorByID(id, 'h+');
+    }
+}
+//==============================================================
+var EnsiformBreathCheck = function( place, i ){
+    return basicActiveCheck( this.variable, place, i ) &&
+        checkHasElementByColorArrWithoutStrong( ['l', 'd'] );
+}
+var EnsiformBreathTransfer = function( place, i ){
+    var stack = getStackOfPanelByColorArr( ['l', 'd'] );
+    for(var id of stack){
+        turnElementToStrongByID(id);
+    }
+}
+//==============================================================
+var SpellOfTornadosTransfer = function( place, i ){
+    var stack = [ 'w','w','w','w','w','w','w','w',
+                  'f','f','f','f','f','f','f','f',
+                  'p','p','p','p','p','p','p','p',
+                  'h','h','h','h','h','h' ];
+    stack = makeArrayShuffle(stack);
+    console.log(stack);
+    $.each(stack, function(id, color){console.log(id+color);
+        turnElementToColorByID(id, color);
+    });
+}
+var SpellOfBloodSpiritsCheck = function( place, i ){
+    return basicActiveCheck( this.variable, place, i ) &&
+        checkHasElementByColorArr( ['l', 'd'] );
+}
+var SpellOfBloodSpiritsTransfer = function( place, i ){
+    var stack = getStackOfPanelByColor( 'l' );
+    for(var id of stack){
+        turnElementToColorByID(id, 'f');
+    }
+    stack = getStackOfPanelByColor( 'd' );
+    for(var id of stack){
+        turnElementToColorByID(id, 'h');
+    }
+}
+var SpellOfBloodSpiritsEXTransfer = function( place, i ){
+    if( checkHasElementByColorArr( ['l', 'd'] ) ){
+        var stack = getStackOfPanelByColor( 'l' );
+        for(var id of stack){
+            turnElementToColorByID(id, 'f');
+        }
+        stack = getStackOfPanelByColor( 'd' );
+        for(var id of stack){
+            turnElementToColorByID(id, 'h');
+        }
+    }else{
+        var effect = NewAdditionalEffect( this.id );
+        effect['variable'] = effect['preSet']( place, i, this.variable );
+        additionalEffectAdd( effect );
     }
 }
 
 //==============================================================
 var TransformationCheck = function( place, i ){
-    VAR = this.variable;
-    return basicActiveCheck( VAR, place, i ) &&
-        checkHasElementByColorArr( getOtherColorsFromColorArr(VAR['COLOR']) );
+    return basicActiveCheck( this.variable, place, i ) &&
+        checkHasElementByColorArr( getOtherColorsFromColorArr( this.variable['COLOR'] ) );
 }
 var TransformationH_Check = function( place, i ){
-    VAR = this.variable;
-    return basicActiveCheck( VAR, place, i ) &&
-        getStackOfPanelByColorArr( getOtherColorsFromColorArr('h') ).length >= VAR['COUNT'];
+    return basicActiveCheck( this.variable, place, i ) &&
+        getStackOfPanelByColorArr( getOtherColorsFromColorArr('h') ).length >= this.variable['COUNT'];
 }
 var TransformationSetting = function( member, place, i ){
     return {
@@ -212,59 +248,52 @@ var TransformationSetting = function( member, place, i ){
     }
 }
 var TransformationTransfer = function( place, i ){
-    VAR = this.variable;
-    if( VAR['COUNT'] == 0 ){ return false; }
-    VAR['COOLDOWN'] = this.coolDown;
-
-    var otherColors = getOtherColorsFromColorArr(['h', COLOR_EXCLUSIVE[VAR['COLOR']], VAR['COLOR']]);
+    if( this.variable['COUNT'] == 0 ){ return false; }
+    var otherColors = getOtherColorsFromColorArr(
+        [ 'h', COLOR_EXCLUSIVE[ this.variable['COLOR'] ], this.variable['COLOR'] ]
+    );
     turnRandomElementToColorByConfig( {
-        color          : VAR['COLOR'],
-        num            : VAR['COUNT']+1,
-        priorityColors : [ ['h'], [ COLOR_EXCLUSIVE[VAR['COLOR']] ], otherColors, [VAR['COLOR']] ],
+        color          : this.variable['COLOR'],
+        num            : this.variable['COUNT']+1,
+        priorityColors : [ ['h'], [ COLOR_EXCLUSIVE[this.variable['COLOR']] ], otherColors, [this.variable['COLOR']] ],
     } );
-    VAR['COUNT'] = 0;
+    this.variable['COUNT'] = 0;
 }
 var TransformationPlusTransfer = function( place, i ){
-    VAR = this.variable;
-    if( VAR['COUNT'] == 0 ){ return false; }
-    VAR['COOLDOWN'] = this.coolDown;
-
-    var color = (VAR['COUNT'] == 7) ? VAR['COLOR']+'+' : VAR['COLOR'];
-    var otherColors = getOtherColorsFromColorArr(['h', COLOR_EXCLUSIVE[VAR['COLOR']], VAR['COLOR']]);
+    if( this.variable['COUNT'] == 0 ){ return false; }
+    var color = (this.variable['COUNT'] == 7) ? this.variable['COLOR']+'+' : this.variable['COLOR'];
+    var otherColors = getOtherColorsFromColorArr(
+        [ 'h', COLOR_EXCLUSIVE[ this.variable['COLOR'] ], this.variable['COLOR'] ]
+    );
     turnRandomElementToColorByConfig( {
         color          : color,
-        num            : VAR['COUNT']+1,
-        priorityColors : [ ['h'], [ COLOR_EXCLUSIVE[VAR['COLOR']] ], otherColors, [VAR['COLOR']] ],
+        num            : this.variable['COUNT']+1,
+        priorityColors : [ ['h'], [ COLOR_EXCLUSIVE[this.variable['COLOR']] ], otherColors, [this.variable['COLOR']] ],
     } );
-    VAR['COUNT'] = 0;
+    this.variable['COUNT'] = 0;
 }
 var TransformationH_Transfer = function( place, i ){
-    VAR = this.variable;
-    if( VAR['COUNT'] == 0 ){ return false; }
-    VAR['COOLDOWN'] = this.coolDown;
+    if( this.variable['COUNT'] == 0 ){ return false; }
 
     turnRandomElementToColorByProb( {
         color      : 'h',
-        num        : VAR['COUNT'],
+        num        : this.variable['COUNT'],
         probColors : {
             'w': 5/18, 'f': 10/18, 'p': 15/18, 'l': 11/12, 'd': 12/12
         },
     } );
-    VAR['COUNT'] = 0;
+    this.variable['COUNT'] = 0;
 }
 var TransformationEnd = function( place, i ){
-    VAR = this.variable;
     if( COMBO_STACK.length > 0 ){
-        VAR['COUNT'] = Math.min( 7, VAR['COUNT']+1 );    
+        this.variable['COUNT'] = Math.min( 7, this.variable['COUNT']+1 );    
     }
 }
 var TransfigurationEnd = function( place, i ){
-    VAR = this.variable;
     if( COMBO_STACK.length > 0 ){
-        VAR['COUNT'] = Math.min( 5, VAR['COUNT']+1 );    
+        this.variable['COUNT'] = Math.min( 5, this.variable['COUNT']+1 );    
     }
 }
-
 
 //==============================================================
 // Member Switch function
@@ -286,45 +315,41 @@ var TraceOfNotionSetting = function( member, place, i ){
     }
 }
 var TraceOfNotionStart = function( place, i ){
-    VAR = this.variable;
-    VAR['COOLDOWN'] = this.coolDown;
-    VAR['USING'] = true;
+    this.variable['USING'] = true;
     USING_ACTIVE_SKILL_STACK[ this.id ] = { PLACE: place, i: i };
     $("#ActiveButtonTD td").eq(place).find("button span").eq(i).text(this.label).append("<br>(使用中)");
 }
 var TraceOfNotionUpdate = function( place, i ){
-    VAR = this.variable;
-    if( !VAR['USING'] ){ return false; }
+    if( !this.variable['USING'] ){ return false; }
     if( checkComboColorFirstMaxAmountByConfig({
-            ID    : [ VAR['COLOR'] ],
+            ID    : [ this.variable['COLOR'] ],
             check : [ '{0}<5' ],
         }) ){
-        VAR['USING'] = false;
-        VAR['COUNT'] = 0;
-        VAR['FACTOR'] = 1.2;
+        this.variable['USING'] = false;
+        this.variable['COUNT'] = 0;
+        this.variable['FACTOR'] = 1.2;
         delete USING_ACTIVE_SKILL_STACK[ this.id ];
         $("#ActiveButtonTD td").eq(place).find("button span").eq(i).text(this.label);
     }
 }
 var TraceOfNotionAttack = function( place, i ){
-    VAR = this.variable;
-    if( !VAR['USING'] ){ return false; }
+    if( !this.variable['USING'] ){ return false; }
 
     var max = 0;
     var num = 0;
     for(var combo of COMBO_STACK){
-        if(combo['color'] == VAR['COLOR']){
+        if(combo['color'] == this.variable['COLOR']){
             max = Math.max( max, combo['amount'] );
             num += combo['amount'];
         }
     }
     if( num > 0 ){
-        num += VAR['COUNT'];
-        VAR['FACTOR'] = Math.min( 2.2, VAR['FACTOR']+0.2+( Math.floor(num/20) )*0.2 );
-        VAR['COUNT'] = num%20
+        num += this.variable['COUNT'];
+        this.variable['FACTOR'] = Math.min( 2.2, this.variable['FACTOR']+0.2+( Math.floor(num/20) )*0.2 );
+        this.variable['COUNT'] = num%20;
     }
 
-    COUNT_COLOR_FACTOR[ VAR['COLOR'] ] *= VAR['FACTOR'];
+    COUNT_COLOR_FACTOR[ this.variable['COLOR'] ] *= this.variable['FACTOR'];
 }
 
 
@@ -372,10 +397,8 @@ var BladesEffectCheck = function( place, i ){
 }
 
 var BasicAddtionalEffectAdd = function( place, i ){
-    VAR = this.variable;
-    VAR['COOLDOWN'] = this.coolDown;
     var effect = NewAdditionalEffect( this.id );
-    effect['variable'] = effect['preSet']( place, i, VAR );
+    effect['variable'] = effect['preSet']( place, i, this.variable );
 
     additionalEffectAdd( effect );
 }
@@ -424,13 +447,11 @@ var BlazingCircleCheck = function( place, i ){
 }
 
 var BasicEnemyEffectAdd = function( place, i ){
-    VAR = this.variable;
-    VAR['COOLDOWN'] = this.coolDown;
     var effectID = this.id;
 
     $.each(ENEMY, function(e, enemy){
         var effect = NewEnemyEffect( effectID );
-        effect['variable'] = effect['preSet']( place, i, VAR, enemy );
+        effect['variable'] = effect['preSet']( place, i, this.variable, enemy );
         enemy['variable']['EFFECT'].push( effect );
     });
 }
@@ -749,6 +770,42 @@ var ACTIVE_SKILLS_DATA = {
         check     : BladesEffectCheck,
         preSet    : BasicActiveSetting,
     },
+    ENSIFORM_BREATH : {
+        id        : 'ENSIFORM_BREATH',
+        label     : '凝氣成劍',
+        info      : '光符石轉化為光強化符石，同時將暗符石轉化為暗強化符石',
+        coolDown  : 5,
+        check     : EnsiformBreathCheck,
+        transfer  : EnsiformBreathTransfer,
+        preSet    : BasicActiveSetting,
+    },
+    SPELL_OF_TORNADOS : {
+        id        : 'SPELL_OF_TORNADOS',
+        label     : '旋風咒',
+        info      : '將所有符石轉化為固定數量的水、火、木及心符石',
+        coolDown  : 12,
+        check     : BasicActiveCheck,
+        transfer  : SpellOfTornadosTransfer,
+        preSet    : BasicActiveSetting,
+    },
+    SPELL_OF_BLOOD_SPIRITS : {
+        id        : 'SPELL_OF_BLOOD_SPIRITS',
+        label     : '靈血咒',
+        info      : '光符石轉化為火符石，同時暗符石轉化為心符石',
+        coolDown  : 6,
+        check     : SpellOfBloodSpiritsCheck,
+        transfer  : SpellOfBloodSpiritsTransfer,
+        preSet    : BasicActiveSetting,
+    },
+    SPELL_OF_BLOOD_SPIRITS_EX : {
+        id        : 'SPELL_OF_BLOOD_SPIRITS_EX',
+        label     : '靈血咒 ‧ 強',
+        info      : '若場上沒有光及暗符石時，全隊攻擊力 1.5 倍；反之，若場上有光或暗符石時，光符石轉化為火符石，同時暗符石轉化為心符石',
+        coolDown  : 6,
+        check     : BasicActiveCheck,
+        transfer  : SpellOfBloodSpiritsEXTransfer,
+        preSet    : BasicActiveSetting,
+    },
 };
 
 function NewActiveSkill( id ){
@@ -767,6 +824,7 @@ console.log("check-true");
         triggerActiveByKey( place, i, "start" );
         triggerActiveByKey( place, i, "transfer" );
         triggerActiveByKey( place, i, "addEffect" );
+        TEAM_ACTIVE_SKILL[place][i]["variable"]["COOLDOWN"] = TEAM_ACTIVE_SKILL[place][i]["coolDown"];
 
         for(var w = 0; w < 4; w++){
             checkWakeFromOrderByKey( "transfer", place, w );

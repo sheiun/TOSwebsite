@@ -568,13 +568,13 @@ function showTeamInfomation(){
     });
 
     var letterMap = TEAM_LEADER_SKILL['letter'];
-    var letter1 = COLOR_LETTERS[ letterMap[0] ][ TEAM_LEADER_SKILL_VAR['COLOR'] ];
-    var letter2 = COLOR_LETTERS[ letterMap[1] ][ TEAM_LEADER_SKILL_VAR['COLOR'] ];
+    var letter1 = COLOR_LETTERS[ letterMap[0] ][ TEAM_LEADER_SKILL['variable']['COLOR'] ];
+    var letter2 = COLOR_LETTERS[ letterMap[1] ][ TEAM_LEADER_SKILL['variable']['COLOR'] ];
     $('#LeaderSkillInfomation td span').eq(0).text( TEAM_LEADER_SKILL['label'].format( letter1 ) );
     $('#LeaderSkillInfomation td span').eq(1).text( TEAM_LEADER_SKILL['info'].format( letter2 ) );
     letterMap = TEAM_FRIEND_SKILL['letter'];
-    letter1 = COLOR_LETTERS[ letterMap[0] ][ TEAM_FRIEND_SKILL_VAR['COLOR'] ];
-    letter2 = COLOR_LETTERS[ letterMap[1] ][ TEAM_FRIEND_SKILL_VAR['COLOR'] ];
+    letter1 = COLOR_LETTERS[ letterMap[0] ][ TEAM_FRIEND_SKILL['variable']['COLOR'] ];
+    letter2 = COLOR_LETTERS[ letterMap[1] ][ TEAM_FRIEND_SKILL['variable']['COLOR'] ];
     $('#LeaderSkillInfomation td span').eq(2).text( TEAM_FRIEND_SKILL['label'].format( letter1 ) );
     $('#LeaderSkillInfomation td span').eq(3).text( TEAM_FRIEND_SKILL['info'].format( letter2 ) );
 

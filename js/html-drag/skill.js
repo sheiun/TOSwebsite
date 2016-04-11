@@ -6,17 +6,21 @@ var COUPLE_RAND_STACK = [];
 function saveSkillVariable(){
     var json = 
     [
-        TEAM_LEADER_SKILL_VAR,
-        TEAM_FRIEND_SKILL_VAR,
-        TEAM_SKILL_VAR,
+        TEAM_LEADER_SKILL.variable,
+        TEAM_FRIEND_SKILL.variable,
+        $.map(TEAM_SKILL, function(team_skill, i){
+            return team_skill.variable;
+        }),
     ];
     return JSON.stringify(json);
 }
 function loadSkillVariable(msg){
     var json = JSON.parse(msg);
-    TEAM_LEADER_SKILL_VAR   = json[0];
-    TEAM_FRIEND_SKILL_VAR   = json[1];
-    TEAM_SKILL_VAR          = json[2];
+    TEAM_LEADER_SKILL.variable   = json[0];
+    TEAM_FRIEND_SKILL.variable   = json[1];
+    $.each(json[2], function(i, team_skill_var){
+        TEAM_SKILL[i].variable = team_skill_var;
+    });
 }
 
 //==============================================================
@@ -67,11 +71,26 @@ function getOtherColorsFromColorArr( colorArr ){
     return colors;
 }
 
+function makeArrayShuffle(array) {
+    var count, rand_i, temp;
+    for (count = array.length; count; count -= 1) {
+        rand_i = Math.floor(Math.random() * count);
+        temp = array[count - 1];
+        array[count - 1] = array[rand_i];
+        array[rand_i] = temp;
+    }
+    return array;
+}
+
 //==============================================================
 // Panel Element function
 //==============================================================
 function checkHasElementByColorWithoutStrong(color){
     var color_stack = getStackOfPanelByColorWithoutStrong(color);
+    return color_stack.length > 0;
+}
+function checkHasElementByColorArrWithoutStrong(colorArr){
+    var color_stack = getStackOfPanelByColorArrWithoutStrong(color);
     return color_stack.length > 0;
 }
 function checkHasElementByColor(color){
@@ -113,11 +132,21 @@ function getStackOfPanelByColorWithoutStrong(color){
     }
     return stack;
 }
+function getStackOfPanelByColorArrWithoutStrong(colorArr){
+    var stack = [];
+    for(var i = 0; i < TD_NUM*TR_NUM; i++){
+        var c = $("#dragContainment tr td").eq(i).find("img.over").attr("color");
+        var strong = parseInt( $("#dragContainment tr td").eq(i).find("img.over").attr("strong") );
+        if( colorArr.indexOf(c) >= 0 && !(strong > 0) ){
+            stack.push(i);
+        }
+    }
+    return stack;
+}
 function getStackOfStraightByColor(place, color){
     var stack = [];
     for(var i = 0; i < TR_NUM; i++){
         var c = $("#dragContainment tr td").eq(i*TD_NUM+place).find("img.over").attr("color");
-    console.log(i*TD_NUM+place+': '+c);
         if( c == color ){
             stack.push(i*TD_NUM+place);
         }
@@ -128,7 +157,6 @@ function getStackOfStraightByColorArr(place, colorArr){
     var stack = [];
     for(var i = 0; i < TR_NUM; i++){
         var c = $("#dragContainment tr td").eq(i*TD_NUM+place).find("img.over").attr("color");
-    console.log(i*TD_NUM+place+': '+c);
         if( colorArr.indexOf(c) >= 0 ){
             stack.push(i*TD_NUM+place);
         }
@@ -147,7 +175,7 @@ function turnElementToColorByID(id, color){
     $(hide_items[0]).hide();
     $(hide_items[1]).hide();
     $("#dragContainment tr td").eq(id).find("img").stop().fadeOut( FADEOUT_TIME, function(){
-        $(this).remove();console.log("-");
+        $(this).remove();
         $("#dragContainment tr td").eq(id).append( hide_items );
         $("#dragContainment tr td").eq(id).find("img").fadeIn( FADEOUT_TIME );
         resetDraggable();
@@ -164,7 +192,7 @@ function turnElementToStrongByID(id){
     $(hide_items[0]).hide();
     $(hide_items[1]).hide();
     $("#dragContainment tr td").eq(id).find("img").stop().fadeOut( FADEOUT_TIME, function(){
-        $(this).remove();console.log("++");
+        $(this).remove();
         $("#dragContainment tr td").eq(id).append( hide_items );
         $("#dragContainment tr td").eq(id).find("img").fadeIn( FADEOUT_TIME );
         resetDraggable();
