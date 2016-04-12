@@ -136,9 +136,9 @@ var OverBeautyStart = function( place, i ){
     resetHistory();
     resetBase();
 }
-var OverBeautyAttack = function( place, i ){
+var OverBeautyAttack = function( place, i ){console.log("12");
     if( !this.variable['USING'] ){ return false; }
-
+console.log("123");
     COUNT_FACTOR['OverBeautyAttack'] = {
         factor    : function( member, member_place ){ 
             var num = countComboElementsFirstWave();
@@ -148,7 +148,7 @@ var OverBeautyAttack = function( place, i ){
         condition : function( member, member_place ){ return true; },
     };
 }
-var OverBeautyEnd = function( place, i ){
+var OverBeautyEnd = function( place, i ){console.log("1244");
     if( !this.variable['USING'] ){ return false; }
     this.variable['USING'] = false;
     delete USING_ACTIVE_SKILL_STACK[ this.id ];
@@ -170,7 +170,7 @@ var DrunkenFootworkStart = function( place, i ){
 var DrunkenFootworkAttack = function( place, i ){
     if( !this.variable['USING'] ){ return false; }
 
-    COUNT_FACTOR['OverBeautyAttack'] = {
+    COUNT_FACTOR['DrunkenFootworkAttack'] = {
         factor    : function( member, member_place ){
             if( countComboElementsFirstWave() == TR_NUM*TD_NUM ){ return 2.4; }
             return 1.5;
@@ -238,8 +238,7 @@ var SpellOfTornadosTransfer = function( place, i ){
                   'p','p','p','p','p','p','p','p',
                   'h','h','h','h','h','h' ];
     stack = makeArrayShuffle(stack);
-    console.log(stack);
-    $.each(stack, function(id, color){console.log(id+color);
+    $.each(stack, function(id, color){
         turnElementToColorByID(id, color);
     });
 }
@@ -524,7 +523,7 @@ var ACTIVE_SKILLS_DATA = {
         coolDown  : 8,
         attack    : BrokeBoundaryAttack,
         check     : BasicActiveCheck,
-        endRun    : BrokeBoundaryEnd,
+        end       : BrokeBoundaryEnd,
         preSet    : StartRunSetting,
         startRun  : BrokeBoundaryStart,
     },
@@ -535,7 +534,7 @@ var ACTIVE_SKILLS_DATA = {
         coolDown  : 8,
         attack    : BrokeBoundaryAttack,
         check     : BasicActiveCheck,
-        endRun    : BrokeBoundaryEnd,
+        end       : BrokeBoundaryEnd,
         preSet    : StartRunSetting,
         startRun  : BrokeBoundaryStart,
     },
@@ -546,7 +545,7 @@ var ACTIVE_SKILLS_DATA = {
         coolDown  : 8,
         attack    : BrokeBoundaryAttack,
         check     : BasicActiveCheck,
-        endRun    : BrokeBoundaryEnd,
+        end       : BrokeBoundaryEnd,
         preSet    : StartRunSetting,
         startRun  : BrokeBoundaryStart,
     },
@@ -557,7 +556,7 @@ var ACTIVE_SKILLS_DATA = {
         coolDown  : 8,
         attack    : BrokeBoundaryAttack,
         check     : BasicActiveCheck,
-        endRun    : BrokeBoundaryEnd,
+        end       : BrokeBoundaryEnd,
         preSet    : StartRunSetting,
         startRun  : BrokeBoundaryStart,
     },
@@ -568,7 +567,7 @@ var ACTIVE_SKILLS_DATA = {
         coolDown  : 8,
         attack    : BrokeBoundaryAttack,
         check     : BasicActiveCheck,
-        endRun    : BrokeBoundaryEnd,
+        end       : BrokeBoundaryEnd,
         preSet    : StartRunSetting,
         startRun  : BrokeBoundaryStart,
     },
@@ -633,7 +632,7 @@ var ACTIVE_SKILLS_DATA = {
         coolDown  : 8,
         attack    : OverBeautyAttack,
         check     : BasicActiveCheck,
-        endRun    : OverBeautyEnd,
+        end       : OverBeautyEnd,
         preSet    : StartRunSetting,
         startRun  : OverBeautyStart,
     },
@@ -865,7 +864,7 @@ var ACTIVE_SKILLS_DATA = {
         coolDown  : 15,
         attack    : DrunkenFootworkAttack,
         check     : BasicActiveCheck,
-        endRun    : DrunkenFootworkEnd,
+        end       : DrunkenFootworkEnd,
         preSet    : StartRunSetting,
         startRun  : DrunkenFootworkStart,
     },

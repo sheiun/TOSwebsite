@@ -822,7 +822,6 @@ function checkAttack(){
     MAIN_STATE = MAIN_STATE_ENUM.COUNT_ATK;
     $("#dragContainment img.over").addClass("img-gray");
 
-    checkActiveSkillByKey("endRun");
     countAttack();
     countEnemyAction();
 
