@@ -71,9 +71,8 @@ function countAttack(){
     resetCount();
     resetEnemyStatus();
 
+    countComboStacks();    
     checkAttackRecoverBeforeBattle();
-
-    countComboStacks();
 
     $.each(TEAM_MEMBERS, function(membe_place, member){
         makeMemberAttack(membe_place, member);

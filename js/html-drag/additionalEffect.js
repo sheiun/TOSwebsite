@@ -27,6 +27,8 @@ var DesperateAttack = function(){
 };
 //==============================================================
 var FightSafeAttack = function(){
+	console.log(COMBO_STACK.length);
+	console.log(countComboAtFirstWave());
 	if( countComboAtFirstWave() >= 4 ){
 	    COUNT_FACTOR['FightSafeAttack'] = {
 	        factor    : function( member, member_place ){ return 2; },

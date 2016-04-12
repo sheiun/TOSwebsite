@@ -1,5 +1,5 @@
 body{
-    background-image: url('../../img/Card_background.png');
+    background-image: url('../../img/UI/Card_background.png');
     background-repeat: no-repeat;
     background-attachment: fixed;
     background-position: center center; 
@@ -20,11 +20,12 @@ body{
 }
 
 #dragContainment{
-    background-image: url('../../img/Icon/base.png');
+    background-image: url('../../img/UI/base.png');
     background-size: 320px 320px;
     background-repeat: repeat;
 }
 #dragContainment td{
+    cursor: url('../../img/UI/cursor_moveItem.png'), default;
     width: 80px;
     height: 80px;
 }
@@ -59,11 +60,8 @@ body{
     z-index: 3;
 }
 #timeRect{
-    background: red; /* For browsers that do not support gradients */    
-    background: -webkit-linear-gradient(left, Yellow , PaleGreen); /* For Safari 5.1 to 6.0 */
-    background: -o-linear-gradient(left, Yellow , PaleGreen); /* For Opera 11.1 to 12.0 */
-    background: -moz-linear-gradient(left, Yellow , PaleGreen); /* For Firefox 3.6 to 15 */
-    background: linear-gradient(left, Yellow , PaleGreen); /* Standard syntax (must be last*/
+    background-image: url('../../img/UI/timeclip.png');
+    background-size: cover;
     position: absolute;
     z-index: 2;
 }

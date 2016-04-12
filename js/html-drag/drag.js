@@ -631,7 +631,7 @@ function dragTimer(){
         if( MAIN_STATE == MAIN_STATE_ENUM.MOVING ){
             endMoveWave();
         }else{
-            checkActiveSkillByKey("endRun");
+            checkActiveSkillByKey("end");
             restartMoveWave();
         }
     }
@@ -777,7 +777,7 @@ function newMoveWave(){
     renewTimeDiv();
 }
 
-function checkGroups(){
+function checkGroups(){console.log("checkG");
     resetBase();
     resetColorGroupSet();
     resetDropStack();
