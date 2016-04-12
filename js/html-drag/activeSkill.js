@@ -96,6 +96,10 @@ var BrokeBoundaryStart = function( place, i ){
         startDragging();
     }, max_drop*DROP_TIME );
 }
+var BrokeBoundaryAttack = function( place, i ){    
+    if( !this.variable['USING'] ){ return false; }
+    COUNT_AMOUNT_COEFF[this.variable['COLOR']] += 0.05;
+}
 var BrokeBoundaryEnd = function( place, i ){
     if( !this.variable['USING'] ){ return false; }
     this.variable['USING'] = false;
@@ -132,8 +136,50 @@ var OverBeautyStart = function( place, i ){
     resetHistory();
     resetBase();
 }
+var OverBeautyAttack = function( place, i ){
+    if( !this.variable['USING'] ){ return false; }
+
+    COUNT_FACTOR['OverBeautyAttack'] = {
+        factor    : function( member, member_place ){ 
+            var num = countComboElementsFirstWave();
+            return 1 + num*0.03;
+        },
+        prob      : 1,
+        condition : function( member, member_place ){ return true; },
+    };
+}
 var OverBeautyEnd = function( place, i ){
-    this.variable = this.variable;
+    if( !this.variable['USING'] ){ return false; }
+    this.variable['USING'] = false;
+    delete USING_ACTIVE_SKILL_STACK[ this.id ];
+
+    disbalePanelControl( false );
+    setTimeLimit( 5 );
+    setPlayType( PLAY_TYPE_ENUM.DRAG );
+}
+//==============================================================
+var DrunkenFootworkStart = function( place, i ){
+    this.variable['USING'] = true;
+    USING_ACTIVE_SKILL_STACK[ this.id ] = { PLACE: place, i: i };
+
+    disbalePanelControl( true );
+    setStartRunByPlayTypeAndTime( PLAY_TYPE_ENUM.FREE, 15 );
+    resetHistory();
+    resetBase();
+}
+var DrunkenFootworkAttack = function( place, i ){
+    if( !this.variable['USING'] ){ return false; }
+
+    COUNT_FACTOR['OverBeautyAttack'] = {
+        factor    : function( member, member_place ){
+            if( countComboElementsFirstWave() == TR_NUM*TD_NUM ){ return 2.4; }
+            return 1.5;
+        },
+        prob      : 1,
+        condition : function( member, member_place ){ return true; },
+    };
+}
+var DrunkenFootworkEnd = function( place, i ){
     if( !this.variable['USING'] ){ return false; }
     this.variable['USING'] = false;
     delete USING_ACTIVE_SKILL_STACK[ this.id ];
@@ -476,6 +522,7 @@ var ACTIVE_SKILLS_DATA = {
         label     : '界線突破 ‧ 水',
         info      : '額外增加 3 行符石，大幅延長移動符石時間至 10 秒，並提升水屬性攻擊力',
         coolDown  : 8,
+        attack    : BrokeBoundaryAttack,
         check     : BasicActiveCheck,
         endRun    : BrokeBoundaryEnd,
         preSet    : StartRunSetting,
@@ -486,6 +533,7 @@ var ACTIVE_SKILLS_DATA = {
         label     : '界線突破 ‧ 火',
         info      : '額外增加 3 行符石，大幅延長移動符石時間至 10 秒，並提升火屬性攻擊力',
         coolDown  : 8,
+        attack    : BrokeBoundaryAttack,
         check     : BasicActiveCheck,
         endRun    : BrokeBoundaryEnd,
         preSet    : StartRunSetting,
@@ -496,6 +544,7 @@ var ACTIVE_SKILLS_DATA = {
         label     : '界線突破 ‧ 木',
         info      : '額外增加 3 行符石，大幅延長移動符石時間至 10 秒，並提升木屬性攻擊力',
         coolDown  : 8,
+        attack    : BrokeBoundaryAttack,
         check     : BasicActiveCheck,
         endRun    : BrokeBoundaryEnd,
         preSet    : StartRunSetting,
@@ -506,6 +555,7 @@ var ACTIVE_SKILLS_DATA = {
         label     : '界線突破 ‧ 光',
         info      : '額外增加 3 行符石，大幅延長移動符石時間至 10 秒，並提升光屬性攻擊力',
         coolDown  : 8,
+        attack    : BrokeBoundaryAttack,
         check     : BasicActiveCheck,
         endRun    : BrokeBoundaryEnd,
         preSet    : StartRunSetting,
@@ -516,6 +566,7 @@ var ACTIVE_SKILLS_DATA = {
         label     : '界線突破 ‧ 暗',
         info      : '額外增加 3 行符石，大幅延長移動符石時間至 10 秒，並提升暗屬性攻擊力',
         coolDown  : 8,
+        attack    : BrokeBoundaryAttack,
         check     : BasicActiveCheck,
         endRun    : BrokeBoundaryEnd,
         preSet    : StartRunSetting,
@@ -578,8 +629,9 @@ var ACTIVE_SKILLS_DATA = {
     OVER_BEAUTY   : {
         id        : 'OVER_BEAUTY',
         label     : '回眸傾城',
-        info      : '',
+        info      : '10 秒內，可任意移動符石而不會發動消除；消除的符石數目愈多，攻擊力提升愈多，最大 1.9 倍 (只計算首批消除的符石數目)',
         coolDown  : 8,
+        attack    : OverBeautyAttack,
         check     : BasicActiveCheck,
         endRun    : OverBeautyEnd,
         preSet    : StartRunSetting,
@@ -805,6 +857,17 @@ var ACTIVE_SKILLS_DATA = {
         check     : BasicActiveCheck,
         transfer  : SpellOfBloodSpiritsEXTransfer,
         preSet    : BasicActiveSetting,
+    },
+    DRUNKEN_FOOTWORK : {
+        id        : 'DRUNKEN_FOOTWORK',
+        label     : '醉仙望月步',
+        info      : '15 秒內，可任意移動符石而不會發動消除，若消除當前所有符石，全隊攻擊力 2.4 倍；反之，全隊攻擊力 1.5 倍',
+        coolDown  : 15,
+        attack    : DrunkenFootworkAttack,
+        check     : BasicActiveCheck,
+        endRun    : DrunkenFootworkEnd,
+        preSet    : StartRunSetting,
+        startRun  : DrunkenFootworkStart,
     },
 };
 

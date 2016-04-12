@@ -600,7 +600,7 @@ var CHARACTERS = {
         wake_var     : [ [150,80,0], [1.1,3], [1.1,4], 2 ],
         wake_info    : [ "攻擊力+80;生命力+150", "3顆直排心10%", "4顆直排劍10%", "進關後冷卻回合-2" ],
         leader       : "LIXIAOYAO",
-        active       : [ "NONE" ],
+        active       : [ "DRUNKEN_FOOTWORK" ],
     },
     WATER_FAIRY : {
         id           : "WATER_FAIRY",

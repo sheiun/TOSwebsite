@@ -92,6 +92,7 @@ var COUNT_STRONG                = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h':
 var COUNT_STRONG_COEFF          = 0.15;
 var COUNT_SETS                  = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
 var COUNT_FIRST_SETS            = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
+var COUNT_FIRST_AMOUNT          = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
 var COUNT_BELONG_COLOR          = { };
 var COUNT_BELONG_AMOUNT         = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
 var COUNT_BELONG_MAX_AMOUNT     = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };

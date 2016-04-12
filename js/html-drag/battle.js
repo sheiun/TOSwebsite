@@ -3,12 +3,15 @@ function resetCount(){
     COUNT_COMBO                = COMBO_TIMES;
     COUNT_COMBO_COEFF          = 0.25;
     COUNT_AMOUNT               = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
-    COUNT_AMOUNT_COEFF         = 0.25;
+    COUNT_AMOUNT_COEFF         = { 'w': 0.25, 'f': 0.25, 'p': 0.25, 'l': 0.25, 'd': 0.25, 'h': 0.25 };
     COUNT_MAX_AMOUNT           = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
     COUNT_STRONG               = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
-    COUNT_STRONG_COEFF         = 0.15;
+    COUNT_STRONG_COEFF         = { 'w': 0.15, 'f': 0.15, 'p': 0.15, 'l': 0.15, 'd': 0.15, 'h': 0.15 };
     COUNT_SETS                 = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
+    COUNT_SETS_COEFF           = { 'w': 0.25, 'f': 0.25, 'p': 0.25, 'l': 0.25, 'd': 0.25, 'h': 0.25 };
     COUNT_FIRST_SETS           = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
+    COUNT_FIRST_AMOUNT         = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
+
     COUNT_BELONG_COLOR         = {
         'w': { 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 },
         'f': { 'w': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 },
@@ -21,6 +24,7 @@ function resetCount(){
     COUNT_BELONG_MAX_AMOUNT    = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
     COUNT_BELONG_STRONG        = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
     COUNT_BELONG_SETS          = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
+
     COUNT_FACTOR               = { 'NORMAL': 
         { 
             factor    : function( member ){ return 1; } ,
@@ -28,6 +32,7 @@ function resetCount(){
             condition : function( member ){ return true; } 
         } 
     };
+
     COUNT_RECOVER_COMBO_COEFF  = 0.25;
     COUNT_RECOVER_AMOUNT_COEFF = 0.25;
     COUNT_RECOVER_STRONG_COEFF = 0.15;
@@ -38,6 +43,7 @@ function resetCount(){
             condition : function( member ){ return true; } 
         } 
     };
+
     COUNT_COLOR_FACTOR          = { 'w': 1, 'f': 1, 'p': 1, 'l': 1, 'd': 1, '': 1 };
     COUNT_COLOR_TO_COLOR_FACTOR ={
         'w': { 'w': 1,   'f': 1.5, 'p': 0.5, 'l': 1,   'd': 1,   '': 1 },
@@ -47,6 +53,7 @@ function resetCount(){
         'd': { 'w': 1,   'f': 1,   'p': 1,   'l': 1.5, 'd': 1,   '': 1 },
         '' : { 'w': 1,   'f': 1,   'p': 1,   'l': 1,   'd': 1,   '': 1 },
     };
+
     COUNT_INJURE_REDUCE         = 1;
 }
 function resetEnemyStatus(){
@@ -130,6 +137,7 @@ function countComboStacks(){
 
         if( obj['drop_wave'] == 0 ){
             COUNT_FIRST_SETS[c] += 1;
+            COUNT_FIRST_AMOUNT[c] += obj['amount'];
         }
     }
 }
@@ -156,13 +164,13 @@ function makeMemberAttack(membe_place, member){
     }
 
     var atk       = ( 1+ ( COUNT_COMBO-1 ) * COUNT_COMBO_COEFF ) * 
-                    ( ( COUNT_AMOUNT[color] + COUNT_BELONG_AMOUNT[color] +
-                        COUNT_SETS[color]   + COUNT_BELONG_SETS[color]     ) * COUNT_AMOUNT_COEFF +
-                      ( COUNT_STRONG[color] + COUNT_BELONG_STRONG[color]   ) * COUNT_STRONG_COEFF );
+                    ( ( COUNT_AMOUNT[color] + COUNT_BELONG_AMOUNT[color] ) * COUNT_AMOUNT_COEFF[color] +
+                      ( COUNT_SETS[color]   + COUNT_BELONG_SETS[color]   ) * COUNT_SETS_COEFF[color] +
+                      ( COUNT_STRONG[color] + COUNT_BELONG_STRONG[color] ) * COUNT_STRONG_COEFF[color] );
     attack['log'] = "(1+("+(COUNT_COMBO-1)+")*"+COUNT_COMBO_COEFF+")*"+
-                    "(("+COUNT_AMOUNT[color]+"+"+COUNT_BELONG_AMOUNT[color]+"+"+
-                         COUNT_SETS[color]  +"+"+COUNT_BELONG_SETS[color]  +")*"+COUNT_AMOUNT_COEFF+"+"+
-                     "("+COUNT_STRONG[color]+"+"+COUNT_BELONG_STRONG[color]+")*"+COUNT_STRONG_COEFF+")";
+                    "(("+COUNT_AMOUNT[color]+"+"+COUNT_BELONG_AMOUNT[color]+")*"+COUNT_AMOUNT_COEFF[color]+"+"+
+                     "("+COUNT_SETS[color]  +"+"+COUNT_BELONG_SETS[color]  +")*"+COUNT_SETS_COEFF[color]+"+"+
+                     "("+COUNT_STRONG[color]+"+"+COUNT_BELONG_STRONG[color]+")*"+COUNT_STRONG_COEFF[color]+")";
 
     for(var key in COUNT_FACTOR){
         if( COUNT_FACTOR[key]["condition"]( member, membe_place ) ){

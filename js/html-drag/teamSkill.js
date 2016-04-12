@@ -14,7 +14,7 @@ function basicTeamSkillAdd( teamSkillID ){
 // Nordic
 //==============================================================
 var TeamNordicAttack = function( VAR ){
-    COUNT_STRONG_COEFF += 0.15;
+    COUNT_STRONG_COEFF[VAR['color']] += 0.15;
 }
 var TeamNordicSetting = function( LEADER, FRIEND ){
     var color = LEADER['color'];

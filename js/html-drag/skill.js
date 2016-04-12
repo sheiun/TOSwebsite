@@ -319,25 +319,25 @@ function checkFirstHorizentalClearByPlace( place ){
 //==============================================================
 function countComboAtFirstWave(){
     var combos = 0;
-    $.each(COMBO_STACK, function(i, combo){
-        if(combo['drop_wave'] == 0){
-            combos += 1;
-        }
-    });
+    for(var c in COUNT_FIRST_SETS){
+        combos += COUNT_FIRST_SETS[c];
+    }
     return combos;
+}
+function countComboElementsFirstWave(){
+    var num = 0;
+    for(var c in COUNT_FIRST_AMOUNT){
+        num += COUNT_FIRST_AMOUNT[c];
+    }
+    return num;
 }
 function checkComboColorAmountByConfig( config ){
     var countId = {};
     var check = true;
     for(var id of config['ID']){
-        countId[id] = 0;
+        countId[id] = (id in COUNT_AMOUNT) ? COUNT_AMOUNT[id] : 0;
     }
 
-    $.each(COMBO_STACK, function(i, combo){
-        if(combo['color'] in countId){
-            countId[ combo['color'] ] += combo['amount'];
-        }
-    });
     var countArr = getArrayOfObjectValue(countId);
     for(var eq of config['check'] ){
         eq = eq.formatByArray( countArr );
@@ -351,16 +351,9 @@ function checkComboColorMaxAmountByConfig( config ){
     var countId = {};
     var check = true;
     for(var id of config['ID']){
-        countId[id] = 0;
+        countId[id] = (id in COUNT_MAX_AMOUNT) ? COUNT_MAX_AMOUNT[id] : 0;
     }
 
-    $.each(COMBO_STACK, function(i, combo){
-        if(combo['color'] in countId){
-            if( combo['amount'] > countId[ combo['color'] ] ){
-                countId[ combo['color'] ] = combo['amount'];
-            }
-        }
-    });
     var countArr = getArrayOfObjectValue(countId);
     for(var eq of config['check'] ){
         eq = eq.formatByArray( countArr );
@@ -397,14 +390,9 @@ function checkComboColorStrongByConfig( config ){
     var countId = {};
     var check = true;
     for(var id of config['ID']){
-        countId[id] = 0;
+        countId[id] = (id in COUNT_STRONG) ? COUNT_STRONG[id] : 0;
     }
-
-    $.each(COMBO_STACK, function(i, combo){
-        if(combo['color'] in countId){
-            countId[ combo['color'] ] += combo['strong_amount'];
-        }
-    });
+    
     var countArr = getArrayOfObjectValue(countId);
     for(var eq of config['check'] ){
         eq = eq.formatByArray( countArr );
