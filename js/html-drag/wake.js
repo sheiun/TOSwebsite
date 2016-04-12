@@ -91,7 +91,7 @@ var StraightHeal = function( wakeVar, place, i ){
 }
 
 var StraightEncirclementTransfer = function( wakeVar, place, i ){
-    var stack = getStackOfStraightByColorArr( place, ['w','f','p','l','d','h'] );
+    var stack = getStackOfStraight(place);
     for(var id of stack){
         turnElementToColorByID(id, wakeVar);
     }

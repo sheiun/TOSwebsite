@@ -615,7 +615,7 @@ var CHARACTERS = {
         wake_var     : [ [110,0,0], [1.1,4], [0,110,0], ['h',0.25] ],
         wake_info    : [ "生命力+110", "4顆直排心10%", "攻擊力+110", "直排心符石掉落提升至25%" ],
         leader       : "WATER_FAIRY",
-        active       : [ "NONE" ],
+        active       : [ "WATER_FAIRY" ],
     },
     DARK_LUCIFER : {
         id           : "DARK_LUCIFER",
@@ -630,7 +630,7 @@ var CHARACTERS = {
         wake_var     : [ [110,0,0], [1.1,4], [0,110,0], [1.1,4] ],
         wake_info    : [ "生命力+110", "4顆直排心10%", "攻擊力+110", "4顆直排劍10%" ],
         leader       : "DARK_LUCIFER",
-        active       : [ "NONE" ],
+        active       : [ "SONG_OF_EMPATHY_EVIL"],
     },
     DEVIL_ANCESTOR_W : {
         id           : "DEVIL_ANCESTOR_W",
@@ -645,7 +645,7 @@ var CHARACTERS = {
         wake_var     : [ 0, 0, 0, 0 ],
         wake_info    : [ "無", "無", "無", "無" ],
         leader       : "DEVIL_ILLUSION",
-        active       : [ "NONE" ],
+        active       : [ "ELEMENTAL_ASSEMBLY_W" ],
     },
     DEVIL_ANCESTOR_F : {
         id           : "DEVIL_ANCESTOR_F",
@@ -659,7 +659,8 @@ var CHARACTERS = {
         wake         : [ "NONE", "NONE", "NONE", "NONE" ],
         wake_var     : [ 0, 0, 0, 0 ],
         wake_info    : [ "無", "無", "無", "無" ],
-        leader       : "DEVIL_ILLUSION",  active   : 0,
+        leader       : "DEVIL_ILLUSION",
+        active       : [ "ELEMENTAL_ASSEMBLY_F" ],
     },
     DEVIL_ANCESTOR_P : {
         id           : "DEVIL_ANCESTOR_P",
@@ -674,7 +675,7 @@ var CHARACTERS = {
         wake_var     : [ 0, 0, 0, 0 ],
         wake_info    : [ "無", "無", "無", "無" ],
         leader       : "DEVIL_ILLUSION",
-        active       : [ "NONE" ],
+        active       : [ "ELEMENTAL_ASSEMBLY_P" ],
     },
     DEVIL_ANCESTOR_L : {
         id           : "DEVIL_ANCESTOR_L",
@@ -689,7 +690,7 @@ var CHARACTERS = {
         wake_var     : [ 0, 0, 0, 0 ],
         wake_info    : [ "無", "無", "無", "無" ],
         leader       : "DEVIL_CIRCLE",
-        active       : [ "NONE" ],
+        active       : [ "MAGIC_STAGE_BEAM" ],
     },
     DEVIL_ANCESTOR_D : {
         id           : "DEVIL_ANCESTOR_D",
@@ -704,7 +705,7 @@ var CHARACTERS = {
         wake_var     : [ 0, 0, 0, 0 ],
         wake_info    : [ "無", "無", "無", "無" ],
         leader       : "DEVIL_CIRCLE",
-        active       : [ "NONE" ],
+        active       : [ "MAGIC_STAGE_GLOOM" ],
     },
 };
 

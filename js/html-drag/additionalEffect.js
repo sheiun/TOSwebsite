@@ -96,7 +96,7 @@ var SavageAttack = function(){
 }
 //==============================================================
 var BladesSetting = function( place, i, VAR ){
-	setTimeLimit( 8 );
+	setTimeLimit( TIME_LIMIT+3 );
 	return {
 		ID       : this.id,
 		PLACE    : place,
@@ -112,7 +112,7 @@ var BladesOfWaterFlameVineAttack = function(){
             ID    : [ VAR['COLOR'] ],
             check : [ '{0}>=6' ],
         }) ){
-		COUNT_FACTOR['BladesOfWaterAttack'] = {
+		COUNT_FACTOR['BladesOf_'+VAR['COLOR']+'_Attack'] = {
 		    factor    : function( member, member_place ){ return 1.5; },
 		    prob      : 1,
 		    condition : function( member, member_place ){ return member['color'] == VAR['COLOR']; },
@@ -125,7 +125,7 @@ var BladesOfLightPhantomAttack = function(){
             ID    : [ 'l', 'd', 'h' ] ,
             check : [ '{0}>0', '{1}>0', '{2}>0' ],
         }) ){
-		COUNT_FACTOR['BladesOfWaterAttack'] = {
+		COUNT_FACTOR['BladesOf_'+VAR['COLOR']+'_Attack'] = {
 		    factor    : function( member, member_place ){ return 1.5; },
 		    prob      : 1,
 		    condition : function( member, member_place ){ return member['color'] == VAR['COLOR']; },
@@ -142,6 +142,52 @@ var SpellOfBloodSpiritsEXAttack = function(){
 		prob      : 1,
 		condition : function( member, member_place ){ return true; },
 	};
+}
+//==============================================================
+var SongOfEmpathyEvilSetting = function( place, i, VAR ){
+	setTimeLimit( TIME_LIMIT+3 );
+	return {
+		ID       : this.id,
+		PLACE    : place,
+		i        : i,
+		COLOR    : VAR['COLOR'],
+		TYPE     : VAR['TYPE'],
+		DURATION : 1,
+	}
+};
+var SongOfEmpathyEvilEndEffects = function(){
+	setTimeLimit( 5 );
+}
+//==============================================================
+var ElementalAssemblyAttack = function(){
+	var VAR = this.variable;
+	COUNT_FACTOR['ElementalAssembly_'+VAR['COLOR']+'_Attack'] = {
+		factor    : function( member, member_place ){
+			var variety = 0;
+			for(var c in COUNT_AMOUNT){
+				if( COUNT_AMOUNT[c] > 0 ){ variety += 1; }
+			}
+			return 1 + 0.2*variety; 
+		},
+		prob      : 1,
+		condition : function( member, member_place ){ return member['color'] == VAR['COLOR']; },
+	};
+}
+//==============================================================
+var MagicStageNewItem = function(){
+	if( DROP_WAVES > 0 ){ return; }
+
+    for(var i = 0; i < TD_NUM; i++){
+        if( checkFirstStraightByPlace( 4, i ) ){
+            for(var id = (TR_NUM-1)*TD_NUM+i; id >= 0; id -= TD_NUM ){
+                if( REMOVE_STACK.indexOf(id) >= 0 ){
+                    REMOVE_STACK.splice( REMOVE_STACK.indexOf(id), 1 );
+                    DROP_STACK[i].push( newElementByItem( this.variable['COLOR'] ) );
+                    break;
+                }
+            }
+        }
+    }
 }
 
 //==============================================================
@@ -189,8 +235,8 @@ var BlazingCircleAttack = function(){
 //==============================================================
 
 // tags : attack增傷類 injureReduce減傷類 defenceReduce破防類 
-//        addTimeLimit延時類 selfAttack自己增傷
-//        changeColor轉屬性類 addCoolDown控場延長CD 
+//        addTimeLimit延時類 setTimeLimit設時類 selfAttack自己增傷
+//        changeColor轉屬性類 addCoolDown控場延長CD newItem產珠類
 
 var ADDITIONAL_EFFECT_DATA = {
 	DESPERATE_ATTACK : {
@@ -269,7 +315,43 @@ var ADDITIONAL_EFFECT_DATA = {
 		attack    : SpellOfBloodSpiritsEXAttack,
 		preSet    : BasicEffectSetting,
 		tag       : ['attack'],
-	}
+	},
+	SONG_OF_EMPATHY_EVIL : {
+		id        : 'SONG_OF_EMPATHY_EVIL',
+		preSet    : SongOfEmpathyEvilSetting,
+		endEffect : SongOfEmpathyEvilEndEffects,
+		tag       : ['attack', 'addTimeLimit'],
+	},
+	ELEMENTAL_ASSEMBLY_W : {
+		id        : 'ELEMENTAL_ASSEMBLY_W',
+		attack    : ElementalAssemblyAttack,
+		preSet    : BasicEffectSetting,
+		tag       : ['attack'],
+	},
+	ELEMENTAL_ASSEMBLY_F : {
+		id        : 'ELEMENTAL_ASSEMBLY_F',
+		attack    : ElementalAssemblyAttack,
+		preSet    : BasicEffectSetting,
+		tag       : ['attack'],
+	},
+	ELEMENTAL_ASSEMBLY_P : {
+		id        : 'ELEMENTAL_ASSEMBLY_P',
+		attack    : ElementalAssemblyAttack,
+		preSet    : BasicEffectSetting,
+		tag       : ['attack'],
+	},
+	MAGIC_STAGE_BEAM : {
+		id        : 'MAGIC_STAGE_BEAM',
+        newItem   : MagicStageNewItem,
+		preSet    : BasicEffectSetting,
+		tag       : ['newItem'],
+	},
+	MAGIC_STAGE_GLOOM : {
+		id        : 'MAGIC_STAGE_GLOOM',
+        newItem   : MagicStageNewItem,
+		preSet    : BasicEffectSetting,
+		tag       : ['newItem'],
+	},
 };
 
 var ENEMY_EFFECT_DATA = {

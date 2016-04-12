@@ -1016,6 +1016,7 @@ function newGroups(){
     //  希臘/巴比隊長技使用
     checkLeaderSkillByKey( 'newItem' );
     checkTeamSkillByKey( 'newItem' );
+    checkAdditionEffectByKey( 'newItem' );
 
     for(var color in GROUP_SETS){
         for(var set of GROUP_SETS[color]){

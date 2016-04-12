@@ -256,25 +256,19 @@ var SwordBrotherEXAttack = function( VAR, direct ){
 // Babylon
 //==============================================================
 var BabylonSkill = function( VAR, direct ){
-    var color = VAR['COLOR'];
+    if( DROP_WAVES > 0 ){ return; }
+
     for(var i = 0; i < TD_NUM; i++){
-        var trigger = false;
-        for(var set of STRAIGHT_SETS[i]){
-            if( set.size >= 4 ){
-                trigger = true;
-                break;
-            }
-        }
-        if( trigger && DROP_WAVES == 0 ){
+        if( checkFirstStraightByPlace( 4, i ) ){
             for(var id = (TR_NUM-1)*TD_NUM+i; id >= 0; id -= TD_NUM ){
                 if( REMOVE_STACK.indexOf(id) >= 0 ){
                     REMOVE_STACK.splice( REMOVE_STACK.indexOf(id), 1 );
-                    DROP_STACK[i].push( newElementByItem( color ) );
+                    DROP_STACK[i].push( newElementByItem( VAR['COLOR'] ) );
                     break;
                 }
             }
         }
-    };
+    }
 }
 var BabylonAttack = function( VAR, direct ){
     var color = VAR['COLOR'];

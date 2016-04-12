@@ -90,7 +90,7 @@ function checkHasElementByColorWithoutStrong(color){
     return color_stack.length > 0;
 }
 function checkHasElementByColorArrWithoutStrong(colorArr){
-    var color_stack = getStackOfPanelByColorArrWithoutStrong(color);
+    var color_stack = getStackOfPanelByColorArrWithoutStrong(colorArr);
     return color_stack.length > 0;
 }
 function checkHasElementByColor(color){
@@ -143,6 +143,13 @@ function getStackOfPanelByColorArrWithoutStrong(colorArr){
     }
     return stack;
 }
+function getStackOfStraight(place){
+    var stack = [];
+    for(var i = 0; i < TR_NUM; i++){
+        stack.push(i*TD_NUM+place);
+    }
+    return stack;
+}
 function getStackOfStraightByColor(place, color){
     var stack = [];
     for(var i = 0; i < TR_NUM; i++){
@@ -159,6 +166,33 @@ function getStackOfStraightByColorArr(place, colorArr){
         var c = $("#dragContainment tr td").eq(i*TD_NUM+place).find("img.over").attr("color");
         if( colorArr.indexOf(c) >= 0 ){
             stack.push(i*TD_NUM+place);
+        }
+    }
+    return stack;
+}
+function getStackOfHorizontal(i){
+    var stack = [];
+    for(var j = 0; j < TD_NUM; j++){
+        stack.push(i*TD_NUM+j);
+    }
+    return stack;
+}
+function getStackOfHorizontalByColor(i, color){
+    var stack = [];
+    for(var j = 0; j < TD_NUM; j++){
+        var c = $("#dragContainment tr td").eq(i*TD_NUM+j).find("img.over").attr("color");
+        if( c == color ){
+            stack.push(i*TD_NUM+j);
+        }
+    }
+    return stack;
+}
+function getStackOfHorizontalByColorArr(i, colorArr){
+    var stack = [];
+    for(var j = 0; j < TD_NUM; j++){
+        var c = $("#dragContainment tr td").eq(i*TD_NUM+j).find("img.over").attr("color");
+        if( colorArr.indexOf(c) >= 0 ){
+            stack.push(i*TD_NUM+j);
         }
     }
     return stack;
@@ -392,7 +426,7 @@ function checkComboColorStrongByConfig( config ){
     for(var id of config['ID']){
         countId[id] = (id in COUNT_STRONG) ? COUNT_STRONG[id] : 0;
     }
-    
+
     var countArr = getArrayOfObjectValue(countId);
     for(var eq of config['check'] ){
         eq = eq.formatByArray( countArr );

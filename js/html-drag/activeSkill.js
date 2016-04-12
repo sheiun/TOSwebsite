@@ -272,6 +272,27 @@ var SpellOfBloodSpiritsEXTransfer = function( place, i ){
         additionalEffectAdd( effect );
     }
 }
+//==============================================================
+var SongOfEmpathyEvilTransfer = function( place, i ){
+    var stack = [ 'd','d','h','h','d','d',
+                  'd','h','d','d','h','d',
+                  'h','h','d','d','h','h',
+                  'd','h','d','d','h','d',
+                  'd','d','h','h','d','d' ];
+    $.each(stack, function(id, color){
+        turnElementToColorByID(id, color);
+    });
+}
+var WaterFairyTransfer = function( place, i ){
+    var stack = getStackOfStraight(0);
+    for(var id of stack){
+        turnElementToColorByID(id, 'h');
+    }
+    stack = getStackOfHorizontal( TR_NUM-1 );
+    for(var id of stack){
+        turnElementToColorByID(id, 'w');
+    }
+}
 
 //==============================================================
 var TransformationCheck = function( place, i ){
@@ -437,7 +458,17 @@ var PlayWildCheck = function( place, i ){
 }
 var BladesEffectCheck = function( place, i ){
     return basicAdditionalEffectCheck( this.id ) &&
-        basicAdditionalEffectCheckByTag( "addTimeLimit" ) &&
+        basicAdditionalEffectCheckByTag( "setTimeLimit" ) &&
+        basicActiveCheck( this.variable, place, i );
+}
+var SongOfEmpathyEvilEffectCheck = function( place, i ){
+    return basicAdditionalEffectCheck( this.id ) &&
+        basicAdditionalEffectCheckByTag( "setTimeLimit" ) &&
+        basicActiveCheck( this.variable, place, i );
+}
+var MagicStageCheck = function( place, i ){
+    return basicAdditionalEffectCheck( this.id ) &&
+        basicAdditionalEffectCheckByTag( "newItem" ) &&
         basicActiveCheck( this.variable, place, i );
 }
 
@@ -867,6 +898,70 @@ var ACTIVE_SKILLS_DATA = {
         end       : DrunkenFootworkEnd,
         preSet    : StartRunSetting,
         startRun  : DrunkenFootworkStart,
+    },
+    SONG_OF_EMPATHY_EVIL :{
+        id        : 'SONG_OF_EMPATHY_EVIL',
+        label     : '憐憫惡魔之歌',
+        info      : '將場上所有符石轉化為固定數量及位置的暗及心符石，並延長移動符石時間 3 秒',
+        coolDown  : 12,
+        addEffect : BasicAddtionalEffectAdd,
+        check     : SongOfEmpathyEvilEffectCheck,
+        transfer  : SongOfEmpathyEvilTransfer,
+        preSet    : BasicActiveSetting,
+    },
+    WATER_FAIRY : {
+        id        : 'WATER_FAIRY',
+        label     : '水之仙女',
+        info      : '將最底一橫行的符石轉化為水符石，並將最左方一直行的 4 粒符石轉化為心符石',
+        coolDown  : 5,
+        check     : BasicActiveCheck,
+        transfer  : WaterFairyTransfer,
+        preSet    : BasicActiveSetting,
+    },
+    ELEMENTAL_ASSEMBLY_W : {
+        id        : 'ELEMENTAL_ASSEMBLY_W',
+        label     : '元素歸一 ‧ 水',
+        info      : '1 回合內，消除符石的種類愈多，水屬性攻擊力提升愈多，最大提升至 2.2 倍',
+        coolDown  : 10,
+        addEffect : BasicAddtionalEffectAdd,
+        check     : AddtionalEffectCheck,
+        preSet    : BasicActiveSetting,
+    },
+    ELEMENTAL_ASSEMBLY_F : {
+        id        : 'ELEMENTAL_ASSEMBLY_F',
+        label     : '元素歸一 ‧ 火',
+        info      : '1 回合內，消除符石的種類愈多，火屬性攻擊力提升愈多，最大提升至 2.2 倍',
+        coolDown  : 10,
+        addEffect : BasicAddtionalEffectAdd,
+        check     : AddtionalEffectCheck,
+        preSet    : BasicActiveSetting,
+    },
+    ELEMENTAL_ASSEMBLY_P : {
+        id        : 'ELEMENTAL_ASSEMBLY_P',
+        label     : '元素歸一 ‧ 木',
+        info      : '1 回合內，消除符石的種類愈多，木屬性攻擊力提升愈多，最大提升至 2.2 倍',
+        coolDown  : 10,
+        addEffect : BasicAddtionalEffectAdd,
+        check     : AddtionalEffectCheck,
+        preSet    : BasicActiveSetting,
+    },
+    MAGIC_STAGE_BEAM : {
+        id        : 'MAGIC_STAGE_BEAM',
+        label     : '結界術 ‧ 玄光',
+        info      : '1 回合內，每直行消除一組 4 粒或以上符石時 (只計算首批消除的符石)，該直行將產生 2 粒光符石',
+        coolDown  : 12,
+        addEffect : BasicAddtionalEffectAdd,
+        check     : AddtionalEffectCheck,
+        preSet    : BasicActiveSetting,
+    },
+    MAGIC_STAGE_GLOOM : {
+        id        : 'MAGIC_STAGE_GLOOM',
+        label     : '結界術 ‧ 幽冥',
+        info      : '1 回合內，每直行消除一組 4 粒或以上符石時 (只計算首批消除的符石)，該直行將產生 2 粒暗符石',
+        coolDown  : 12,
+        addEffect : BasicAddtionalEffectAdd,
+        check     : MagicStageCheck,
+        preSet    : BasicActiveSetting,
     },
 };
 
