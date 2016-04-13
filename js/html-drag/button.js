@@ -181,6 +181,7 @@ function replay(){
 function endReplayHistory(){
     disbalePanelControl( false );
     SHOW_REVIEW = false;
+    REVIEW_PATH = false;
     $("#ShowReview").show();
     $("#CloseReview").hide();
     closeCanvas();;
@@ -254,8 +255,8 @@ function buttonGroupAdjust(){
         'border-bottom-right-radius': '3px',
     });
     $('.btn-group').has('.btn:hidden').find('.btn:visible:first').css({
-        'border-top-left-radius': '3px',
-        'border-bottom-left-radius': '3px',
+        'border-top-left-radius': '6px',
+        'border-bottom-left-radius': '6px',
     });
 }
 
