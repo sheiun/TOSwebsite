@@ -80,6 +80,7 @@ var StraightHeal = function( wakeVar, place, i ){
     // wakeVar = "[factor,straightSize]"
     if( checkFirstStraightByPlace( wakeVar[1], place ) ){
         var recover = {
+            type   : "wake",
             place  : place,
             color  : "h",
             base   : TEAM_MEMBERS[place]["recovery"],

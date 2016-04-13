@@ -90,6 +90,73 @@ var GreekSkill = function( VAR, direct ){
 }
 
 //==============================================================
+// Dragon Servant
+//==============================================================
+var BloodThirstyDragonEXAttack = function( VAR, direct ){
+    COUNT_FACTOR['BloodThirstyDragonEX'+direct] = {
+        factor    : function( member, member_place ){ return 2.5; },
+        prob      : 1,
+        condition : function( member, member_place ){ return member['type'] == "DRAGON"; },
+    };
+}
+var BloodThirstyDragonEXDamage = function( VAR, direct ){
+    var total_damage = 0;
+    $.each(ENEMY, function(i, enemy){
+        total_damage += enemy['variable']['SUFFER'];
+    });
+    var recover_hp = Math.min( TOTAL_HEALTH_POINT/2, total_damage*0.1 );
+
+    var check = true;
+    for(var obj of RECOVER_STACK){
+        if( obj['log'] == "BloodThirstyDragonEX" ){ 
+            check = false;
+            break;
+        }
+    }
+    if( check ){
+        var recover = {
+            type   : "leaderSkill",
+            place  : 10,
+            color  : "h",
+            base   : recover_hp,
+            factor : 1,
+            log    : "BloodThirstyDragonEX",
+        };
+        RECOVER_STACK.push(recover);
+    }
+}
+var FangsOfDragonAttack = function( VAR, direct ){
+    if( checkComboColorMaxAmountByConfig({
+            ID    : [ 'w', 'f', 'p', 'l', 'd' ],
+            check : [ '{0}>=6||{1}>=6||{2}>=6||{3}>=6||{4}>=6' ],
+        }) ){
+        COUNT_FACTOR['FangsOfDragon'+direct] = {
+            factor    : function( member, member_place ){ return 3; },
+            prob      : 1,
+            condition : function( member, member_place ){ return member['type'] == "DRAGON"; },
+        };
+    }else{
+        COUNT_FACTOR['FangsOfDragon'+direct] = {
+            factor    : function( member, member_place ){ return 1.5; },
+            prob      : 1,
+            condition : function( member, member_place ){ return member['type'] == "DRAGON"; },
+        };
+    }
+}
+var ClawsOfDragonAttack = function( VAR, direct ){
+    if( checkComboColorMaxAmountByConfig({
+            ID    : [ 'w', 'f', 'p', 'l', 'd', 'h' ],
+            check : [ '{0}>=6||{1}>=6||{2}>=6||{3}>=6||{4}>=6||{5}>=6' ],
+        }) ){
+        COUNT_FACTOR['ClawsOfDragon'+direct] = {
+            factor    : function( member, member_place ){ return 3; },
+            prob      : 1,
+            condition : function( member, member_place ){ return member['type'] == "DRAGON"; },
+        };
+    }
+}
+
+//==============================================================
 // Couple
 //==============================================================
 var CoupleSetting = function( MEMBER ){
@@ -614,6 +681,31 @@ var LEADER_SKILLS_DATA = {
         letter    : [0,0],
         newItem   : GreekSkill,
         preSet    : HeartQueenSetting,
+    },    
+    BLOOD_THIRSTY_DRAGON_EX : {
+        id        : 'BLOOD_THIRSTY_DRAGON_EX',
+        label     : "噬血龍王 ‧ 強",
+        info      : "龍類攻擊力 2.5 倍，將龍類對敵方造成傷害的 10% 轉化為生命力 (不計算主動及隊長技傷害)，最大為生命力等值的 50% (不能疊加)",
+        letter    : [0,0],
+        attack    : BloodThirstyDragonEXAttack,
+        damage    : BloodThirstyDragonEXDamage,
+        preSet    : BasicLeaderSetting,
+    },
+    FANGS_OF_DRAGON : {
+        id        : 'FANGS_OF_DRAGON',
+        label     : "幻龍利牙",
+        info      : "龍類攻擊力 1.5 倍；消除一組 6 粒或以上的相同屬性符石，龍類攻擊力 3 倍",
+        letter    : [0,0],
+        attack    : FangsOfDragonAttack,
+        preSet    : BasicLeaderSetting,
+    },
+    CLAWS_OF_DRAGON : {
+        id        : 'CLAWS_OF_DRAGON',
+        label     : "幻龍利爪",
+        info      : "消除一組 6 粒或以上的相同符石，龍類攻擊力 3 倍",
+        letter    : [0,0],
+        attack    : ClawsOfDragonAttack,
+        preSet    : BasicLeaderSetting,
     },
     COUPLE_F : {
         id        : 'COUPLE_F',

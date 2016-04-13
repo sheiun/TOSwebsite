@@ -83,6 +83,7 @@ function countAttack(){
     $.each(ATTACK_STACK, function(i, attack){
         mapAttackToEnemy(i, attack);
     });
+    checkAttackRecoverDamage();
 
     $.each(ENEMY, function(i, enemy){
         enemyStatusUpdate(i, enemy);        
@@ -115,6 +116,13 @@ function checkAttackRecoverBeforeBattle(){
     checkEnemyEffectByKey("attack");  
 }
 function checkAttackRecoverMapping(){
+    // 共鳴
+    checkAdditionEffectByKey( "resonance" );
+    // 連擊
+    checkAdditionEffectByKey( "extraAttack" );
+}
+function checkAttackRecoverDamage(){
+    checkLeaderSkillByKey( "damage" );
 }
 
 function countComboStacks(){
@@ -187,6 +195,7 @@ function makeMemberAttack(membe_place, member){
 function makeMemberRecover(membe_place, member){
     var color = member["color"];
     var recover = {
+        type   : "person",
         place  : membe_place,
         color  : "h",
         base   : member["recovery"],

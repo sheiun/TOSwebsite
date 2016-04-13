@@ -204,6 +204,27 @@ var RuneStrengthenTransfer = function( place, i ){
     }
 }
 //==============================================================
+var OffensiveStanceCheck = function( place, i ){
+    return basicActiveCheck( this.variable, place, i ) &&
+        checkHasElementByColor( 'h' );
+}
+var OffensiveStanceTransfer = function( place, i ){
+    var stack = getStackOfPanelByColor( 'h' );
+    for(var id of stack){
+        turnElementToColorByID(id, this.variable['COLOR']);
+    }
+}
+var AttackReinforcementTransfer = function( place, i ){
+    var stack = getStackOfPanelByColor( 'h' );
+    for(var id of stack){
+        turnElementToColorByID(id, this.variable['COLOR']+"+" );
+    }
+    var stack = getStackOfStraight(place);
+    for(var id of stack){
+        turnElementToColorByID(id, this.variable['COLOR']);
+    }
+}
+//==============================================================
 var DeffensiveStanceCheck = function( place, i ){
     return basicActiveCheck( this.variable, place, i ) &&
         checkHasElementByColor( COLOR_EXCLUSIVE[ this.variable['COLOR'] ] );
@@ -364,8 +385,68 @@ var TransfigurationEnd = function( place, i ){
 //==============================================================
 // Member Switch function
 //==============================================================
-var TeamMemberSwitchCheck = function( place, i ){
+var BasicSwitchCheck = function( place, i ){
+    if( basicActiveCheck( this.variable, place, i ) && !( this.id in USING_ACTIVE_SKILL_STACK ) ){
+        return true;
+    }else if( this.id in USING_ACTIVE_SKILL_STACK ){
+        var using = USING_ACTIVE_SKILL_STACK[this.id];
+        triggerActiveByKey( using['PLACE'], using['i'], "turnOff" );
+    }
+    return false;
+}
+
+var DragonCentralizationDEXSetting = function( member, place, i ){
+    return {
+        COLOR      : member['color'],
+        TYPE       : 'DRAGON',
+        COOLDOWN   : this.coolDown,
+        PLACE      : place,
+        i          : i,
+        USING      : false,
+        ORIGIN_ATK : [],
+    };
+}
+var DragonCentralizationDEXStart = function( place, i ){
+    var VAR = this.variable;
+    VAR['USING'] = true;
+    USING_ACTIVE_SKILL_STACK[ this.id ] = { PLACE: place, i: i };
+    $("#ActiveButtonTD td").eq(place).find("button span").eq(i).text(this.label).append("<br>(使用中)");
+
+    var total_attack = 0;
+    $.each(TEAM_MEMBERS, function(other_place, member){
+        if( member['type'] == VAR['TYPE'] ){
+            var origin_atk = { PLACE: other_place, ATK: member['attack'] };
+            VAR['ORIGIN_ATK'].push(origin_atk);
+            if( place != other_place ){
+                total_attack += member['attack'];
+                member['attack'] = 0;
+            }
+        }
+    });
+    TEAM_MEMBERS[place]['attack'] += Math.round( total_attack * 1.5 );
+}
+var DragonCentralizationDEXTurnOff = function( place, i ){
+    if( !this.variable['USING'] ){ return false; }    
+    this.variable['USING'] = false;
+    delete USING_ACTIVE_SKILL_STACK[ this.id ];
+    $("#ActiveButtonTD td").eq(place).find("button span").eq(i).text(this.label);
+
+    $.each(this.variable['ORIGIN_ATK'], function(i, origin_atk){
+        TEAM_MEMBERS[origin_atk['PLACE']]['attack'] = origin_atk['ATK'];
+    });
+    this.variable['ORIGIN_ATK'] = [];
+}
+
+//==============================================================
+// Member Using function
+//==============================================================
+var BasicUsingCheck = function( place, i ){
     return basicActiveCheck( this.variable, place, i ) && !( this.id in USING_ACTIVE_SKILL_STACK );
+}
+var BasicUsingStart = function( place, i ){
+    this.variable['USING'] = true;
+    USING_ACTIVE_SKILL_STACK[ this.id ] = { PLACE: place, i: i };
+    $("#ActiveButtonTD td").eq(place).find("button span").eq(i).text(this.label).append("<br>(使用中)");
 }
 
 var TraceOfNotionSetting = function( member, place, i ){
@@ -379,11 +460,6 @@ var TraceOfNotionSetting = function( member, place, i ){
         COUNT    : 0,
         FACTOR   : 1.2,
     }
-}
-var TraceOfNotionStart = function( place, i ){
-    this.variable['USING'] = true;
-    USING_ACTIVE_SKILL_STACK[ this.id ] = { PLACE: place, i: i };
-    $("#ActiveButtonTD td").eq(place).find("button span").eq(i).text(this.label).append("<br>(使用中)");
 }
 var TraceOfNotionUpdate = function( place, i ){
     if( !this.variable['USING'] ){ return false; }
@@ -673,9 +749,9 @@ var ACTIVE_SKILLS_DATA = {
         info      : '水屬性傷害持續提升，直至沒有消除一組 5 粒或以上的水屬性符石 (只計算首批消除的符石)。每累計消除 20 粒水符石，水屬性傷害加快提升。水屬性傷害會於每一層數 (Wave) 重置',
         coolDown  : 10,
         attack    : TraceOfNotionAttack,
-        check     : TeamMemberSwitchCheck,
+        check     : BasicUsingCheck,
         preSet    : TraceOfNotionSetting,
-        start     : TraceOfNotionStart,
+        start     : BasicUsingStart,
         update    : TraceOfNotionUpdate,
     },
     TRACE_OF_NOTION_F : {
@@ -684,9 +760,9 @@ var ACTIVE_SKILLS_DATA = {
         info      : '火屬性傷害持續提升，直至沒有消除一組 5 粒或以上的火屬性符石 (只計算首批消除的符石)。每累計消除 20 粒火符石，火屬性傷害加快提升。火屬性傷害會於每一層數 (Wave) 重置',
         coolDown  : 10,
         attack    : TraceOfNotionAttack,
-        check     : TeamMemberSwitchCheck,
+        check     : BasicUsingCheck,
         preSet    : TraceOfNotionSetting,
-        start     : TraceOfNotionStart,
+        start     : BasicUsingStart,
         update    : TraceOfNotionUpdate,
     },
     TRACE_OF_NOTION_P : {
@@ -695,9 +771,9 @@ var ACTIVE_SKILLS_DATA = {
         info      : '木屬性傷害持續提升，直至沒有消除一組 5 粒或以上的木屬性符石 (只計算首批消除的符石)。每累計消除 20 粒木符石，木屬性傷害加快提升。木屬性傷害會於每一層數 (Wave) 重置',
         coolDown  : 10,
         attack    : TraceOfNotionAttack,
-        check     : TeamMemberSwitchCheck,
+        check     : BasicUsingCheck,
         preSet    : TraceOfNotionSetting,
-        start     : TraceOfNotionStart,
+        start     : BasicUsingStart,
         update    : TraceOfNotionUpdate,
     },
     TRACE_OF_NOTION_L : {
@@ -706,9 +782,9 @@ var ACTIVE_SKILLS_DATA = {
         info      : '光屬性傷害持續提升，直至沒有消除一組 5 粒或以上的光屬性符石 (只計算首批消除的符石)。每累計消除 20 粒光符石，光屬性傷害加快提升。光屬性傷害會於每一層數 (Wave) 重置',
         coolDown  : 10,
         attack    : TraceOfNotionAttack,
-        check     : TeamMemberSwitchCheck,
+        check     : BasicUsingCheck,
         preSet    : TraceOfNotionSetting,
-        start     : TraceOfNotionStart,
+        start     : BasicUsingStart,
         update    : TraceOfNotionUpdate,
     },
     TRACE_OF_NOTION_D : {
@@ -717,10 +793,82 @@ var ACTIVE_SKILLS_DATA = {
         info      : '暗屬性傷害持續提升，直至沒有消除一組 5 粒或以上的暗屬性符石 (只計算首批消除的符石)。每累計消除 20 粒暗符石，暗屬性傷害加快提升。暗屬性傷害會於每一層數 (Wave) 重置',
         coolDown  : 10,
         attack    : TraceOfNotionAttack,
-        check     : TeamMemberSwitchCheck,
+        check     : BasicUsingCheck,
         preSet    : TraceOfNotionSetting,
-        start     : TraceOfNotionStart,
+        start     : BasicUsingStart,
         update    : TraceOfNotionUpdate,
+    },
+    OFFENSIVE_STANCE_W : {
+        id        : 'OFFENSIVE_STANCE_W',
+        label     : '攻擊姿勢 ‧ 水',
+        info      : '心符石轉化為水符石',
+        coolDown  : 5,
+        check     : OffensiveStanceCheck,
+        preSet    : BasicActiveSetting,
+        transfer  : OffensiveStanceTransfer,
+    },
+    OFFENSIVE_STANCE_F : {
+        id        : 'OFFENSIVE_STANCE_F',
+        label     : '攻擊姿勢 ‧ 火',
+        info      : '心符石轉化為火符石',
+        coolDown  : 5,
+        check     : OffensiveStanceCheck,
+        preSet    : BasicActiveSetting,
+        transfer  : OffensiveStanceTransfer,
+    },
+    OFFENSIVE_STANCE_P : {
+        id        : 'OFFENSIVE_STANCE_P',
+        label     : '攻擊姿勢 ‧ 木',
+        info      : '心符石轉化為木符石',
+        coolDown  : 5,
+        check     : OffensiveStanceCheck,
+        preSet    : BasicActiveSetting,
+        transfer  : OffensiveStanceTransfer,
+    },
+    OFFENSIVE_STANCE_L : {
+        id        : 'OFFENSIVE_STANCE_L',
+        label     : '攻擊姿勢 ‧ 光',
+        info      : '心符石轉化為光符石',
+        coolDown  : 5,
+        check     : OffensiveStanceCheck,
+        preSet    : BasicActiveSetting,
+        transfer  : OffensiveStanceTransfer,
+    },
+    OFFENSIVE_STANCE_D : {
+        id        : 'OFFENSIVE_STANCE_D',
+        label     : '攻擊姿勢 ‧ 暗',
+        info      : '心符石轉化為暗符石',
+        coolDown  : 5,
+        check     : OffensiveStanceCheck,
+        preSet    : BasicActiveSetting,
+        transfer  : OffensiveStanceTransfer,
+    },
+    ATTACK_REINFORCEMENT_F : {
+        id        : 'ATTACK_REINFORCEMENT_F',
+        label     : '攻勢強化 ‧ 火',
+        info      : '心符石轉化為火強化符石，並將自身所在隊伍欄直行的符石轉化為火符石',
+        coolDown  : 5,
+        check     : OffensiveStanceCheck,
+        preSet    : BasicActiveSetting,
+        transfer  : AttackReinforcementTransfer,
+    },
+    ATTACK_REINFORCEMENT_L : {
+        id        : 'ATTACK_REINFORCEMENT_L',
+        label     : '攻勢強化 ‧ 光',
+        info      : '心符石轉化為光強化符石，並將自身所在隊伍欄直行的符石轉化為光符石',
+        coolDown  : 5,
+        check     : OffensiveStanceCheck,
+        preSet    : BasicActiveSetting,
+        transfer  : AttackReinforcementTransfer,
+    },
+    DEFENSIVE_STANCE_EX_F : {
+        id        : 'DEFENSIVE_STANCE_EX_F',
+        label     : '鐵壁陣勢 ‧ 火',
+        info      : '木符石轉化為心強化符石',
+        coolDown  : 5,
+        check     : DeffensiveStanceCheck,
+        preSet    : BasicActiveSetting,
+        transfer  : DeffensiveStanceEXTransfer,
     },
     TRANSFORMATION_W : {
         id        : 'TRANSFORMATION_W',
@@ -735,14 +883,24 @@ var ACTIVE_SKILLS_DATA = {
         transfer  : TransformationH_Transfer,
         end       : TransformationEnd,
     },
-    DEFENSIVE_STANCE_EX_F : {
-        id        : 'DEFENSIVE_STANCE_EX_F',
-        label     : '鐵壁陣勢 ‧ 火',
-        info      : '木符石轉化為心強化符石',
-        coolDown  : 5,
-        check     : DeffensiveStanceCheck,
+    DRAGON_RESONANCE : {
+        id        : 'DRAGON_RESONANCE',
+        label     : '龍魂共鳴',
+        info      : '2 回合內，以龍類其中造成的最大傷害轉換為全隊龍類的傷害',
+        coolDown  : 8,
+        addEffect : BasicAddtionalEffectAdd,
+        check     : AddtionalEffectCheck,
         preSet    : BasicActiveSetting,
-        transfer  : DeffensiveStanceEXTransfer,
+    },
+    DRAGON_CENTRALIZATION_D_EX : {
+        id        : 'DRAGON_CENTRALIZATION_D_EX',
+        label     : '龍力招來 ‧ 幽冥',
+        info      : '龍類攻擊力減至 0，並將龍類攻擊力的 1.5 倍加入自身攻擊力，消除暗符石才會發動攻擊 (效果會在再次發動此技能或死亡後消失)',
+        coolDown  : 8,
+        check     : BasicSwitchCheck,
+        preSet    : DragonCentralizationDEXSetting,
+        start     : DragonCentralizationDEXStart,
+        turnOff   : DragonCentralizationDEXTurnOff,
     },
     BATTLEFIELD_P : {
         id        : 'BATTLEFIELD_P',
@@ -1023,7 +1181,7 @@ function usingActiveSkillUpdate(){
         var place = USING_ACTIVE_SKILL_STACK[activeID]['PLACE'];
         var i = USING_ACTIVE_SKILL_STACK[activeID]['i'];
         if( TEAM_ACTIVE_SKILL.length > place || TEAM_ACTIVE_SKILL[place].length > i ){
-            TEAM_ACTIVE_SKILL[place][i]['update']( place, i );
+            triggerActiveByKey( place, i, 'update' );
         }
     }
 }

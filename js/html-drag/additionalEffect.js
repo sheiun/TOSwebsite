@@ -26,6 +26,40 @@ var DesperateAttack = function(){
     };
 };
 //==============================================================
+var DragonResonanceSetting = function( place, i, VAR ){
+	return {
+		ID       : this.id,
+		PLACE    : place,
+		i        : i,
+		COLOR    : VAR['COLOR'],
+		TYPE     : "DRAGON",
+		DURATION : 2,
+	}
+};
+var DragonResonance = function(){
+	var max_attack_base = 0;
+	var max_attack_factor = 0;
+	var attack_list = [];
+	for(var place = 0; place < TD_NUM; place++){
+		$.each(ATTACK_STACK, function(i, attack){
+			if( attack['place'] == place ){
+				if( TEAM_MEMBERS[place]['type'] == 'DRAGON' ){
+					attack_list.push(i);
+					if( attack['base']*attack['factor'] > max_attack_base*max_attack_factor ){
+						max_attack_base = attack['base'];
+						max_attack_factor = attack['factor'];
+					}
+				}
+				return false;
+			}
+		});
+	}
+	for(var i of attack_list){
+		ATTACK_STACK[i]['base'] = max_attack_base;
+		ATTACK_STACK[i]['factor'] = max_attack_factor;
+	}
+}
+//==============================================================
 var FightSafeAttack = function(){
 	console.log(COMBO_STACK.length);
 	console.log(countComboAtFirstWave());
@@ -37,6 +71,7 @@ var FightSafeAttack = function(){
 	    };
 	}else{
         var recover = {
+            type   : "additionalEffect",
             place  : this.variable['PLACE'],
             color  : "h",
             base   : 20000,
@@ -245,6 +280,12 @@ var ADDITIONAL_EFFECT_DATA = {
 		id        : 'DESPERATE_ATTACK',
 		attack    : DesperateAttack,
 		preSet    : BasicEffectSetting,
+		tag       : ['attack'],
+	},
+	DRAGON_RESONANCE : {
+		id        : 'DESPERATE_ATTACK',
+		resonance : DragonResonance,
+		preSet    : DragonResonanceSetting,
 		tag       : ['attack'],
 	},
 	FIGHT_SAFE : {

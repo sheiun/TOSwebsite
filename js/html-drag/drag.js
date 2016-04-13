@@ -777,7 +777,7 @@ function newMoveWave(){
     renewTimeDiv();
 }
 
-function checkGroups(){console.log("checkG");
+function checkGroups(){
     resetBase();
     resetColorGroupSet();
     resetDropStack();

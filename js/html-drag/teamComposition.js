@@ -4,7 +4,8 @@
 //==============================================================
 //==============================================================
 
-function resetTeamComposition(){  
+function resetTeamComposition(){ 
+
     TEAM_MEMBERS = [
         TEAM_LEADER,
         MEMBER_1,
@@ -24,6 +25,7 @@ function resetTeamComposition(){
 
     resetColors();
     resetHealthPoint();
+    resetBattleStack();
 }
 
 function resetMemberWakes(){
@@ -89,7 +91,13 @@ function resetHealthPoint(){
         TOTAL_HEALTH_POINT += member['health'];
     });
 }
-
+function resetBattleStack(){
+    ADDITIONAL_EFFECT_STACK  = [];
+    USING_ACTIVE_SKILL_STACK = {};
+    ATTACK_STACK  = [];
+    RECOVER_STACK = [];
+    INJURE_STACK  = [];
+}
 //==============================================================
 //==============================================================
 // Enemy

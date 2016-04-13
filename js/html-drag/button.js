@@ -525,9 +525,11 @@ function showResult(){
     $.each(RECOVER_STACK, function(i, recover){
         var rec = Math.round( recover["base"] * recover["factor"] );
         total_recover += rec;
-        $("#RecoverNumber td").eq( recover["place"] ).append(
-            $("<sapn></span>").text(rec).addClass("AtkRecLabel")
-        ).append( $("<br>") );
+        if( recover['type'] == 'person' ){
+            $("#RecoverNumber td").eq( recover["place"] ).append(
+                $("<sapn></span>").text(rec).addClass("AtkRecLabel")
+            ).append( $("<br>") );
+        }
     });
     HEALTH_POINT = Math.min( TOTAL_HEALTH_POINT, Math.round( HEALTH_POINT+total_recover ) );
 
