@@ -61,13 +61,20 @@ function resetEnemyStatus(){
         enemy['variable']['COLOR'] = enemy['color'];
         enemy['variable']['DEFENCE'] = enemy['defence'];
         enemy['variable']['ATTACK'] = enemy['attack'];
+        enemy['variable']['HATRED'] = [];
+        enemy['variable']['SUFFER'] = 0;
     });
+}
+function resetShowPersonAtkRec(){
+    $("#AttackNumber td").children().remove();
+    $("#RecoverNumber td").children().remove();
 }
 
 //==============================================================
 //  Count Attack/ EnemyAction
 //==============================================================
 function countAttack(){
+    resetShowPersonAtkRec();
     resetCount();
     resetEnemyStatus();
 
@@ -88,17 +95,15 @@ function countAttack(){
     $.each(ENEMY, function(i, enemy){
         enemyStatusUpdate(i, enemy);        
     });
-    enemyStackUpdate();
+
+    countHealthRecover();
 }
 function countEnemyAction(){
-    if( ENEMY.length == 0 ){
-        gotoNextLevelEnemy();
-    }else{
-        $.each(ENEMY, function(i, enemy){
-            enemyActionUpdate(i, enemy);
-        });
-        healthStatusUpdate();
-    }
+    checkInjureReduce();
+    $.each(ENEMY, function(i, enemy){
+        enemyActionUpdate(i, enemy);
+    });
+    healthStatusUpdate();
 }
 
 
@@ -122,7 +127,17 @@ function checkAttackRecoverMapping(){
     checkAdditionEffectByKey( "extraAttack" );
 }
 function checkAttackRecoverDamage(){
+    // 吸血
     checkLeaderSkillByKey( "damage" );
+}
+function checkInjureReduce(){
+    // 減傷
+    checkLeaderSkillByKey( "injure" );
+    checkAdditionEffectByKey( "injure" );
+}
+function checkWillAfterBattle(){
+    // 根性意志
+    checkLeaderSkillByKey( "will" );
 }
 
 function countComboStacks(){
@@ -154,12 +169,14 @@ function makeMemberAttack(membe_place, member){
     var attack = {
         base   : member["attack"],
         color  : member["color"],
+        type   : member['type'],
         goal   : "single",
         strong : false,
-        type   : "person",
+        style  : "person",
         place  : membe_place,
         target : [],
         factor : 1,
+        damage : 0,
         log    : "",
     };
 
@@ -195,10 +212,11 @@ function makeMemberAttack(membe_place, member){
 function makeMemberRecover(membe_place, member){
     var color = member["color"];
     var recover = {
-        type   : "person",
+        style  : "person",
         place  : membe_place,
-        color  : "h",
         base   : member["recovery"],
+        color  : member["color"],
+        type   : member['type'],
         factor : 1,
         log    : "",
     };
@@ -226,6 +244,7 @@ function makeMemberRecover(membe_place, member){
 }
 
 function mapAttackToEnemy( i, attack ){
+    showPersonAttack( attack );
     if( attack['goal'] == "single" ){
         // TODO : enemy priority select
         var target = 0;
@@ -253,62 +272,130 @@ function countEnemySufferAttack( enemy, attack ){
     attack['log']    += '*'+COUNT_COLOR_FACTOR[color]+'*'+COUNT_COLOR_TO_COLOR_FACTOR[color][e_color];
 
     var atk = Math.round( attack["base"] * attack["factor"] );
-    atk -= enemy['variable']['DEFENCE'];
-    enemy['variable']['SUFFER'] += atk;
+    if( atk > 0 ){
+        atk -= enemy['variable']['DEFENCE'];
+        atk = Math.max( 1, atk-enemy['variable']['DEFENCE'] );
+        attack['damage'] = atk;
+        enemy['variable']['SUFFER'] += atk;
+        if( atk > 1 ){
+            enemy['variable']['HATRED'].push( attack );
+        }
+    }
 }
 
 function enemyStatusUpdate( i, enemy ){
-    $("#BattleInfomation").append( 
-        $("<span></span>").text("敵人"+(i+1)+enemy['label']+'受到 '+enemy['variable']['SUFFER']+' 點傷害')
-    ).append("<br>");
+    showEnemySuffer( i, enemy );
 
     if( enemy['variable']['SUFFER'] >= enemy['variable']['HEALTH'] ){
         enemy['variable']['HEALTH'] = 0;
     }else{
         enemy['variable']['HEALTH'] -= enemy['variable']['SUFFER'];
-        enemy['variable']['SUFFER'] = 0;
     }
 }
-function enemyStackUpdate(){
-    ENEMY = $.map(ENEMY, function(enemy, i){
-        if( enemy['variable']['HEALTH'] > 0 ){
-            return enemy;
-        }else{
-            if(enemy['id'] != 'EMPTY'){                
-                $("#BattleInfomation").append( 
-                    $("<span></span>").text("敵人"+enemy['label']+'死亡') ).append("<br>");
-            }
-        }
+
+function countHealthRecover(){
+    var total_recover = 0;
+    $.each(RECOVER_STACK, function(i, recover){
+        var rec = Math.round( recover["base"] * recover["factor"] );
+        total_recover += rec;
+        showPersonRecover( recover );
     });
+    showTotalRecover( total_recover );
+
+    HEALTH_POINT = Math.min( TOTAL_HEALTH_POINT, Math.round( HEALTH_POINT+total_recover ) );
 }
 
-
-function gotoNextLevelEnemy(){
-    ENEMY = [];
-    ENEMY.push( NewEnemy("EMPTY") );
-}
+//==============================================================
+// Enemy Action
+//==============================================================
 function enemyActionUpdate(i, enemy){
+console.log("enemy:"+i);
+    if( enemy['variable']['HEALTH'] <= 0 ){ return false; }
+
     enemy['variable']['COOLDOWN'] -= 1;
     if( enemy['variable']['COOLDOWN'] == 0 ){
         enemy['variable']['COOLDOWN'] = enemy['coolDown'];
 
         var injure = {
             enemyOrder   : i,
+            label        : enemy['label'],
             damage       : enemy['variable']['ATTACK'],
             color        : enemy['variable']['COLOR'],
         };
         if( !("INJURE_REDUCEABLE" in enemy['variable']) || enemy['variable']["INJURE_REDUCEABLE"] ){
             injure['damage'] *= COUNT_INJURE_REDUCE;
         }
+console.log("injure:"+injure['damage']);
         INJURE_STACK.push(injure);
-        $("#BattleInfomation").append( 
-            $("<span></span>").text("敵人"+(i+1)+enemy['label']+'攻擊， 受到 '+injure['damage']+' 點傷害')
-        ).append("<br>");
     }
 }
-
 function healthStatusUpdate(){
     $.each(INJURE_STACK, function(i, injure){
+        UNDEAD_WILL = false;
+        checkWillAfterBattle();
+
         HEALTH_POINT -= injure['damage'];
+        if( UNDEAD_WILL && HEALTH_POINT < 0 ){
+            HEALTH_POINT = 1;
+        }
+        HEALTH_POINT = Math.max( 0, HEALTH_POINT );
     });
+}
+
+
+//==============================================================
+//  Check Status after Battle
+//==============================================================
+function checkEnemyStatus(){
+    ENEMY = $.map(ENEMY, function(enemy, i){
+        if( enemy['variable']['HEALTH'] > 0 ){
+            return enemy;
+        }else{
+            showEnemyDead( enemy, i );
+        }
+    });
+
+    if( ENEMY.length == 0 ){ 
+        return gotoNextLevelEnemy();
+    }
+    return true;
+}
+function checkTeamStatus(){
+    if( HEALTH_POINT == 0 ){ return false; }
+    return true;
+}
+
+
+//==============================================================
+// Game Start/End
+//==============================================================
+function startGame(){
+    PLAY_TURN  = 0;
+    HEALTH_POINT = TOTAL_HEALTH_POINT;
+    gotoNextLevelEnemy();
+    nextMoveWave();
+}
+function endGame(){
+    showEndGame();
+    if( GAME_MODE == GAME_MODE_ENUM.REPEAT ){
+        restartGame();
+    }
+}
+function restartGame(){
+    resetGameWaves();
+    startGame();
+}
+function gotoNextLevelEnemy(){
+    GAME_PROGRESS += 1;
+    if( GAME_PROGRESS < GAME_WAVES.length ){
+        showNextLevel();
+        ENEMY = [];
+        game_wave = GAME_WAVES[GAME_PROGRESS];
+        $.each(game_wave, function(i, enemyID){
+            ENEMY.push( NewEnemy(enemyID) );
+        });
+    }else{
+        return false;
+    }
+    return true;
 }

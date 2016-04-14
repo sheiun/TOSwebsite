@@ -545,6 +545,16 @@ function checkActiveCoolDownByConfig( config ){
     return check;
 }
 
+function countMembrsTypeByArr( typeArr ){
+    var count = 0;
+    $.each(TEAM_MEMBERS, function(i, member){
+        if( typeArr.indexOf( member['type'] ) >= 0 ){
+            count += 1;
+        }
+    });
+    return count;
+}
+
 //==============================================================
 // StartRun function
 //==============================================================

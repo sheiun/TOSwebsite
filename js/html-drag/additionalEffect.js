@@ -26,6 +26,10 @@ var DesperateAttack = function(){
     };
 };
 //==============================================================
+var DragonShieldInjureReduce = function(){
+	var count = countMembrsTypeByArr( ['DRAGON'] );
+	COUNT_INJURE_REDUCE *= ( 1 - count*0.1 );
+}
 var DragonResonanceSetting = function( place, i, VAR ){
 	return {
 		ID       : this.id,
@@ -40,20 +44,16 @@ var DragonResonance = function(){
 	var max_attack_base = 0;
 	var max_attack_factor = 0;
 	var attack_list = [];
-	for(var place = 0; place < TD_NUM; place++){
-		$.each(ATTACK_STACK, function(i, attack){
-			if( attack['place'] == place ){
-				if( TEAM_MEMBERS[place]['type'] == 'DRAGON' ){
-					attack_list.push(i);
-					if( attack['base']*attack['factor'] > max_attack_base*max_attack_factor ){
-						max_attack_base = attack['base'];
-						max_attack_factor = attack['factor'];
-					}
-				}
-				return false;
+	$.each(ATTACK_STACK, function(i, attack){
+		if( attack['type'] == 'DRAGON' ){
+			attack_list.push(i);
+			if( attack['base']*attack['factor'] > max_attack_base*max_attack_factor ){
+				max_attack_base = attack['base'];
+				max_attack_factor = attack['factor'];
 			}
-		});
-	}
+		}
+	});
+
 	for(var i of attack_list){
 		ATTACK_STACK[i]['base'] = max_attack_base;
 		ATTACK_STACK[i]['factor'] = max_attack_factor;
@@ -61,8 +61,6 @@ var DragonResonance = function(){
 }
 //==============================================================
 var FightSafeAttack = function(){
-	console.log(COMBO_STACK.length);
-	console.log(countComboAtFirstWave());
 	if( countComboAtFirstWave() >= 4 ){
 	    COUNT_FACTOR['FightSafeAttack'] = {
 	        factor    : function( member, member_place ){ return 2; },
@@ -71,9 +69,10 @@ var FightSafeAttack = function(){
 	    };
 	}else{
         var recover = {
-            type   : "additionalEffect",
+            style  : "additionalEffect",
             place  : this.variable['PLACE'],
-            color  : "h",
+        	color  : member["color"],
+        	type   : member['type'],
             base   : 20000,
             factor : 1,
             log    : "FightSafeRecover",
@@ -282,8 +281,14 @@ var ADDITIONAL_EFFECT_DATA = {
 		preSet    : BasicEffectSetting,
 		tag       : ['attack'],
 	},
+	DRAGON_SHIELD : {
+		id        : 'DRAGON_SHIELD',
+		injure    : DragonShieldInjureReduce,
+		preSet    : BasicEffectSetting,
+		tag       : ['injureReduce'],
+	},
 	DRAGON_RESONANCE : {
-		id        : 'DESPERATE_ATTACK',
+		id        : 'DRAGON_RESONANCE',
 		resonance : DragonResonance,
 		preSet    : DragonResonanceSetting,
 		tag       : ['attack'],

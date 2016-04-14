@@ -104,8 +104,7 @@ function resetBattleStack(){
 //==============================================================
 //==============================================================
 
-function resetEnemy(){
-    ENEMY = [];
-    var enemy = NewEnemy("EMPTY");
-    ENEMY.push(enemy);
+function resetGameWaves(){
+    GAME_PROGRESS = -1;
+    GAME_WAVES = [ ["NORMAL"] ];
 }

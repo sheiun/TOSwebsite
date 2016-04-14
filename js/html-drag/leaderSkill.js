@@ -4,10 +4,10 @@
 //==============================================================
 //==============================================================
 
-var BasicLeaderSetting = function( member ){
+var BasicLeaderSetting = function( MEMBER ){
     return {
-        COLOR    : member['color'],
-        TYPE     : member['type'],
+        COLOR    : MEMBER['color'],
+        TYPE     : MEMBER['type'],
     }
 }
 
@@ -47,6 +47,16 @@ var ElementFactor3_5Attack = function( VAR, direct ){
             return false;
         },
     };
+}
+
+//==============================================================
+// WillSurvive
+//==============================================================
+var WillSurviveInjure= function( VAR, direct ){
+    if( ( HEALTH_POINT/TOTAL_HEALTH_POINT ) >= 0.5 ){
+console.log('will');
+        UNDEAD_WILL = true;
+    }
 }
 
 //==============================================================
@@ -90,25 +100,30 @@ var GreekSkill = function( VAR, direct ){
 }
 
 //==============================================================
-// Dragon Servant
+// Ethernal Dragon
 //==============================================================
-var BloodThirstyDragonEXAttack = function( VAR, direct ){
-    COUNT_FACTOR['BloodThirstyDragonEX'+direct] = {
-        factor    : function( member, member_place ){ return 2.5; },
+var DragonOffenseAttack = function( VAR, direct ){
+    $.each(TEAM_MEMBERS, function(place, member){
+        if( member['type'] == 'DRAGON' ){
+            member['attack'] += member['recovery'];
+            member['recovery'] = 0;
+        }
+    });
+
+    COUNT_FACTOR['DragonOffense'+direct] = {
+        factor    : function( member, member_place ){ return 2; },
         prob      : 1,
         condition : function( member, member_place ){ return member['type'] == "DRAGON"; },
     };
 }
-var BloodThirstyDragonEXDamage = function( VAR, direct ){
-    var total_damage = 0;
-    $.each(ENEMY, function(i, enemy){
-        total_damage += enemy['variable']['SUFFER'];
-    });
-    var recover_hp = Math.min( TOTAL_HEALTH_POINT/2, total_damage*0.1 );
+var DragonOffenseRecover = function( VAR, direct ){
+    var dragons = countMembrsTypeByArr( ['DRAGON'] );
+    var num = COUNT_AMOUNT['h'];
+    var recover_hp = 0.02*dragons*num*( TOTAL_HEALTH_POINT - HEALTH_POINT );
 
     var check = true;
     for(var obj of RECOVER_STACK){
-        if( obj['log'] == "BloodThirstyDragonEX" ){ 
+        if( obj['log'] == "DragonOffenseRecover" ){ 
             check = false;
             break;
         }
@@ -120,10 +135,50 @@ var BloodThirstyDragonEXDamage = function( VAR, direct ){
             color  : "h",
             base   : recover_hp,
             factor : 1,
-            log    : "BloodThirstyDragonEX",
+            log    : "DragonOffenseRecover",
         };
         RECOVER_STACK.push(recover);
     }
+}
+//==============================================================
+// Dragon Servant
+//==============================================================
+var BloodThirstyDragonEXAttack = function( VAR, direct ){
+    COUNT_FACTOR['BloodThirstyDragonEX'+direct] = {
+        factor    : function( member, member_place ){ return 2.5; },
+        prob      : 1,
+        condition : function( member, member_place ){ return member['type'] == "DRAGON"; },
+    };
+}
+var BloodThirstyDragonEXDamage = function( VAR, direct ){
+    var max_recover = TOTAL_HEALTH_POINT/2 ;
+    for(var obj of RECOVER_STACK){
+        if( obj['log'] == "BloodThirstyDragonEX" ){ 
+            var rec = obj['base']*obj['factor'];
+            max_recover -= rec;
+        }
+    }
+
+    var total_damage = 0;
+    $.each(ENEMY, function(i, enemy){
+        $.each(enemy['variable']['HATRED'], function(a, attack){
+            if( attack['style'] == 'person' && attack['type'] == 'DRAGON' ){
+                total_damage += attack['damage'];
+            }
+        })
+    });
+    var recover_hp = Math.min( max_recover, total_damage*0.1 );
+
+    var recover = {
+        color  : '',
+        type   : '',
+        style  : "leaderSkill",
+        place  : 10,
+        base   : recover_hp,
+        factor : 1,
+        log    : "BloodThirstyDragonEX",
+    };
+    RECOVER_STACK.push(recover);
 }
 var FangsOfDragonAttack = function( VAR, direct ){
     if( checkComboColorMaxAmountByConfig({
@@ -627,12 +682,13 @@ var LEADER_SKILLS_DATA = {
         letter    : [0,0],
         preSet    : BasicLeaderSetting,
     },
-    WILL_POWER : {
-        id        : 'WILL_POWER',
+    WILL_SURVIVE : {
+        id        : 'WILL_SURVIVE',
         label     : "絕境意志",
         info      : "當前生命力大於 50% 時，下一次所受傷害不會使你死亡 (同一回合只會發動一次）",
         letter    : [0,0],
         preSet    : BasicLeaderSetting,
+        will      : WillSurviveInjure,
     },
     ELEMENT_FACTOR2 : {
         id        : "ELEMENT_FACTOR2",
@@ -681,7 +737,16 @@ var LEADER_SKILLS_DATA = {
         letter    : [0,0],
         newItem   : GreekSkill,
         preSet    : HeartQueenSetting,
-    },    
+    },
+    DRAGON_OFFENSE : {
+        id        : 'DRAGON_OFFENSE',
+        label     : "龍攻代守",
+        info      : "龍類攻擊力 2 倍，我方龍類的回復力加入自身攻擊力；消除心符石可回復固定百分比的已損失生命力 ( 每粒心符石回復百分比相等於隊伍龍類數量的兩倍 )",
+        letter    : [0,0],
+        attack    : DragonOffenseAttack,
+        recover   : DragonOffenseRecover,
+        preSet    : BasicLeaderSetting,
+    },
     BLOOD_THIRSTY_DRAGON_EX : {
         id        : 'BLOOD_THIRSTY_DRAGON_EX',
         label     : "噬血龍王 ‧ 強",

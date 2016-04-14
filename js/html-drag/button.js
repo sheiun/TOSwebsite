@@ -46,16 +46,17 @@ $(document).ready( function(){
     }
     MAIN_STATE = MAIN_STATE_ENUM.READY;
     PLAY_TYPE = PLAY_TYPE_ENUM.DRAG;
-    PLAY_TURN  = 0;
+    GAME_MODE = GAME_MODE_ENUM.REPEAT;
 
     closeCanvas();
     setComboShow();
     setHistoryShow();
-    resetEnemy();
+    $("#BattleInfomation").children().remove();
+    startGame();
 
     setTimeout( function(){
-    resetHistory();
-    resetTimeDiv();
+        resetHistory();
+        resetTimeDiv();
     }, 10);
 });
 
@@ -79,7 +80,7 @@ function newOptionalPlain(){
     $("#OptionalPanel").toggle();
     $("#EndOptionalPanel").toggle();
     $("#dragContainment tr td").mousedown( function(){ setElementByOption(this); } );
-    $("#dragContainment tr td").css( "cursor","url('img/cursor_createItem.png'), default" );
+    $("#dragContainment tr td").css( "cursor","url('img/UI/cursor_createItem.png'), default" );
     MAIN_STATE = MAIN_STATE_ENUM.CREATE;
     resetMoveTime();
     stopDragging();
@@ -209,7 +210,6 @@ function startEditTeam(){
     $("#TeamMember").show();
     $("#OpenSysInfo").show();
     $("#CloseSysInfo").hide();
-    $("#BattleInfomation").children().remove();
     resetTimeDiv();
     showTeamInfomation();
 }
@@ -225,6 +225,7 @@ function closeEditTeam(){
         var msdropdown = $(this).msDropDown().data("dd");
         msdropdown.setIndexByValue("NONE");
     });
+    $("#BattleInfomation").children().remove();
     resetTeamMembers();
 }
 function toggleSystemInfomation(){
@@ -485,7 +486,6 @@ function resetDropColors(){
 
 function resetTeamMembers(){
     TIME_LIMIT = 5;
-    PLAY_TURN = 0;
     $('#timeRange').val(5);
     $("#BattleInfomation").children().remove();
 
@@ -499,43 +499,71 @@ function resetTeamMembers(){
     resetTeamComposition();
     showTeamInfomation();
     showActiveInfomation();
-    nextMoveWave();
     resetTimeDiv();
+    restartGame();
 }
 
 //==============================================================
 // SHOW Infomation
 //==============================================================
 function showPlayTurnLevel(){
-    $("#BattleInfomation").append( $("<span></span>").text("第"+PLAY_TURN+"回合：") ).append("<br>");    
+    $("#BattleInfomation").append( $("<span></span>").text("第"+(PLAY_TURN+1)+"回合：") ).append("<br>");    
+}
+function showNextLevel(){
+    $("#BattleInfomation").append( $("<span></span>").text("進入第 "+(GAME_PROGRESS+1)+" 關 : ") ).append("<br>");    
+}
+function showWinGame(){
+    $("#BattleInfomation").append( $("<span></span>").text("戰鬥勝利") ).append("<br>");
+}
+function showLoseGame(){
+    $("#BattleInfomation").append( $("<span></span>").text("戰鬥失敗") ).append("<br>");
+}
+function showEndGame(){
+    $("#BattleInfomation").append( $("<span></span>").text("戰鬥結束") ).append("<br>");  
+}
+function showEnemySuffer( i, enemy ){
+    $("#BattleInfomation").append( 
+        $("<span></span>").text("給予 敵人("+(i+1)+")"+enemy['label']+' '+enemy['variable']['SUFFER']+' 點傷害')
+    ).append("<br>");
+}
+function showEnemyDead( enemy, i ){
+    if(enemy['id'] != 'EMPTY'){
+        $("#BattleInfomation").append( 
+            $("<span></span>").text("敵人"+enemy['label']+'死亡')
+        ).append("<br>");
+    }
+}
+function showPersonAttack( attack ){
+    var atk = Math.round( attack["base"] * attack["factor"] );
+    if( attack["style"] == "person" ){
+        $("#AttackNumber td").eq( attack["place"] ).append( 
+            $("<sapn></span>").text(atk).addClass("AtkRecLabel") 
+        ).append( $("<br>") );
+    }
+}
+function showPersonRecover( recover ){
+    var rec = Math.round( recover["base"] * recover["factor"] );
+    if( recover['style'] == 'person' ){
+        $("#RecoverNumber td").eq( recover["place"] ).append(
+            $("<sapn></span>").text(rec).addClass("AtkRecLabel")
+        ).append( $("<br>") );
+    }
+}
+function showTotalRecover( total_recover ){
+    $("#BattleInfomation").append( 
+        $("<span></span>").text("總共回復 "+total_recover+" 點生命值") 
+    ).append("<br>");
 }
 function showResult(){
-    $("#AttackNumber td").children().remove();
-    $("#RecoverNumber td").children().remove();
-    var total_recover = 0;
-
-    $.each(ATTACK_STACK, function(i, attack){
-        var atk = Math.round( attack["base"] * attack["factor"] );
-        if( attack["type"] == "person" ){
-            $("#AttackNumber td").eq( attack["place"] ).append( 
-                $("<sapn></span>").text(atk).addClass("AtkRecLabel") 
-            ).append( $("<br>") );
-        }
+    $.each(INJURE_STACK, function(i, injure){
+        $("#BattleInfomation").append( 
+            $("<span></span>").text("敵人"+injure['label']+'  攻擊， 受到 '+injure['damage']+' 點傷害')
+        ).append("<br>");
     });
-    $.each(RECOVER_STACK, function(i, recover){
-        var rec = Math.round( recover["base"] * recover["factor"] );
-        total_recover += rec;
-        if( recover['type'] == 'person' ){
-            $("#RecoverNumber td").eq( recover["place"] ).append(
-                $("<sapn></span>").text(rec).addClass("AtkRecLabel")
-            ).append( $("<br>") );
-        }
-    });
-    HEALTH_POINT = Math.min( TOTAL_HEALTH_POINT, Math.round( HEALTH_POINT+total_recover ) );
 
-    $("#BattleInfomation").append( $("<span></span>").text("總共回復 "+total_recover+" 點生命值") ).append("<br>");
-    $("#BattleInfomation").append( $("<span></span>").text("現在生命值 : "+HEALTH_POINT+" 點") ).append("<br>");
-
+    $("#BattleInfomation").append( 
+        $("<span></span>").text("現在生命值 : "+HEALTH_POINT+" / "+TOTAL_HEALTH_POINT )
+    ).append("<br>");
     resetTimeDiv();
 }
 function showTeamInfomation(){

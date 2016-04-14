@@ -12,6 +12,7 @@ var BasicEnemySetting = function( enemy ){
 		COLOR    : enemy['color'],
 		COOLDOWN : enemy['coolDown'],
 		SUFFER   : 0,
+		HATRED   : [],
 		EFFECT   : [],
 	};
 }
@@ -38,7 +39,7 @@ var ENEMY_DATA = {
 		attack   : 3000,
 		defence  : 100,
 		color    : 'w',
-		coolDown : 2,
+		coolDown : 1,
 		ability  : [ "NONE" ],
 		preSet   : BasicEnemySetting,
 		variable : {},

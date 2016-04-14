@@ -111,6 +111,8 @@ var ATTACK_STACK  = [];
 var RECOVER_STACK = [];
 var INJURE_STACK  = [];
 
+var UNDEAD_WILL = false;
+
 //==============================================================
 // CONTROL PARAMETER
 //==============================================================
@@ -124,6 +126,8 @@ var TIME_LIMIT = 5;
 var REPLAY_SPEED = 300;
 var REVIEW_PATH = false;
 var CREATE_COLOR = null;
+
+var GAME_MODE = null;
 
 //==============================================================
 // TEAM MEMBER
@@ -153,6 +157,8 @@ var TEAM_WAKES            = [];
 //==============================================================
 
 var ENEMY = null;
+var GAME_WAVES = [];
+var GAME_PROGRESS = 0;
 
 var PLAY_TURN = 0;
 var PLAY_TYPE = null;
@@ -840,13 +846,21 @@ function endPlayTurn(){
     checkAdditionEffectByKey( 'end' );
     checkEnemyEffectByKey( 'end' );
 
-    PLAY_TURN += 1;
-    frozenUpdate();
-    activeCoolDownUpdate();
-    additionalEffectUpdate();
-    enemyEffectUpdate();
-    usingActiveSkillUpdate();
-    nextMoveWave();
+    if( ! checkTeamStatus() ){
+        showLoseGame();
+        endGame();
+    }else if( ! checkEnemyStatus() ){
+        showWinGame();
+        endGame();
+    }else{
+        PLAY_TURN += 1;
+        frozenUpdate();
+        activeCoolDownUpdate();
+        additionalEffectUpdate();
+        enemyEffectUpdate();
+        usingActiveSkillUpdate();
+        nextMoveWave();
+    }
 }
 
 //==============================================================
