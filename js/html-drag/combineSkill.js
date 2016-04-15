@@ -34,20 +34,11 @@ var EnchantedInjunctionSetting = function( member, COMBINE ){
 	};
 }
 var EnchantedInjunctionCheck = function( place, i ){
-    var useable = checkCombineUseable( this.variable['COMBINE'] );
-	return useable['check'] && 
+	return basicFunctionCombineSkillCheck( this.variable, place, i ) && 
 		checkHasElementByColorArr( [ this.variable['COLOR_TO_H'], this.variable['COLOR_EXCLUSIVE'], 'h' ] ) &&
 		checkHasElementByColorWithoutStrong( this.variable['COLOR_MAIN'] );
 }
 var EnchantedInjunctionTransfer = function( place, i ){
-    var useable = checkCombineUseable( this.variable['COMBINE'] );
-    for(var key in useable['locations']){
-    	var i = useable['locations'][key];
-    	var location = this.variable['COMBINE'][key][i];
-    	var action = TEAM_ACTIVE_SKILL[ location.PLACE ][ location.i ];
-    	action['variable']['COOLDOWN'] = action['coolDown'];
-    }
-
     for(var id of getStackOfPanelByColorArr( [ this.variable['COLOR_MAIN'], this.variable['COLOR_EXCLUSIVE'], 'h' ] ) ){
     	turnElementToColorByID( id, this.variable['COLOR_MAIN']+"+" );
     }
@@ -57,43 +48,125 @@ var EnchantedInjunctionTransfer = function( place, i ){
 }
 
 var EnchantedInjunctionW_Mapping = function(){
-	if( checkActiveSkillIDByConfig({
-            ID    : [ "RUNE_STRENGTHEN_W", "DESPERATE_ATTACK" ],
+	if( checkMembersIDByConfig({
+            ID    : [ "NORDIC_W", "BOSS_ODIN" ],
             check : [ "{0}>0", "{1}>0" ],
         }) ){
-		combineSkillMapping( 'ENCHANTED_INJUNCTION_W', [ ["RUNE_STRENGTHEN_W"], ["DESPERATE_ATTACK"] ] );
+		combineSkillMapping(
+			'ENCHANTED_INJUNCTION_W', [ 
+				{ "NORDIC_W" : "RUNE_STRENGTHEN_W" },
+				{ "BOSS_ODIN" : "DESPERATE_ATTACK" },
+			] );
 	}
 }
 var EnchantedInjunctionF_Mapping = function(){
-	if( checkActiveSkillIDByConfig({
-            ID    : [ "RUNE_STRENGTHEN_F", "DESPERATE_ATTACK" ],
+	if( checkMembersIDByConfig({
+            ID    : [ "NORDIC_F", "BOSS_ODIN" ],
             check : [ "{0}>0", "{1}>0" ],
         }) ){
-		combineSkillMapping( 'ENCHANTED_INJUNCTION_F', [ ["RUNE_STRENGTHEN_F"], ["DESPERATE_ATTACK"] ] );
+		combineSkillMapping(
+			'ENCHANTED_INJUNCTION_F', [ 
+				{ "NORDIC_F" : "RUNE_STRENGTHEN_F" },
+				{ "BOSS_ODIN" : "DESPERATE_ATTACK" },
+			] );
 	}
 }
 var EnchantedInjunctionP_Mapping = function(){
-	if( checkActiveSkillIDByConfig({
-            ID    : [ "RUNE_STRENGTHEN_P", "DESPERATE_ATTACK" ],
+	if( checkMembersIDByConfig({
+            ID    : [ "NORDIC_P", "BOSS_ODIN" ],
             check : [ "{0}>0", "{1}>0" ],
         }) ){
-		combineSkillMapping( 'ENCHANTED_INJUNCTION_P', [ ["RUNE_STRENGTHEN_P"], ["DESPERATE_ATTACK"] ] );
+		combineSkillMapping(
+			'ENCHANTED_INJUNCTION_P', [ 
+				{ "NORDIC_P" : "RUNE_STRENGTHEN_P" },
+				{ "BOSS_ODIN" : "DESPERATE_ATTACK" },
+			] );
 	}
 }
 var EnchantedInjunctionL_Mapping = function(){
-	if( checkActiveSkillIDByConfig({
-            ID    : [ "RUNE_STRENGTHEN_L", "DESPERATE_ATTACK" ],
+	if( checkMembersIDByConfig({
+            ID    : [ "NORDIC_L", "BOSS_ODIN" ],
             check : [ "{0}>0", "{1}>0" ],
         }) ){
-		combineSkillMapping( 'ENCHANTED_INJUNCTION_L', [ ["RUNE_STRENGTHEN_L"], ["DESPERATE_ATTACK"] ] );
+		combineSkillMapping(
+			'ENCHANTED_INJUNCTION_L', [ 
+				{ "NORDIC_L" : "RUNE_STRENGTHEN_L" },
+				{ "BOSS_ODIN" : "DESPERATE_ATTACK" },
+			] );
 	}
 }
 var EnchantedInjunctionD_Mapping = function(){
-	if( checkActiveSkillIDByConfig({
-            ID    : [ "RUNE_STRENGTHEN_D", "DESPERATE_ATTACK" ],
+	if( checkMembersIDByConfig({
+            ID    : [ "NORDIC_D", "BOSS_ODIN" ],
             check : [ "{0}>0", "{1}>0" ],
         }) ){
-		combineSkillMapping( 'ENCHANTED_INJUNCTION_D', [ ["RUNE_STRENGTHEN_D"], ["DESPERATE_ATTACK"] ] );
+		combineSkillMapping(
+			'ENCHANTED_INJUNCTION_D', [ 
+				{ "NORDIC_D" : "RUNE_STRENGTHEN_D" },
+				{ "BOSS_ODIN" : "DESPERATE_ATTACK" },
+			] );
+	}
+}
+
+//==============================================================
+// Dragon Servant/ethernal 
+//==============================================================
+var PearlOfDragonDuosCheck = function( place, i ){
+	return basicFunctionCombineSkillCheck( this.variable, place, i ) && 
+		checkHasElementByColorArr( [ 'h', this.variable['COLOR'], COLOR_EXCLUSIVE[this.variable['COLOR']] ] );
+}
+var DragonLashingTailCheck = function( place, i ){
+	return basicFunctionCombineSkillCheck( this.variable, place, i ) && 
+		checkHasElementByColorArr( [ 'h', COLOR_EXCLUSIVE[this.variable['COLOR']] ] );
+}
+var PearlOfDragonDuosTransfer = function( place, i ){
+    for(var id of getStackOfPanelByColorArr( [ 'h', this.variable['COLOR'], COLOR_EXCLUSIVE[this.variable['COLOR']] ] ) ){
+    	turnElementToColorByID( id, this.variable['COLOR']+"+" );
+    }    
+    var stack = getStackOfStraight(place);
+    for(var id of stack){
+        turnElementToColorByID(id, this.variable['COLOR']);
+    }
+}
+var DragonLashingTailTransfer = function( place, i ){
+    for(var id of getStackOfPanelByColorArr( [ 'h', COLOR_EXCLUSIVE[this.variable['COLOR']] ] ) ){
+    	turnElementToColorByID( id, this.variable['COLOR'] );
+    }
+}
+var PearlOfDragonDuosF_Mapping = function(){
+	if( checkMembersIDByConfig({
+            ID    : [ "ETHEREAL_DRAGON_F", "DRAGON_SERVANT_F" ],
+            check : [ "{0}>0", "{1}>0" ],
+        }) ){
+		combineSkillMapping(
+			'PEARL_OF_DRAGON_DUOS_F', [ 
+				{ "ETHEREAL_DRAGON_F" : "DEFENSIVE_STANCE_F" },
+				{ "DRAGON_SERVANT_F" : "ATTACK_REINFORCEMENT_F" },
+			] );
+	}
+}
+var PearlOfDragonDuosL_Mapping = function(){
+	if( checkMembersIDByConfig({
+            ID    : [ "ETHEREAL_DRAGON_L", "DRAGON_SERVANT_L" ],
+            check : [ "{0}>0", "{1}>0" ],
+        }) ){
+		combineSkillMapping(
+			'PEARL_OF_DRAGON_DUOS_L', [ 
+				{ "ETHEREAL_DRAGON_L" : "DEFENSIVE_STANCE_L" },
+				{ "DRAGON_SERVANT_L" : "ATTACK_REINFORCEMENT_L" },
+			] );
+	}
+}
+var DragonLashingTailMapping = function(){
+	if( checkMembersIDByConfig({
+            ID    : [ "ETHEREAL_DRAGON_P", "DRAGON_SERVANT_P" ],
+            check : [ "{0}>0", "{1}>0" ],
+        }) ){
+		combineSkillMapping(
+			'DRAGON_LASHING_TAIL', [ 
+				{ "ETHEREAL_DRAGON_P" : "DEFENSIVE_STANCE_P" },
+				{ "DRAGON_SERVANT_P" : "DRAGON_SHIELD" },
+			] );
 	}
 }
 
@@ -154,6 +227,36 @@ var COMBINE_SKILLS_DATA = {
 		preSet   : EnchantedInjunctionSetting,
 		transfer : EnchantedInjunctionTransfer,
 	},
+	PEARL_OF_DRAGON_DUOS_F : {
+		id       : 'PEARL_OF_DRAGON_DUOS_F',
+		label    : '雙龍探珠 ‧ 火',
+		info     : '心符石、木符石及火符石轉化為火強化符石，並將自身所在隊伍欄直行的符石轉化為火符石',
+		config   : [],
+		check    : PearlOfDragonDuosCheck,
+		mapping  : PearlOfDragonDuosF_Mapping,
+		preSet   : BasicCombineSkillSetting,
+		transfer : PearlOfDragonDuosTransfer,
+	},
+	PEARL_OF_DRAGON_DUOS_L : {
+		id       : 'PEARL_OF_DRAGON_DUOS_L',
+		label    : '雙龍探珠 ‧ 光',
+		info     : '心符石、暗符石及光符石轉化為光強化符石，並將自身所在隊伍欄直行的符石轉化為光符石',
+		config   : [],
+		check    : PearlOfDragonDuosCheck,
+		mapping  : PearlOfDragonDuosL_Mapping,
+		preSet   : BasicCombineSkillSetting,
+		transfer : PearlOfDragonDuosTransfer,
+	},
+	DRAGON_LASHING_TAIL : {
+		id       : 'DRAGON_LASHING_TAIL',
+		label    : '青龍擺尾',
+		info     : '心符石及水符石轉化為木符石；並回復木屬性及龍類成員 50% 生命力',
+		config   : [],
+		check    : DragonLashingTailCheck,
+		mapping  : DragonLashingTailMapping,
+		preSet   : BasicCombineSkillSetting,
+		transfer : DragonLashingTailTransfer,
+	},
 };
 
 function NewCombineSkill( id ){
@@ -164,23 +267,23 @@ function NewCombineSkill( id ){
 
 function combineSkillMapping( combineID, needArr ){
 	var combine = {};
-	$.each(needArr, function(n, needSkills){
+	$.each(needArr, function(n, needMembers){
 		combine[n] = [];
 	});
 
-	$.each(TEAM_ACTIVE_SKILL, function(trigger_place, trigger_actives){
-		$.each(trigger_actives, function(trigger_i, trigger_active){
-			var check = false;
-			var needType = -1;
-			$.each(needArr, function(n, needSkills){
-				if( needSkills.indexOf( trigger_active['id'] ) >= 0 ){
-					check = true;
-					needType = n;
-					return false;
-				}
-			});
-			if( check ){
-				combine[needType].push( { ID: trigger_active['id'], PLACE: trigger_place, i: trigger_i } );
+	$.each(TEAM_MEMBERS, function(trigger_place, member){
+		$.each(needArr, function(n, needMembers){
+			if( member['id'] in needMembers ){
+				$.each(TEAM_ACTIVE_SKILL[trigger_place], function(trigger_i, trigger_active){
+					if( trigger_active['id'] == needMembers[ member['id'] ] ){
+						combine[n].push( { 
+							ID: trigger_active['id'], 
+							PLACE: trigger_place,
+							i: trigger_i 
+						} );
+						return false;
+					}
+				});
 			}
 		});
 	});
@@ -192,7 +295,7 @@ function combineSkillMapping( combineID, needArr ){
 			var i     = location['i'];
 			var check = true;
 			var need  = $.extend(true, {}, combine);
-			$.each(needArr, function(n, needSkills){
+			$.each(needArr, function(n, needMembers){
 				if( needType == n ){
 					need[n] = [ { id: id, PLACE: place, i: i } ];
 				}else if( combine[n].length == 0 ){
@@ -220,7 +323,9 @@ console.log("check-true");
         triggerCombineByKey( place, i, "startRun" );
         triggerCombineByKey( place, i, "transfer" );
         triggerCombineByKey( place, i, "addEffect" );
+        resetActiveSkillCoolDown( place, i );
     }
+
     updateActiveCoolDownLabel();
 }
 function triggerCombineByKey( place, i, key ){
@@ -239,6 +344,16 @@ function checkCombineSkillByKey( key ){
     });    
 }
 
+function resetActiveSkillCoolDown( place, i ){
+	var VAR = TEAM_COMBINE_SKILL[place][i]['variable'];
+    var useable = checkCombineUseable( VAR['COMBINE'] );
+    for(var key in useable['locations']){
+    	var n = useable['locations'][key];
+    	var location = VAR['COMBINE'][key][n];
+    	var action = TEAM_ACTIVE_SKILL[ location.PLACE ][ location.i ];
+    	action['variable']['COOLDOWN'] = action['coolDown'];
+    }	
+}
 function checkCombineUseable( COMBINE ){
     var combineCheck = true;
     var locations = {};

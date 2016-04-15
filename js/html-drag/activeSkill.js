@@ -1193,7 +1193,7 @@ console.log("check-true");
         triggerActiveByKey( place, i, "start" );
         triggerActiveByKey( place, i, "transfer" );
         triggerActiveByKey( place, i, "addEffect" );
-        TEAM_ACTIVE_SKILL[place][i]["variable"]["COOLDOWN"] = TEAM_ACTIVE_SKILL[place][i]["coolDown"];
+        resetActiveSkillCoolDown( place, i );
 
         for(var w = 0; w < 4; w++){
             checkWakeFromOrderByKey( "transfer", place, w );
@@ -1217,6 +1217,9 @@ function checkActiveSkillByKey( key ){
     });    
 }
 
+function resetActiveSkillCoolDown( place, i ){    
+    TEAM_ACTIVE_SKILL[place][i]["variable"]["COOLDOWN"] = TEAM_ACTIVE_SKILL[place][i]["coolDown"];
+}
 function activeCoolDownUpdate(){
     $.each(TEAM_ACTIVE_SKILL, function(place, actives){
         $.each(actives, function(i, active){
