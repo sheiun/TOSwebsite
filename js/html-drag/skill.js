@@ -562,8 +562,6 @@ function setStartRunByPlayTypeAndTime( play_type, time ){
     setTimeLimit( time );
     setPlayType( play_type );
 
-    START_TIME = new Date().getTime() / 1000;
-    TIME_RUNNING = true;
-    TIME_INTERVAL = setInterval( function(){ dragTimer(); }, 10);
     MAIN_STATE = MAIN_STATE_ENUM.TIME_TO_MOVE;    
+    startToRunTimer();   
 }

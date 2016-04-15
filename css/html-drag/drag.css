@@ -55,17 +55,19 @@ body{
     position: absolute;
     z-index: 10;
 }
-#clock{
+#timeLifeIcon{
+    height: 64px;
+    width: 64px;
     position: relative;
     z-index: 3;
 }
-#timeRect{
-    background-image: url('../../img/UI/timeclip.png');
+#timeLifeRect{
+    background-image: url('../../img/UI/lifeclip.png');
     background-size: cover;
     position: absolute;
     z-index: 2;
 }
-#timeBack{
+#timeLifeBack{
     background: black;
     position: absolute;
     z-index: 1;

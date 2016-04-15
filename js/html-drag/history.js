@@ -1,5 +1,49 @@
 
 //==============================================================
+// reset
+//==============================================================
+function resetHistory(){
+    HISTORY_SHOW = 0;
+    HISTORY_RANDOM =  COLOR_RANDOM;
+    HISTORY_SKILL_VARIABLE = saveSkillVariable();
+    HISTORY_TEAM_MEMBER = saveTeamMembers();
+    HISTORY = [];
+    INITIAL_PANEL = [];
+    for(var i = 0; i < TR_NUM*TD_NUM; i++){
+        if( $("#dragContainment tr td").eq(i).find("img") == 0 ){
+            INITIAL_PANEL.push( undefined );
+        }else{
+            try{
+                var item = $("#dragContainment tr td").eq(i).find("img.over").attr("item");
+                INITIAL_PANEL.push( item );
+            }catch(e){
+                INITIAL_PANEL.push( undefined );
+            }
+        }
+    }
+    FINAL_PANEL = [];
+}
+function recordFinal(){
+    FINAL_PANEL = [];
+    for(var i = 0; i < TR_NUM*TD_NUM; i++){
+        if( $("#dragContainment tr td").eq(i).find("img") == 0 ){
+            INITIAL_PANEL.push( undefined );
+        }else{
+            try{
+                var item = $("#dragContainment tr td").eq(i).find("img.under").attr("item");
+                FINAL_PANEL.push( item );
+            }catch(e){
+                FINAL_PANEL.push( undefined );
+            }
+        }
+    }
+
+    var record = LZString.compressToEncodedURIComponent( parseDownloadJson() );
+    var url = $.url("hostname")+$.url("path")+"?record="+record;
+    $('#clipboard').attr("data-clipboard-text", url);
+}
+
+//==============================================================
 // show history path
 //==============================================================
 function backInitColor(){

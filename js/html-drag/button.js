@@ -56,7 +56,7 @@ $(document).ready( function(){
 
     setTimeout( function(){
         resetHistory();
-        resetTimeDiv();
+        resetTimeLifeDiv();
     }, 10);
 });
 
@@ -210,7 +210,7 @@ function startEditTeam(){
     $("#TeamMember").show();
     $("#OpenSysInfo").show();
     $("#CloseSysInfo").hide();
-    resetTimeDiv();
+    resetTimeLifeDiv();
     showTeamInfomation();
 }
 function closeEditTeam(){
@@ -308,12 +308,29 @@ $("#locusSelect").change(function (){
 //==============================================================
 // Show Result
 //==============================================================
-function showTime(now){    
+function showTime(){
+    var now = new Date().getTime() / 1000;  
     var timeFraction = ( TIME_LIMIT - ( now - START_TIME ) )/TIME_LIMIT;
-    $("#timeRect").css( "clip", "rect(0px, "+
-        parseInt($("#timeBack").css("width"))*timeFraction+"px,"+
-        parseInt($("#timeBack").css("height"))+"px, 0px)" );
+    $("#timeLifeRect").stop().css( "clip", "rect(0px, "+
+        parseInt($("#timeLifeBack").css("width"))*timeFraction+"px,"+
+        parseInt($("#timeLifeBack").css("height"))+"px, 0px)" );
 }
+function showLife(){
+    var lifeFraction = HEALTH_POINT / TOTAL_HEALTH_POINT;
+    $("#timeLifeRect").stop().css( "clip", "rect(0px, "+
+        parseInt($("#timeLifeBack").css("width"))*lifeFraction+"px,"+
+        parseInt($("#timeLifeBack").css("height"))+"px, 0px)" );
+}
+function showLifeInjureAnimate(){
+    var lifeFraction = HEALTH_POINT / TOTAL_HEALTH_POINT;
+    $("#timeLifeRect").stop().animate( {
+        "clip" : "rect(0px, "+
+                parseInt($("#timeLifeBack").css("width"))*lifeFraction+"px,"+
+                parseInt($("#timeLifeBack").css("height"))+"px, 0px)",
+    }, ATTACK_INFO_TIME );
+}
+
+
 function setHistoryShow(){    
     $("#historyNum").text( HISTORY_SHOW );
 }
@@ -499,7 +516,7 @@ function resetTeamMembers(){
     resetTeamComposition();
     showTeamInfomation();
     showActiveInfomation();
-    resetTimeDiv();
+    resetTimeLifeDiv();
     restartGame();
 }
 
@@ -564,7 +581,8 @@ function showResult(){
     $("#BattleInfomation").append( 
         $("<span></span>").text("現在生命值 : "+HEALTH_POINT+" / "+TOTAL_HEALTH_POINT )
     ).append("<br>");
-    resetTimeDiv();
+    resetTimeLifeDiv();
+    showLifeInjureAnimate();
 }
 function showTeamInfomation(){
     $.each(TEAM_MEMBERS, function(place, member){

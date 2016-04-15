@@ -179,10 +179,10 @@
                 </table>
                 <br>
 
-                <div id="Time" >
-                    <img id="clock" src="img/UI/clock.png">
-                    <div id="timeRect"></div>
-                    <div id="timeBack"></div>
+                <div id="TimeLife" >
+                    <img id="timeLifeIcon" src="img/UI/heart.png">
+                    <div id="timeLifeRect"></div>
+                    <div id="timeLifeBack"></div>
                 </div>
 
                 <canvas id="dragCanvas"></canvas>
@@ -408,7 +408,9 @@
     <script type="text/javascript" src="js/scrollbar/jquery.mCustomScrollbar.concat.min.js"></script>
     <script type="text/javascript" src="js/LZstring/lz-string.min.js"></script>
     <script type="text/javascript" src="js/msdropdown/jquery.dd.js"></script>
+    <script type="text/javascript" src="js/utility.js"></script>
 
+    <script type="text/javascript" src="js/html-drag/gameStage.js"></script>
     <script type="text/javascript" src="js/html-drag/drag.js"></script>
     <script type="text/javascript" src="js/html-drag/skill.js"></script>
     <script type="text/javascript" src="js/html-drag/teamComposition.js"></script>
@@ -424,16 +426,6 @@
 
     <script type="text/javascript" src="js/html-drag/history.js"></script>
     <script type="text/javascript" src="js/html-drag/button.js"></script>
-    <script type="text/javascript">
-      String.prototype.format = function(){
-        var args = arguments;
-        return this.replace(/\{(\d+)\}/g, function (m, n) { return args[n]; });
-      };
-      String.prototype.formatByArray = function(){
-        var args = arguments[0];
-        return this.replace(/\{(\d+)\}/g, function (m, n) { return args[n]; });
-      };
-    </script>
 </body>
 
 </html>
