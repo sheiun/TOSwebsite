@@ -44,14 +44,14 @@ function resetCount(){
         } 
     };
 
-    COUNT_COLOR_FACTOR          = { 'w': 1, 'f': 1, 'p': 1, 'l': 1, 'd': 1, '': 1 };
+    COUNT_COLOR_FACTOR          = { 'w': 1, 'f': 1, 'p': 1, 'l': 1, 'd': 1, '_': 1 };
     COUNT_COLOR_TO_COLOR_FACTOR ={
-        'w': { 'w': 1,   'f': 1.5, 'p': 0.5, 'l': 1,   'd': 1,   '': 1 },
-        'f': { 'w': 0.5, 'f': 1,   'p': 1.5, 'l': 1,   'd': 1,   '': 1 },
-        'p': { 'w': 1.5, 'f': 0.5, 'p': 1,   'l': 1,   'd': 1,   '': 1 },
-        'l': { 'w': 1,   'f': 1,   'p': 1,   'l': 1,   'd': 1.5, '': 1 },
-        'd': { 'w': 1,   'f': 1,   'p': 1,   'l': 1.5, 'd': 1,   '': 1 },
-        '' : { 'w': 1,   'f': 1,   'p': 1,   'l': 1,   'd': 1,   '': 1 },
+        'w': { 'w': 1,   'f': 1.5, 'p': 0.5, 'l': 1,   'd': 1,   '_': 1 },
+        'f': { 'w': 0.5, 'f': 1,   'p': 1.5, 'l': 1,   'd': 1,   '_': 1 },
+        'p': { 'w': 1.5, 'f': 0.5, 'p': 1,   'l': 1,   'd': 1,   '_': 1 },
+        'l': { 'w': 1,   'f': 1,   'p': 1,   'l': 1,   'd': 1.5, '_': 1 },
+        'd': { 'w': 1,   'f': 1,   'p': 1,   'l': 1.5, 'd': 1,   '_': 1 },
+        '_': { 'w': 1,   'f': 1,   'p': 1,   'l': 1,   'd': 1,   '_': 1 },
     };
 
     COUNT_INJURE_REDUCE         = 1;
@@ -75,28 +75,26 @@ function resetShowPersonAtkRec(){
 //==============================================================
 function countAttack(){
     resetShowPersonAtkRec();
+    resetAttackRecoverStack();
     resetCount();
     resetEnemyStatus();
 
     countComboStacks();    
+    checkHARSettingBeforeBattle();
     checkAttackRecoverBeforeBattle();
+    countBelongColorCombo();    
 
     $.each(TEAM_MEMBERS, function(membe_place, member){
         makeMemberAttack(membe_place, member);
         makeMemberRecover(membe_place, member);
     });
+    countHealthRecover();
     checkAttackRecoverMapping();
 
     $.each(ATTACK_STACK, function(i, attack){
         mapAttackToEnemy(i, attack);
     });
     checkAttackRecoverDamage();
-
-    $.each(ENEMY, function(i, enemy){
-        enemyStatusUpdate(i, enemy);        
-    });
-
-    countHealthRecover();
 }
 function countEnemyAction(){
     checkInjureReduce();
@@ -107,6 +105,9 @@ function countEnemyAction(){
 }
 
 
+function checkHARSettingBeforeBattle(){
+    checkLeaderSkillByKey( "H_A_R" );
+}
 function checkAttackRecoverBeforeBattle(){
     checkLeaderSkillByKey( "attack" );
     checkLeaderSkillByKey( "recover" );
@@ -140,6 +141,9 @@ function checkWillAfterBattle(){
     checkLeaderSkillByKey( "will" );
 }
 
+//==============================================================
+// clean combo to count 
+//==============================================================
 function countComboStacks(){
     for(var obj of COMBO_STACK){
         var c = obj['color'];
@@ -148,6 +152,15 @@ function countComboStacks(){
         COUNT_STRONG[c] += obj['strong_amount'];
         COUNT_SETS[c] += 1;
 
+        if( obj['drop_wave'] == 0 ){
+            COUNT_FIRST_SETS[c] += 1;
+            COUNT_FIRST_AMOUNT[c] += obj['amount'];
+        }
+    }
+}
+function countBelongColorCombo(){
+    for(var obj of COMBO_STACK){
+        var c = obj['color'];
         for(var belong_color in COUNT_BELONG_COLOR[c]){
             if( COUNT_BELONG_COLOR[c][belong_color] > 0 ){
                 COUNT_BELONG_AMOUNT[belong_color] += obj['amount'] * COUNT_BELONG_COLOR[c][belong_color];
@@ -156,29 +169,22 @@ function countComboStacks(){
                 COUNT_BELONG_SETS[belong_color] += 1;
             }
         }
-
-        if( obj['drop_wave'] == 0 ){
-            COUNT_FIRST_SETS[c] += 1;
-            COUNT_FIRST_AMOUNT[c] += obj['amount'];
-        }
     }
 }
 
+//==============================================================
+// member attack/recover
+//==============================================================
 function makeMemberAttack(membe_place, member){
     var color = member["color"];
-    var attack = {
-        base   : member["attack"],
-        color  : member["color"],
-        type   : member['type'],
-        goal   : "single",
-        strong : false,
-        style  : "person",
-        place  : membe_place,
-        target : [],
-        factor : 1,
-        damage : 0,
-        log    : "",
-    };
+    var attack = makeNewAttack();
+    attack['base']  = member["attack"];
+    attack['color'] = color;
+    attack['factor']= 1;
+    attack['place'] = membe_place;
+    attack['style'] = "person";
+    attack['type']  = member["type"];
+    attack['log']   = member["attack"]+"*1";
 
     if( COUNT_MAX_AMOUNT[color] >= 5 || COUNT_BELONG_MAX_AMOUNT[color] >= 5 ){
         attack['goal'] = "all";
@@ -210,16 +216,14 @@ function makeMemberAttack(membe_place, member){
     ATTACK_STACK.push( attack );
 }
 function makeMemberRecover(membe_place, member){
-    var color = member["color"];
-    var recover = {
-        style  : "person",
-        place  : membe_place,
-        base   : member["recovery"],
-        color  : member["color"],
-        type   : member['type'],
-        factor : 1,
-        log    : "",
-    };
+    var recover = makeNewRecover();
+    recover['base']  = member["recovery"];
+    recover['color'] = member["color"];
+    recover['factor']= 1;
+    recover['place'] = membe_place;
+    recover['style'] = "person";
+    recover['type']  = member["type"];
+    recover['log']   = member["recovery"]+"*1";
 
     var rec        = ( 1+ ( COUNT_COMBO-1 ) * COUNT_RECOVER_COMBO_COEFF ) *
                      ( ( COUNT_AMOUNT['h'] + COUNT_BELONG_AMOUNT['h'] +
@@ -243,13 +247,32 @@ function makeMemberRecover(membe_place, member){
     RECOVER_STACK.push( recover );    
 }
 
-function mapAttackToEnemy( i, attack ){
+
+//==============================================================
+// action 1 : team recover health
+//==============================================================
+function countHealthRecover(){
+    var total_recover = 0;
+    $.each(RECOVER_STACK, function(i, recover){
+        var rec = Math.round( recover["base"] * recover["factor"] );
+        total_recover += rec;
+        showPersonRecover( recover );
+    });
+
+    HEALTH_POINT = Math.min( TOTAL_HEALTH_POINT, Math.round( HEALTH_POINT+total_recover ) );
+    showTotalRecover( total_recover );
+}
+//==============================================================
+// action 2 : team attack enemy
+//==============================================================
+function mapAttackToEnemy( a, attack ){
     showPersonAttack( attack );
+
     if( attack['goal'] == "single" ){
         // TODO : enemy priority select
         var target = 0;
         $.each(ENEMY, function(i, enemy){
-            if( enemy['variable']['SUFFER'] < enemy['variable']['HEALTH'] ){
+            if( enemy['variable']['HEALTH'] > 0 ){
                 target = i;
                 return false;
             }
@@ -268,51 +291,39 @@ function mapAttackToEnemy( i, attack ){
 function countEnemySufferAttack( enemy, attack ){
     var color = attack['color'];
     var e_color = enemy['variable']['COLOR'];
-    attack['factor'] *= COUNT_COLOR_FACTOR[color] * COUNT_COLOR_TO_COLOR_FACTOR[color][e_color];
+    attack['factor'] *=     COUNT_COLOR_FACTOR[color] *   COUNT_COLOR_TO_COLOR_FACTOR[color][e_color];
     attack['log']    += '*'+COUNT_COLOR_FACTOR[color]+'*'+COUNT_COLOR_TO_COLOR_FACTOR[color][e_color];
 
+    // check if attack luanch
     var atk = Math.round( attack["base"] * attack["factor"] );
     if( atk > 0 ){
-        atk -= enemy['variable']['DEFENCE'];
-        atk = Math.max( 1, atk-enemy['variable']['DEFENCE'] );
+        // attack go throung defence & enemy ability, log the true attack damge
+        if( attack['style'] != "activeDirectDamage" ){
+            atk = Math.max( 1, atk-enemy['variable']['DEFENCE'] );
+        }
         attack['damage'] = atk;
-        enemy['variable']['SUFFER'] += atk;
+
+        // check if effective attack
         if( atk > 1 ){
             enemy['variable']['HATRED'].push( attack );
         }
+
+        // update enemy suffer
+        enemy['variable']['SUFFER'] += atk;
+        enemy['variable']['HEALTH'] = Math.max( 0, enemy['variable']['HEALTH']-atk )
     }
 }
 
-function enemyStatusUpdate( i, enemy ){
-    showEnemySuffer( i, enemy );
-
-    if( enemy['variable']['SUFFER'] >= enemy['variable']['HEALTH'] ){
-        enemy['variable']['HEALTH'] = 0;
-    }else{
-        enemy['variable']['HEALTH'] -= enemy['variable']['SUFFER'];
-    }
-}
-
-function countHealthRecover(){
-    var total_recover = 0;
-    $.each(RECOVER_STACK, function(i, recover){
-        var rec = Math.round( recover["base"] * recover["factor"] );
-        total_recover += rec;
-        showPersonRecover( recover );
-    });
-    showTotalRecover( total_recover );
-
-    HEALTH_POINT = Math.min( TOTAL_HEALTH_POINT, Math.round( HEALTH_POINT+total_recover ) );
-}
 
 //==============================================================
-// Enemy Action
+// action 3 : enemy launch injure
 //==============================================================
 function enemyActionUpdate(i, enemy){
-console.log("enemy:"+i);
     if( enemy['variable']['HEALTH'] <= 0 ){ return false; }
 
     enemy['variable']['COOLDOWN'] -= 1;
+
+    // enemy luanch injure when CD == 0
     if( enemy['variable']['COOLDOWN'] == 0 ){
         enemy['variable']['COOLDOWN'] = enemy['coolDown'];
 
@@ -322,10 +333,11 @@ console.log("enemy:"+i);
             damage       : enemy['variable']['ATTACK'],
             color        : enemy['variable']['COLOR'],
         };
+
+        // consider injure reduce by skill
         if( !("INJURE_REDUCEABLE" in enemy['variable']) || enemy['variable']["INJURE_REDUCEABLE"] ){
             injure['damage'] *= COUNT_INJURE_REDUCE;
         }
-console.log("injure:"+injure['damage']);
         INJURE_STACK.push(injure);
     }
 }
@@ -365,37 +377,37 @@ function checkTeamStatus(){
     return true;
 }
 
+//==============================================================
+// Direct Attack/Recover By Active skill
+//==============================================================
+function makeDirectAttack( attack ){
+    resetAttackRecoverStack();
+    resetCount();
+    resetEnemyStatus();
 
-//==============================================================
-// Game Start/End
-//==============================================================
-function startGame(){
-    PLAY_TURN  = 0;
-    HEALTH_POINT = TOTAL_HEALTH_POINT;
-    gotoNextLevelEnemy();
-    nextMoveWave();
-}
-function endGame(){
-    showEndGame();
-    if( GAME_MODE == GAME_MODE_ENUM.REPEAT ){
-        restartGame();
+    mapAttackToEnemy( 0, attack );
+    resetAttackRecoverStack();
+
+    $.each(ENEMY, function(i, enemy){
+        showEnemySuffer( i, enemy );
+    });
+
+    if( ! checkTeamStatus() ){
+        showLoseGame();
+        endGame();
+    }else if( ! checkEnemyStatus() ){
+        showWinGame();
+        endGame();
     }
 }
-function restartGame(){
-    resetGameWaves();
-    startGame();
-}
-function gotoNextLevelEnemy(){
-    GAME_PROGRESS += 1;
-    if( GAME_PROGRESS < GAME_WAVES.length ){
-        showNextLevel();
-        ENEMY = [];
-        game_wave = GAME_WAVES[GAME_PROGRESS];
-        $.each(game_wave, function(i, enemyID){
-            ENEMY.push( NewEnemy(enemyID) );
-        });
-    }else{
-        return false;
-    }
-    return true;
+function makeDirectRecovery( recover ){ 
+    resetAttackRecoverStack();
+    resetCount();
+    resetEnemyStatus();
+
+    RECOVER_STACK.push(recover);
+    countHealthRecover();
+
+    showResult()
+    resetAttackRecoverStack();    
 }

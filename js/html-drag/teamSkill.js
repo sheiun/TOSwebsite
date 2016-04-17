@@ -225,33 +225,152 @@ var TeamCoupleFPMapping = function(){
 }
 
 //==============================================================
+// Dragon Servant
+//==============================================================
+var DragonServantSetting = function( LEADER, FRIEND ){
+    if( ( TEAM_LEADER['id'] == "DRAGON_SERVANT_W" || TEAM_FRIEND['id'] == "DRAGON_SERVANT_W" ) &&
+        checkMembersIDByConfig( {
+            ID    : [ "DRAGON_SERVANT_W", "ETHEREAL_DRAGON_W" ],
+            check : [ "{0}>=1", "{1}>=1"  ],
+        } ) ){
+        increaseHARByLastMember("DRAGON_SERVANT_W", 1, 1.3, 1 );
+        increaseHARByLastMember("ETHEREAL_DRAGON_W", 1, 1.3, 1 );
+    }
+    if( ( TEAM_LEADER['id'] == "DRAGON_SERVANT_F" || TEAM_FRIEND['id'] == "DRAGON_SERVANT_F" ) &&
+        checkMembersIDByConfig( {
+            ID    : [ "DRAGON_SERVANT_F", "ETHEREAL_DRAGON_F" ],
+            check : [ "{0}>=1", "{1}>=1"  ],
+        } ) ){
+        increaseHARByLastMember("DRAGON_SERVANT_F", 1, 1.3, 1 );
+        increaseHARByLastMember("ETHEREAL_DRAGON_F", 1, 1.3, 1 );
+    }
+    if( ( TEAM_LEADER['id'] == "DRAGON_SERVANT_P" || TEAM_FRIEND['id'] == "DRAGON_SERVANT_P" ) &&
+        checkMembersIDByConfig( {
+            ID    : [ "DRAGON_SERVANT_P", "ETHEREAL_DRAGON_P" ],
+            check : [ "{0}>=1", "{1}>=1"  ],
+        } ) ){
+        increaseHARByLastMember("DRAGON_SERVANT_P", 1, 1.3, 1 );
+        increaseHARByLastMember("ETHEREAL_DRAGON_P", 1, 1.3, 1 );
+    }
+    if( ( TEAM_LEADER['id'] == "DRAGON_SERVANT_L" || TEAM_FRIEND['id'] == "DRAGON_SERVANT_L" ) &&
+        checkMembersIDByConfig( {
+            ID    : [ "DRAGON_SERVANT_L", "ETHEREAL_DRAGON_L" ],
+            check : [ "{0}>=1", "{1}>=1"  ],
+        } ) ){
+        increaseHARByLastMember("DRAGON_SERVANT_L", 1, 1.3, 1 );
+        increaseHARByLastMember("ETHEREAL_DRAGON_L", 1, 1.3, 1 );
+    }
+    if( ( TEAM_LEADER['id'] == "DRAGON_SERVANT_D" || TEAM_FRIEND['id'] == "DRAGON_SERVANT_D" ) &&
+        checkMembersIDByConfig( {
+            ID    : [ "DRAGON_SERVANT_D", "ETHEREAL_DRAGON_D" ],
+            check : [ "{0}>=1", "{1}>=1"  ],
+        } ) ){
+        increaseHARByLastMember("DRAGON_SERVANT_D", 1, 1.3, 1 );
+        increaseHARByLastMember("ETHEREAL_DRAGON_D", 1, 1.3, 1 );
+    }
+    return {};
+}
+var DragonServantMapping = function(){
+    if( (   ( TEAM_LEADER['id'] == "DRAGON_SERVANT_W" || TEAM_FRIEND['id'] == "DRAGON_SERVANT_W" ) &&
+            checkMembersIDByConfig( {
+                ID    : [ "DRAGON_SERVANT_W", "ETHEREAL_DRAGON_W" ],
+                check : [ "{0}>=1", "{1}>=1"  ],
+            } ) ) || 
+        (   ( TEAM_LEADER['id'] == "DRAGON_SERVANT_F" || TEAM_FRIEND['id'] == "DRAGON_SERVANT_F" ) &&
+            checkMembersIDByConfig( {
+                ID    : [ "DRAGON_SERVANT_F", "ETHEREAL_DRAGON_F" ],
+                check : [ "{0}>=1", "{1}>=1"  ],
+            } ) ) || 
+        (   ( TEAM_LEADER['id'] == "DRAGON_SERVANT_P" || TEAM_FRIEND['id'] == "DRAGON_SERVANT_P" ) &&
+            checkMembersIDByConfig( {
+                ID    : [ "DRAGON_SERVANT_P", "ETHEREAL_DRAGON_P" ],
+                check : [ "{0}>=1", "{1}>=1"  ],
+            } ) ) || 
+        (   ( TEAM_LEADER['id'] == "DRAGON_SERVANT_L" || TEAM_FRIEND['id'] == "DRAGON_SERVANT_L" ) &&
+            checkMembersIDByConfig( {
+                ID    : [ "DRAGON_SERVANT_L", "ETHEREAL_DRAGON_L" ],
+                check : [ "{0}>=1", "{1}>=1"  ],
+            } ) ) || 
+        (   ( TEAM_LEADER['id'] == "DRAGON_SERVANT_D" || TEAM_FRIEND['id'] == "DRAGON_SERVANT_D" ) &&
+            checkMembersIDByConfig( {
+                ID    : [ "DRAGON_SERVANT_D", "ETHEREAL_DRAGON_D" ],
+                check : [ "{0}>=1", "{1}>=1"  ],
+            } ) ) ){
+        basicTeamSkillAdd( this.id );
+    }
+}
+//==============================================================
+var DragonResonanceWSetting = function(){
+    increaseHARByLastMember("ETHEREAL_DRAGON_W", 1.3, 1, 1 );
+    return {};
+}
+var DragonResonanceWMapping = function(){
+    if( checkMembersIDByConfig( {
+            ID    : [ "DRAGON_SERVANT_W", "ETHEREAL_DRAGON_W" ],
+            check : [ "{0}>=1", "{1}>=1" ],
+        } ) ){
+        basicTeamSkillAdd( this.id );
+    }
+}
+var DragonResonanceFSetting = function(){
+    increaseHARByLastMember("ETHEREAL_DRAGON_F", 1, 1, 4 );
+    return {};
+}
+var DragonResonanceFMapping = function(){
+    if( checkMembersIDByConfig( {
+            ID    : [ "DRAGON_SERVANT_F", "ETHEREAL_DRAGON_F" ],
+            check : [ "{0}>=1", "{1}>=1" ],
+        } ) ){
+        basicTeamSkillAdd( this.id );
+    }
+}
+var DragonResonancePSetting = function(){
+    increaseHARByLastMember("ETHEREAL_DRAGON_P", 1.3, 1, 1 );
+    return {};
+}
+var DragonResonancePMapping = function(){
+    if( checkMembersIDByConfig( {
+            ID    : [ "DRAGON_SERVANT_P", "ETHEREAL_DRAGON_P" ],
+            check : [ "{0}>1", "{1}>1" ],
+        } ) ){
+        basicTeamSkillAdd( this.id );
+    }
+}
+var DragonResonanceLSetting = function(){
+    increaseHARByLastMember("ETHEREAL_DRAGON_L", 1.2, 1, 1 );
+    reduceCoolDownByLastMember("ETHEREAL_DRAGON_L", "THUNDER_STRIKE_EX", 3 );
+    return {};
+}
+var DragonResonanceLMapping = function(){
+    if( checkMembersIDByConfig( {
+            ID    : [ "DRAGON_SERVANT_L", "ETHEREAL_DRAGON_L" ],
+            check : [ "{0}>=1", "{1}>=1" ],
+        } ) ){
+        basicTeamSkillAdd( this.id );
+    }
+}
+var DragonResonanceDSetting = function(){
+    increaseHARByLastMember("ETHEREAL_DRAGON_D", 1.2, 1, 1 );
+    reduceCoolDownByLastMember("ETHEREAL_DRAGON_D", "DARKNESS_ASSAULT_EX", 3 );
+    return {};
+}
+var DragonResonanceDMapping = function(){
+    if( checkMembersIDByConfig( {
+            ID    : [ "DRAGON_SERVANT_D", "ETHEREAL_DRAGON_D" ],
+            check : [ "{0}>=1","{1}>=1" ],
+        } ) ){
+        basicTeamSkillAdd( this.id );
+    }
+}
+
+//==============================================================
 // Common Source
 //==============================================================
 var TeamCommonSourceSetting = function( LEADER, FRIEND ){
-    $.each(TEAM_MEMBERS, function(i, member){
-        if( member['id'] == "LIXIAOYAO" ){
-            member['health'] = Math.round( 1.3*member['health'] );
-            member['attack'] = Math.round( 1.3*member['attack'] );
-            member['recovery'] = Math.round( 1.3*member['recovery'] );
-            return false;
-        }
-    });
-    $.each(TEAM_MEMBERS, function(i, member){
-        if( member['id'] == "ZHAOLINGER" ){
-            member['health'] = Math.round( 1.3*member['health'] );
-            member['attack'] = Math.round( 1.3*member['attack'] );
-            member['recovery'] = Math.round( 1.3*member['recovery'] );
-            return false;
-        }
-    });
-    $.each(TEAM_MEMBERS, function(i, member){
-        if( member['id'] == "LINYUERU" ){
-            member['health'] = Math.round( 1.3*member['health'] );
-            member['attack'] = Math.round( 1.3*member['attack'] );
-            member['recovery'] = Math.round( 1.3*member['recovery'] );
-            return false;
-        }
-    });
+    increaseHARByLastMember("LIXIAOYAO", 1.3, 1.3, 1.3 );
+    increaseHARByLastMember("ZHAOLINGER", 1.3, 1.3, 1.3 );
+    increaseHARByLastMember("LINYUERU", 1.3, 1.3, 1.3 );
+    return {};
 }
 var TeamCommonSourceMapping = function(){
     if( ( ( TEAM_LEADER['id'] == "LIXIAOYAO" || TEAM_LEADER['id'] == "ZHAOLINGER" ||
@@ -365,21 +484,47 @@ var TEAM_SKILLS_DATA = {
         newItem   : TeamGreekSkill,
         preSet    : TeamGreekSetting,
     },
-    BABYLON : {
-        id        : 'BABYLON',
-        label     : '蒼穹祈願',
-        info      : '隊長技能變為指定屬性攻擊力 3 倍。2 或以上直行消除 4 粒或以上符石時（只計算首批消除的符石），全隊攻擊力提升，最大 1.5 倍',
-        attack    : TeamBabylonAttack,
-        mapping   : TeamBabylonMapping,
-        preSet    : TeamBabylonSetting,
+    DRAGON_SERVANT : {
+        id        : 'DRAGON_SERVANT',
+        label     : '龍裔之力',
+        info      : '隊伍中最左方的龍僕系列與最左方的異界龍系列的召喚獸自身攻擊力提升至 1.3 倍',
+        mapping   : DragonServantMapping,
+        preSet    : DragonServantSetting,
     },
-    DARK_LUCIFER : {
-        id        : 'DARK_LUCIFER',
-        label     : '墮落之心 ‧ 妖精',
-        info      : '心符石兼具所有屬性符石效果。於 2 直行或以上消除 4 粒或以上符石時 (只計算首批消除的符石)，全隊攻擊力提升，最大 1.5 倍',
-        attack    : TeamDarkLuciferAttack,
-        mapping   : TeamDarkLuciferMapping,
-        preSet    : NoneSetting,
+    DRAGON_RESONANCE_W : {
+        id        : 'DRAGON_RESONANCE_W',
+        label     : '龍魂共鳴 ‧ 漩渦',
+        info      : '最左方的 深潛之主宰 ‧ 達貢 的自身生命力提升 1.3 倍',
+        mapping   : DragonResonanceWMapping,
+        preSet    : DragonResonanceWSetting,
+    },
+    DRAGON_RESONANCE_F : {
+        id        : 'DRAGON_RESONANCE_F',
+        label     : '龍魂共鳴 ‧ 焰芒',
+        info      : '最左方的 冥炎之子嗣 ‧ 克圖格亞 的自身回復力提升 4 倍',
+        mapping   : DragonResonanceFMapping,
+        preSet    : DragonResonanceFSetting,
+    },
+    DRAGON_RESONANCE_P : {
+        id        : 'DRAGON_RESONANCE_P',
+        label     : '龍魂共鳴 ‧ 呼嘯',
+        info      : '最左方的 撕星怒嘯者 ‧ 拜亞基 的自身生命力提升 1.3 倍',
+        mapping   : DragonResonancePMapping,
+        preSet    : DragonResonancePSetting,
+    },
+    DRAGON_RESONANCE_L : {
+        id        : 'DRAGON_RESONANCE_L',
+        label     : '龍魂共鳴 ‧ 聖焰',
+        info      : '最左方的 捕芒之聖主 ‧ 圖爾茲查 的自身生命力提升 1.2 倍及主動技能 CD 減少 3',
+        mapping   : DragonResonanceLMapping,
+        preSet    : DragonResonanceLSetting,
+    },
+    DRAGON_RESONANCE_D : {
+        id        : 'DRAGON_RESONANCE_D',
+        label     : '龍魂共鳴 ‧ 吞噬',
+        info      : '最左方的 怖慄飼食者 ‧ 法格恩 的自身生命力提升 1.2 倍及主動技能 CD 減少 3',
+        mapping   : DragonResonanceDMapping,
+        preSet    : DragonResonanceDSetting,
     },
     COUPLE_FF : {
         id        : 'COUPLE_FF',
@@ -411,6 +556,22 @@ var TEAM_SKILLS_DATA = {
         info      : '最左方的李逍遙、趙靈兒、林月如及阿奴，其自身的生命力、攻擊力及回復力提升 1.3 倍',
         mapping   : TeamCommonSourceMapping,
         preSet    : TeamCommonSourceSetting,
+    },
+    BABYLON : {
+        id        : 'BABYLON',
+        label     : '蒼穹祈願',
+        info      : '隊長技能變為指定屬性攻擊力 3 倍。2 或以上直行消除 4 粒或以上符石時（只計算首批消除的符石），全隊攻擊力提升，最大 1.5 倍',
+        attack    : TeamBabylonAttack,
+        mapping   : TeamBabylonMapping,
+        preSet    : TeamBabylonSetting,
+    },
+    DARK_LUCIFER : {
+        id        : 'DARK_LUCIFER',
+        label     : '墮落之心 ‧ 妖精',
+        info      : '心符石兼具所有屬性符石效果。於 2 直行或以上消除 4 粒或以上符石時 (只計算首批消除的符石)，全隊攻擊力提升，最大 1.5 倍',
+        attack    : TeamDarkLuciferAttack,
+        mapping   : TeamDarkLuciferMapping,
+        preSet    : NoneSetting,
     },
     DEVIL_ILLUSION : {
         id        : 'DEVIL_ILLUSION',

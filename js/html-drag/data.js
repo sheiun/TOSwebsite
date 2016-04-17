@@ -1,7 +1,7 @@
 //==============================================================
 // Character Database
 //==============================================================
-var CHARACTERS = {
+var CHARACTERS_DATA = {
     NONE : {
         id           : "NONE",
         label        : "瘋頭",
@@ -331,6 +331,36 @@ var CHARACTERS = {
         wake_info    : [ "攻擊力+90", "進關後冷卻回合-1", "生命力+500", "直排心符石掉落提升至25%" ],
         leader       : "DRAGON_OFFENSE",
         active       : [ "DEFENSIVE_STANCE_P" ],
+    },
+    ETHEREAL_DRAGON_L : {
+        id           : "ETHEREAL_DRAGON_L",
+        label        : "捕芒之聖主 ‧ 圖爾茲查",
+        img          : "img/Special/7/l3.png",
+        color        : "l",
+        type         : "DRAGON",
+        health       : 3697,
+        attack       : 1108,
+        recovery     : 133,
+        wake         : [ "H_A_R_INCREASE", "ACTIVE_COOLDOWN_BEGINING", "H_A_R_INCREASE", "DROP_INCREASE" ],
+        wake_var     : [ [0,90,0], 2, [500,0,0], ['h',0.25] ],
+        wake_info    : [ "攻擊力+90", "進關後冷卻回合-2", "生命力+500", "直排心符石掉落提升至25%" ],
+        leader       : "PULSE_OF_DRAGON",
+        active       : [ "THUNDER_STRIKE_EX" ],
+    },
+    ETHEREAL_DRAGON_D : {
+        id           : "ETHEREAL_DRAGON_D",
+        label        : "怖慄飼食者 ‧ 法格恩",
+        img          : "img/Special/7/d3.png",
+        color        : "d",
+        type         : "DRAGON",
+        health       : 3373,
+        attack       : 1308,
+        recovery     : 120,
+        wake         : [ "H_A_R_INCREASE", "ACTIVE_COOLDOWN_BEGINING", "H_A_R_INCREASE", "DROP_INCREASE" ],
+        wake_var     : [ [0,90,0], 2, [500,0,0], ['h',0.25] ],
+        wake_info    : [ "攻擊力+90", "進關後冷卻回合-2", "生命力+500", "直排心符石掉落提升至25%" ],
+        leader       : "DRAGON_DEFENSE",
+        active       : [ "DARKNESS_ASSAULT_EX" ],
     },
     DRAGON_SERVANT_W : {
         id           : "DRAGON_SERVANT_W",
@@ -830,36 +860,8 @@ var CHARACTERS = {
 };
 
 function NewCharacter( id ){
-    return {
-        id       : id,
-        label    : CHARACTERS[id]["label"],
-        img      : CHARACTERS[id]["img"],
-        color    : CHARACTERS[id]["color"],
-        type     : CHARACTERS[id]["type"],
-        health   : CHARACTERS[id]["health"],
-        attack   : CHARACTERS[id]["attack"],
-        recovery : CHARACTERS[id]["recovery"],
-        wake     : [
-            CHARACTERS[id]["wake"][0],
-            CHARACTERS[id]["wake"][1],
-            CHARACTERS[id]["wake"][2],
-            CHARACTERS[id]["wake"][3]
-        ],
-        wake_var : [
-            CHARACTERS[id]["wake_var"][0],
-            CHARACTERS[id]["wake_var"][1],
-            CHARACTERS[id]["wake_var"][2],
-            CHARACTERS[id]["wake_var"][3]
-        ],
-        wake_info : [
-            CHARACTERS[id]["wake_info"][0],
-            CHARACTERS[id]["wake_info"][1],
-            CHARACTERS[id]["wake_info"][2],
-            CHARACTERS[id]["wake_info"][3]
-        ],
-        leader   : CHARACTERS[id]["leader"],
-        active   : CHARACTERS[id]["active"],
-    };
+    var characterObj = $.extend(true, {}, CHARACTERS_DATA[id]);
+    return characterObj;
 }
 
 //==============================================================
@@ -867,19 +869,20 @@ function NewCharacter( id ){
 //==============================================================
 
 var COLOR_LETTERS = [
-    { 'w': '水', 'f': '火', 'p': '木', 'l': '光', 'd': '暗', 'h': '心', '': '無' },
-    { 'w': '浪濤', 'f': '熾燄', 'p': '藤木', 'l': '流螢', 'd': '幽冥', 'h': '心' },
-    { 'w': '水', 'f': '焰', 'p': '森', 'l': '光', 'd': '魅', 'h': '心' },
-    { 'w': '浪濤', 'f': '熾燄', 'p': '藤木', 'l': '玄光', 'd': '幽冥', 'h': '護心' },
-    { 'w': '海', 'f': '炎', 'p': '森', 'l': '聖', 'd': '邪', 'h': '心', '': '無' },
-    { 'w': '波濤', 'f': '火烈', 'p': '枯朽', 'l': '天雷', 'd': '背叛', 'h': '心', '': '無'}
+    { 'w': '水', 'f': '火', 'p': '木', 'l': '光', 'd': '暗', 'h': '心', '_': '無' },
+    { 'w': '浪濤', 'f': '熾燄', 'p': '藤木', 'l': '流螢', 'd': '幽冥', 'h': '心', '_': '無' },
+    { 'w': '水', 'f': '焰', 'p': '森', 'l': '光', 'd': '魅', 'h': '心', '_': '無' },
+    { 'w': '浪濤', 'f': '熾燄', 'p': '藤木', 'l': '玄光', 'd': '幽冥', 'h': '護心', '_': '無' },
+    { 'w': '海', 'f': '炎', 'p': '森', 'l': '聖', 'd': '邪', 'h': '心', '_': '無' },
+    { 'w': '波濤', 'f': '火烈', 'p': '枯朽', 'l': '天雷', 'd': '背叛', 'h': '心', '_': '無'},
+    { 'w': '漩渦', 'f': '焰芒', 'p': '呼嘯', 'l': '聖焰', 'd': '吞噬', 'h': '心', '_': '無'},
 ];
 
 var COLOR_EXCLUSIVE = {
-    'w': 'f', 'f': 'p', 'p': 'w', 'l': 'd', 'd': 'l', 'h': 'w', '': 'w'
+    'w': 'f', 'f': 'p', 'p': 'w', 'l': 'd', 'd': 'l', 'h': 'w', '_': 'w'
 };
 var COLOR_ANTI_EXCLUSIVE = {
-    'w': 'p', 'f': 'w', 'p': 'f', 'l': 'd', 'd': 'l', 'h': 'w', '': 'w'
+    'w': 'p', 'f': 'w', 'p': 'f', 'l': 'd', 'd': 'l', 'h': 'w', '_': 'w'
 };
 
 var MAIN_STATE_ENUM = {
@@ -900,3 +903,40 @@ var GAME_MODE_ENUM = {
     NORMAL : 0,
     REPEAT : 1,
 };
+
+
+//==============================================================
+// Attack Recover 
+//==============================================================
+
+var BASIC_ATTACK = {
+    base   : 0,
+    color  : "_",
+    damage : 0,
+    factor : 0,
+    goal   : "single",
+    place  : -1,
+    strong : false,
+    style  : "NONE",
+    type   : "NONE",
+    target : [],
+    log    : "",
+};
+var BASIC_RECOVER = {
+    base   : 0,
+    color  : "_",
+    factor : 0,
+    place  : -1,
+    style  : "NONE",
+    type   : "NONE",
+    log    : "",
+};
+
+function makeNewAttack(){
+    var attack = $.extend(true, {}, BASIC_ATTACK);
+    return attack;
+}
+function makeNewRecover(){    
+    var recover = $.extend(true, {}, BASIC_RECOVER);
+    return recover;
+}

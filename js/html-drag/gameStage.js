@@ -105,7 +105,7 @@ var COUNT_RECOVER_AMOUNT_COEFF  = 0.25;
 var COUNT_RECOVER_STRONG_COEFF  = 0.15;
 var COUNT_RECOVER_FACTOR        = {};
 var COUNT_COLOR_FACTOR          = { 'w': 1, 'f': 1, 'p': 1, 'l': 1, 'd': 1, '': 1 };
-var COUNT_COLOR_TO_COLOR_FACTOR = { 'w': {}, 'f': {}, 'p': {}, 'l': {}, 'd': {}, '': {} };
+var COUNT_COLOR_TO_COLOR_FACTOR = { 'w': {}, 'f': {}, 'p': {}, 'l': {}, 'd': {}, '_': {} };
 var COUNT_INJURE_REDUCE         = 1;
 
 var ATTACK_STACK  = [];
@@ -263,6 +263,17 @@ function resetAttackRecoverStack(){
     RECOVER_STACK = [];
     INJURE_STACK = [];
 }
+function resetAdditionalStack(){
+    ADDITIONAL_EFFECT_STACK = [];
+    updateAdditionalEffectLabel();
+
+    $.each(TEAM_ACTIVE_SKILL, function(place, actives){
+        $.each(actives, function(i, active){
+            triggerActiveByKey( place, i, 'close' );
+        });
+    });
+    showActiveInfomation();
+}
 
 function resetCanvas(){
     $('#dragCanvas').show();
@@ -347,6 +358,10 @@ function endGame(){
     }
 }
 function restartGame(){
+    resetAttackRecoverStack();
+    resetCount();
+    resetAdditionalStack();
+
     setTimeout( function(){
         resetGameWaves();
         startGame();
@@ -405,7 +420,6 @@ function restartMoveWave(){
 function newMoveWave(){
     //Maybe used in end attack effect
     resetComboStack();
-    resetAttackRecoverStack();
     resetHistory();
     renewTimeLifeDiv();
 }
@@ -432,14 +446,23 @@ function checkAttack(){
     $("#dragContainment img.over").addClass("img-gray");
 
     countAttack();
-    countEnemyAction();
+    showEnemySuffer();
 
+    setTimeout( function(){
+        checkInjure();
+    }, ATTACK_INFO_TIME);
+}
+function checkInjure(){
     MAIN_STATE = MAIN_STATE_ENUM.BATTLE_INFO;
+
+    countEnemyAction();
+    showTeamInjure();
     showResult();
 
     setTimeout( function(){
         endPlayTurn();
     }, ATTACK_INFO_TIME);
+
 }
 function endPlayTurn(){
     $("#dragContainment img.over").removeClass("img-gray");
@@ -465,8 +488,6 @@ function endPlayTurn(){
         nextMoveWave();
     }
 }
-
-
 
 //==============================================================
 // make element

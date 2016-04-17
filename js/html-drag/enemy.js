@@ -25,7 +25,7 @@ var ENEMY_DATA = {
 		health   : 1,
 		attack   : 1,
 		defence  : 0,
-		color    : '',
+		color    : '_',
 		coolDown : Infinity,
 		ability  : [ "NONE" ],
 		preSet   : BasicEnemySetting,

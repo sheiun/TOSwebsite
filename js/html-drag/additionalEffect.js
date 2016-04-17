@@ -68,15 +68,15 @@ var FightSafeAttack = function(){
 	        condition : function( member, member_place ){ return true; },
 	    };
 	}else{
-        var recover = {
-            style  : "additionalEffect",
-            place  : this.variable['PLACE'],
-        	color  : member["color"],
-        	type   : member['type'],
-            base   : 20000,
-            factor : 1,
-            log    : "FightSafeRecover",
-        };
+        var recover = makeNewRecover();
+        recover['base']  = 20000;
+        recover['color'] = member["color"];
+        recover['factor']= 1;
+        recover['place'] = this.variable['PLACE'];
+        recover['style'] = "additionalEffect";
+        recover['type']  = member['type'];
+        recover['log']   = "FightSafeRecover";
+
         RECOVER_STACK.push(recover);
 	}
 }

@@ -452,10 +452,10 @@ function loadTeamMembers(members){
 function resetMemberSelect(){
     $("#TeamMember select").each(function(i){
         var msdropdown = $(this).msDropDown().data("dd");
-        for(var id in CHARACTERS){
+        for(var id in CHARACTERS_DATA){
             msdropdown.add({
                 value: id,
-                image: CHARACTERS[id]["img"]
+                image: CHARACTERS_DATA[id]["img"]
             });
         }
         msdropdown.setIndexByValue( TEAM_MEMBERS[i]["id"] );
@@ -538,10 +538,17 @@ function showLoseGame(){
 function showEndGame(){
     $("#BattleInfomation").append( $("<span></span>").text("戰鬥結束") ).append("<br>");  
 }
-function showEnemySuffer( i, enemy ){
-    $("#BattleInfomation").append( 
-        $("<span></span>").text("給予 敵人("+(i+1)+")"+enemy['label']+' '+enemy['variable']['SUFFER']+' 點傷害')
-    ).append("<br>");
+function showEnemySuffer(){
+    $.each(ENEMY, function(i, enemy){
+        if( enemy['variable']['SUFFER'] > 0 ){        
+            $("#BattleInfomation").append( 
+                $("<span></span>").text(
+                    "給予 敵人("+(i+1)+")"+enemy['label']+' '+enemy['variable']['SUFFER']+' 點傷害 ， '+
+                    "剩下 "+enemy['variable']['HEALTH']+" 點生命值"
+                )
+            ).append("<br>");
+        }
+    });
 }
 function showEnemyDead( enemy, i ){
     if(enemy['id'] != 'EMPTY'){
@@ -570,17 +577,22 @@ function showTotalRecover( total_recover ){
     $("#BattleInfomation").append( 
         $("<span></span>").text("總共回復 "+total_recover+" 點生命值") 
     ).append("<br>");
+    
+    resetTimeLifeDiv();
+    showLifeInjureAnimate();
 }
-function showResult(){
+function showTeamInjure(){
     $.each(INJURE_STACK, function(i, injure){
         $("#BattleInfomation").append( 
             $("<span></span>").text("敵人"+injure['label']+'  攻擊， 受到 '+injure['damage']+' 點傷害')
         ).append("<br>");
     });
-
+}
+function showResult(){
     $("#BattleInfomation").append( 
         $("<span></span>").text("現在生命值 : "+HEALTH_POINT+" / "+TOTAL_HEALTH_POINT )
     ).append("<br>");
+
     resetTimeLifeDiv();
     showLifeInjureAnimate();
 }
@@ -643,6 +655,9 @@ function showActiveInfomation(){
         $("#ActiveButtonTD td div.activeBtn").eq(place).children().remove();
         $.each(actives, function(i, active){
             var label = $("<span></span>").text( active['label'] );
+            if( 'USING' in active['variable'] && active['variable']['USING'] ){
+                label.append("<br>(使用中)");
+            }
             var button = $("<button></button>").addClass('activeButton btn-default').append( label );
             button.attr( "onclick", "triggerActive("+place+","+i+")" ).prop("disabled", true);
             $("#ActiveButtonTD td div.activeBtn").eq(place).append( button );
@@ -652,6 +667,9 @@ function showActiveInfomation(){
         $("#ActiveButtonTD td div.combineBtn").eq(place).children().remove();
         $.each(combines, function(i, combine){
             var label = $("<span></span>").text( combine['label'] );
+            if( 'USING' in combine['variable'] && combine['variable']['USING'] ){
+                label.append("<br>(使用中)");
+            }
             var button = $("<button></button>").addClass('activeButton btn-default').append( label );
             button.attr( "onclick", "triggerCombine("+place+","+i+")" ).prop("disabled", true);
             $("#ActiveButtonTD td div.combineBtn").eq(place).append( button );

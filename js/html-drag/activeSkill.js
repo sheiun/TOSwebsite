@@ -408,28 +408,31 @@ var DragonCentralizationDEXSetting = function( member, place, i ){
 }
 var DragonCentralizationDEXStart = function( place, i ){
     var VAR = this.variable;
-    VAR['USING'] = true;
-    USING_ACTIVE_SKILL_STACK[ this.id ] = { PLACE: place, i: i };
-    $("#ActiveButtonTD td").eq(place).find("button span").eq(i).text(this.label).append("<br>(使用中)");
 
-    var total_attack = 0;
-    $.each(TEAM_MEMBERS, function(other_place, member){
-        if( member['type'] == VAR['TYPE'] ){
-            var origin_atk = { PLACE: other_place, ATK: member['attack'] };
-            VAR['ORIGIN_ATK'].push(origin_atk);
-            if( place != other_place ){
-                total_attack += member['attack'];
-                member['attack'] = 0;
+    if( !VAR['USING'] ){
+        VAR['USING'] = true;
+        USING_ACTIVE_SKILL_STACK[ this.id ] = { PLACE: place, i: i };
+
+        var total_attack = 0;
+        $.each(TEAM_MEMBERS, function(other_place, member){
+            if( member['type'] == VAR['TYPE'] ){
+                var origin_atk = { PLACE: other_place, ATK: member['attack'] };
+                VAR['ORIGIN_ATK'].push(origin_atk);
+                if( place != other_place ){
+                    total_attack += member['attack'];
+                    member['attack'] = 0;
+                }
             }
-        }
-    });
-    TEAM_MEMBERS[place]['attack'] += Math.round( total_attack * 1.5 );
+        });
+        TEAM_MEMBERS[place]['attack'] += Math.round( total_attack * 1.5 );
+    }else{
+        triggerActiveByKey( place, i, 'close' );
+    }
 }
-var DragonCentralizationDEXTurnOff = function( place, i ){
+var DragonCentralizationDEXClose = function( place, i ){
     if( !this.variable['USING'] ){ return false; }    
     this.variable['USING'] = false;
     delete USING_ACTIVE_SKILL_STACK[ this.id ];
-    $("#ActiveButtonTD td").eq(place).find("button span").eq(i).text(this.label);
 
     $.each(this.variable['ORIGIN_ATK'], function(i, origin_atk){
         TEAM_MEMBERS[origin_atk['PLACE']]['attack'] = origin_atk['ATK'];
@@ -467,12 +470,15 @@ var TraceOfNotionUpdate = function( place, i ){
             ID    : [ this.variable['COLOR'] ],
             check : [ '{0}<5' ],
         }) ){
-        this.variable['USING'] = false;
-        this.variable['COUNT'] = 0;
-        this.variable['FACTOR'] = 1.2;
-        delete USING_ACTIVE_SKILL_STACK[ this.id ];
-        $("#ActiveButtonTD td").eq(place).find("button span").eq(i).text(this.label);
+        triggerActiveByKey( place, i, 'close' );
     }
+}
+var TraceOfNotionClose = function( place, i ){
+    if( !this.variable['USING'] ){ return false; }
+    this.variable['USING'] = false;
+    this.variable['COUNT'] = 0;
+    this.variable['FACTOR'] = 1.2;
+    delete USING_ACTIVE_SKILL_STACK[ this.id ];
 }
 var TraceOfNotionAttack = function( place, i ){
     if( !this.variable['USING'] ){ return false; }
@@ -606,6 +612,30 @@ var BasicEnemyEffectAdd = function( place, i ){
         effect['variable'] = effect['preSet']( place, i, this.variable, enemy );
         enemy['variable']['EFFECT'].push( effect );
     });
+}
+
+//==============================================================
+// Launch function
+//==============================================================
+var ThunderStrikeEXLaunch = function( place, i ){
+    var attack = makeNewAttack();
+    attack['base']   = 15000;
+    attack['color']  = 'l';
+    attack['factor'] = 1;
+    attack['goal']   = 'all';
+    attack['style']  = 'activeDirectDamage';
+    attack['log']    = 'ThunderStrikeEX';
+    makeDirectAttack(attack);
+}
+var DarknessAssaultEXLaunch = function( place, i ){
+    var attack = makeNewAttack();
+    attack['base']   = 15000;
+    attack['color']  = 'd';
+    attack['factor'] = 1;
+    attack['goal']   = 'all';
+    attack['style']  = 'activeDirectDamage';
+    attack['log']    = 'DarknessAssaultEX';
+    makeDirectAttack(attack);
 }
 
 //==============================================================
@@ -750,6 +780,7 @@ var ACTIVE_SKILLS_DATA = {
         coolDown  : 10,
         attack    : TraceOfNotionAttack,
         check     : BasicUsingCheck,
+        close     : TraceOfNotionClose,
         preSet    : TraceOfNotionSetting,
         start     : BasicUsingStart,
         update    : TraceOfNotionUpdate,
@@ -761,6 +792,7 @@ var ACTIVE_SKILLS_DATA = {
         coolDown  : 10,
         attack    : TraceOfNotionAttack,
         check     : BasicUsingCheck,
+        close     : TraceOfNotionClose,
         preSet    : TraceOfNotionSetting,
         start     : BasicUsingStart,
         update    : TraceOfNotionUpdate,
@@ -772,6 +804,7 @@ var ACTIVE_SKILLS_DATA = {
         coolDown  : 10,
         attack    : TraceOfNotionAttack,
         check     : BasicUsingCheck,
+        close     : TraceOfNotionClose,
         preSet    : TraceOfNotionSetting,
         start     : BasicUsingStart,
         update    : TraceOfNotionUpdate,
@@ -783,6 +816,7 @@ var ACTIVE_SKILLS_DATA = {
         coolDown  : 10,
         attack    : TraceOfNotionAttack,
         check     : BasicUsingCheck,
+        close     : TraceOfNotionClose,
         preSet    : TraceOfNotionSetting,
         start     : BasicUsingStart,
         update    : TraceOfNotionUpdate,
@@ -794,6 +828,7 @@ var ACTIVE_SKILLS_DATA = {
         coolDown  : 10,
         attack    : TraceOfNotionAttack,
         check     : BasicUsingCheck,
+        close     : TraceOfNotionClose,
         preSet    : TraceOfNotionSetting,
         start     : BasicUsingStart,
         update    : TraceOfNotionUpdate,
@@ -928,6 +963,24 @@ var ACTIVE_SKILLS_DATA = {
         transfer  : TransformationH_Transfer,
         end       : TransformationEnd,
     },
+    THUNDER_STRIKE_EX : {
+        id        : 'THUNDER_STRIKE_EX',
+        label     : '雷光電擊',
+        info      : '對全體敵人造成 15,000 點光屬性傷害，此傷害無視防禦力隊長技 名稱  真龍之脈',
+        coolDown  : 10,
+        check     : BasicActiveCheck,
+        launch    : ThunderStrikeEXLaunch,
+        preSet    : BasicActiveSetting,
+    },
+    DARKNESS_ASSAULT_EX : {
+        id        : 'DARKNESS_ASSAULT_EX',
+        label     : '黑洞瞬擊',
+        info      : '對全體敵人造成 15,000 點暗屬性傷害，此傷害無視防禦力',
+        coolDown  : 10,
+        check     : BasicActiveCheck,
+        launch    : DarknessAssaultEXLaunch,
+        preSet    : BasicActiveSetting,
+    },
     DRAGON_SHIELD : {
         id        : 'DRAGON_SHIELD',
         label     : '群龍壓迫',
@@ -952,9 +1005,9 @@ var ACTIVE_SKILLS_DATA = {
         info      : '龍類攻擊力減至 0，並將龍類攻擊力的 1.5 倍加入自身攻擊力，消除暗符石才會發動攻擊 (效果會在再次發動此技能或死亡後消失)',
         coolDown  : 8,
         check     : BasicSwitchCheck,
+        close     : DragonCentralizationDEXClose,
         preSet    : DragonCentralizationDEXSetting,
         start     : DragonCentralizationDEXStart,
-        turnOff   : DragonCentralizationDEXTurnOff,
     },
     BATTLEFIELD_P : {
         id        : 'BATTLEFIELD_P',
@@ -1193,13 +1246,14 @@ console.log("check-true");
         triggerActiveByKey( place, i, "start" );
         triggerActiveByKey( place, i, "transfer" );
         triggerActiveByKey( place, i, "addEffect" );
+        triggerActiveByKey( place, i, "launch" );
         resetActiveSkillCoolDown( place, i );
 
         for(var w = 0; w < 4; w++){
             checkWakeFromOrderByKey( "transfer", place, w );
         }
     }
-    updateActiveCoolDownLabel();
+    showActiveInfomation();
 }
 function triggerActiveByKey( place, i, key ){
     if( key in TEAM_ACTIVE_SKILL[place][i] ){
@@ -1230,7 +1284,7 @@ function activeCoolDownUpdate(){
             }
         });
     });
-    updateActiveCoolDownLabel();
+    showActiveInfomation();
 }
 
 function usingActiveSkillUpdate(){

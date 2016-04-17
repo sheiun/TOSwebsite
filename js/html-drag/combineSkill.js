@@ -152,7 +152,7 @@ var PearlOfDragonDuosL_Mapping = function(){
         }) ){
 		combineSkillMapping(
 			'PEARL_OF_DRAGON_DUOS_L', [ 
-				{ "ETHEREAL_DRAGON_L" : "DEFENSIVE_STANCE_L" },
+				{ "ETHEREAL_DRAGON_L" : "THUNDER_STRIKE_EX" },
 				{ "DRAGON_SERVANT_L" : "ATTACK_REINFORCEMENT_L" },
 			] );
 	}
@@ -323,7 +323,7 @@ console.log("check-true");
         triggerCombineByKey( place, i, "startRun" );
         triggerCombineByKey( place, i, "transfer" );
         triggerCombineByKey( place, i, "addEffect" );
-        resetActiveSkillCoolDown( place, i );
+        resetCombineSkillCoolDown( place, i );
     }
 
     updateActiveCoolDownLabel();
@@ -344,7 +344,7 @@ function checkCombineSkillByKey( key ){
     });    
 }
 
-function resetActiveSkillCoolDown( place, i ){
+function resetCombineSkillCoolDown( place, i ){
 	var VAR = TEAM_COMBINE_SKILL[place][i]['variable'];
     var useable = checkCombineUseable( VAR['COMBINE'] );
     for(var key in useable['locations']){

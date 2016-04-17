@@ -555,6 +555,35 @@ function countMembrsTypeByArr( typeArr ){
     return count;
 }
 
+
+//==============================================================
+// H_A_R Increase
+//==============================================================
+function increaseHARByLastMember( memberID, healthFactor, attackFactor, recoverYFactor ){
+    $.each(TEAM_MEMBERS, function(i, member){
+        if( member['id'] == memberID ){
+            member['health']   = Math.round( healthFactor*member['health'] );
+            member['attack']   = Math.round( attackFactor*member['attack'] );
+            member['recovery'] = Math.round( recoverYFactor*member['recovery'] );
+            return false;
+        }
+    });
+}
+function reduceCoolDownByLastMember( memberID, activeID, coolDown ){
+    $.each(TEAM_MEMBERS, function(place, member){
+        if( member['id'] == memberID ){
+            $.each(TEAM_ACTIVE_SKILL[place], function(i, active){
+                if( active['id'] == activeID ){
+                    active['variable']['COOLDOWN'] -= coolDown;
+                    active['coolDown'] -= coolDown;
+                    return false;
+                }
+            });
+            return false;
+        }
+    });
+}
+
 //==============================================================
 // StartRun function
 //==============================================================

@@ -79,15 +79,14 @@ var StraightRecover = function( wakeVar, place, i ){
 var StraightHeal = function( wakeVar, place, i ){
     // wakeVar = "[factor,straightSize]"
     if( checkFirstStraightByPlace( wakeVar[1], place ) ){
-        var recover = {
-            place  : place,
-            style  : "wake",
-            color  : '',
-            type   : '',
-            base   : TEAM_MEMBERS[place]["recovery"],
-            factor : wakeVar[0],
-            log    : "StraightHeal_from_"+place,
-        };
+
+        var recover = makeNewRecover();
+        recover['base']  = TEAM_MEMBERS[place]["recovery"];
+        recover['factor']= wakeVar[0];
+        recover['place'] = place;
+        recover['style'] = "wake";
+        recover['log']   = "StraightHeal_from_"+place;
+        
         RECOVER_STACK.push(recover);
     }
 }

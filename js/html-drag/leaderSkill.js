@@ -140,6 +140,31 @@ var DragonOffenseRecover = function( VAR, direct ){
         RECOVER_STACK.push(recover);
     }
 }
+
+var DragonRecoverAddH_A_R = function( VAR, direct ){
+    $.each(TEAM_MEMBERS, function(place, member){
+        if( member['type'] == 'DRAGON' ){
+            member['recovery'] += 200;
+        }
+    });
+}
+var PulseOfDragonAttack = function( VAR, direct ){
+    COUNT_FACTOR['PulseOfDragon'+direct] = {
+        factor    : function( member, member_place ){ return 2.5; },
+        prob      : 1,
+        condition : function( member, member_place ){ return member['type'] == "DRAGON"; },
+    };
+}
+var DragonDefenseAttack = function( VAR, direct ){
+    addColorBelongsByConfig( { 'h': { 'd': 0.5 } } );
+
+    COUNT_FACTOR['PulseOfDragon'+direct] = {
+        factor    : function( member, member_place ){ return 2; },
+        prob      : 1,
+        condition : function( member, member_place ){ return member['type'] == "DRAGON"; },
+    };
+}
+
 //==============================================================
 // Dragon Servant
 //==============================================================
@@ -463,6 +488,13 @@ var LIXIAOYAOAttack = function( VAR, direct ){
     };
 }
 var CommonSourceAttack = function( VAR, direct ){
+    if( checkMembersColorByConfig( { 
+            colors : [ 'w', 'f', 'p', 'OTHER' ],
+            check  : [ '{0}>=1', '{1}>=1', '{2}>=1', '{3}==0' ]
+        } ) ){
+        setColorBelongsByConfig( { 'w' : { 'f': 1, 'p': 1 },  'f': { 'w': 1, 'p': 1 },  'p': { 'w': 1, 'f': 1 } } );
+    }
+    
     if( 'HeartProb' in COUNT_FACTOR ){
         COUNT_FACTOR['HeartProb']['prob'] += 0.5;
     }else{
@@ -479,13 +511,6 @@ var CommonSourceAttack = function( VAR, direct ){
                 return false;
             },
         };
-    }
-
-    if( checkMembersColorByConfig( { 
-            colors : [ 'w', 'f', 'p', 'OTHER' ],
-            check  : [ '{0}>=1', '{1}>=1', '{2}>=1', '{3}==0' ]
-        } ) ){
-        setColorBelongsByConfig( { 'w' : { 'f': 1, 'p': 1 },  'f': { 'w': 1, 'p': 1 },  'p': { 'w': 1, 'f': 1 } } );
     }
 }
 var CommonSourceEXAttack = function( VAR, direct ){
@@ -745,6 +770,24 @@ var LEADER_SKILLS_DATA = {
         letter    : [0,0],
         attack    : DragonOffenseAttack,
         recover   : DragonOffenseRecover,
+        preSet    : BasicLeaderSetting,
+    },
+    PULSE_OF_DRAGON : {
+        id        : 'PULSE_OF_DRAGON',
+        label     : "真龍之脈",
+        info      : "龍類攻擊力 2.5 倍及增加 200 點回復力",
+        letter    : [0,0],
+        attack    : PulseOfDragonAttack,
+        H_A_R     : DragonRecoverAddH_A_R,
+        preSet    : BasicLeaderSetting,
+    },
+    DRAGON_DEFENSE : {
+        id        : 'DRAGON_DEFENSE',
+        label     : "龍之持守",
+        info      : "龍類攻擊力 2 倍及增加 200 點回復力，消除心符石時，等同消除暗符石，達 50% 暗符石效果",
+        letter    : [0,0],
+        attack    : DragonDefenseAttack,
+        H_A_R     : DragonRecoverAddH_A_R,
         preSet    : BasicLeaderSetting,
     },
     BLOOD_THIRSTY_DRAGON_EX : {
