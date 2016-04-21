@@ -202,6 +202,7 @@ function turnElementToColorByID(id, color){
     var imgs = $("#dragContainment tr td").eq(id).find("img");
     imgs.attr('color', color[0] );
     var item = imgs.attr('item');
+    item.replace('q','');
     item = color + item.substr(1);
     imgs.attr('item', item);
     var hide_items = newElementByItem(item);
@@ -219,6 +220,7 @@ function turnElementToColorByID(id, color){
 function turnElementToStrongByID(id){
     var imgs = $("#dragContainment tr td").eq(id).find("img");
     var item = imgs.attr("item");
+    item.replace('q','');
     item = item + "+";
     imgs.attr('item', item);
     var hide_items = newElementByItem(item);

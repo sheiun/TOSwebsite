@@ -50,11 +50,11 @@ var StraightAttack = function( wakeVar, place, i ){
     // wakeVar = "[factor,straightSize]"
     if( checkFirstStraightByPlace( wakeVar[1], place ) ){
         COUNT_FACTOR['StraightAttack_'+place+'_'+i] = {
-            factor    : function( member, membe_place ){
+            factor    : function( member, member_place ){
                 return wakeVar[0];
             },
             prob      : 1,
-            condition : function( member, membe_place ){
+            condition : function( member, member_place ){
                 return true;
             },
         };  
@@ -65,11 +65,11 @@ var StraightRecover = function( wakeVar, place, i ){
     // wakeVar = "[factor,straightSize]"
     if( checkFirstStraightByPlace( wakeVar[1], place ) ){
         COUNT_RECOVER_FACTOR['StraightRecover_'+place+'_'+i] = {
-            factor    : function( member, membe_place ){
+            factor    : function( member, member_place ){
                 return wakeVar[0];
             },
             prob      : 1,
-            condition : function( member, membe_place ){
+            condition : function( member, member_place ){
                 return true;
             },
         };  
@@ -140,12 +140,12 @@ var WAKES_DATA = {
     },
     ACTIVE_COOLDOWN_FOREVER : {
         id        : "ACTIVE_COOLDOWN_FOREVER",
-        preSet    : ActiveCoolDownForever,
+        changeCD  : ActiveCoolDownForever,
         // wakeVar = "turn"
     },
     ACTIVE_COOLDOWN_BEGINING : {
         id        : "ACTIVE_COOLDOWN_BEGINING",  
-        preSet    : ActiveCoolDownBegining,  
+        changeCD  : ActiveCoolDownBegining,  
         // wakeVar = "turn"    
     },
     STRAIGHT_ENCIRCLEMENT : {

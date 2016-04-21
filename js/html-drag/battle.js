@@ -79,8 +79,7 @@ function countAttack(){
     resetCount();
     resetEnemyStatus();
 
-    countComboStacks();    
-    checkHARSettingBeforeBattle();
+    countComboStacks();
     checkAttackRecoverBeforeBattle();
     countBelongColorCombo();    
 
@@ -107,10 +106,6 @@ function countEnemyAction(){
     healthStatusUpdate();
 }
 
-
-function checkHARSettingBeforeBattle(){
-    checkLeaderSkillByKey( "H_A_R" );
-}
 function checkAttackRecoverBeforeBattle(){
     checkLeaderSkillByKey( "attack" );
     checkLeaderSkillByKey( "recover" );

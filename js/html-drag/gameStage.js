@@ -123,6 +123,10 @@ var AUDIO = true;
 
 var TIME_IS_LIMIT = true;
 var TIME_LIMIT = 5;
+var TIME_FIXED = false;
+var TIME_ADD_LIST = {};
+var TIME_MULTI_LIST = {};
+var TIME_FIX_LIST = [];
 
 var REPLAY_SPEED = 300;
 var REVIEW_PATH = false;
@@ -181,6 +185,14 @@ function resetMoveTime(){
     START_TIME = new Date().getTime() / 1000;
     TIME_RUNNING = false;
     clearInterval(TIME_INTERVAL);
+}
+function resetTimeCondition(){
+    TIME_IS_LIMIT = true;
+    TIME_LIMIT = 5;
+    TIME_FIXED = false;
+    TIME_ADD_LIST = {};
+    TIME_MULTI_LIST = {};
+    TIME_FIX_LIST = [];
 }
 
 function cleanColors(){
@@ -406,8 +418,12 @@ function nextMoveWave(){
     resetDraggable();
     startDragging();
     showPlayTurnLevel();
+    resetTimeCondition();
 
     checkLeaderSkillByKey('findMaxC');
+    checkTeamSkillByKey( 'setTime' );
+    checkLeaderSkillByKey( 'setTime' );
+    countTimeLimit();
 }
 function restartMoveWave(){
     resetLocus();

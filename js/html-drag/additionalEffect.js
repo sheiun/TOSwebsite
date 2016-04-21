@@ -5,6 +5,9 @@
 //==============================================================
 
 var BasicEffectSetting = function( place, i, VAR ){
+	return basicEffectSetting( place, i, VAR );
+};
+var basicEffectSetting = function( place, i, VAR ){
 	return {
 		ID       : this.id,
 		PLACE    : place,
@@ -25,6 +28,12 @@ var DesperateAttack = function(){
         condition : function( member, member_place ){ return true; },
     };
 };
+//==============================================================
+var PossSpiritAttack = function(){
+	var color = this.variable['COLOR'];
+	var color_ex = COLOR_EXCLUSIVE[ color ];
+	COUNT_BELONG_COLOR[ color_ex ][ color ] = 1;
+}
 //==============================================================
 var DragonShieldInjureReduce = function(){
 	var count = countMembrsTypeByArr( ['DRAGON'] );
@@ -58,7 +67,14 @@ var DragonResonance = function(){
 		ATTACK_STACK[i]['base'] = max_attack_base;
 		ATTACK_STACK[i]['factor'] = max_attack_factor;
 	}
-}
+}  
+var CourageOfSacrificeSetting = function( place, i, VAR ){
+    var injure = makeNewInjure();
+    injure['label']  = "CourageOfSacrificeEffectAdd";
+    injure['damage'] = Math.round( HEALTH_POINT*0.75 );
+    makeDirectInjure( injure );
+	return basicEffectSetting( place, i, VAR );
+};
 var CourageOfSacrificeAttack = function(){
 	COUNT_FACTOR['CourageOfSacrificeAttack'] = {
 	    factor    : function( member, member_place ){ return 2; },
@@ -140,17 +156,6 @@ var SavageAttack = function(){
 	};
 }
 //==============================================================
-var BladesSetting = function( place, i, VAR ){
-	setTimeLimit( TIME_LIMIT+3 );
-	return {
-		ID       : this.id,
-		PLACE    : place,
-		i        : i,
-		COLOR    : VAR['COLOR'],
-		TYPE     : VAR['TYPE'],
-		DURATION : 1,
-	}
-};
 var BladesOfWaterFlameVineAttack = function(){
 	var VAR = this.variable;
 	if( checkComboColorMaxAmountByConfig({
@@ -177,8 +182,8 @@ var BladesOfLightPhantomAttack = function(){
 		};
 	}
 }
-var BladesEndEffects = function(){
-	setTimeLimit( 5 );
+var BladesSetTime = function(){
+	TIME_ADD_LIST['Blades'] = 3;
 }
 //==============================================================
 var SpellOfBloodSpiritsEXAttack = function(){
@@ -189,20 +194,9 @@ var SpellOfBloodSpiritsEXAttack = function(){
 	};
 }
 //==============================================================
-var SongOfEmpathyEvilSetting = function( place, i, VAR ){
-	setTimeLimit( TIME_LIMIT+3 );
-	return {
-		ID       : this.id,
-		PLACE    : place,
-		i        : i,
-		COLOR    : VAR['COLOR'],
-		TYPE     : VAR['TYPE'],
-		DURATION : 1,
-	}
+var SongOfEmpathyEvilSetTime = function(){
+	TIME_ADD_LIST['SongOfEmpathyEvil'] = 3;
 };
-var SongOfEmpathyEvilEndEffects = function(){
-	setTimeLimit( 5 );
-}
 //==============================================================
 var ElementalAssemblyAttack = function(){
 	var VAR = this.variable;
@@ -279,9 +273,11 @@ var BlazingCircleAttack = function(){
 //==============================================================
 //==============================================================
 
-// tags : attack增傷類 injureReduce減傷類 defenceReduce破防類 
-//        addTimeLimit延時類 setTimeLimit設時類 selfAttack自己增傷
-//        changeColor轉屬性類 addCoolDown控場延長CD newItem產珠類
+// tags : attack增傷類 selfAttack自己增傷  defenceReduce破防類 
+//        injureReduce減傷類
+//        newItem產珠類 belongColor兼屬類
+//        addTimeLimit延時類 setTimeLimit設時類 
+//        changeColor轉屬性類 addCoolDown控場延長CD
 
 var ADDITIONAL_EFFECT_DATA = {
 	DESPERATE_ATTACK : {
@@ -289,6 +285,18 @@ var ADDITIONAL_EFFECT_DATA = {
 		attack    : DesperateAttack,
 		preSet    : BasicEffectSetting,
 		tag       : ['attack'],
+	},
+	POSS_LIGHT_SPIRIT : {
+		id        : 'POSS_LIGHT_SPIRIT',
+		attack    : PossSpiritAttack,
+		preSet    : BasicEffectSetting,
+		tag       : ['belongColor'],
+	},
+	POSS_DARK_SPIRIT : {
+		id        : 'POSS_DARK_SPIRIT',
+		attack    : PossSpiritAttack,
+		preSet    : BasicEffectSetting,
+		tag       : ['belongColor'],
 	},
 	DRAGON_SHIELD : {
 		id        : 'DRAGON_SHIELD',
@@ -305,7 +313,7 @@ var ADDITIONAL_EFFECT_DATA = {
 	COURAGE_OF_SACRIFICE : {
 		id        : 'COURAGE_OF_SACRIFICE',
 		attack    : CourageOfSacrificeAttack,
-		preSet    : BasicEffectSetting,
+		preSet    : CourageOfSacrificeSetting,
 		tag       : ['attack'],
 	},
 	FIGHT_SAFE : {
@@ -341,36 +349,36 @@ var ADDITIONAL_EFFECT_DATA = {
 	BLADES_OF_WATER : {
 		id        : 'BLADES_OF_WATER',
 		attack    : BladesOfWaterFlameVineAttack,
-		endEffect : BladesEndEffects,
-		preSet    : BladesSetting,
+		setTime   : BladesSetTime,
+		preSet    : BasicEffectSetting,
 		tag       : ['attack', 'addTimeLimit'],
 	},
 	BLADES_OF_FLAME : {
 		id        : 'BLADES_OF_FLAME',
 		attack    : BladesOfWaterFlameVineAttack,
-		endEffect : BladesEndEffects,
-		preSet    : BladesSetting,
+		setTime   : BladesSetTime,
+		preSet    : BasicEffectSetting,
 		tag       : ['attack', 'addTimeLimit'],
 	},
 	BLADES_OF_VINE : {
 		id        : 'BLADES_OF_VINE',
 		attack    : BladesOfWaterFlameVineAttack,
-		endEffect : BladesEndEffects,
-		preSet    : BladesSetting,
+		setTime   : BladesSetTime,
+		preSet    : BasicEffectSetting,
 		tag       : ['attack', 'addTimeLimit'],
 	},
 	BLADES_OF_LIGHT : {
 		id        : 'BLADES_OF_LIGHT',
 		attack    : BladesOfLightPhantomAttack,
-		endEffect : BladesEndEffects,
-		preSet    : BladesSetting,
+		setTime   : BladesSetTime,
+		preSet    : BasicEffectSetting,
 		tag       : ['attack', 'addTimeLimit'],
 	},
 	BLADES_OF_PHANTOM : {
 		id        : 'BLADES_OF_PHANTOM',
 		attack    : BladesOfLightPhantomAttack,
-		endEffect : BladesEndEffects,
-		preSet    : BladesSetting,
+		setTime   : BladesSetTime,
+		preSet    : BasicEffectSetting,
 		tag       : ['attack', 'addTimeLimit'],
 	},
 	SPELL_OF_BLOOD_SPIRITS_EX : {
@@ -381,8 +389,8 @@ var ADDITIONAL_EFFECT_DATA = {
 	},
 	SONG_OF_EMPATHY_EVIL : {
 		id        : 'SONG_OF_EMPATHY_EVIL',
-		preSet    : SongOfEmpathyEvilSetting,
-		endEffect : SongOfEmpathyEvilEndEffects,
+		setTime   : SongOfEmpathyEvilSetTime,
+		preSet    : BasicEffectSetting,
 		tag       : ['attack', 'addTimeLimit'],
 	},
 	ELEMENTAL_ASSEMBLY_W : {

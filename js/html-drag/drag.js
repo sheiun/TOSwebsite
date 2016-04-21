@@ -274,7 +274,28 @@ function locusUpdate( id ){
 //==============================================================
 // timer
 //==============================================================
+function countTimeLimit(){
+    if( !TIME_IS_LIMIT ){ return false; }
+    TIME_LIMIT = 5;
+    if( TIME_FIXED ){
+        if( TIME_FIX_LIST.length > 0 ){
+            TIME_LIMIT = TIME_FIX_LIST[ TIME_FIX_LIST.length-1 ];
+        }
+    }else{
+        for( var key in TIME_MULTI_LIST ){
+            TIME_LIMIT *= TIME_MULTI_LIST[key];
+        }
+        for( var key in TIME_ADD_LIST ){
+            TIME_LIMIT += TIME_ADD_LIST[key];
+        }
+    }
+    TIME_LIMIT = Math.max( 1, TIME_LIMIT );
+    setTimeLimit(TIME_LIMIT);
+}
 function startToRunTimer(){
+    checkAdditionEffectByKey( 'setTime' );
+    countTimeLimit();
+
     START_TIME = new Date().getTime() / 1000;
     TIME_RUNNING = true;
     TIME_INTERVAL = setInterval( function(){ dragTimer(); }, 10);

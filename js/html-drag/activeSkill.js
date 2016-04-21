@@ -29,8 +29,8 @@ var StartRunSetting = function( member, place, i ){
         COLOR     : member['color'],
         TYPE      : member['type'],
         COOLDOWN  : this.coolDown,
-        PLACE    : place,
-        i        : i,
+        PLACE     : place,
+        i         : i,
         USING     : false,
     }
 }
@@ -89,7 +89,7 @@ var BrokeBoundaryStart = function( place, i ){
             $(this).removeAttr("drop").removeAttr("toTop").removeAttr("toLeft");
         }
     });
-    window.scrollTo(0, $("#clock").offset().top);
+    window.scrollTo(0, $("#timeLifeIcon").offset().top );
 
     setTimeout( function(){
         resetDraggable();
@@ -106,7 +106,6 @@ var BrokeBoundaryEnd = function( place, i ){
     delete USING_ACTIVE_SKILL_STACK[ this.id ];
 
     disbalePanelControl( false );
-    setTimeLimit( 5 );
 
     $('#clipboard').attr("data-clipboard-text", "null");
     $("#dragContainment").attr("td", 6).attr("tr", 5);
@@ -124,7 +123,7 @@ var BrokeBoundaryEnd = function( place, i ){
             }
         }
     }
-    window.scrollTo(0, $("#clock").offset().top-3*HEIGHT);
+    window.scrollTo(0, $("#timeLifeIcon").offset().top-3*HEIGHT);
 }
 //==============================================================
 var OverBeautyStart = function( place, i ){
@@ -136,9 +135,8 @@ var OverBeautyStart = function( place, i ){
     resetHistory();
     resetBase();
 }
-var OverBeautyAttack = function( place, i ){console.log("12");
+var OverBeautyAttack = function( place, i ){
     if( !this.variable['USING'] ){ return false; }
-console.log("123");
     COUNT_FACTOR['OverBeautyAttack'] = {
         factor    : function( member, member_place ){ 
             var num = countComboElementsFirstWave();
@@ -148,13 +146,12 @@ console.log("123");
         condition : function( member, member_place ){ return true; },
     };
 }
-var OverBeautyEnd = function( place, i ){console.log("1244");
+var OverBeautyEnd = function( place, i ){
     if( !this.variable['USING'] ){ return false; }
     this.variable['USING'] = false;
     delete USING_ACTIVE_SKILL_STACK[ this.id ];
 
     disbalePanelControl( false );
-    setTimeLimit( 5 );
     setPlayType( PLAY_TYPE_ENUM.DRAG );
 }
 //==============================================================
@@ -185,14 +182,13 @@ var DrunkenFootworkEnd = function( place, i ){
     delete USING_ACTIVE_SKILL_STACK[ this.id ];
 
     disbalePanelControl( false );
-    setTimeLimit( 5 );
     setPlayType( PLAY_TYPE_ENUM.DRAG );
 }
-
 
 //==============================================================
 // Transfer function
 //==============================================================
+
 var RuneStrengthenCheck = function( place, i ){
     return basicActiveCheck( this.variable, place, i ) &&
         checkHasElementByColorWithoutStrong( this.variable['COLOR'] );
@@ -239,6 +235,17 @@ var DeffensiveStanceEXTransfer = function( place, i ){
     var stack = getStackOfPanelByColor( COLOR_EXCLUSIVE[ this.variable['COLOR'] ] );
     for(var id of stack){
         turnElementToColorByID(id, 'h+');
+    }
+}
+//==============================================================
+var CommandOfLordCheck = function( place, i ){
+    return basicActiveCheck( this.variable, place, i ) &&
+        checkHasElementByColorArr( [ 'h', COLOR_EXCLUSIVE[ this.variable['COLOR'] ] ] );
+}
+var CommandOfLordTransfer = function( place, i ){
+    var stack = getStackOfPanelByColorArr( [ 'h', COLOR_EXCLUSIVE[ this.variable['COLOR'] ] ] );
+    for(var id of stack){
+        turnElementToColorByID(id, this.variable['COLOR']);
     }
 }
 //==============================================================
@@ -528,40 +535,31 @@ function basicAdditionalEffectCheckByTag( effectTag ){
     return checkEffect;
 }
 //==============================================================
-var PlaySafeCheck = function( place, i ){
+var InjureReduceAdditionalEffectCheck = function( place, i ){
     return basicAdditionalEffectCheck( this.id ) &&
         basicAdditionalEffectCheckByTag( "injureReduce" ) &&
         basicActiveCheck( this.variable, place, i );
 }
-var PlayWildCheck = function( place, i ){
+var DefenceReduceAdditionalEffectCheck = function( place, i ){
     return basicAdditionalEffectCheck( this.id ) &&
         basicAdditionalEffectCheckByTag( "defenceReduce" ) &&
         basicActiveCheck( this.variable, place, i );
 }
-var BladesEffectCheck = function( place, i ){
-    return basicAdditionalEffectCheck( this.id ) &&
-        basicAdditionalEffectCheckByTag( "setTimeLimit" ) &&
-        basicActiveCheck( this.variable, place, i );
-}
-var SongOfEmpathyEvilEffectCheck = function( place, i ){
-    return basicAdditionalEffectCheck( this.id ) &&
-        basicAdditionalEffectCheckByTag( "setTimeLimit" ) &&
-        basicActiveCheck( this.variable, place, i );
-}
-var MagicStageCheck = function( place, i ){
+var NewItemAdditionalEffectCheck = function( place, i ){
     return basicAdditionalEffectCheck( this.id ) &&
         basicAdditionalEffectCheckByTag( "newItem" ) &&
         basicActiveCheck( this.variable, place, i );
 }
-var CourageOfSacrificeCheck = function( place, i ){
+var BelongColorAdditionalEffectCheck = function( place, i ){
+    return basicAdditionalEffectCheck( this.id ) &&
+        basicAdditionalEffectCheckByTag( "belongColor" ) &&
+        basicActiveCheck( this.variable, place, i );
+}
+var HealthAdditionalEffecCheck = function( place, i ){
     if( HEALTH_POINT <= 1 ){ return false; }
     return basicAdditionalEffectCheck( this.id ) && basicActiveCheck( this.variable, place, i );
 }
-var CourageOfSacrificeEffectAdd = function( place, i ){    
-    var injure = makeNewInjure();
-    injure['label']  = "CourageOfSacrificeEffectAdd";
-    injure['damage'] = Math.round( HEALTH_POINT*0.75 );
-    makeDirectInjure( injure );
+var CourageOfSacrificeEffectAdd = function( place, i ){  
     var effect = NewAdditionalEffect( this.id );
     effect['variable'] = effect['preSet']( place, i, this.variable );
     additionalEffectAdd( effect );
@@ -787,6 +785,42 @@ var ACTIVE_SKILLS_DATA = {
         coolDown  : 10,
         addEffect : BasicAddtionalEffectAdd,
         check     : AddtionalEffectCheck,
+        preSet    : BasicActiveSetting,
+    },
+    COMMAND_OF_LORDS : {
+        id        : 'COMMAND_OF_LORDS',
+        label     : '聖神大號令',
+        info      : '暗符石與心符石轉化為光符石',
+        coolDown  : 10,
+        check     : CommandOfLordCheck,
+        transfer  : CommandOfLordTransfer,
+        preSet    : BasicActiveSetting,
+    },
+    COMMAND_OF_DEVILS : {
+        id        : 'COMMAND_OF_DEVILS',
+        label     : '邪魔大號令',
+        info      : '光符石與心符石轉化為暗符石',
+        coolDown  : 10,
+        check     : CommandOfLordCheck,
+        transfer  : CommandOfLordTransfer,
+        preSet    : BasicActiveSetting,
+    },
+    POSS_LIGHT_SPIRIT : {
+        id        : 'POSS_LIGHT_SPIRIT',
+        label     : '光魂附暗',
+        info      : '1 回合內，暗符石兼具光符石效果',
+        coolDown  : 10,
+        addEffect : BasicAddtionalEffectAdd,
+        check     : BelongColorAdditionalEffectCheck,
+        preSet    : BasicActiveSetting,
+    },
+    POSS_DARK_SPIRIT : {
+        id        : 'POSS_DARK_SPIRIT',
+        label     : '暗魂附光',
+        info      : '1 回合內，光符石兼具暗符石效果',
+        coolDown  : 10,
+        addEffect : BasicAddtionalEffectAdd,
+        check     : BelongColorAdditionalEffectCheck,
         preSet    : BasicActiveSetting,
     },
     OVER_BEAUTY   : {
@@ -1042,7 +1076,7 @@ var ACTIVE_SKILLS_DATA = {
         info      : '消秏現有 75% 生命力；1 回合內，木屬性或龍類攻擊力 2.5 倍',
         coolDown  : 10,
         addEffect : CourageOfSacrificeEffectAdd,
-        check     : CourageOfSacrificeCheck,
+        check     : HealthAdditionalEffecCheck,
         preSet    : BasicActiveSetting,
     },
     REVIVAL_OF_SPIRIT_DRAGON : {
@@ -1078,7 +1112,7 @@ var ACTIVE_SKILLS_DATA = {
         info      : '1 回合內，達成 4 連擊 (Combo) 或以下，所受傷害減少 80%；反之，所有成員攻擊力 2 倍。連擊 (Combo) 只計算首批消除的符石',
         coolDown  : 10,
         addEffect : BasicAddtionalEffectAdd,
-        check     : PlaySafeCheck,
+        check     : InjureReduceAdditionalEffectCheck,
         preSet    : BasicActiveSetting,
     },
     PLAY_WILD : {
@@ -1087,7 +1121,7 @@ var ACTIVE_SKILLS_DATA = {
         info      : '1 回合內，達成 4 連擊 (Combo) 或以下時，敵方全體防禦力變 0；反之，所有成員攻擊力 2 倍。連擊 (Combo) 只計算首批消除的符石',
         coolDown  : 10,
         addEffect : BasicAddtionalEffectAdd,
-        check     : PlayWildCheck,
+        check     : DefenceReduceAdditionalEffectCheck,
         preSet    : BasicActiveSetting,
     },
     HUNTING_MODE : {
@@ -1123,7 +1157,7 @@ var ACTIVE_SKILLS_DATA = {
         info      : '1 回合內，延長移動符石時間 3 秒；消除一組 6 粒或以上的水符石，水屬性攻擊力 1.5 倍',
         coolDown  : 12,
         addEffect : BasicAddtionalEffectAdd,
-        check     : BladesEffectCheck,
+        check     : basicAdditionalEffectCheck,
         preSet    : BasicActiveSetting,
     },
     BLADES_OF_FLAME : {
@@ -1132,7 +1166,7 @@ var ACTIVE_SKILLS_DATA = {
         info      : '1 回合內，延長移動符石時間 3 秒；消除一組 6 粒或以上的火符石，火屬性攻擊力 1.5 倍',
         coolDown  : 12,
         addEffect : BasicAddtionalEffectAdd,
-        check     : BladesEffectCheck,
+        check     : basicAdditionalEffectCheck,
         preSet    : BasicActiveSetting,
     },
     BLADES_OF_VINE : {
@@ -1141,7 +1175,7 @@ var ACTIVE_SKILLS_DATA = {
         info      : '1 回合內，延長移動符石時間 3 秒；消除一組 6 粒或以上的木符石，木屬性攻擊力 1.5 倍',
         coolDown  : 12,
         addEffect : BasicAddtionalEffectAdd,
-        check     : BladesEffectCheck,
+        check     : basicAdditionalEffectCheck,
         preSet    : BasicActiveSetting,
     },
     BLADES_OF_LIGHT : {
@@ -1150,16 +1184,16 @@ var ACTIVE_SKILLS_DATA = {
         info      : '1 回合內，延長移動符石時間 3 秒；同時消除心符石、光符石及暗符石，光屬性攻擊力 1.5 倍',
         coolDown  : 12,
         addEffect : BasicAddtionalEffectAdd,
-        check     : BladesEffectCheck,
+        check     : basicAdditionalEffectCheck,
         preSet    : BasicActiveSetting,
     },
     BLADES_OF_PHANTOM : {
-        id        : 'PHANTOM',
+        id        : 'BLADES_OF_PHANTOM',
         label     : '魅刃之能',
         info      : '1 回合內，延長移動符石時間 3 秒；同時消除心符石、光符石及暗符石，暗屬性攻擊力 1.5 倍',
         coolDown  : 12,
         addEffect : BasicAddtionalEffectAdd,
-        check     : BladesEffectCheck,
+        check     : basicAdditionalEffectCheck,
         preSet    : BasicActiveSetting,
     },
     ENSIFORM_BREATH : {
@@ -1215,7 +1249,7 @@ var ACTIVE_SKILLS_DATA = {
         info      : '將場上所有符石轉化為固定數量及位置的暗及心符石，並延長移動符石時間 3 秒',
         coolDown  : 12,
         addEffect : BasicAddtionalEffectAdd,
-        check     : SongOfEmpathyEvilEffectCheck,
+        check     : basicAdditionalEffectCheck,
         transfer  : SongOfEmpathyEvilTransfer,
         preSet    : BasicActiveSetting,
     },
@@ -1261,7 +1295,7 @@ var ACTIVE_SKILLS_DATA = {
         info      : '1 回合內，每直行消除一組 4 粒或以上符石時 (只計算首批消除的符石)，該直行將產生 2 粒光符石',
         coolDown  : 12,
         addEffect : BasicAddtionalEffectAdd,
-        check     : AddtionalEffectCheck,
+        check     : NewItemAdditionalEffectCheck,
         preSet    : BasicActiveSetting,
     },
     MAGIC_STAGE_GLOOM : {
@@ -1270,7 +1304,7 @@ var ACTIVE_SKILLS_DATA = {
         info      : '1 回合內，每直行消除一組 4 粒或以上符石時 (只計算首批消除的符石)，該直行將產生 2 粒暗符石',
         coolDown  : 12,
         addEffect : BasicAddtionalEffectAdd,
-        check     : MagicStageCheck,
+        check     : NewItemAdditionalEffectCheck,
         preSet    : BasicActiveSetting,
     },
 };

@@ -131,8 +131,9 @@ function setTimeLimit( time ){
     $("#timeNoLimit").hide();
     $("#timeRange").show();
     $('#timeRange').val( time );
+    TIME_FIXED = true;
+    TIME_FIX_LIST.push(time);
     TIME_IS_LIMIT = true;
-    TIME_LIMIT = time;
     buttonGroupAdjust();
 }
 function toggleDropable(){
@@ -628,16 +629,10 @@ function showTeamInfomation(){
         });
     });
 
-    var letterMap = TEAM_LEADER_SKILL['letter'];
-    var letter1 = COLOR_LETTERS[ letterMap[0] ][ TEAM_LEADER_SKILL['variable']['COLOR'] ];
-    var letter2 = COLOR_LETTERS[ letterMap[1] ][ TEAM_LEADER_SKILL['variable']['COLOR'] ];
-    $('#LeaderSkillInfomation td span').eq(0).text( TEAM_LEADER_SKILL['label'].format( letter1 ) );
-    $('#LeaderSkillInfomation td span').eq(1).text( TEAM_LEADER_SKILL['info'].format( letter2 ) );
-    letterMap = TEAM_FRIEND_SKILL['letter'];
-    letter1 = COLOR_LETTERS[ letterMap[0] ][ TEAM_FRIEND_SKILL['variable']['COLOR'] ];
-    letter2 = COLOR_LETTERS[ letterMap[1] ][ TEAM_FRIEND_SKILL['variable']['COLOR'] ];
-    $('#LeaderSkillInfomation td span').eq(2).text( TEAM_FRIEND_SKILL['label'].format( letter1 ) );
-    $('#LeaderSkillInfomation td span').eq(3).text( TEAM_FRIEND_SKILL['info'].format( letter2 ) );
+    $('#LeaderSkillInfomation td span').eq(0).text( TEAM_LEADER_SKILL['label'] );
+    $('#LeaderSkillInfomation td span').eq(1).text( TEAM_LEADER_SKILL['info'] );
+    $('#LeaderSkillInfomation td span').eq(2).text( TEAM_FRIEND_SKILL['label'] );
+    $('#LeaderSkillInfomation td span').eq(3).text( TEAM_FRIEND_SKILL['info'] );
 
     $("#TeamSkillInfoTD").children().remove();
     $.each(TEAM_SKILL, function(i, team_skill){

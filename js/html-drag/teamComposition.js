@@ -24,6 +24,7 @@ function resetTeamComposition(){
     resetTeamLeaderSkill();
     resetMemberActiveSkill();
     checkCombineSkill();
+    checkActiveCoolDownByWake();
 
     resetColors();
     resetHealthPoint();
@@ -42,6 +43,15 @@ function resetMemberWakes(){
             wakes.push( wake );
         });
         TEAM_WAKES.push( wakes );
+    });
+}
+function checkActiveCoolDownByWake(){
+    $.each(TEAM_MEMBERS, function(place, member){
+        $.each(TEAM_WAKES[place], function(i, wake){
+            if( "changeCD" in wake ){
+                wake["changeCD"](  member, place, member['wake_var'][i] );
+            }
+        });
     });
 }
 
