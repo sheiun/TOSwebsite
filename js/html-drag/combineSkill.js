@@ -128,7 +128,20 @@ var PearlOfDragonDuosTransfer = function( place, i ){
         turnElementToColorByID(id, this.variable['COLOR']);
     }
 }
-var DragonLashingTailTransfer = function( place, i ){
+var DragonLashingTailTransfer = function( place, i ){	
+    var base = 0;
+    $.each(TEAM_MEMBERS, function(place, member){
+        if( member['type'] == 'DRAGON' || member['color'] == 'p' ){
+            base += member['health'];
+        }
+    });
+    var recover = makeNewRecover();
+    recover['base']  = base;
+    recover['factor']= 0.5;
+    recover['style'] = "active";
+    recover['log']   = "DragonLashingTail";
+    makeDirectRecovery( recover );
+
     for(var id of getStackOfPanelByColorArr( [ 'h', COLOR_EXCLUSIVE[this.variable['COLOR']] ] ) ){
     	turnElementToColorByID( id, this.variable['COLOR'] );
     }

@@ -92,9 +92,12 @@ function countAttack(){
     checkAttackRecoverMapping();
 
     $.each(ATTACK_STACK, function(i, attack){
-        mapAttackToEnemy(i, attack);
+        if( attack['work'] != 'done' ){
+            mapAttackToEnemy(i, attack);
+        }
     });
     checkAttackRecoverDamage();
+    countHealthRecover();
 }
 function countEnemyAction(){
     checkInjureReduce();
@@ -254,13 +257,18 @@ function makeMemberRecover(membe_place, member){
 function countHealthRecover(){
     var total_recover = 0;
     $.each(RECOVER_STACK, function(i, recover){
-        var rec = Math.round( recover["base"] * recover["factor"] );
-        total_recover += rec;
-        showPersonRecover( recover );
+        if( recover['work'] != 'done' ){
+            var rec = Math.round( recover["base"] * recover["factor"] );
+            total_recover += rec;
+            showPersonRecover( recover );
+            recover['work'] = 'done';
+        }
     });
 
     HEALTH_POINT = Math.min( TOTAL_HEALTH_POINT, Math.round( HEALTH_POINT+total_recover ) );
-    showTotalRecover( total_recover );
+    if( total_recover > 0 ){
+        showTotalRecover( total_recover );
+    }
 }
 //==============================================================
 // action 2 : team attack enemy
@@ -286,6 +294,7 @@ function mapAttackToEnemy( a, attack ){
             countEnemySufferAttack( enemy, attack );
         });
     }
+    attack['work'] = 'done';
 }
 
 function countEnemySufferAttack( enemy, attack ){
@@ -327,12 +336,11 @@ function enemyActionUpdate(i, enemy){
     if( enemy['variable']['COOLDOWN'] == 0 ){
         enemy['variable']['COOLDOWN'] = enemy['coolDown'];
 
-        var injure = {
-            enemyOrder   : i,
-            label        : enemy['label'],
-            damage       : enemy['variable']['ATTACK'],
-            color        : enemy['variable']['COLOR'],
-        };
+        var injure = makeNewInjure();
+        injure['enemyOrder'] = i;
+        injure['label']      = enemy['label'];
+        injure['damage']     = enemy['variable']['ATTACK'];
+        injure['color']      = enemy['variable']['COLOR'];
 
         // consider injure reduce by skill
         if( !("INJURE_REDUCEABLE" in enemy['variable']) || enemy['variable']["INJURE_REDUCEABLE"] ){
@@ -343,14 +351,18 @@ function enemyActionUpdate(i, enemy){
 }
 function healthStatusUpdate(){
     $.each(INJURE_STACK, function(i, injure){
-        UNDEAD_WILL = false;
-        checkWillAfterBattle();
+        if( injure['work'] != 'done' ){
+            UNDEAD_WILL = false;
+            checkWillAfterBattle();
 
-        HEALTH_POINT -= injure['damage'];
-        if( UNDEAD_WILL && HEALTH_POINT < 0 ){
-            HEALTH_POINT = 1;
+            HEALTH_POINT -= injure['damage'];
+            if( UNDEAD_WILL && HEALTH_POINT < 0 ){
+                HEALTH_POINT = 1;
+            }
+            HEALTH_POINT = Math.max( 0, HEALTH_POINT );
+
+            injure['work'] = 'done';
         }
-        HEALTH_POINT = Math.max( 0, HEALTH_POINT );
     });
 }
 
@@ -401,13 +413,21 @@ function makeDirectAttack( attack ){
     }
 }
 function makeDirectRecovery( recover ){ 
-    resetAttackRecoverStack();
-    resetCount();
-    resetEnemyStatus();
+    var rec = Math.round( recover["base"] * recover["factor"] );
+    showPersonRecover( recover );
 
-    RECOVER_STACK.push(recover);
-    countHealthRecover();
+    HEALTH_POINT = Math.min( TOTAL_HEALTH_POINT, Math.round( HEALTH_POINT+rec ) );
+    showTotalRecover( rec );
+    showResult();
+}
+function makeDirectInjure( injure ){ 
+    HEALTH_POINT -= injure['damage'];
+    HEALTH_POINT = Math.max( 0, HEALTH_POINT );
 
-    showResult()
-    resetAttackRecoverStack();    
+    showResult();
+
+    if( ! checkTeamStatus() ){
+        showLoseGame();
+        endGame();
+    }
 }

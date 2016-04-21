@@ -192,18 +192,14 @@ var BloodThirstyDragonEXDamage = function( VAR, direct ){
             }
         })
     });
-    var recover_hp = Math.min( max_recover, total_damage*0.1 );
+    var recover_hp = Math.min( max_recover, Math.round( total_damage*0.1 ) );
 
-    var recover = {
-        color  : '',
-        type   : '',
-        style  : "leaderSkill",
-        place  : 10,
-        base   : recover_hp,
-        factor : 1,
-        log    : "BloodThirstyDragonEX",
-    };
-    RECOVER_STACK.push(recover);
+    var recover = makeNewRecover();
+    recover['base']  = recover_hp;
+    recover['factor']= 1;
+    recover['style'] = "leader";
+    recover['log']   = "BloodThirstyDragonEX";
+    RECOVER_STACK.push( recover );
 }
 var FangsOfDragonAttack = function( VAR, direct ){
     if( checkComboColorMaxAmountByConfig({
@@ -234,6 +230,104 @@ var ClawsOfDragonAttack = function( VAR, direct ){
             condition : function( member, member_place ){ return member['type'] == "DRAGON"; },
         };
     }
+}
+
+//==============================================================
+// Dragon Nidhogg
+//==============================================================
+var OathOfBloodSetHP = function( MEMBER, health ){
+    if( MEMBER['type'] == 'DRAGON' ){
+        health *= 2;
+    }
+    return health;
+}
+var OathOfBloodAttack = function( VAR, direct ){
+    COUNT_FACTOR['ClawsOfDragon'+direct] = {
+        factor    : function( member, member_place ){ return 3.5; },
+        prob      : 1,
+        condition : function( member, member_place ){ return member['type'] == "DRAGON"; },
+    };
+}
+var OathOfBloodEnd = function( VAR, direct ){
+    var injure = makeNewInjure();
+    injure['label']  = "OathOfBloodEnd";
+    injure['damage'] = Math.round( TOTAL_HEALTH_POINT/10 );
+    makeDirectInjure( injure );
+}
+//==============================================================
+// Dragon Beast Plant
+//==============================================================
+var DragonBeastPlantSetHP = function( MEMBER, health ){
+    if( MEMBER['type'] == 'DRAGON' || MEMBER['type'] == "BEAST" ){
+        health *= 1.5;
+    }
+    return health;
+}
+var DragonBeastPlantAttack = function( VAR, direct ){
+    COUNT_FACTOR['DragonBeastPlant'+direct] = {
+        factor    : function( member, member_place ){ return 3.5; },
+        prob      : 1,
+        condition : function( member, member_place ){ 
+            return member['type'] == "DRAGON" || member['type'] == "BEAST";
+        },
+    };
+}
+var DragonBeastPlantDamage = function( VAR, direct ){
+    var max_recover = TOTAL_HEALTH_POINT/2 ;
+    var last_recover = 0;
+    for(var obj of RECOVER_STACK){
+        if( obj['log'] == "DragonBeastPlant" ){ 
+            last_recover += obj['base']*obj['factor'];
+        }
+    }
+
+    var total_damage = 0;
+    $.each(ENEMY, function(i, enemy){
+        $.each(enemy['variable']['HATRED'], function(a, attack){
+            if( attack['style'] == 'person' && 
+                ( attack['type'] == 'DRAGON' || attack['type'] == "BEAST" ) ){
+                total_damage += attack['damage'];
+            }
+        })
+    });
+    var recover_hp = Math.min( max_recover-last_recover, Math.round( total_damage*0.1 ) );
+    if( recover_hp+last_recover+HEALTH_POINT > TOTAL_HEALTH_POINT ){
+        var overflow = recover_hp+last_recover+HEALTH_POINT-TOTAL_HEALTH_POINT;
+        VAR['COUNT'] = Math.floor( overflow / (TOTAL_HEALTH_POINT*0.12) );
+        if( last_recover+HEALTH_POINT > TOTAL_HEALTH_POINT ){
+            VAR['COUNT'] -= Math.floor( (last_recover+HEALTH_POINT-TOTAL_HEALTH_POINT) / (TOTAL_HEALTH_POINT*0.12) );
+        }
+    }else{
+        VAR['COUNT'] = 0;
+    }
+
+    var recover = makeNewRecover();
+    recover['base']  = recover_hp;
+    recover['factor']= 1;
+    recover['style'] = "leader";
+    recover['log']   = "DragonBeastPlant";
+    RECOVER_STACK.push( recover );
+}
+var DragonBeastPlantEnd = function( VAR, direct ){
+    var injure = makeNewInjure();
+    injure['label']  = "DragonBeastPlantEnd";
+    injure['damage'] = Math.round( TOTAL_HEALTH_POINT/20 );
+    makeDirectInjure( injure );
+
+    if( VAR['COUNT'] > 0 ){        
+        turnRandomElementToColorByConfig( {
+            color          : 'p',
+            num            : VAR['COUNT'],
+            priorityColors : [ ['w', 'f', 'l', 'd', 'h'] ],
+        } );
+    }
+}
+var DragonBeastPlantSetting = function( MEMBER ){
+    return {
+        COLOR    : MEMBER['color'],
+        TYPE     : MEMBER['type'],
+        COUNT    : 0,
+    };
 }
 
 //==============================================================
@@ -701,14 +795,14 @@ var HeartQueenSetting = function( MEMBER ){
 
 var LEADER_SKILLS_DATA = {
     NONE : {
-        id        : 'NONE',
+        id        : "NONE",
         label     : "靈魂收割 ‧ 結",
         info      : "當敵方生命力 40% 以下，無視防禦力和屬性，每回合以自身攻擊力 6 倍追打 1 次",
         letter    : [0,0],
         preSet    : BasicLeaderSetting,
     },
     WILL_SURVIVE : {
-        id        : 'WILL_SURVIVE',
+        id        : "WILL_SURVIVE",
         label     : "絕境意志",
         info      : "當前生命力大於 50% 時，下一次所受傷害不會使你死亡 (同一回合只會發動一次）",
         letter    : [0,0],
@@ -748,7 +842,7 @@ var LEADER_SKILLS_DATA = {
         preSet    : BasicLeaderSetting,
     },
     GREEK : {
-        id        : 'GREEK',
+        id        : "GREEK",
         label     : "{0}之連動",
         info      : "每累計消除 3 粒{0}符石 ，將產生 1 粒{0}強化符石",
         letter    : [0,0],
@@ -756,7 +850,7 @@ var LEADER_SKILLS_DATA = {
         preSet    : GreekSetting,
     },
     HEART_QUEEN : {
-        id        : 'HEART_QUEEN',
+        id        : "HEART_QUEEN",
         label     : "{0}之連動",
         info      : "每累計消除 3 粒{0}符石 ，將產生 1 粒{0}強化符石",
         letter    : [0,0],
@@ -764,7 +858,7 @@ var LEADER_SKILLS_DATA = {
         preSet    : HeartQueenSetting,
     },
     DRAGON_OFFENSE : {
-        id        : 'DRAGON_OFFENSE',
+        id        : "DRAGON_OFFENSE",
         label     : "龍攻代守",
         info      : "龍類攻擊力 2 倍，我方龍類的回復力加入自身攻擊力；消除心符石可回復固定百分比的已損失生命力 ( 每粒心符石回復百分比相等於隊伍龍類數量的兩倍 )",
         letter    : [0,0],
@@ -773,7 +867,7 @@ var LEADER_SKILLS_DATA = {
         preSet    : BasicLeaderSetting,
     },
     PULSE_OF_DRAGON : {
-        id        : 'PULSE_OF_DRAGON',
+        id        : "PULSE_OF_DRAGON",
         label     : "真龍之脈",
         info      : "龍類攻擊力 2.5 倍及增加 200 點回復力",
         letter    : [0,0],
@@ -782,7 +876,7 @@ var LEADER_SKILLS_DATA = {
         preSet    : BasicLeaderSetting,
     },
     DRAGON_DEFENSE : {
-        id        : 'DRAGON_DEFENSE',
+        id        : "DRAGON_DEFENSE",
         label     : "龍之持守",
         info      : "龍類攻擊力 2 倍及增加 200 點回復力，消除心符石時，等同消除暗符石，達 50% 暗符石效果",
         letter    : [0,0],
@@ -791,7 +885,7 @@ var LEADER_SKILLS_DATA = {
         preSet    : BasicLeaderSetting,
     },
     BLOOD_THIRSTY_DRAGON_EX : {
-        id        : 'BLOOD_THIRSTY_DRAGON_EX',
+        id        : "BLOOD_THIRSTY_DRAGON_EX",
         label     : "噬血龍王 ‧ 強",
         info      : "龍類攻擊力 2.5 倍，將龍類對敵方造成傷害的 10% 轉化為生命力 (不計算主動及隊長技傷害)，最大為生命力等值的 50% (不能疊加)",
         letter    : [0,0],
@@ -800,7 +894,7 @@ var LEADER_SKILLS_DATA = {
         preSet    : BasicLeaderSetting,
     },
     FANGS_OF_DRAGON : {
-        id        : 'FANGS_OF_DRAGON',
+        id        : "FANGS_OF_DRAGON",
         label     : "幻龍利牙",
         info      : "龍類攻擊力 1.5 倍；消除一組 6 粒或以上的相同屬性符石，龍類攻擊力 3 倍",
         letter    : [0,0],
@@ -808,15 +902,36 @@ var LEADER_SKILLS_DATA = {
         preSet    : BasicLeaderSetting,
     },
     CLAWS_OF_DRAGON : {
-        id        : 'CLAWS_OF_DRAGON',
+        id        : "CLAWS_OF_DRAGON",
         label     : "幻龍利爪",
         info      : "消除一組 6 粒或以上的相同符石，龍類攻擊力 3 倍",
         letter    : [0,0],
         attack    : ClawsOfDragonAttack,
         preSet    : BasicLeaderSetting,
     },
+    OATH_OF_BLOOD : {
+        id        : "OATH_OF_BLOOD",
+        label     : "歃血之盟誓",
+        info      : "龍類攻擊力 3.5 倍及生命力 2 倍，每回合扣自身總生命力 10%",
+        letter    : [0,0],
+        attack    : OathOfBloodAttack,
+        end       : OathOfBloodEnd,
+        preSet    : BasicLeaderSetting,
+        setHP     : OathOfBloodSetHP,
+    },
+    DRAGON_BEAST_PLANT : {
+        id        : "DRAGON_BEAST_PLANT",
+        label     : "噬血移魂",
+        info      : "木屬性的龍類及獸類攻擊力 3.5 倍，及生命力 1.5 倍；並於每回合扣除自身總生命力 5%。此外，將龍類及獸類對敵方造成傷害的 10% 轉化為生命力 (不計算主動技傷害)，最大為生命力等值的 50% (不能疊加)；若轉化的生命力超出總生命力的上限時，每超出 12% 的生命力，回合結束時隨機將 1 粒符石轉化為木符石，最多可轉化 4 粒 (效果不能疊加)",
+        letter    : [0,0],
+        attack    : DragonBeastPlantAttack,
+        damage    : DragonBeastPlantDamage,
+        end       : DragonBeastPlantEnd,
+        preSet    : DragonBeastPlantSetting,
+        setHP     : DragonBeastPlantSetHP,
+    },
     COUPLE_F : {
-        id        : 'COUPLE_F',
+        id        : "COUPLE_F",
         label     : "火靈符籙",
         info      : "2 粒火符石或心符石相連，即可發動消除，所有符石掉落機率不受其他技能影響 (包括改變掉落符石屬性的技能)。回合結束時，將 2 粒符石轉化為火符石 (光及暗符石優先轉換)",
         letter    : [0,0],
@@ -824,7 +939,7 @@ var LEADER_SKILLS_DATA = {
         preSet    : CoupleSetting,
     },
     COUPLE_P : {
-        id        : 'COUPLE_P',
+        id        : "COUPLE_P",
         label     : "木靈符籙",
         info      : "2 粒木符石或心符石相連，即可發動消除，所有符石掉落機率不受其他技能影響 (包括改變掉落符石屬性的技能)。回合結束時，將 2 粒符石轉化為木符石 (光及暗符石優先轉換)",
         letter    : [0,0],
@@ -832,142 +947,142 @@ var LEADER_SKILLS_DATA = {
         preSet    : CoupleSetting,
     },
     DOLL_HUMAN_DRAGON : {
-        id        : 'DOLL_HUMAN_DRAGON',
-        label     : '龍魂輔主',
-        info      : '當隊伍中只有人類及 2 個或以上龍類成員時，人類攻擊力 3.5 倍，龍類攻擊力 2 倍',
+        id        : "DOLL_HUMAN_DRAGON",
+        label     : "龍魂輔主",
+        info      : "當隊伍中只有人類及 2 個或以上龍類成員時，人類攻擊力 3.5 倍，龍類攻擊力 2 倍",
         letter    : [0,0],
         attack    : DollHumanDragonAttack,
         preSet    : BasicLeaderSetting,
     },
     DOLL_HUMAN_BEAST_SPIRIT : {
-        id        : 'DOLL_HUMAN_BEAST_SPIRIT',
-        label     : '幻獸輔主',
-        info      : '當隊伍中只有人類、2 個或以上獸類或妖精類成員時，人類攻擊力 3.5 倍，獸類及妖精類攻擊力 2.5 倍',
+        id        : "DOLL_HUMAN_BEAST_SPIRIT",
+        label     : "幻獸輔主",
+        info      : "當隊伍中只有人類、2 個或以上獸類或妖精類成員時，人類攻擊力 3.5 倍，獸類及妖精類攻擊力 2.5 倍",
         letter    : [0,0],
         attack    : DollHumanBeastSpiritAttack,
         preSet    : BasicLeaderSetting,
     },
     DOLL_HUMAN_DEVIL_SPIRIT : {
-        id        : 'DOLL_HUMAN_DEVIL_SPIRIT',
-        label     : '妖魔輔主',
-        info      : '當隊伍中只有人類、2 個或以上魔族或妖精類成員時，人類攻擊力 3.5 倍，魔族及妖精類攻擊力 2.5 倍',
+        id        : "DOLL_HUMAN_DEVIL_SPIRIT",
+        label     : "妖魔輔主",
+        info      : "當隊伍中只有人類、2 個或以上魔族或妖精類成員時，人類攻擊力 3.5 倍，魔族及妖精類攻擊力 2.5 倍",
         letter    : [0,0],
         attack    : DollHumanDevilSpiritAttack,
         preSet    : BasicLeaderSetting,
     },
     DOLL_HUMAN_GOD : {
-        id        : 'DOLL_HUMAN_GOD',
-        label     : '神靈輔主',
-        info      : '當隊伍中只有人類及 2 個或以上神族成員時，人類攻擊力 3.5 倍，神族攻擊力 2 倍',
+        id        : "DOLL_HUMAN_GOD",
+        label     : "神靈輔主",
+        info      : "當隊伍中只有人類及 2 個或以上神族成員時，人類攻擊力 3.5 倍，神族攻擊力 2 倍",
         letter    : [0,0],
         attack    : DollHumanGodAttack,
         preSet    : BasicLeaderSetting,
     },
     TRIBE_BEAST : {
-        id        : 'TRIBE_BEAST',
-        label     : '{0}影世界 ‧ 獸',
-        info      : '獸類攻擊力 2.5 倍；{0}符石兼具所有屬性符石效果，每個獸類成員提升 10% 效果，最高 50% (效果可以疊加)',
+        id        : "TRIBE_BEAST",
+        label     : "{0}影世界 ‧ 獸",
+        info      : "獸類攻擊力 2.5 倍；{0}符石兼具所有屬性符石效果，每個獸類成員提升 10% 效果，最高 50% (效果可以疊加)",
         letter    : [2,0],
         attack    : TribeBeastAttack,
         preSet    : BasicLeaderSetting,
     },
     BABYLON : {
-        id        : 'BABYLON',
-        label     : '穹蒼之賜 ‧ {0}',
-        info      : '{0}屬性攻擊力 2.5 倍；每直行消除一組 4 粒或以上符石時 (只計算首批消除的符石)，該直行將產生 1 粒{0}符石',
+        id        : "BABYLON",
+        label     : "穹蒼之賜 ‧ {0}",
+        info      : "{0}屬性攻擊力 2.5 倍；每直行消除一組 4 粒或以上符石時 (只計算首批消除的符石)，該直行將產生 1 粒{0}符石",
         letter    : [0,0],
         newItem   : BabylonSkill,
         attack    : BabylonAttack,
         preSet    : BasicLeaderSetting,
     },
     BABYLON_PLUS : {
-        id        : 'BABYLON_PLUS',
-        label     : '穹蒼之賜 ‧ {0}',
-        info      : '{0}屬性攻擊力 3 倍；每直行消除一組 4 粒或以上符石時 (只計算首批消除的符石)，該直行將產生 1 粒{0}符石',
+        id        : "BABYLON_PLUS",
+        label     : "穹蒼之賜 ‧ {0}",
+        info      : "{0}屬性攻擊力 3 倍；每直行消除一組 4 粒或以上符石時 (只計算首批消除的符石)，該直行將產生 1 粒{0}符石",
         letter    : [3,0],
         newItem   : BabylonSkill,
         attack    : BabylonAttackPlus,
         preSet    : BasicLeaderSetting,
     },
     SWORD_BROTHER : {
-        id        : 'SWORD_BROTHER',
-        label     : '陰陽煞陣',
-        info      : '光和暗屬性攻擊力 2 倍；同時消除光符石及暗符石，光和暗屬性攻擊力額外提升 1.5 倍 (效果可以疊加)',
+        id        : "SWORD_BROTHER",
+        label     : "陰陽煞陣",
+        info      : "光和暗屬性攻擊力 2 倍；同時消除光符石及暗符石，光和暗屬性攻擊力額外提升 1.5 倍 (效果可以疊加)",
         letter    : [0,0],
         attack    : SwordBrotherAttack,
         preSet    : BasicLeaderSetting,
     },
     SWORD_BROTHER_EX : {
-        id        : 'SWORD_BROTHER_EX',
-        label     : '陰陽煞陣 ‧ 強',
-        info      : '光和暗屬性攻擊力 2.5 倍；光符石兼具 50% 暗符石效果，暗符石兼具 50% 光符石效果 (效果可以疊加)；同時消除光符石及暗符石，光和暗屬性攻擊力額外提升 1.5 倍 (效果可以疊加)',
+        id        : "SWORD_BROTHER_EX",
+        label     : "陰陽煞陣 ‧ 強",
+        info      : "光和暗屬性攻擊力 2.5 倍；光符石兼具 50% 暗符石效果，暗符石兼具 50% 光符石效果 (效果可以疊加)；同時消除光符石及暗符石，光和暗屬性攻擊力額外提升 1.5 倍 (效果可以疊加)",
         letter    : [0,0],
         attack    : SwordBrotherEXAttack,
         preSet    : BasicLeaderSetting,
     },
     COMMON_SOURCE : {
-        id        : 'COMMON_SOURCE',
-        label     : '仙劍同源',
-        info      : '隊伍中只有水、火及木屬性的成員時，水符石兼具火及木符石效果、火符石兼具水及木符石效果，同時木符石兼具水及火符石效果 (不能疊加)；消除心符石時攻擊力有 50% 機會額外提升 1.5 倍 (機率可以疊加)',
+        id        : "COMMON_SOURCE",
+        label     : "仙劍同源",
+        info      : "隊伍中只有水、火及木屬性的成員時，水符石兼具火及木符石效果、火符石兼具水及木符石效果，同時木符石兼具水及火符石效果 (不能疊加)；消除心符石時攻擊力有 50% 機會額外提升 1.5 倍 (機率可以疊加)",
         letter    : [0,0],
         attack    : CommonSourceAttack,
         preSet    : BasicLeaderSetting,
     },
     COMMON_SOURCE_EX : {
-        id        : 'COMMON_SOURCE_EX',
-        label     : '仙劍同源 ‧ 強',
-        info      : '隊伍中只有水、火及木屬性的成員時，水符石兼具火及木符石效果、火符石兼具水及木符石效果，同時木符石兼具水及火符石效果 (不能疊加)；消除心符石時攻擊力有 50% 機會額外提升 1.5 倍 (機率可以疊加)。同時消除水、火及木符石時，全隊攻擊力額外提升 1.5 倍',
+        id        : "COMMON_SOURCE_EX",
+        label     : "仙劍同源 ‧ 強",
+        info      : "隊伍中只有水、火及木屬性的成員時，水符石兼具火及木符石效果、火符石兼具水及木符石效果，同時木符石兼具水及火符石效果 (不能疊加)；消除心符石時攻擊力有 50% 機會額外提升 1.5 倍 (機率可以疊加)。同時消除水、火及木符石時，全隊攻擊力額外提升 1.5 倍",
         letter    : [0,0],
         attack    : CommonSourceEXAttack,
         preSet    : BasicLeaderSetting,
     },
     LIXIAOYAO : {
-        id        : 'LIXIAOYAO',
-        label     : '逍遙神劍',
-        info      : '全隊攻擊力 1.8 倍；消除的符石數量愈多 (主動技能除外)，全隊攻擊力額外提升愈多 (不能疊加)。隊伍中只有水、火及木屬性的成員時，消除心符石時攻擊力有 50% 機會額外提升 1.5 倍 (機率可以疊加)',
+        id        : "LIXIAOYAO",
+        label     : "逍遙神劍",
+        info      : "全隊攻擊力 1.8 倍；消除的符石數量愈多 (主動技能除外)，全隊攻擊力額外提升愈多 (不能疊加)。隊伍中只有水、火及木屬性的成員時，消除心符石時攻擊力有 50% 機會額外提升 1.5 倍 (機率可以疊加)",
         letter    : [0,0],
         attack    : LIXIAOYAOAttack,
         preSet    : BasicLeaderSetting,
     },
     WATER_FAIRY : {
-        id        : 'WATER_FAIRY',
-        label     : '流雲雙刃斬',
-        info      : '水屬性攻擊力 2.5 倍；消除最底一橫行內的所有符石時，自身攻擊力額外提升 3 倍，若使用相同的隊長及戰友時，自身攻擊力額外提升至 9 倍',
+        id        : "WATER_FAIRY",
+        label     : "流雲雙刃斬",
+        info      : "水屬性攻擊力 2.5 倍；消除最底一橫行內的所有符石時，自身攻擊力額外提升 3 倍，若使用相同的隊長及戰友時，自身攻擊力額外提升至 9 倍",
         letter    : [0,0],
         attack    : WaterFairyAttack,
         preSet    : BasicLeaderSetting,
     },
     DARK_LUCIFER : {
-        id        : 'DARK_LUCIFER',
-        label     : '穹蒼之賜 ‧ 護心',
-        info      : '全隊攻擊力 2.5 倍；每直行消除一組 4 粒或以上符石時 (只計算首批消除的符石)，該直行將產生 1 粒心符石。生命力全滿時，所受傷害減少 20%',
+        id        : "DARK_LUCIFER",
+        label     : "穹蒼之賜 ‧ 護心",
+        info      : "全隊攻擊力 2.5 倍；每直行消除一組 4 粒或以上符石時 (只計算首批消除的符石)，該直行將產生 1 粒心符石。生命力全滿時，所受傷害減少 20%",
         letter    : [0,0],
         newItem   : BabylonSkill,
         attack    : DarkLuciferAttack,
         preSet    : DarkLuciferSetting,        
     },
     DEVIL_ILLUSION : {
-        id        : 'DEVIL_ILLUSION',
-        label     : '無影幻像 ‧ {0}',
-        info      : '{0}屬性攻擊力 3 倍，每回合場上數量最多的 1 種屬性符石兼具 50% {0}符石效果 (可疊加)，如場上數量最多的 1 種屬性符石為{0}屬性符石時，則兼具效果變為{0}屬性攻擊力提升 1.4 倍 (可疊加)',
+        id        : "DEVIL_ILLUSION",
+        label     : "無影幻像 ‧ {0}",
+        info      : "{0}屬性攻擊力 3 倍，每回合場上數量最多的 1 種屬性符石兼具 50% {0}符石效果 (可疊加)，如場上數量最多的 1 種屬性符石為{0}屬性符石時，則兼具效果變為{0}屬性攻擊力提升 1.4 倍 (可疊加)",
         letter    : [1,0],
         findMaxC  : DevilIllusionFindMaxColor,
         attack    : DevilIllusionAttack,
         preSet    : DevilIllusionSetting,
     },
     DEVIL_ILLUSION_PLUS : {
-        id        : 'DEVIL_ILLUSION_PLUS',
-        label     : '無垠幻像 ‧ {0}',
-        info      : '{0}屬性攻擊力 3.5 倍，每回合場上數量最多的 1 種屬性符石兼具 50% {0}符石效果 (可疊加)，如場上數量最多的 1 種屬性符石為{0}屬性符石時，則兼具效果變為{0}屬性攻擊力提升 1.4 倍 (可疊加)',
+        id        : "DEVIL_ILLUSION_PLUS",
+        label     : "無垠幻像 ‧ {0}",
+        info      : "{0}屬性攻擊力 3.5 倍，每回合場上數量最多的 1 種屬性符石兼具 50% {0}符石效果 (可疊加)，如場上數量最多的 1 種屬性符石為{0}屬性符石時，則兼具效果變為{0}屬性攻擊力提升 1.4 倍 (可疊加)",
         letter    : [1,0],
         findMaxC  : DevilIllusionFindMaxColor,
         attack    : DevilIllusionPlusAttack,
         preSet    : DevilIllusionSetting,
     },
     DEVIL_CIRCLE : {
-        id        : 'DEVIL_CIRCLE',
-        label     : '{0}結陣 ‧ 繼',
-        info      : '{0}屬性攻擊力 3 倍，並延長移動符石時間 1 秒；消除一組 5 粒或以上的{0}符石時，{0}屬性攻擊力額外提升 1.5 倍 (可疊加)',
+        id        : "DEVIL_CIRCLE",
+        label     : "{0}結陣 ‧ 繼",
+        info      : "{0}屬性攻擊力 3 倍，並延長移動符石時間 1 秒；消除一組 5 粒或以上的{0}符石時，{0}屬性攻擊力額外提升 1.5 倍 (可疊加)",
         letter    : [1,0],
         attack    : DevilCircleAttack,
         preSet    : DevilCircleSetting,
@@ -976,7 +1091,7 @@ var LEADER_SKILLS_DATA = {
 
 function NewLeaderSkill( id ){
     var leaderSkillObj = $.extend(true, {}, LEADER_SKILLS_DATA[id]);
-    leaderSkillObj['variable'] = {};
+    leaderSkillObj["variable"] = {};
     return leaderSkillObj;
 }
 

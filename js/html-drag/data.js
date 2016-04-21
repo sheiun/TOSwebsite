@@ -437,6 +437,21 @@ var CHARACTERS_DATA = {
         leader       : "FANGS_OF_DRAGON",
         active       : [ "DRAGON_CENTRALIZATION_D_EX" ],
     },
+    BOSS_DRAGON_NIDHOGG : {
+        id           : "BOSS_DRAGON_NIDHOGG",
+        label        : "末日屍龍 ‧ 尼德霍格",
+        img          : "img/Boss/0/p2-1.png",
+        color        : "p",
+        type         : "DRAGON",
+        health       : 7503,
+        attack       : 1877,
+        recovery     : 0,
+        wake         : [ "NONE", "NONE", "NONE", "NONE" ],
+        wake_var     : [ 0, 0, 0, 0 ],
+        wake_info    : [ "無", "無", "無", "無" ],
+        leader       : "OATH_OF_BLOOD",
+        active       : [ "COURAGE_OF_SACRIFICE", "REVIVAL_OF_SPIRIT_DRAGON" ],
+    },
     COUPLE_F : {
         id           : "COUPLE_F",
         label        : "彌勒世尊 ‧ 燃燈",
@@ -921,6 +936,7 @@ var BASIC_ATTACK = {
     type   : "NONE",
     target : [],
     log    : "",
+    work   : "init",
 };
 var BASIC_RECOVER = {
     base   : 0,
@@ -930,6 +946,14 @@ var BASIC_RECOVER = {
     style  : "NONE",
     type   : "NONE",
     log    : "",
+    work   : "init",
+};
+var BASIC_INJURE = {
+    enemyOrder   : 0,
+    label        : "",
+    damage       : 0,
+    color        : "_",
+    work   : "init",
 };
 
 function makeNewAttack(){
@@ -939,4 +963,8 @@ function makeNewAttack(){
 function makeNewRecover(){    
     var recover = $.extend(true, {}, BASIC_RECOVER);
     return recover;
+}
+function makeNewInjure(){    
+    var injure = $.extend(true, {}, BASIC_INJURE);
+    return injure;
 }

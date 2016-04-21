@@ -461,17 +461,22 @@ function checkInjure(){
 
     setTimeout( function(){
         endPlayTurn();
-    }, ATTACK_INFO_TIME);
+    }, ATTACK_INFO_TIME );
 
 }
 function endPlayTurn(){
-    $("#dragContainment img.over").removeClass("img-gray");
     checkLeaderSkillByKey( 'end' );
     checkTeamSkillByKey( 'end' );
     checkActiveSkillByKey( 'end' );
     checkAdditionEffectByKey( 'end' );
     checkEnemyEffectByKey( 'end' );
 
+    setTimeout( function(){
+        $("#dragContainment img.over").removeClass("img-gray");
+        checkGameStatus();
+    }, ATTACK_INFO_TIME );
+}
+function checkGameStatus(){
     if( ! checkTeamStatus() ){
         showLoseGame();
         endGame();

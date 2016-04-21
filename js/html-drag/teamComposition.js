@@ -16,12 +16,14 @@ function resetTeamComposition(){
     ];  
     cleanColors();
     resetDropColors();
+
+    // wake & teamSkill may change the active/leader
+    resetMemberWakes();
+    checkTeamSkill();
+
     resetTeamLeaderSkill();
     resetMemberActiveSkill();
-    resetMemberWakes();
-
-    checkCombineSkill();    
-    checkTeamSkill();
+    checkCombineSkill();
 
     resetColors();
     resetHealthPoint();
@@ -87,9 +89,17 @@ function resetHealthPoint(){
     TOTAL_HEALTH_POINT = 0;
     HEALTH_POINT = 0;
     $.each(TEAM_MEMBERS, function(place, member){
-        HEALTH_POINT += member['health'];
-        TOTAL_HEALTH_POINT += member['health'];
+        var health = member['health'];
+        if( 'setHP' in TEAM_LEADER_SKILL ){
+            health = TEAM_LEADER_SKILL['setHP']( member, health );
+        }
+        if( 'setHP' in TEAM_FRIEND_SKILL ){
+            health = TEAM_FRIEND_SKILL['setHP']( member, health );
+        }
+        TOTAL_HEALTH_POINT += health;
     });
+    TOTAL_HEALTH_POINT = Math.round(TOTAL_HEALTH_POINT);
+    HEALTH_POINT = TOTAL_HEALTH_POINT;
 }
 function resetBattleStack(){
     ADDITIONAL_EFFECT_STACK  = [];

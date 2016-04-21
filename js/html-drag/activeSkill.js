@@ -553,6 +553,19 @@ var MagicStageCheck = function( place, i ){
         basicAdditionalEffectCheckByTag( "newItem" ) &&
         basicActiveCheck( this.variable, place, i );
 }
+var CourageOfSacrificeCheck = function( place, i ){
+    if( HEALTH_POINT <= 1 ){ return false; }
+    return basicAdditionalEffectCheck( this.id ) && basicActiveCheck( this.variable, place, i );
+}
+var CourageOfSacrificeEffectAdd = function( place, i ){    
+    var injure = makeNewInjure();
+    injure['label']  = "CourageOfSacrificeEffectAdd";
+    injure['damage'] = Math.round( HEALTH_POINT*0.75 );
+    makeDirectInjure( injure );
+    var effect = NewAdditionalEffect( this.id );
+    effect['variable'] = effect['preSet']( place, i, this.variable );
+    additionalEffectAdd( effect );
+}
 
 var BasicAddtionalEffectAdd = function( place, i ){
     var effect = NewAdditionalEffect( this.id );
@@ -636,6 +649,20 @@ var DarknessAssaultEXLaunch = function( place, i ){
     attack['style']  = 'activeDirectDamage';
     attack['log']    = 'DarknessAssaultEX';
     makeDirectAttack(attack);
+}
+var RevivalOfSpiritLaunch = function( place, i ){
+    var base = 0;
+    $.each(TEAM_MEMBERS, function(place, member){
+        if( member['type'] == 'DRAGON' ){
+            base += member['health'];
+        }
+    });
+    var recover = makeNewRecover();
+    recover['base']  = base;
+    recover['factor']= 1.5;
+    recover['style'] = "active";
+    recover['log']   = "RevivalOfSpiritLaunch";
+    makeDirectRecovery( recover );
 }
 
 //==============================================================
@@ -1008,6 +1035,24 @@ var ACTIVE_SKILLS_DATA = {
         close     : DragonCentralizationDEXClose,
         preSet    : DragonCentralizationDEXSetting,
         start     : DragonCentralizationDEXStart,
+    },
+    COURAGE_OF_SACRIFICE : {
+        id        : 'COURAGE_OF_SACRIFICE',
+        label     : '捨生力敵',
+        info      : '消秏現有 75% 生命力；1 回合內，木屬性或龍類攻擊力 2.5 倍',
+        coolDown  : 10,
+        addEffect : CourageOfSacrificeEffectAdd,
+        check     : CourageOfSacrificeCheck,
+        preSet    : BasicActiveSetting,
+    },
+    REVIVAL_OF_SPIRIT_DRAGON : {
+        id        : 'REVIVAL_OF_SPIRIT_DRAGON',
+        label     : '靈之復甦 ‧ 龍',
+        info      : '回復相當於龍類成員 1.5 倍的生命力',
+        coolDown  : 10,
+        check     : BasicActiveCheck,
+        launch    : RevivalOfSpiritLaunch,
+        preSet    : BasicActiveSetting,
     },
     BATTLEFIELD_P : {
         id        : 'BATTLEFIELD_P',

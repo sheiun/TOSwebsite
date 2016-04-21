@@ -59,6 +59,15 @@ var DragonResonance = function(){
 		ATTACK_STACK[i]['factor'] = max_attack_factor;
 	}
 }
+var CourageOfSacrificeAttack = function(){
+	COUNT_FACTOR['CourageOfSacrificeAttack'] = {
+	    factor    : function( member, member_place ){ return 2; },
+	    prob      : 1,
+	    condition : function( member, member_place ){ 
+	    	return member['type'] == 'DRAGON' || member['color'] == 'p';
+	    },
+	};
+}
 //==============================================================
 var FightSafeAttack = function(){
 	if( countComboAtFirstWave() >= 4 ){
@@ -291,6 +300,12 @@ var ADDITIONAL_EFFECT_DATA = {
 		id        : 'DRAGON_RESONANCE',
 		resonance : DragonResonance,
 		preSet    : DragonResonanceSetting,
+		tag       : ['attack'],
+	},
+	COURAGE_OF_SACRIFICE : {
+		id        : 'COURAGE_OF_SACRIFICE',
+		attack    : CourageOfSacrificeAttack,
+		preSet    : BasicEffectSetting,
 		tag       : ['attack'],
 	},
 	FIGHT_SAFE : {

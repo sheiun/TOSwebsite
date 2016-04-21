@@ -55,67 +55,6 @@ var TeamNordicOdinMapping = function(){
 }
 
 //==============================================================
-// Babylon
-//==============================================================
-var TeamBabylonSetting = function( LEADER, FRIEND ){
-    LEADER['leader'] = "BABYLON_PLUS";
-    FRIEND['leader'] = "BABYLON_PLUS";
-    TEAM_LEADER_SKILL = NewLeaderSkill( "BABYLON_PLUS" );
-    TEAM_FRIEND_SKILL = NewLeaderSkill( "BABYLON_PLUS" );
-    TEAM_LEADER_SKILL["variable"] = TEAM_LEADER_SKILL['preSet']( LEADER );
-    TEAM_FRIEND_SKILL["variable"] = TEAM_FRIEND_SKILL['preSet']( FRIEND );
-    return { COLOR : LEADER['color'] };
-}
-var TeamBabylonAttack = function( VAR ){
-    COUNT_FACTOR['TeamBabylon'] = {
-        factor    : function( member, membe_place ){
-            var straight = countFirstStraightNum( 4 );
-            if( straight < 2 ){ return 1; }
-            else{
-                return Math.min( 1+((straight-1)*0.1), 1.5 );
-            }         
-        },
-        prob      : 1,
-        condition : function( member, membe_place ){ return true; },
-    };
-}
-var TeamBabylonMapping = function(){
-    if( TEAM_LEADER['id'] == TEAM_FRIEND['id'] && TEAM_FRIEND['leader'] == "BABYLON" ){
-        basicTeamSkillAdd( this.id );
-    }
-}
-
-//==============================================================
-// DarkLucifer
-//==============================================================
-var TeamDarkLuciferAttack = function( VAR ){
-    if( checkMembersTypeByConfig( { 
-            types : [ 'SPIRIT', 'OTHER' ],
-            check : [ '{0}>=2', '{1}==0' ]
-        } ) ){
-
-        setColorBelongsByConfig( { 'h' : { 'w': 1, 'f': 1, 'p': 1, 'l': 1, 'd': 1 } } );
-
-        COUNT_FACTOR['TeamDarkLucifer'] = {
-            factor    : function( member, membe_place ){
-                var straight = countFirstStraightNum( 4 );
-                if( straight < 2 ){ return 1; }
-                else{
-                    return Math.min( 1+((straight-1)*0.1), 1.5 );
-                }            
-            },
-            prob      : 1,
-            condition : function( member, membe_place ){ return true; },
-        };
-    }
-}
-var TeamDarkLuciferMapping = function(){
-    if( TEAM_LEADER['id'] == TEAM_FRIEND['id'] && TEAM_FRIEND['leader'] == "DARK_LUCIFER" ){
-        basicTeamSkillAdd( this.id );
-    }
-}
-
-//==============================================================
 // Greek
 //==============================================================
 var TeamGreekComboSetting = function( LEADER, FRIEND ){
@@ -168,58 +107,6 @@ var TeamGreekSkill = function( VAR ){
 }
 var TeamGreekMapping = function(){    
     if( TEAM_LEADER['id'] == TEAM_FRIEND['id'] && TEAM_FRIEND['leader'] == "GREEK" ){
-        basicTeamSkillAdd( this.id );
-    }
-}
-
-//==============================================================
-// Couple
-//==============================================================
-var TeamCoupleAttackFF = function( VAR ){
-    COUNT_FACTOR['COUPLE_FF'] = {
-        factor    : function( member, membe_place ){ return 6; },
-        prob      : 1,
-        condition : function( member, membe_place ){
-            if( member['color'] == 'f' ){ return true; }
-            return false;
-        },
-    };
-}
-var TeamCoupleAttackPP = function( VAR ){
-    COUNT_FACTOR['COUPLE_PP'] = {
-        factor    : function( member, membe_place ){ return 6; },
-        prob      : 1,
-        condition : function( member, membe_place ){
-            if( member['color'] == 'p' ){ return true; }
-            return false;
-        },
-    };
-}
-var TeamCoupleAttackFP = function( VAR ){
-    COUNT_BELONG_COLOR['f']['p'] = 1;
-    COUNT_BELONG_COLOR['p']['f'] = 1;
-    COUNT_FACTOR['COUPLE_FP'] = {
-        factor    : function( member, membe_place ){ return 3; },
-        prob      : 1,
-        condition : function( member, membe_place ){
-            if( member['color'] == 'f' ||  member['color'] == 'p' ){ return true; }
-            return false;
-        },
-    };
-}
-var TeamCoupleFFMapping = function(){
-    if( TEAM_LEADER['id'] == TEAM_FRIEND['id'] && TEAM_FRIEND['leader'] == "COUPLE_F" ){
-        basicTeamSkillAdd( this.id );
-    }
-}
-var TeamCouplePPMapping = function(){
-    if( TEAM_LEADER['id'] == TEAM_FRIEND['id'] && TEAM_FRIEND['leader'] == "COUPLE_P" ){
-        basicTeamSkillAdd( this.id );
-    }
-}
-var TeamCoupleFPMapping = function(){
-    if( (TEAM_LEADER['leader'] == "COUPLE_F" && TEAM_FRIEND['leader'] == "COUPLE_P") || 
-        (TEAM_LEADER['leader'] == "COUPLE_P" && TEAM_FRIEND['leader'] == "COUPLE_F") ){
         basicTeamSkillAdd( this.id );
     }
 }
@@ -300,7 +187,7 @@ var DragonServantMapping = function(){
     }
 }
 //==============================================================
-var DragonResonanceWSetting = function(){
+var DragonResonanceWSetting = function( LEADER, FRIEND ){
     increaseHARByLastMember("ETHEREAL_DRAGON_W", 1.3, 1, 1 );
     return {};
 }
@@ -312,7 +199,7 @@ var DragonResonanceWMapping = function(){
         basicTeamSkillAdd( this.id );
     }
 }
-var DragonResonanceFSetting = function(){
+var DragonResonanceFSetting = function( LEADER, FRIEND ){
     increaseHARByLastMember("ETHEREAL_DRAGON_F", 1, 1, 4 );
     return {};
 }
@@ -324,7 +211,7 @@ var DragonResonanceFMapping = function(){
         basicTeamSkillAdd( this.id );
     }
 }
-var DragonResonancePSetting = function(){
+var DragonResonancePSetting = function( LEADER, FRIEND ){
     increaseHARByLastMember("ETHEREAL_DRAGON_P", 1.3, 1, 1 );
     return {};
 }
@@ -336,7 +223,7 @@ var DragonResonancePMapping = function(){
         basicTeamSkillAdd( this.id );
     }
 }
-var DragonResonanceLSetting = function(){
+var DragonResonanceLSetting = function( LEADER, FRIEND ){
     increaseHARByLastMember("ETHEREAL_DRAGON_L", 1.2, 1, 1 );
     reduceCoolDownByLastMember("ETHEREAL_DRAGON_L", "THUNDER_STRIKE_EX", 3 );
     return {};
@@ -349,7 +236,7 @@ var DragonResonanceLMapping = function(){
         basicTeamSkillAdd( this.id );
     }
 }
-var DragonResonanceDSetting = function(){
+var DragonResonanceDSetting = function( LEADER, FRIEND ){
     increaseHARByLastMember("ETHEREAL_DRAGON_D", 1.2, 1, 1 );
     reduceCoolDownByLastMember("ETHEREAL_DRAGON_D", "DARKNESS_ASSAULT_EX", 3 );
     return {};
@@ -359,6 +246,135 @@ var DragonResonanceDMapping = function(){
             ID    : [ "DRAGON_SERVANT_D", "ETHEREAL_DRAGON_D" ],
             check : [ "{0}>=1","{1}>=1" ],
         } ) ){
+        basicTeamSkillAdd( this.id );
+    }
+}
+//==============================================================
+var DragonBeastPlantSetting = function( LEADER, FRIEND ){
+    LEADER['leader'] = "DRAGON_BEAST_PLANT";
+    FRIEND['leader'] = "DRAGON_BEAST_PLANT";
+    return {};
+}
+var DragonBeastPlantMapping = function(){
+    if( ( ( TEAM_LEADER['id'] == "BOSS_DRAGON_NIDHOGG" && TEAM_FRIEND['id'] == "DRAGON_SERVANT_P" ) || 
+          ( TEAM_FRIEND['id'] == "BOSS_DRAGON_NIDHOGG" && TEAM_LEADER['id'] == "DRAGON_SERVANT_P" ) ) &&
+        checkMembersTypeByConfig( { 
+            types : [ 'DRAGON', 'BEAST', 'OTHER' ],
+            check : [ '{0}>=2', '{1}>=1', '{2}==0' ]
+        } ) &&
+        checkMembersColorByConfig( { 
+            colors : [ 'p', 'OTHER' ],
+            check  : [ '{0}>=2', '{1}==0' ]
+        } ) ){
+        basicTeamSkillAdd( this.id );
+    }
+}
+
+//==============================================================
+// Couple
+//==============================================================
+var TeamCoupleAttackFF = function( VAR ){
+    COUNT_FACTOR['COUPLE_FF'] = {
+        factor    : function( member, membe_place ){ return 6; },
+        prob      : 1,
+        condition : function( member, membe_place ){
+            if( member['color'] == 'f' ){ return true; }
+            return false;
+        },
+    };
+}
+var TeamCoupleAttackPP = function( VAR ){
+    COUNT_FACTOR['COUPLE_PP'] = {
+        factor    : function( member, membe_place ){ return 6; },
+        prob      : 1,
+        condition : function( member, membe_place ){
+            if( member['color'] == 'p' ){ return true; }
+            return false;
+        },
+    };
+}
+var TeamCoupleAttackFP = function( VAR ){
+    COUNT_BELONG_COLOR['f']['p'] = 1;
+    COUNT_BELONG_COLOR['p']['f'] = 1;
+    COUNT_FACTOR['COUPLE_FP'] = {
+        factor    : function( member, membe_place ){ return 3; },
+        prob      : 1,
+        condition : function( member, membe_place ){
+            if( member['color'] == 'f' ||  member['color'] == 'p' ){ return true; }
+            return false;
+        },
+    };
+}
+var TeamCoupleFFMapping = function(){
+    if( TEAM_LEADER['id'] == TEAM_FRIEND['id'] && TEAM_FRIEND['leader'] == "COUPLE_F" ){
+        basicTeamSkillAdd( this.id );
+    }
+}
+var TeamCouplePPMapping = function(){
+    if( TEAM_LEADER['id'] == TEAM_FRIEND['id'] && TEAM_FRIEND['leader'] == "COUPLE_P" ){
+        basicTeamSkillAdd( this.id );
+    }
+}
+var TeamCoupleFPMapping = function(){
+    if( (TEAM_LEADER['leader'] == "COUPLE_F" && TEAM_FRIEND['leader'] == "COUPLE_P") || 
+        (TEAM_LEADER['leader'] == "COUPLE_P" && TEAM_FRIEND['leader'] == "COUPLE_F") ){
+        basicTeamSkillAdd( this.id );
+    }
+}
+
+//==============================================================
+// Babylon
+//==============================================================
+var TeamBabylonSetting = function( LEADER, FRIEND ){
+    LEADER['leader'] = "BABYLON_PLUS";
+    FRIEND['leader'] = "BABYLON_PLUS";
+    return { COLOR : LEADER['color'] };
+}
+var TeamBabylonAttack = function( VAR ){
+    COUNT_FACTOR['TeamBabylon'] = {
+        factor    : function( member, membe_place ){
+            var straight = countFirstStraightNum( 4 );
+            if( straight < 2 ){ return 1; }
+            else{
+                return Math.min( 1+((straight-1)*0.1), 1.5 );
+            }         
+        },
+        prob      : 1,
+        condition : function( member, membe_place ){ return true; },
+    };
+}
+var TeamBabylonMapping = function(){
+    if( TEAM_LEADER['id'] == TEAM_FRIEND['id'] && TEAM_FRIEND['leader'] == "BABYLON" ){
+        basicTeamSkillAdd( this.id );
+    }
+}
+
+//==============================================================
+// DarkLucifer
+//==============================================================
+var TeamDarkLuciferAttack = function( VAR ){
+    if( checkMembersTypeByConfig( { 
+            types : [ 'SPIRIT', 'OTHER' ],
+            check : [ '{0}>=2', '{1}==0' ]
+        } ) ){
+
+        setColorBelongsByConfig( { 'h' : { 'w': 1, 'f': 1, 'p': 1, 'l': 1, 'd': 1 } } );
+
+        COUNT_FACTOR['TeamDarkLucifer'] = {
+            factor    : function( member, membe_place ){
+                var straight = countFirstStraightNum( 4 );
+                if( straight < 2 ){ return 1; }
+                else{
+                    return Math.min( 1+((straight-1)*0.1), 1.5 );
+                }            
+            },
+            prob      : 1,
+            condition : function( member, membe_place ){ return true; },
+        };
+    }
+}
+var TeamDarkLuciferMapping = function(){
+    if( TEAM_LEADER['id'] == TEAM_FRIEND['id'] && TEAM_FRIEND['leader'] == "DARK_LUCIFER" ){
         basicTeamSkillAdd( this.id );
     }
 }
@@ -391,10 +407,6 @@ var TeamCommonSourceMapping = function(){
 var TeamDevilIllusionSetting = function( LEADER, FRIEND ){
     LEADER['leader'] = "DEVIL_ILLUSION_PLUS";
     FRIEND['leader'] = "DEVIL_ILLUSION_PLUS";
-    TEAM_LEADER_SKILL = NewLeaderSkill( "DEVIL_ILLUSION_PLUS" );
-    TEAM_FRIEND_SKILL = NewLeaderSkill( "DEVIL_ILLUSION_PLUS" );
-    TEAM_LEADER_SKILL["variable"] = TEAM_LEADER_SKILL['preSet']( LEADER );
-    TEAM_FRIEND_SKILL["variable"] = TEAM_FRIEND_SKILL['preSet']( FRIEND );
     return {};
 }
 var TeamDevilIllusionMapping = function(){
@@ -525,6 +537,13 @@ var TEAM_SKILLS_DATA = {
         info      : '最左方的 怖慄飼食者 ‧ 法格恩 的自身生命力提升 1.2 倍及主動技能 CD 減少 3',
         mapping   : DragonResonanceDMapping,
         preSet    : DragonResonanceDSetting,
+    },
+    DRAGON_BEAST_PLANT : {
+        id        : 'DRAGON_BEAST_PLANT',
+        label     : '噬血移魂 ‧ 木龍獸',
+        info      : '把指定召喚獸的隊長技能「歃血之盟誓」及「噬血龍王 ‧ 強」變為「噬血移魂」',
+        mapping   : DragonBeastPlantMapping,
+        preSet    : DragonBeastPlantSetting,
     },
     COUPLE_FF : {
         id        : 'COUPLE_FF',

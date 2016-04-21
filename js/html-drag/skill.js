@@ -520,7 +520,7 @@ function checkActiveSkillIDByConfig( config ){
         $.each(actives, function(i, active){
             if( active['id'] in countId ){
                 countId[ active['id'] ] += 1;
-            }else if( active['id'] == 'EMPTY' ){
+            }else if( active['id'] == 'NONE' ){
             }else if( 'OTHER' in countId ){
                 countId[ 'OTHER' ] += 1;
             }
