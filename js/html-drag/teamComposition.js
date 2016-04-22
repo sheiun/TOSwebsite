@@ -126,5 +126,5 @@ function resetBattleStack(){
 
 function resetGameWaves(){
     GAME_PROGRESS = -1;
-    GAME_WAVES = [ ["NORMAL"] ];
+    GAME_WAVES = [ ["EMPTY"] ];
 }
