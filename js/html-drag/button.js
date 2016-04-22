@@ -55,7 +55,6 @@ $(document).ready( function(){
     startGame();
 
     setTimeout( function(){
-        resetHistory();
         resetTimeLifeDiv();
         resetTeamMemberSelectDiv();
     }, 10);

@@ -416,6 +416,7 @@ function upload()
     fileReader.readAsText(fileToLoad, "UTF-8");
 }
 function parseUploadJson(msg){
+
     try{
         var json = JSON.parse(msg);
         TD_NUM                 = json[0];
