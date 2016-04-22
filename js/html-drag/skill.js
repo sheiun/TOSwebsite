@@ -202,10 +202,13 @@ function turnElementToColorByID(id, color){
     var imgs = $("#dragContainment tr td").eq(id).find("img");
     imgs.attr('color', color[0] );
     var item = imgs.attr('item');
-    item.replace('q','');
     item = color + item.substr(1);
     imgs.attr('item', item);
     var hide_items = newElementByItem(item);
+    if( hide_items[0].attr('item') != item ){
+        hide_items[0].attr('item') = hide_items[0].attr('item').replace('q','').replace('k','');
+        hide_items[1].attr('item') = hide_items[1].attr('item').replace('q','').replace('k','');
+    }
 
     $(hide_items[0]).hide();
     $(hide_items[1]).hide();
@@ -220,10 +223,13 @@ function turnElementToColorByID(id, color){
 function turnElementToStrongByID(id){
     var imgs = $("#dragContainment tr td").eq(id).find("img");
     var item = imgs.attr("item");
-    item.replace('q','');
     item = item + "+";
     imgs.attr('item', item);
     var hide_items = newElementByItem(item);
+    if( hide_items[0].attr('item') != item ){
+        hide_items[0].attr('item') = hide_items[0].attr('item').replace('q','').replace('k','');
+        hide_items[1].attr('item') = hide_items[1].attr('item').replace('q','').replace('k','');
+    }
 
     $(hide_items[0]).hide();
     $(hide_items[1]).hide();
@@ -511,6 +517,27 @@ function checkMembersIDByConfig( config ){
     }
     return check;
 }
+function checkMembersIDVarietyByConfig(config){
+    var countId = {};
+    var check = 0;
+    for(var id of config['ID']){
+        countId[id] = 0;
+    }
+    $.each(TEAM_MEMBERS, function(i, member){
+        if( member['id'] in countId ){
+            countId[ member['id'] ] += 1;
+        }else if( member['id'] == 'EMPTY' ){
+        }else if( 'OTHER' in countId ){
+            countId[ 'OTHER' ] += 1;
+        }
+    });
+    for(var id of config['ID']){
+        if( countId[id] >= 1 ){
+            check +=1;
+        }
+    }
+    return check >= config['check'];
+}
 function checkActiveSkillIDByConfig( config ){
     var countId = {};
     var check = true;
@@ -551,6 +578,15 @@ function countMembrsTypeByArr( typeArr ){
     var count = 0;
     $.each(TEAM_MEMBERS, function(i, member){
         if( typeArr.indexOf( member['type'] ) >= 0 ){
+            count += 1;
+        }
+    });
+    return count;
+}
+function countMembrsIDByArr( typeArr ){
+    var count = 0;
+    $.each(TEAM_MEMBERS, function(i, member){
+        if( typeArr.indexOf( member['id'] ) >= 0 ){
             count += 1;
         }
     });

@@ -327,10 +327,10 @@ var CHARACTERS_DATA = {
         attack       : 959,
         recovery     : 442,
         wake         : [ "H_A_R_INCREASE", "STRAIGHT_RECOVER", "H_A_R_INCREASE", "CHANGE_ACTIVE_SKILL" ],
-        wake_var     : [ [0,0,50], [1.1,3], [0,0,100], [0,"NONE"] ],
+        wake_var     : [ [0,0,50], [1.1,3], [0,0,100], [0,"BIBBLE_BURST_EX"] ],
         wake_info    : [ "回復力+50", "3顆直排心10%", "回復力+100", "主動技變為 爆裂之幻沫" ],
         leader       : "SPIRIT_RECOVER_FACTOR_2",
-        active       : [ "NONE" ],
+        active       : [ "BIBBLE_BURST" ],
     },
     EGG_SPIRIT_F : {
         id           : "EGG_SPIRIT_F",
@@ -345,7 +345,7 @@ var CHARACTERS_DATA = {
         wake_var     : [ [0,0,50], [1.1,3], [0,0,100], ['h',0.25] ],
         wake_info    : [ "回復力+50", "3顆直排心10%", "回復力+100", "直排心符石掉落提升至25%" ],
         leader       : "SPIRIT_FACTOR_2",
-        active       : [ "NONE" ],
+        active       : [ "IGNITION" ],
     },
     EGG_SPIRIT_P : {
         id           : "EGG_SPIRIT_P",
@@ -357,10 +357,10 @@ var CHARACTERS_DATA = {
         attack       : 884,
         recovery     : 413,
         wake         : [ "H_A_R_INCREASE", "STRAIGHT_RECOVER", "H_A_R_INCREASE", "CHANGE_ACTIVE_SKILL" ],
-        wake_var     : [ [0,0,50], [1.05,3], [0,0,100], [0,"NONE"] ],
+        wake_var     : [ [0,0,50], [1.05,3], [0,0,100], [0,"HARVEST_OF_LIFE_EX"] ],
         wake_info    : [ "回復力+50", "3顆直排心5%", "回復力+100", "主動技變為 生靈採捕" ],
         leader       : "SPIRIT_HEALTH_FACTOR_2",
-        active       : [ "NONE" ],
+        active       : [ "HARVEST_OF_LIFE" ],
     },
     EGG_SPIRIT_L : {
         id           : "EGG_SPIRIT_L",
@@ -372,10 +372,10 @@ var CHARACTERS_DATA = {
         attack       : 893,
         recovery     : 454,
         wake         : [ "H_A_R_INCREASE", "STRAIGHT_RECOVER", "H_A_R_INCREASE", "CHANGE_ACTIVE_SKILL" ],
-        wake_var     : [ [0,0,50], [1.05,3], [0,0,100], [0,"NONE"] ],
+        wake_var     : [ [0,0,50], [1.05,3], [0,0,100], [0,"PREVASION_EX"] ],
         wake_info    : [ "回復力+50", "3顆直排心10%", "回復力+100", "主動技變為 傳播" ],
         leader       : "SPIRIT_RECOVER_FACTOR_2",
-        active       : [ "NONE" ],
+        active       : [ "PREVASION" ],
     },
     EGG_SPIRIT_D : {
         id           : "EGG_SPIRIT_D",
@@ -390,7 +390,22 @@ var CHARACTERS_DATA = {
         wake_var     : [ [0,0,50], [1.05,3], [0,0,100], 3 ],
         wake_info    : [ "回復力+50", "3顆直排心10%", "回復力+100", "進關後冷卻回合-3" ],
         leader       : "SPIRIT_FACTOR_2",
-        active       : [ "NONE" ],
+        active       : [ "BEWITCHMENT" ],
+    },
+    BOSS_DIABLO      : {        
+        id           : "BOSS_DIABLO",
+        label        : "噩耗元素噬者 ‧ 迪亞布羅",
+        img          : "img/Boss/0/f2-1.png",
+        color        : "f",
+        type         : "SPIRIT",
+        health       : 2775,
+        attack       : 1483,
+        recovery     : 1027,
+        wake         : [ "NONE", "NONE", "NONE", "NONE" ],
+        wake_var     : [ 0, 0, 0, 0 ],
+        wake_info    : [ "無", "無", "無", "無" ],
+        leader       : "CASTIGATION_OF_SIN",
+        active       : [ "NOXIOUS_REPLACEMENT_HEART", "PLUNDER_OF_LIFE" ],
     },
     ETHEREAL_DRAGON_W : {
         id           : "ETHEREAL_DRAGON_W",
@@ -977,6 +992,40 @@ var CHARACTERS_DATA = {
         leader       : "DEVIL_CIRCLE_D",
         active       : [ "MAGIC_STAGE_GLOOM" ],
     },
+
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// CREATURE
+    BOSS_ODIN_CREATURE_1 : {
+        id           : "BOSS_ODIN_CREATURE_1",
+        label        : "永恆之槍 ‧ 主神奧丁",
+        img          : "img/Creature/BossOdin01.png",
+        color        : "d",
+        type         : "GOD",
+        health       : 4259,
+        attack       : 1995,
+        recovery     : 352,
+        wake         : [ "H_A_R_INCREASE", "STRAIGHT_ATTACK", "ACTIVE_COOLDOWN_FOREVER", "DROP_INCREASE" ],
+        wake_var     : [ [500,300,150], [1.2,5], 4, ['h', 0.25] ],
+        wake_info    : [ "生命力+500;攻擊力+300;回復力+150", "5顆直排劍20%", "冷卻回合永久-4", "直排心符石掉落提升至25%" ],
+        leader       : "WILL_SURVIVE",
+        active       : [ "DESPERATE_ATTACK", "RUNE_STRONG_SWITCH" ],
+    },
+    BOSS_ODIN_CREATURE_2 : {
+        id           : "BOSS_ODIN_CREATURE_2",
+        label        : "永恆之槍 ‧ 主神奧丁",
+        img          : "img/Creature/BossOdin02.png",
+        color        : "d",
+        type         : "GOD",
+        health       : 4259,
+        attack       : 1995,
+        recovery     : 352,
+        wake         : [ "H_A_R_INCREASE", "STRAIGHT_ATTACK", "ACTIVE_COOLDOWN_FOREVER", "DROP_INCREASE" ],
+        wake_var     : [ [500,300,150], [1.2,5], 4, ['h', 0.25] ],
+        wake_info    : [ "生命力+500;攻擊力+300;回復力+150", "5顆直排劍20%", "冷卻回合永久-4", "直排心符石掉落提升至25%" ],
+        leader       : "WILL_SURVIVE",
+        active       : [ "DESPERATE_ATTACK", "DESPERATE_PREPARE" ],
+    },
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 };
 
 function NewCharacter( id ){
@@ -1054,10 +1103,10 @@ var BASIC_RECOVER = {
     work   : "init",
 };
 var BASIC_INJURE = {
-    enemyOrder   : 0,
-    label        : "",
-    damage       : 0,
-    color        : "_",
+    enemy  : 0,
+    label  : "",
+    damage : 0,
+    color  : "_",
     work   : "init",
 };
 

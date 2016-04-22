@@ -4,11 +4,15 @@
 //==============================================================
 //==============================================================
 
-var BasicCombineSkillSetting = function( member, COMBINE ){
+var BasicCombineSkillSetting = function( member, place, i, COMBINE, source ){
 	return {
         COLOR    : member['color'],
         TYPE     : member['type'],
         COMBINE  : COMBINE,
+        STYLE    : "combineSkill",
+        SOURCE   : source,
+        PLACE    : place,
+        i        : i,
 	};
 }
 
@@ -23,7 +27,7 @@ function basicFunctionCombineSkillCheck( VAR, trigger_place, trigger_i ){
 //==============================================================
 // Enchanted Injunction
 //==============================================================
-var EnchantedInjunctionSetting = function( member, COMBINE ){
+var EnchantedInjunctionSetting = function( member, place, i, COMBINE, source ){
 	return {
         COLOR           : member['color'],
         TYPE            : member['type'],
@@ -31,6 +35,9 @@ var EnchantedInjunctionSetting = function( member, COMBINE ){
         COLOR_MAIN      : this.config[0],
         COLOR_EXCLUSIVE : this.config[1],
         COLOR_TO_H      : this.config[2],
+        SOURCE          : source,
+        PLACE           : place,
+        i               : i,
 	};
 }
 var EnchantedInjunctionCheck = function( place, i ){
@@ -49,63 +56,103 @@ var EnchantedInjunctionTransfer = function( place, i ){
 
 var EnchantedInjunctionW_Mapping = function(){
 	if( checkMembersIDByConfig({
-            ID    : [ "NORDIC_W", "BOSS_ODIN" ],
-            check : [ "{0}>0", "{1}>0" ],
+            ID    : [ "NORDIC_W", "BOSS_ODIN", "BOSS_ODIN_CREATURE_1", "BOSS_ODIN_CREATURE_2" ],
+            check : [ "{0}>0", "({1}+{2}+{3})>0" ],
         }) ){
 		combineSkillMapping(
 			'ENCHANTED_INJUNCTION_W', [ 
 				{ "NORDIC_W" : "RUNE_STRENGTHEN_W" },
-				{ "BOSS_ODIN" : "DESPERATE_ATTACK" },
+				{ "BOSS_ODIN" : "DESPERATE_ATTACK", 
+				  "BOSS_ODIN_CREATURE_1": "DESPERATE_ATTACK", "BOSS_ODIN_CREATURE_2": "DESPERATE_ATTACK" },
 			] );
 	}
 }
 var EnchantedInjunctionF_Mapping = function(){
 	if( checkMembersIDByConfig({
-            ID    : [ "NORDIC_F", "BOSS_ODIN" ],
-            check : [ "{0}>0", "{1}>0" ],
+            ID    : [ "NORDIC_F", "BOSS_ODIN", "BOSS_ODIN_CREATURE_1", "BOSS_ODIN_CREATURE_2" ],
+            check : [ "{0}>0", "({1}+{2}+{3})>0" ],
         }) ){
 		combineSkillMapping(
 			'ENCHANTED_INJUNCTION_F', [ 
 				{ "NORDIC_F" : "RUNE_STRENGTHEN_F" },
-				{ "BOSS_ODIN" : "DESPERATE_ATTACK" },
+				{ "BOSS_ODIN" : "DESPERATE_ATTACK", 
+				  "BOSS_ODIN_CREATURE_1": "DESPERATE_ATTACK", "BOSS_ODIN_CREATURE_2": "DESPERATE_ATTACK" },
 			] );
 	}
 }
 var EnchantedInjunctionP_Mapping = function(){
 	if( checkMembersIDByConfig({
-            ID    : [ "NORDIC_P", "BOSS_ODIN" ],
-            check : [ "{0}>0", "{1}>0" ],
+            ID    : [ "NORDIC_P", "BOSS_ODIN", "BOSS_ODIN_CREATURE_1", "BOSS_ODIN_CREATURE_2" ],
+            check : [ "{0}>0", "({1}+{2}+{3})>0" ],
         }) ){
 		combineSkillMapping(
 			'ENCHANTED_INJUNCTION_P', [ 
 				{ "NORDIC_P" : "RUNE_STRENGTHEN_P" },
-				{ "BOSS_ODIN" : "DESPERATE_ATTACK" },
+				{ "BOSS_ODIN" : "DESPERATE_ATTACK", 
+				  "BOSS_ODIN_CREATURE_1": "DESPERATE_ATTACK", "BOSS_ODIN_CREATURE_2": "DESPERATE_ATTACK" },
 			] );
 	}
 }
 var EnchantedInjunctionL_Mapping = function(){
 	if( checkMembersIDByConfig({
-            ID    : [ "NORDIC_L", "BOSS_ODIN" ],
-            check : [ "{0}>0", "{1}>0" ],
+            ID    : [ "NORDIC_L", "BOSS_ODIN", "BOSS_ODIN_CREATURE_1", "BOSS_ODIN_CREATURE_2" ],
+            check : [ "{0}>0", "({1}+{2}+{3})>0" ],
         }) ){
 		combineSkillMapping(
 			'ENCHANTED_INJUNCTION_L', [ 
 				{ "NORDIC_L" : "RUNE_STRENGTHEN_L" },
-				{ "BOSS_ODIN" : "DESPERATE_ATTACK" },
+				{ "BOSS_ODIN" : "DESPERATE_ATTACK", 
+				  "BOSS_ODIN_CREATURE_1": "DESPERATE_ATTACK", "BOSS_ODIN_CREATURE_2": "DESPERATE_ATTACK" },
 			] );
 	}
 }
 var EnchantedInjunctionD_Mapping = function(){
 	if( checkMembersIDByConfig({
-            ID    : [ "NORDIC_D", "BOSS_ODIN" ],
-            check : [ "{0}>0", "{1}>0" ],
+            ID    : [ "NORDIC_D", "BOSS_ODIN", "BOSS_ODIN_CREATURE_1", "BOSS_ODIN_CREATURE_2" ],
+            check : [ "{0}>0", "({1}+{2}+{3})>0" ],
         }) ){
 		combineSkillMapping(
 			'ENCHANTED_INJUNCTION_D', [ 
 				{ "NORDIC_D" : "RUNE_STRENGTHEN_D" },
-				{ "BOSS_ODIN" : "DESPERATE_ATTACK" },
+				{ "BOSS_ODIN" : "DESPERATE_ATTACK", 
+				  "BOSS_ODIN_CREATURE_1": "DESPERATE_ATTACK", "BOSS_ODIN_CREATURE_2": "DESPERATE_ATTACK" },
 			] );
 	}
+}
+
+//==============================================================
+// Diablo
+//==============================================================
+var SourceOfLifeAddtionalEffectAdd = function( place, i ){
+    var effect = NewAdditionalEffect( this.id );
+    effect['variable'] = effect['preSet']( this.variable );
+    additionalEffectAdd( effect );	
+}
+var SourceOfLifeCheck = function( trigger_place, trigger_i ){
+	return basicFunctionCombineSkillCheck( this.variable, trigger_place, trigger_i ) &&
+		basicAdditionalEffectCheck( this.id ) &&
+        basicAdditionalEffectCheckByTag( "belongColor" );
+}
+var SourceOfLifeMapping = function(){
+	if( checkMembersIDByConfig({
+            ID    : [ "BOSS_DIABLO", "EGG_SPIRIT_W", "EGG_SPIRIT_F", "EGG_SPIRIT_P", "EGG_SPIRIT_L", "EGG_SPIRIT_D" ],
+            check : [ "{0}>0", "({1}+{2}+{3}+{4}+{5})>0" ],
+        }) ){
+		combineSkillMapping(
+			'SOURCE_OF_LIFE', [ 
+				{ "BOSS_DIABLO" : "NOXIOUS_REPLACEMENT_HEART" },
+				{ 
+					"EGG_SPIRIT_W" : "BIBBLE_BURST",
+					"EGG_SPIRIT_W" : "BIBBLE_BURST_EX",
+					"EGG_SPIRIT_F" : "IGNITION",
+					"EGG_SPIRIT_P" : "HARVEST_OF_LIFE",
+					"EGG_SPIRIT_P" : "HARVEST_OF_LIFE_EX",
+					"EGG_SPIRIT_L" : "PREVASION",
+					"EGG_SPIRIT_L" : "PREVASION_EX",
+					"EGG_SPIRIT_D" : "BEWITCHMENT",
+				},
+			] );
+	}	
 }
 
 //==============================================================
@@ -240,6 +287,15 @@ var COMBINE_SKILLS_DATA = {
 		preSet   : EnchantedInjunctionSetting,
 		transfer : EnchantedInjunctionTransfer,
 	},
+	SOURCE_OF_LIFE : {
+		id       : 'SOURCE_OF_LIFE',
+		label    : '靈泉之源',
+		info     : '2 回合內，心符石的掉落機率提升，所有屬性符石兼具心符石效果',
+        addEffect: SourceOfLifeAddtionalEffectAdd,
+		check    : SourceOfLifeCheck,
+		mapping  : SourceOfLifeMapping,
+		preSet   : BasicCombineSkillSetting,
+	},
 	PEARL_OF_DRAGON_DUOS_F : {
 		id       : 'PEARL_OF_DRAGON_DUOS_F',
 		label    : '雙龍探珠 ‧ 火',
@@ -317,9 +373,11 @@ function combineSkillMapping( combineID, needArr ){
 				}
 			});
 			if( check ){
+console.log($.extend(true, {}, need));
 				var combineSkill = NewCombineSkill( combineID );
 				var member = TEAM_MEMBERS[place];
-				combineSkill['variable'] = combineSkill['preSet']( member, need );
+				var combine_i = TEAM_COMBINE_SKILL[place].length;
+				combineSkill['variable'] = combineSkill['preSet']( member, place, combine_i, need, combineSkill );
 				TEAM_COMBINE_SKILL[place].push( combineSkill );
 			}
 		}
@@ -334,8 +392,10 @@ function triggerCombine(place, i){
     if( TEAM_COMBINE_SKILL[place][i]['check']( place, i ) ){
 console.log("check-true");
         triggerCombineByKey( place, i, "startRun" );
+        triggerCombineByKey( place, i, "start" );
         triggerCombineByKey( place, i, "transfer" );
         triggerCombineByKey( place, i, "addEffect" );
+        triggerCombineByKey( place, i, "launch" );
         resetCombineSkillCoolDown( place, i );
     }
 

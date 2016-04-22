@@ -336,6 +336,14 @@ function switchTimeLifeToLife(){
     $("#timeLifeRect").css('background-image', 'url("img/UI/lifeclip.png")');
     showLife();
 }
+function resetTeamMemberSelectDiv(){    
+    $("#TeamMember div.characterSelect").each(function(i){
+        $(this).offset({
+            top  : $('#MemberSelectTD').offset().top,
+        });
+    });
+}
+
 
 function playAudioRemove(){
     if( !AUDIO ){ return; }
@@ -462,7 +470,6 @@ function checkAttack(){
     $("#dragContainment img.over").addClass("img-gray");
 
     countAttack();
-    showEnemySuffer();
 
     setTimeout( function(){
         checkInjure();
@@ -472,8 +479,6 @@ function checkInjure(){
     MAIN_STATE = MAIN_STATE_ENUM.BATTLE_INFO;
 
     countEnemyAction();
-    showTeamInjure();
-    showResult();
 
     setTimeout( function(){
         endPlayTurn();
@@ -486,6 +491,10 @@ function endPlayTurn(){
     checkActiveSkillByKey( 'end' );
     checkAdditionEffectByKey( 'end' );
     checkEnemyEffectByKey( 'end' );
+    
+    showEnemySuffer();
+    showTeamInjure();
+    showResult();
 
     setTimeout( function(){
         $("#dragContainment img.over").removeClass("img-gray");
@@ -506,6 +515,7 @@ function checkGameStatus(){
         additionalEffectUpdate();
         enemyEffectUpdate();
         usingActiveSkillUpdate();
+        showActiveInfomation();
         nextMoveWave();
     }
 }

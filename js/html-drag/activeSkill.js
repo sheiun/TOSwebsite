@@ -5,10 +5,15 @@
 //==============================================================
 
 var BasicActiveSetting = function( member, place, i ){
+    return basicActiveSetting( member, place, i, this );
+}
+function basicActiveSetting( member, place, i, source ){
     return {
         COLOR    : member['color'],
         TYPE     : member['type'],
-        COOLDOWN : this.coolDown,
+        STYLE    : "activeSkill",
+        SOURCE   : source,
+        COOLDOWN : source.coolDown,
         PLACE    : place,
         i        : i,
     };
@@ -25,14 +30,9 @@ function basicActiveCheck( VAR, place, i ){
 // BrokeBoundary / Start Run Function
 //==============================================================
 var StartRunSetting = function( member, place, i ){
-    return {
-        COLOR     : member['color'],
-        TYPE      : member['type'],
-        COOLDOWN  : this.coolDown,
-        PLACE     : place,
-        i         : i,
-        USING     : false,
-    }
+    var variable = basicActiveSetting( member, place, i, this );
+    variable['USING'] = false;
+    return variable;
 }
 var BrokeBoundaryStart = function( place, i ){
     this.variable['USING'] = true;
@@ -260,6 +260,21 @@ var EnsiformBreathTransfer = function( place, i ){
     }
 }
 //==============================================================
+var NoxiousReplacementHeartTransfer = function( place, i ){
+    var probs = { 'h': 0.3, 'w': 0.44, 'f': 0.58, 'p': 0.72, 'l': 0.86, 'd': 1.0 };
+    var color = 'h';
+    for(var i = 0; i < TD_NUM*TR_NUM; i++){
+        var rand = randomBySeed();
+        for( var c in probs ){
+            if( rand <= probs[c] ){
+                color = c;
+                break;
+            }
+        }
+        turnElementToColorByID(i, color);
+    }
+}
+//==============================================================
 var SpellOfTornadosTransfer = function( place, i ){
     var stack = [ 'w','w','w','w','w','w','w','w',
                   'f','f','f','f','f','f','f','f',
@@ -332,14 +347,9 @@ var TransformationH_Check = function( place, i ){
         getStackOfPanelByColorArr( getOtherColorsFromColorArr('h') ).length >= this.variable['COUNT'];
 }
 var TransformationSetting = function( member, place, i ){
-    return {
-        COLOR     : member['color'],
-        TYPE      : member['type'],
-        COOLDOWN  : this.coolDown,
-        PLACE     : place,
-        i         : i,
-        COUNT     : 0,
-    }
+    var variable = basicActiveSetting( member, place, i, this );
+    variable['COUNT'] = 0;
+    return variable;
 }
 var TransformationTransfer = function( place, i ){
     if( this.variable['COUNT'] == 0 ){ return false; }
@@ -403,15 +413,10 @@ var BasicSwitchCheck = function( place, i ){
 }
 
 var DragonCentralizationDEXSetting = function( member, place, i ){
-    return {
-        COLOR      : member['color'],
-        TYPE       : 'DRAGON',
-        COOLDOWN   : this.coolDown,
-        PLACE      : place,
-        i          : i,
-        USING      : false,
-        ORIGIN_ATK : [],
-    };
+    var variable = basicActiveSetting( member, place, i, this );
+    variable['USING'] = false;
+    variable['ORIGIN_ATK'] = [];
+    return variable;
 }
 var DragonCentralizationDEXStart = function( place, i ){
     var VAR = this.variable;
@@ -450,27 +455,20 @@ var DragonCentralizationDEXClose = function( place, i ){
 //==============================================================
 // Member Using function
 //==============================================================
+var BasicUsingSetting = function( member, place, i ){
+    var variable = basicActiveSetting( member, place, i, this );
+    variable['USING'] = false;
+    return variable;
+}
 var BasicUsingCheck = function( place, i ){
     return basicActiveCheck( this.variable, place, i ) && !( this.id in USING_ACTIVE_SKILL_STACK );
 }
 var BasicUsingStart = function( place, i ){
+    if( this.variable['USING'] ){ return false; }
     this.variable['USING'] = true;
     USING_ACTIVE_SKILL_STACK[ this.id ] = { PLACE: place, i: i };
-    $("#ActiveButtonTD td").eq(place).find("button span").eq(i).text(this.label).append("<br>(使用中)");
 }
 
-var TraceOfNotionSetting = function( member, place, i ){
-    return {
-        COLOR    : member['color'],
-        TYPE     : member['type'],
-        COOLDOWN : this.coolDown,
-        PLACE    : place,
-        i        : i,
-        USING    : false,
-        COUNT    : 0,
-        FACTOR   : 1.2,
-    }
-}
 var TraceOfNotionUpdate = function( place, i ){
     if( !this.variable['USING'] ){ return false; }
     if( checkComboColorFirstMaxAmountByConfig({
@@ -506,7 +504,44 @@ var TraceOfNotionAttack = function( place, i ){
 
     COUNT_COLOR_FACTOR[ this.variable['COLOR'] ] *= this.variable['FACTOR'];
 }
+var TraceOfNotionSetting = function( member, place, i ){
+    var variable = basicActiveSetting( member, place, i, this );
+    variable['USING'] = false;
+    variable['COUNT'] = 0;
+    variable['FACTOR'] = 1.2;
+    return variable;
+}
 
+// @@@@@@@@@@@@@@@@@@@@@@@@@
+// Creature
+var RuneStrongSwitchCheck = function( member, place, i ){
+    console.log(basicActiveCheck( this.variable, place, i ));
+    console.log(!( this.id in USING_ACTIVE_SKILL_STACK ));
+    console.log(!(this.variable['COLOR'] in COLOR_MAP) );
+    console.log(!('h' in COLOR_MAP));
+    return basicActiveCheck( this.variable, place, i ) && 
+        !( this.id in USING_ACTIVE_SKILL_STACK ) &&
+        !(this.variable['COLOR'] in COLOR_MAP) && !('h' in COLOR_MAP);
+}
+var RuneStrongSwitchStart = function( place, i ){
+    if( this.variable['USING'] ){ return false; }
+    this.variable['USING'] = true;
+    USING_ACTIVE_SKILL_STACK[ this.id ] = { PLACE: place, i: i };
+    COLOR_MAP[ this.variable['COLOR'] ] = this.variable['COLOR']+"+";
+    COLOR_MAP[ 'h' ] = "h+";
+}
+var RuneStrongSwitchClose = function( place, i ){
+    if( !this.variable['USING'] ){ return false; }
+    this.variable['USING'] = false;
+    delete USING_ACTIVE_SKILL_STACK[ this.id ];
+    delete COLOR_MAP[ this.variable['COLOR'] ];
+    delete COLOR_MAP[ 'h' ];
+}
+var RuneStrongSwitchAttack = function( place, i ){
+    if( !this.variable['USING'] ){ return false; }    
+    COUNT_STRONG_COEFF[ this.variable['COLOR'] ] += 0.25;
+}
+// @@@@@@@@@@@@@@@@@@@@@@@@@
 
 //==============================================================
 // Attack Effect function
@@ -555,19 +590,20 @@ var BelongColorAdditionalEffectCheck = function( place, i ){
         basicAdditionalEffectCheckByTag( "belongColor" ) &&
         basicActiveCheck( this.variable, place, i );
 }
-var HealthAdditionalEffecCheck = function( place, i ){
-    if( HEALTH_POINT <= 1 ){ return false; }
-    return basicAdditionalEffectCheck( this.id ) && basicActiveCheck( this.variable, place, i );
+var DamageRecoverAdditionalEffectCheck = function( place, i ){
+    return basicAdditionalEffectCheck( this.id ) &&
+        basicAdditionalEffectCheckByTag( "damageRecover" ) &&
+        basicActiveCheck( this.variable, place, i );
 }
-var CourageOfSacrificeEffectAdd = function( place, i ){  
-    var effect = NewAdditionalEffect( this.id );
-    effect['variable'] = effect['preSet']( place, i, this.variable );
-    additionalEffectAdd( effect );
+var HealthAdditionalEffecCheck = function( place, i ){
+    return basicAdditionalEffectCheck( this.id ) && 
+        basicActiveCheck( this.variable, place, i ) &&
+        HEALTH_POINT > 1;
 }
 
 var BasicAddtionalEffectAdd = function( place, i ){
     var effect = NewAdditionalEffect( this.id );
-    effect['variable'] = effect['preSet']( place, i, this.variable );
+    effect['variable'] = effect['preSet']( this.variable );
 
     additionalEffectAdd( effect );
 }
@@ -575,7 +611,7 @@ var BasicAddtionalEffectAdd = function( place, i ){
 //==============================================================
 // Enemy Effect function
 //==============================================================
-var EnemyEffectCheck = function( place, i ){
+var BasicEnemyEffectCheck = function( place, i ){
     return basicEnemyEffectCheck( this.id ) && basicActiveCheck( this.variable, place, i );
 }
 function basicEnemyEffectCheck( effectID ){
@@ -620,7 +656,7 @@ var BasicEnemyEffectAdd = function( place, i ){
 
     $.each(ENEMY, function(e, enemy){
         var effect = NewEnemyEffect( effectID );
-        effect['variable'] = effect['preSet']( place, i, this.variable, enemy );
+        effect['variable'] = effect['preSet']( this.variable, enemy );
         enemy['variable']['EFFECT'].push( effect );
     });
 }
@@ -634,7 +670,7 @@ var ThunderStrikeEXLaunch = function( place, i ){
     attack['color']  = 'l';
     attack['factor'] = 1;
     attack['goal']   = 'all';
-    attack['style']  = 'activeDirectDamage';
+    attack['style']  = 'directDamage';
     attack['log']    = 'ThunderStrikeEX';
     makeDirectAttack(attack);
 }
@@ -644,7 +680,7 @@ var DarknessAssaultEXLaunch = function( place, i ){
     attack['color']  = 'd';
     attack['factor'] = 1;
     attack['goal']   = 'all';
-    attack['style']  = 'activeDirectDamage';
+    attack['style']  = 'directDamage';
     attack['log']    = 'DarknessAssaultEX';
     makeDirectAttack(attack);
 }
@@ -894,6 +930,96 @@ var ACTIVE_SKILLS_DATA = {
         start     : BasicUsingStart,
         update    : TraceOfNotionUpdate,
     },
+    BIBBLE_BURST : {
+        id        : 'BIBBLE_BURST',
+        label     : '泡沫爆破',
+        info      : '累積 3 回合內敵方所受傷害的 70% 再爆發，此傷害無視屬性及防禦力',
+        coolDown  : 10,
+        addEffect : BasicEnemyEffectAdd,
+        check     : BasicEnemyEffectCheck,
+        preSet    : BasicActiveSetting,
+    },
+    BIBBLE_BURST_EX : {
+        id        : 'BIBBLE_BURST_EX',
+        label     : '爆裂之幻沫',
+        info      : '累積 2 回合內敵方所受傷害的 110% 再爆發，此傷害無視屬性及防禦力',
+        coolDown  : 10,
+        addEffect : BasicEnemyEffectAdd,
+        check     : BasicEnemyEffectCheck,
+        preSet    : BasicActiveSetting,
+    },
+    IGNITION : {
+        id        : 'IGNITION',
+        label     : '點燃',
+        info      : '敵方全體點燃，使受影響目標轉為火屬性並受到自身攻擊力 30 倍火屬性傷害，持續 3 回合',
+        coolDown  : 8,
+        addEffect : BasicEnemyEffectAdd,
+        check     : BasicEnemyEffectCheck,
+        preSet    : BasicActiveSetting,
+    },
+    HARVEST_OF_LIFE : {
+        id        : 'HARVEST_OF_LIFE',
+        label     : '生命採摘',
+        info      : '3 回合內，敵方所受傷害的 20% 轉化為我方生命力',
+        coolDown  : 10,
+        addEffect : BasicAddtionalEffectAdd,
+        check     : DamageRecoverAdditionalEffectCheck,
+        preSet    : BasicActiveSetting,        
+    },
+    HARVEST_OF_LIFE_EX : {
+        id        : 'HARVEST_OF_LIFE_EX',
+        label     : '生靈採捕',
+        info      : '3 回合內，敵方所受傷害的 50% 轉化為我方生命力',
+        coolDown  : 10,
+        addEffect : BasicAddtionalEffectAdd,
+        check     : DamageRecoverAdditionalEffectCheck,
+        preSet    : BasicActiveSetting,        
+    },
+    PREVASION : {
+        id        : 'PREVASION',
+        label     : '傳播',
+        info      : '5 回合內，敵方所受傷害的 50% 分別擴散到其他敵人身上',
+        coolDown  : 10,
+        addEffect : BasicEnemyEffectAdd,
+        check     : BasicEnemyEffectCheck,
+        preSet    : BasicActiveSetting,
+    },
+    PREVASION_EX : {
+        id        : 'PREVASION_EX',
+        label     : '傳播',
+        info      : '5 回合內，敵方所受傷害的 50% 分別擴散到其他敵人身上',
+        coolDown  : 10,
+        addEffect : BasicEnemyEffectAdd,
+        check     : BasicEnemyEffectCheck,
+        preSet    : BasicActiveSetting,
+    },
+    BEWITCHMENT : {
+        id        : 'BEWITCHMENT',
+        label     : '魅惑',
+        info      : '3 回合內，敵方互相或自我進行1次攻擊',
+        coolDown  : 15,
+        addEffect : BasicEnemyEffectAdd,
+        check     : BasicEnemyEffectCheck,
+        preSet    : BasicActiveSetting,  
+    },
+    NOXIOUS_REPLACEMENT_HEART : {
+        id        : 'NOXIOUS_REPLACEMENT_HEART',
+        label     : '搶天奪日 ‧ 心',
+        info      : '所有符石隨機轉換，同時心符石出現率上升，並將心符石以心強化符石代替',
+        coolDown  : 8,
+        check     : BasicActiveCheck,
+        preSet    : BasicActiveSetting,
+        transfer  : NoxiousReplacementHeartTransfer,
+    },
+    PLUNDER_OF_LIFE : {
+        id        : 'PLUNDER_OF_LIFE',
+        label     : '生命吸取',
+        info      : '2 回合內，敵方所受傷害的 20% 轉化為我方生命力',
+        coolDown  : 10,
+        addEffect : BasicAddtionalEffectAdd,
+        check     : DamageRecoverAdditionalEffectCheck,
+        preSet    : BasicActiveSetting,  
+    },
     OFFENSIVE_STANCE_W : {
         id        : 'OFFENSIVE_STANCE_W',
         label     : '攻擊姿勢 ‧ 水',
@@ -1075,7 +1201,7 @@ var ACTIVE_SKILLS_DATA = {
         label     : '捨生力敵',
         info      : '消秏現有 75% 生命力；1 回合內，木屬性或龍類攻擊力 2.5 倍',
         coolDown  : 10,
-        addEffect : CourageOfSacrificeEffectAdd,
+        addEffect : BasicAddtionalEffectAdd,
         check     : HealthAdditionalEffecCheck,
         preSet    : BasicActiveSetting,
     },
@@ -1307,6 +1433,28 @@ var ACTIVE_SKILLS_DATA = {
         check     : NewItemAdditionalEffectCheck,
         preSet    : BasicActiveSetting,
     },
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    RUNE_STRONG_SWITCH : {
+        id        : 'TRUNE_STRONG_SWITCH',
+        label     : '元素精煉 ‧ 絕',
+        info      : '將掉落的心符石和自身屬性符石以強化符石代替，大幅提升強化符石傷害',
+        coolDown  : 10,
+        attack    : RuneStrongSwitchAttack,
+        check     : RuneStrongSwitchCheck,
+        close     : RuneStrongSwitchClose,
+        preSet    : BasicUsingSetting,
+        start     : RuneStrongSwitchStart,
+    },
+    DESPERATE_PREPARE : {
+        id        : 'DESPERATE_PREPARE',
+        label     : '絕境逆襲',
+        info      : '消耗所有血量至 1，給予敵方全體消耗血量50倍的自身屬性直接傷害，1 回合內，神族攻擊力 2 倍，回合結束後，回復所有生命值。',
+        coolDown  : 8,
+        addEffect : BasicAddtionalEffectAdd,
+        check     : HealthAdditionalEffecCheck,
+        preSet    : BasicActiveSetting,
+    },
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 };
 
 function NewActiveSkill( id ){

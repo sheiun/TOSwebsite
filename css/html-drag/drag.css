@@ -164,11 +164,11 @@ body{
     border: 1px solid Gray;
 }
 #TeamMember select{
-    width: 130px;
+    width: 120px;
 }
 #TeamMember td{
     height: 30px;
-    width: 130px;
+    width: 120px;
     border: 1px solid Gray;
 }
 #TeamMember img{
@@ -201,7 +201,7 @@ body{
 }
 .activeButton{
     cursor: pointer;
-    width: 130px;
+    width: 120px;
     min-height: 30px;
     display: inline-block;
     margin: auto;
@@ -217,11 +217,11 @@ body{
 .activeButton[disabled]{
     cursor: not-allowed;
     box-shadow: none;
-    opacity: .65;
+    opacity: 0.5;
 }
 #AdditionalEffectTD td{
     height: 30px;
-    width: 780px;
+    width: 720px;
     background: Ivory;
     border: 1px solid Gray;
 }

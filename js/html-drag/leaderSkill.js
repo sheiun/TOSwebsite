@@ -64,10 +64,28 @@ var SpiritFactor2SetHP = function( MEMBER, health ){
 //==============================================================
 // WillSurvive
 //==============================================================
-var WillSurviveInjure= function( VAR, direct ){
+var WillSurviveInjure = function( VAR, direct ){
     if( ( HEALTH_POINT/TOTAL_HEALTH_POINT ) >= 0.5 ){
         UNDEAD_WILL = true;
+    }else{
+        UNDEAD_WILL = false;
     }
+}
+//==============================================================
+// Counter Sin
+//==============================================================
+var CastigationOfSinCounter = function( VAR, direct, injure ){
+    var enemy = injure['enemy'];
+    var attack = makeNewAttack();
+    attack['base']   = enemy['variable']['ATTACK'];
+    attack['color']  = COLOR_ANTI_EXCLUSIVE[ enemy['variable']['COLOR'] ];
+    attack['factor'] = 3;
+    attack['goal']   = 'enemy';
+    attack['target'] = [enemy];
+    attack['style']  = 'leader';
+    attack['log']    = 'CastigationOfSin';
+
+    mapAttackToEnemy(0, attack);
 }
 
 //==============================================================
@@ -201,24 +219,18 @@ var BloodThirstyDragonEXAttack = function( VAR, direct ){
         condition : function( member, member_place ){ return member['type'] == "DRAGON"; },
     };
 }
-var BloodThirstyDragonEXDamage = function( VAR, direct ){
+var BloodThirstyDragonEXDamage = function( VAR, direct, attack ){
+    if( attack['type'] != 'DRAGON' ){ return false; }
     var max_recover = TOTAL_HEALTH_POINT/2 ;
+    var last_recover = 0;
     for(var obj of RECOVER_STACK){
         if( obj['log'] == "BloodThirstyDragonEX" ){ 
-            var rec = obj['base']*obj['factor'];
-            max_recover -= rec;
+            last_recover += obj['base']*obj['factor'];
         }
     }
 
-    var total_damage = 0;
-    $.each(ENEMY, function(i, enemy){
-        $.each(enemy['variable']['HATRED'], function(a, attack){
-            if( attack['style'] == 'person' && attack['type'] == 'DRAGON' ){
-                total_damage += attack['damage'];
-            }
-        })
-    });
-    var recover_hp = Math.min( max_recover, Math.round( total_damage*0.1 ) );
+    var damage = attack['damage'];
+    var recover_hp = Math.min( max_recover-last_recover, Math.round( damage*0.1 ) );
 
     var recover = makeNewRecover();
     recover['base']  = recover_hp;
@@ -298,7 +310,14 @@ var DragonBeastPlantAttack = function( VAR, direct ){
         },
     };
 }
-var DragonBeastPlantDamage = function( VAR, direct ){
+var DragonBeastPlantEnd = function( VAR, direct ){
+    var injure = makeNewInjure();
+    injure['label']  = "DragonBeastPlantEnd";
+    injure['damage'] = Math.round( TOTAL_HEALTH_POINT/20 );
+    makeDirectInjure( injure );
+}
+var DragonBeastPlantDamage = function( VAR, direct, attack ){
+    if( attack['type'] != 'DRAGON' && attack['type'] != 'BEAST' ){ return false; }
     var max_recover = TOTAL_HEALTH_POINT/2 ;
     var last_recover = 0;
     for(var obj of RECOVER_STACK){
@@ -307,25 +326,8 @@ var DragonBeastPlantDamage = function( VAR, direct ){
         }
     }
 
-    var total_damage = 0;
-    $.each(ENEMY, function(i, enemy){
-        $.each(enemy['variable']['HATRED'], function(a, attack){
-            if( attack['style'] == 'person' && 
-                ( attack['type'] == 'DRAGON' || attack['type'] == "BEAST" ) ){
-                total_damage += attack['damage'];
-            }
-        })
-    });
-    var recover_hp = Math.min( max_recover-last_recover, Math.round( total_damage*0.1 ) );
-    if( recover_hp+last_recover+HEALTH_POINT > TOTAL_HEALTH_POINT ){
-        var overflow = recover_hp+last_recover+HEALTH_POINT-TOTAL_HEALTH_POINT;
-        VAR['COUNT'] = Math.floor( overflow / (TOTAL_HEALTH_POINT*0.12) );
-        if( last_recover+HEALTH_POINT > TOTAL_HEALTH_POINT ){
-            VAR['COUNT'] -= Math.floor( (last_recover+HEALTH_POINT-TOTAL_HEALTH_POINT) / (TOTAL_HEALTH_POINT*0.12) );
-        }
-    }else{
-        VAR['COUNT'] = 0;
-    }
+    var damage = attack['damage'];
+    var recover_hp = Math.min( max_recover-last_recover, Math.round( damage*0.1 ) );
 
     var recover = makeNewRecover();
     recover['base']  = recover_hp;
@@ -333,27 +335,6 @@ var DragonBeastPlantDamage = function( VAR, direct ){
     recover['style'] = "leader";
     recover['log']   = "DragonBeastPlant";
     RECOVER_STACK.push( recover );
-}
-var DragonBeastPlantEnd = function( VAR, direct ){
-    var injure = makeNewInjure();
-    injure['label']  = "DragonBeastPlantEnd";
-    injure['damage'] = Math.round( TOTAL_HEALTH_POINT/20 );
-    makeDirectInjure( injure );
-
-    if( VAR['COUNT'] > 0 ){        
-        turnRandomElementToColorByConfig( {
-            color          : 'p',
-            num            : VAR['COUNT'],
-            priorityColors : [ ['w', 'f', 'l', 'd', 'h'] ],
-        } );
-    }
-}
-var DragonBeastPlantSetting = function( MEMBER ){
-    return {
-        COLOR    : MEMBER['color'],
-        TYPE     : MEMBER['type'],
-        COUNT    : 0,
-    };
 }
 
 //==============================================================
@@ -955,6 +936,13 @@ var LEADER_SKILLS_DATA = {
         setHP     : SpiritFactor2SetHP,
         preSet    : BasicLeaderSetting,
     },
+    CASTIGATION_OF_SIN : {
+        id        : "CASTIGATION_OF_SIN",
+        label     : "罪之罰則",
+        info      : "以所受傷害 3 倍對敵方攻擊者進行相剋屬性反擊",
+        counterSin: CastigationOfSinCounter,
+        preSet    : BasicLeaderSetting,
+    },
     STRONG_WILL_LIGHT : {
         id        : "STRONG_WILL_LIGHT",
         label     : "念之強勢 ‧ 光",
@@ -1080,7 +1068,7 @@ var LEADER_SKILLS_DATA = {
         attack    : DragonBeastPlantAttack,
         damage    : DragonBeastPlantDamage,
         end       : DragonBeastPlantEnd,
-        preSet    : DragonBeastPlantSetting,
+        preSet    : BasicLeaderSetting,
         setHP     : DragonBeastPlantSetHP,
     },
     COUPLE_F : {
@@ -1364,9 +1352,17 @@ function NewLeaderSkill( id ){
 
 function checkLeaderSkillByKey( key ){
     if( key in TEAM_LEADER_SKILL ){
-        TEAM_LEADER_SKILL[ key ](  TEAM_LEADER_SKILL["variable"], "leader" );
+        TEAM_LEADER_SKILL[ key ]( TEAM_LEADER_SKILL["variable"], "leader" );
     }
     if( key in TEAM_FRIEND_SKILL ){
         TEAM_FRIEND_SKILL[ key ]( TEAM_FRIEND_SKILL["variable"], "friend" );
+    }
+}
+function checkLeaderSkillByKeyVar( key, Var ){
+    if( key in TEAM_LEADER_SKILL ){
+        TEAM_LEADER_SKILL[ key ]( TEAM_LEADER_SKILL["variable"], "leader", Var );
+    }
+    if( key in TEAM_FRIEND_SKILL ){
+        TEAM_FRIEND_SKILL[ key ]( TEAM_FRIEND_SKILL["variable"], "friend", Var );
     }
 }

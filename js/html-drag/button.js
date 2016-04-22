@@ -57,6 +57,7 @@ $(document).ready( function(){
     setTimeout( function(){
         resetHistory();
         resetTimeLifeDiv();
+        resetTeamMemberSelectDiv();
     }, 10);
 });
 
@@ -212,6 +213,7 @@ function startEditTeam(){
     $("#OpenSysInfo").show();
     $("#CloseSysInfo").hide();
     resetTimeLifeDiv();
+    resetTeamMemberSelectDiv();
     showTeamInfomation();
 }
 function closeEditTeam(){
@@ -304,6 +306,10 @@ $("#locusSelect").change(function (){
             LOCUS_TYPE = $(this).val();
         }
     }
+});
+$("select.TeamMemberTypeSelect").change(function(){
+    resetMemberSelectAt( "#"+$(this).attr("action") );
+    resetTeamMembers();
 });
 
 //==============================================================
@@ -451,19 +457,34 @@ function loadTeamMembers(members){
     ];
 }
 function resetMemberSelect(){
-    $("#TeamMember select").each(function(i){
-        var msdropdown = $(this).msDropDown().data("dd");
-        for(var id in CHARACTERS_DATA){
-            msdropdown.add({
-                value: id,
-                image: CHARACTERS_DATA[id]["img"]
-            });
-        }
-        msdropdown.setIndexByValue( TEAM_MEMBERS[i]["id"] );
-        msdropdown.on("change", function(){
-            resetTeamMembers();
-        });
+    $("#TeamMember div.characterSelect").each(function(i){
+        resetMemberSelectAt( this );
     });
+}
+function resetMemberSelectAt( select ){
+    $(select).children().remove();
+    var selectID = $(select).attr('id');
+    var typeArr = $( "#"+$(select).attr('action') ).val();
+
+    for(var id in CHARACTERS_DATA){
+        if( ( typeArr == null && CHARACTERS_DATA[id]['id'].indexOf("CREATURE") < 0 ) ||
+            ( typeArr != null && typeArr.indexOf( "CREATURE" ) >= 0 && CHARACTERS_DATA[id]['id'].indexOf("CREATURE") >= 0 ) ||
+            ( typeArr != null && typeArr.indexOf( CHARACTERS_DATA[id]["type"] ) >= 0 ) ){
+            var charID = CHARACTERS_DATA[id]['id'];
+
+            var radio = $("<input>").attr('type','radio');
+            radio.attr('id',selectID+'Radio'+charID).attr('name',selectID+'Radio').val(charID);
+            var label =  $("<label></label>").attr('for',selectID+'Radio'+charID).val(charID);
+            label.css('background-image','url("'+CHARACTERS_DATA[charID]["img"]+'")');
+            label.click(function(){
+                $(select).val( $(this).val());
+                resetTeamMembers();
+            });
+            $(select).append( radio ).append( label );
+        }
+    }
+    $(select).find('input').eq(0).attr('checked',"checked" );
+    $(select).val( $(select).find('input').eq(0).val() );
 }
 
 function resetDropColors(){
@@ -518,6 +539,7 @@ function resetTeamMembers(){
     showTeamInfomation();
     showActiveInfomation();
     resetTimeLifeDiv();
+    resetTeamMemberSelectDiv();
     restartGame();
 }
 
@@ -671,6 +693,8 @@ function showActiveInfomation(){
         });
     });
     updateActiveCoolDownLabel();
+    resetTimeLifeDiv();
+    resetTeamMemberSelectDiv();
 }
 function updateActiveCoolDownLabel(){
     $.each(TEAM_ACTIVE_SKILL, function(place, actives){
@@ -695,9 +719,7 @@ function updateActiveCoolDownLabel(){
 function updateAdditionalEffectLabel(){
     $("#AdditionalEffectTD td").children().remove();
     $.each(ADDITIONAL_EFFECT_STACK, function(i, effect){
-        var place = effect['variable']['PLACE'];
-        var i = effect['variable']['i'];
-        var active = TEAM_ACTIVE_SKILL[place][i];
+        var active = effect['variable']['SOURCE'];
         var text = active['label']+"("+effect['variable']['DURATION']+")";
         var label = $("<span></span>").text( text ).addClass('EffectLabel');
         $("#AdditionalEffectTD td").append( label )

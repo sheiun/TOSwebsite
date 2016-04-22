@@ -20,6 +20,7 @@
     <link rel="stylesheet" type="text/css" href="css/dd/dd.css" />
 
     <link rel="stylesheet" type="text/css" href="css/html-drag/drag.css">
+    <link rel="stylesheet" type="text/css" href="css/html-drag/imageDropDown.css">
 
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -157,13 +158,57 @@
                     <tr id="AdditionalEffectTD">
                         <td colspan="6"></td>
                     </tr>
+                    <tr id="MemberTypeSelectTD" >
+                        <td> 
+                            <select id="TeamLeaderTypeSelect" class="selectpicker TeamMemberTypeSelect" data-width="120px" title="選擇種族" multiple action="TeamLeaderSelect">
+                              <option value="GOD" >神族</option><option value="HUMAN" >人類</option><option value="DEVIL" >魔族</option><option value="BEAST" >獸類</option><option value="SPIRIT" >妖精</option><option value="DRAGON" >龍族</option><option value="CREATURE" >自創</option>
+                            </select> 
+                        </td>
+                        <td> 
+                            <select id="TeamMember1TypeSelect" class="selectpicker TeamMemberTypeSelect" data-width="120px" title="選擇種族" multiple action="TeamMember1Select">
+                              <option value="GOD" >神族</option><option value="HUMAN" >人類</option><option value="DEVIL" >魔族</option><option value="BEAST" >獸類</option><option value="SPIRIT" >妖精</option><option value="DRAGON" >龍族</option><option value="CREATURE" >自創</option>
+                            </select>
+                        </td>
+                        <td> 
+                            <select id="TeamMember2TypeSelect" class="selectpicker TeamMemberTypeSelect" data-width="120px" title="選擇種族" multiple action="TeamMember2Select">
+                              <option value="GOD" >神族</option><option value="HUMAN" >人類</option><option value="DEVIL" >魔族</option><option value="BEAST" >獸類</option><option value="SPIRIT" >妖精</option><option value="DRAGON" >龍族</option><option value="CREATURE" >自創</option>
+                            </select>
+                        </td>
+                        <td> 
+                            <select id="TeamMember3TypeSelect" class="selectpicker TeamMemberTypeSelect" data-width="120px" title="選擇種族" multiple action="TeamMember3Select">
+                              <option value="GOD" >神族</option><option value="HUMAN" >人類</option><option value="DEVIL" >魔族</option><option value="BEAST" >獸類</option><option value="SPIRIT" >妖精</option><option value="DRAGON" >龍族</option><option value="CREATURE" >自創</option>
+                            </select> 
+                        </td>
+                        <td> 
+                            <select id="TeamMember4TypeSelect" class="selectpicker TeamMemberTypeSelect" data-width="120px" title="選擇種族" multiple action="TeamMember4Select">
+                              <option value="GOD" >神族</option><option value="HUMAN" >人類</option><option value="DEVIL" >魔族</option><option value="BEAST" >獸類</option><option value="SPIRIT" >妖精</option><option value="DRAGON" >龍族</option><option value="CREATURE" >自創</option>
+                            </select>
+                        </td>
+                        <td> 
+                            <select id="TeamFriendTypeSelect" class="selectpicker TeamMemberTypeSelect" data-width="120px" title="選擇種族" multiple action="TeamFriendSelect">
+                              <option value="GOD" >神族</option><option value="HUMAN" >人類</option><option value="DEVIL" >魔族</option><option value="BEAST" >獸類</option><option value="SPIRIT" >妖精</option><option value="DRAGON" >龍族</option><option value="CREATURE" >自創</option>
+                            </select>
+                        </td>
+                    </tr>
                     <tr id="MemberSelectTD" >
-                        <td> <select name="MemberSelect" id="TeamLeaderSelect"></select>  </td>
-                        <td> <select name="MemberSelect" id="TeamMember1Select"></select> </td>
-                        <td> <select name="MemberSelect" id="TeamMember2Select"></select> </td>
-                        <td> <select name="MemberSelect" id="TeamMember3Select"></select> </td>
-                        <td> <select name="MemberSelect" id="TeamMember4Select"></select> </td>
-                        <td> <select name="MemberSelect" id="TeamFriendSelect"></select>  </td>
+                        <td> 
+                            <div name="MemberSelect" id="TeamLeaderSelect" class="characterSelect" action="TeamLeaderTypeSelect"></div>  
+                        </td>
+                        <td> 
+                            <div name="MemberSelect" id="TeamMember1Select" class="characterSelect" action="TeamMember1TypeSelect"></div>  
+                        </td>
+                        <td> 
+                            <div name="MemberSelect" id="TeamMember2Select" class="characterSelect" action="TeamMember2TypeSelect"></div>  
+                        </td>
+                        <td> 
+                            <div name="MemberSelect" id="TeamMember3Select" class="characterSelect" action="TeamMember3TypeSelect"></div>  
+                        </td>
+                        <td> 
+                            <div name="MemberSelect" id="TeamMember4Select" class="characterSelect" action="TeamMember4TypeSelect"></div>  
+                        </td>
+                        <td> 
+                            <div name="MemberSelect" id="TeamFriendSelect" class="characterSelect" action="TeamFriendTypeSelect"></div> 
+                        </td>
                     </tr>
                     <tr id="ActiveButtonTD">
                         <td> <div class="activeBtn"></div><div class="combineBtn"></div> </td>

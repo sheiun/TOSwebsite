@@ -28,21 +28,11 @@ var ActiveCoolDownBegining = function(MEMBER, place, wakeVar ){
 
 var ChangeActiveSkillBegining = function(MEMBER, place, wakeVar ){ 
     // wakeVar = [i, "skill_ID"]
-    var active = NewActiveSkill( wakeVar[1] );
-    active['variable'] = active['preSet']( MEMBER, place, wakeVar[0] );
-    TEAM_ACTIVE_SKILL[place][ wakeVar[0] ] = active;
+    MEMBER['active'][ wakeVar[0] ] = wakeVar[1];
 }
 var ChangeLeaderSkillBegining = function(MEMBER, place, wakeVar ){ 
     // wakeVar = "skill_ID"
-    if( MEMBER == TEAM_LEADER ){
-        TEAM_LEADER['leader'] = wakeVar;
-        TEAM_LEADER_SKILL = NewLeaderSkill( TEAM_LEADER['leader'] );
-        TEAM_LEADER_SKILL["variable"] = TEAM_LEADER_SKILL['preSet']( TEAM_LEADER );
-    }else if( MEMBER == TEAM_FRIEND ){
-        TEAM_FRIEND['leader'] = wakeVar;
-        TEAM_FRIEND_SKILL = NewLeaderSkill( TEAM_FRIEND['leader'] );
-        TEAM_FRIEND_SKILL["variable"] = TEAM_FRIEND_SKILL['preSet']( TEAM_FRIEND );
-    }
+    MEMBER['leader'] = wakeVar;
 }
 
 //==============================================================

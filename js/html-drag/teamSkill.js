@@ -64,7 +64,8 @@ var TeamNordicOdinSetting = function( LEADER, FRIEND ){
     }
 
     $.each(TEAM_MEMBERS, function(place, member){
-        if( member['id'] == "BOSS_ODIN" ){
+        if( member['id'] == "BOSS_ODIN" || 
+            member['id'] == "BOSS_ODIN_CREATURE_1" || member['id'] == "BOSS_ODIN_CREATURE_2" ){
             member['color'] = LEADER['color'];
         }
     });
@@ -73,8 +74,8 @@ var TeamNordicOdinSetting = function( LEADER, FRIEND ){
 var TeamNordicOdinMapping = function(){
     if( TEAM_LEADER['id'] == TEAM_FRIEND['id'] && TEAM_FRIEND['id'].indexOf("NORDIC") == 0 &&
         checkMembersIDByConfig( {
-            ID    : [ "BOSS_ODIN" ],
-            check : [ "{0}>0"  ],
+            ID    : [ "BOSS_ODIN", "BOSS_ODIN_CREATURE_1", "BOSS_ODIN_CREATURE_2" ],
+            check : [ "({0}+{1}+{2})>0"  ],
         } ) ){
         basicTeamSkillAdd( this.id );
     }
@@ -133,6 +134,53 @@ var TeamGreekSkill = function( VAR ){
 }
 var TeamGreekMapping = function(){    
     if( TEAM_LEADER['id'] == TEAM_FRIEND['id'] && TEAM_FRIEND['leader'].indexOf( "GREEK" ) == 0 ){
+        basicTeamSkillAdd( this.id );
+    }
+}
+
+//==============================================================
+// Diablo
+//==============================================================
+var DiabloShieldWill = function( VAR ){
+    if( ( HEALTH_POINT/TOTAL_HEALTH_POINT ) >= 0.5 ){
+        UNDEAD_WILL = true;
+    }else{
+        UNDEAD_WILL = false;
+    }
+}
+var DiabloShieldMapping = function(){
+    if( TEAM_LEADER['id'] == "BOSS_DIABLO" && 
+        checkMembersTypeByConfig( {
+            types : [ "SPIRIT" ],
+            check : [ "{0}>=5" ],
+        } ) ){
+        basicTeamSkillAdd( this.id );
+    }
+}
+
+var DiabloOverflow = function( VAR, overflow ){
+    if( overflow <= 0 ){ return false; }
+
+    var num = countMembrsIDByArr( [ 
+        "EGG_SPIRIT_W", "EGG_SPIRIT_F", "EGG_SPIRIT_P", "EGG_SPIRIT_L", "EGG_SPIRIT_D"
+    ] );
+
+    var attack = makeNewAttack();
+    attack['base']   = overflow;
+    attack['color']  = '_';
+    attack['factor'] = num*2;
+    attack['goal']   = 'all';
+    attack['style']  = 'overflow';
+    attack['log']    = 'DiabloOverflow';console.log(attack);
+
+    mapAttackToEnemy(0, attack);
+}
+var DiabloOverflowMapping = function(){
+    if( TEAM_LEADER['id'] == "BOSS_DIABLO" && 
+        checkMembersIDVarietyByConfig( {
+            ID    : [ "EGG_SPIRIT_W", "EGG_SPIRIT_F", "EGG_SPIRIT_P", "EGG_SPIRIT_L", "EGG_SPIRIT_D" ],
+            check : 3,
+        } ) ){
         basicTeamSkillAdd( this.id );
     }
 }
@@ -292,12 +340,27 @@ var DragonResonanceDMapping = function(){
     }
 }
 //==============================================================
-var DragonBeastPlantSetting = function( LEADER, FRIEND ){
+var TeamDragonBeastPlantSetting = function( LEADER, FRIEND ){
     LEADER['leader'] = "DRAGON_BEAST_PLANT";
     FRIEND['leader'] = "DRAGON_BEAST_PLANT";
-    return {};
+    return { OVERFLOW : 0 };
 }
-var DragonBeastPlantMapping = function(){
+var TeamDragonBeastPlantOverflow = function( VAR, overflow ){
+    if( overflow > 0 ){
+        VAR['OVERFLOW'] += overflow;
+    }
+}
+var TeamDragonBeastPlantEnd = function( VAR ){
+    if( VAR['OVERFLOW'] > 0 ){
+        turnRandomElementToColorByConfig( {
+            color          : 'p',
+            num            : Math.floor( VAR['OVERFLOW'] / (TOTAL_HEALTH_POINT*0.12) ),
+            priorityColors : [ ['w', 'f', 'l', 'd', 'h'] ],
+        } );
+    }
+    VAR['OVERFLOW'] = 0;
+}
+var TeamDragonBeastPlantMapping = function(){
     if( ( ( TEAM_LEADER['id'] == "BOSS_DRAGON_NIDHOGG" && TEAM_FRIEND['id'] == "DRAGON_SERVANT_P" ) || 
           ( TEAM_FRIEND['id'] == "BOSS_DRAGON_NIDHOGG" && TEAM_LEADER['id'] == "DRAGON_SERVANT_P" ) ) &&
         checkMembersTypeByConfig( { 
@@ -449,9 +512,9 @@ var TeamCommonSourceMapping = function(){
             TEAM_LEADER['id'] == "LINYUERU" ) || 
           ( TEAM_FRIEND['id'] == "LIXIAOYAO" || TEAM_FRIEND['id'] == "ZHAOLINGER" ||
             TEAM_FRIEND['id'] == "LINYUERU" ) ) &&
-        checkMembersIDByConfig( {
+        checkMembersIDVarietyByConfig( {
             ID    : [ "LIXIAOYAO", "ZHAOLINGER", "LINYUERU" ],
-            check : [ '({0}>=1&&{1}>=1&&(({0}+{1})>=2))||({0}>=1&&{2}>=1&&(({0}+{2})>=2))||({1}>=1&&{2}>=1&&(({1}+{2})>=2))',  ],
+            check : 2,
         } ) ){
         basicTeamSkillAdd( this.id );
     }
@@ -554,7 +617,7 @@ var TEAM_SKILLS_DATA = {
         info      : '所有成員的自身攻擊力提升至 3 倍',
         mapping   : SiriusTeamMapping,
         preSet    : SiriusTeamSetting,
-    },    
+    },
     GREEK_COMBO : {
         id        : 'GREEK_COMBO',
         label     : '元素連動',
@@ -573,6 +636,22 @@ var TEAM_SKILLS_DATA = {
         mapping   : TeamGreekMapping,
         newItem   : TeamGreekSkill,
         preSet    : TeamGreekSetting,
+    },
+    DIABLO_SHIELD : {
+        id        : 'DIABLO_SHIELD',
+        label     : '元素之殼',
+        info      : '當前生命力全滿時，下一次所受傷害不會使你死亡（即滿血根性）（同一回合只會發動一次）',
+        will      : DiabloShieldWill,
+        mapping   : DiabloShieldMapping,
+        preSet    : NoneSetting,
+    },
+    DIABLO_OVERFLOW : {
+        id        : 'DIABLO_OVERFLOW',
+        label     : '生命溢盈',
+        info      : '以回血溢出值作全體攻擊，最大 10 倍',
+        mapping   : DiabloOverflowMapping,
+        overflow  : DiabloOverflow,
+        preSet    : NoneSetting,
     },
     DRAGON_SERVANT : {
         id        : 'DRAGON_SERVANT',
@@ -620,8 +699,10 @@ var TEAM_SKILLS_DATA = {
         id        : 'DRAGON_BEAST_PLANT',
         label     : '噬血移魂 ‧ 木龍獸',
         info      : '把指定召喚獸的隊長技能「歃血之盟誓」及「噬血龍王 ‧ 強」變為「噬血移魂」',
-        mapping   : DragonBeastPlantMapping,
-        preSet    : DragonBeastPlantSetting,
+        mapping   : TeamDragonBeastPlantMapping,
+        end       : TeamDragonBeastPlantEnd,
+        overflow  : TeamDragonBeastPlantOverflow,
+        preSet    : TeamDragonBeastPlantSetting,
     },
     COUPLE_FF : {
         id        : 'COUPLE_FF',
@@ -698,6 +779,13 @@ function checkTeamSkillByKey( key ){
     $.each(TEAM_SKILL, function(i, teamSkill){
         if( key in teamSkill ){
             teamSkill[ key ]( teamSkill["variable"] );
+        }
+    });
+}
+function checkTeamSkillByKeyVar( key, Var ){
+    $.each(TEAM_SKILL, function(i, teamSkill){
+        if( key in teamSkill ){
+            teamSkill[ key ]( teamSkill["variable"], Var );
         }
     });
 }

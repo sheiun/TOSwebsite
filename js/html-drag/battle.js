@@ -91,12 +91,10 @@ function countAttack(){
     checkAttackRecoverMapping();
 
     $.each(ATTACK_STACK, function(i, attack){
-        if( attack['work'] != 'done' ){
-            mapAttackToEnemy(i, attack);
-        }
+        mapAttackToEnemy(i, attack);
     });
-    checkAttackRecoverDamage();
-    countHealthRecover();
+
+    checkDamageEndBattle();
 }
 function countEnemyAction(){
     checkInjureReduce();
@@ -125,9 +123,19 @@ function checkAttackRecoverMapping(){
     // 連擊
     checkAdditionEffectByKey( "extraAttack" );
 }
-function checkAttackRecoverDamage(){
+function checkAttackRecoverDamage( attack ){
     // 吸血
-    checkLeaderSkillByKey( "damage" );
+    checkLeaderSkillByKeyVar( "damage", attack );
+    checkAdditionEffectByKeyVar( "damage", attack );
+}
+function checkDamageEndBattle(){    
+    // 泡沫/擴散
+    checkEnemyEffectByKey( "damageEnd" );  
+}
+function checkRecoverOverflow( overflow ){
+    // 溢補
+    checkLeaderSkillByKeyVar( "overflow", overflow );
+    checkTeamSkillByKeyVar( "overflow", overflow );
 }
 function checkInjureReduce(){
     // 減傷
@@ -137,6 +145,10 @@ function checkInjureReduce(){
 function checkWillAfterBattle(){
     // 根性意志
     checkLeaderSkillByKey( "will" );
+    checkTeamSkillByKey( "will" );
+}
+function checkCounterSinAfterBattle( injure ){
+    checkLeaderSkillByKeyVar( "counterSin", injure )
 }
 
 //==============================================================
@@ -260,7 +272,13 @@ function countHealthRecover(){
         }
     });
 
-    HEALTH_POINT = Math.min( TOTAL_HEALTH_POINT, Math.round( HEALTH_POINT+total_recover ) );
+    HEALTH_POINT = HEALTH_POINT+total_recover;
+    var overflow = HEALTH_POINT - TOTAL_HEALTH_POINT;
+    if( HEALTH_POINT > TOTAL_HEALTH_POINT ){
+        HEALTH_POINT = TOTAL_HEALTH_POINT;
+    }
+    checkRecoverOverflow( overflow );
+
     if( total_recover > 0 ){
         showTotalRecover( total_recover );
     }
@@ -269,6 +287,8 @@ function countHealthRecover(){
 // action 2 : team attack enemy
 //==============================================================
 function mapAttackToEnemy( a, attack ){
+    if( attack['work'] == 'done' ){ return false; }
+
     showPersonAttack( attack );
 
     if( attack['goal'] == "single" ){
@@ -288,8 +308,16 @@ function mapAttackToEnemy( a, attack ){
             attack['target'].push(i);
             countEnemySufferAttack( enemy, attack );
         });
+
+    }else if( attack['goal'] == "enemy" ){
+        $.each(attack['target'], function(i, enemy){
+            countEnemySufferAttack( enemy, attack );
+        });
     }
+
     attack['work'] = 'done';
+    checkAttackRecoverDamage( attack );
+    countHealthRecover();
 }
 
 function countEnemySufferAttack( enemy, attack ){
@@ -301,20 +329,39 @@ function countEnemySufferAttack( enemy, attack ){
     // check if attack luanch
     var atk = Math.round( attack["base"] * attack["factor"] );
     if( atk > 0 ){
-        // attack go throung defence & enemy ability, log the true attack damge
-        if( attack['style'] != "activeDirectDamage" ){
-            atk = Math.max( 1, atk-enemy['variable']['DEFENCE'] );
-        }
-        attack['damage'] = atk;
 
-        // check if effective attack
-        if( atk > 1 ){
+        if( attack['style'] == "directDamage" ){
+            // attack without care enemy defense & ability
+            attack['damage'] = atk;
+            // update enemy suffer
             enemy['variable']['HATRED'].push( attack );
-        }
+            enemy['variable']['SUFFER'] += atk;
+            enemy['variable']['HEALTH'] = Math.max( 0, enemy['variable']['HEALTH']-atk );
 
-        // update enemy suffer
-        enemy['variable']['SUFFER'] += atk;
-        enemy['variable']['HEALTH'] = Math.max( 0, enemy['variable']['HEALTH']-atk )
+        }else if( attack['style'] == "overflow" ){
+            // attack not make damage for other function use
+            atk = Math.max( 1, atk-enemy['variable']['DEFENCE'] );
+            attack['log'] += "_overflowDamage"+atk;
+            attack['damage'] = 0;
+            // update enemy suffer
+            enemy['variable']['HATRED'].push( attack );
+            enemy['variable']['SUFFER'] += atk;
+            enemy['variable']['HEALTH'] = Math.max( 0, enemy['variable']['HEALTH']-atk );
+
+        }else{
+            // attack go throung defence & enemy ability, log the true attack damge
+            atk = Math.max( 1, atk-enemy['variable']['DEFENCE'] );
+            attack['damage'] = atk;
+
+            // check if effective attack
+            if( atk > 1 ){
+                enemy['variable']['HATRED'].push( attack );
+            }
+
+            // update enemy suffer
+            enemy['variable']['SUFFER'] += atk;
+            enemy['variable']['HEALTH'] = Math.max( 0, enemy['variable']['HEALTH']-atk );
+        }
     }
 }
 
@@ -331,11 +378,32 @@ function enemyActionUpdate(i, enemy){
     if( enemy['variable']['COOLDOWN'] == 0 ){
         enemy['variable']['COOLDOWN'] = enemy['coolDown'];
 
+        var checkBewitchment = false;
+        $.each(enemy['variable']['EFFECT'], function(i, effect){
+            if( effect['id'] == 'BEWITCHMENT' ){
+                checkBewitchment = true;
+                return false;
+            }
+        });
+
         var injure = makeNewInjure();
-        injure['enemyOrder'] = i;
-        injure['label']      = enemy['label'];
-        injure['damage']     = enemy['variable']['ATTACK'];
-        injure['color']      = enemy['variable']['COLOR'];
+        injure['enemy']  = enemy;
+        injure['label']  = enemy['label'];
+        injure['damage'] = enemy['variable']['ATTACK'];
+        injure['color']  = enemy['variable']['COLOR'];
+
+        if( checkBewitchment ){            
+            var attack = makeNewAttack();
+            var atk  = enemy['variable']['ATTACK'];
+            atk = Math.max( 1, atk-enemy['variable']['DEFENCE'] );
+            attack['damage'] = atk;
+            attack['log']    = 'BEWITCHMENT';
+
+            enemy['variable']['HATRED'].push( attack );
+            enemy['variable']['SUFFER'] += atk;
+            enemy['variable']['HEALTH'] = Math.max( 0, enemy['variable']['HEALTH']-atk );
+            return;
+        }
 
         // consider injure reduce by skill
         if( !("INJURE_REDUCEABLE" in enemy['variable']) || enemy['variable']["INJURE_REDUCEABLE"] ){
@@ -345,18 +413,23 @@ function enemyActionUpdate(i, enemy){
     }
 }
 function healthStatusUpdate(){
+    var UNDEAD_WILL_USED = false;
     $.each(INJURE_STACK, function(i, injure){
         if( injure['work'] != 'done' ){
             UNDEAD_WILL = false;
             checkWillAfterBattle();
 
             HEALTH_POINT -= injure['damage'];
-            if( UNDEAD_WILL && HEALTH_POINT < 0 ){
+            if( UNDEAD_WILL && HEALTH_POINT <= 0 && !UNDEAD_WILL_USED ){
                 HEALTH_POINT = 1;
+                UNDEAD_WILL_USED = true;
             }
             HEALTH_POINT = Math.max( 0, HEALTH_POINT );
 
             injure['work'] = 'done';
+            if( HEALTH_POINT == 0 ){ return false; }
+
+            checkCounterSinAfterBattle( injure );
         }
     });
 }
@@ -388,12 +461,10 @@ function checkTeamStatus(){
 // Direct Attack/Recover By Active skill
 //==============================================================
 function makeDirectAttack( attack ){
-    resetAttackRecoverStack();
     resetCount();
     resetEnemyStatus();
 
     mapAttackToEnemy( 0, attack );
-    resetAttackRecoverStack();
 
     $.each(ENEMY, function(i, enemy){
         showEnemySuffer( i, enemy );

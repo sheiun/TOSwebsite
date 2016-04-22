@@ -4,18 +4,25 @@
 //==============================================================
 //==============================================================
 
-var BasicEffectSetting = function( place, i, VAR ){
-	return basicEffectSetting( place, i, VAR );
+var BasicEffectSetting = function( VAR ){
+	return basicEffectSetting( VAR, this.id, 1 );
 };
-var basicEffectSetting = function( place, i, VAR ){
+function basicEffectSetting( VAR, ID, duration ){
 	return {
-		ID       : this.id,
-		PLACE    : place,
-		i        : i,
+		ID       : ID,
+		PLACE    : VAR['PLACE'],
+		i        : VAR['i'],
+		SOURCE   : VAR['SOURCE'],
 		COLOR    : VAR['COLOR'],
 		TYPE     : VAR['TYPE'],
-		DURATION : 1,
+		DURATION : duration,
 	}
+};
+var Duration2EffectSetting = function( VAR ){
+	return basicEffectSetting( VAR, this.id, 2 );
+};
+var Duration3EffectSetting = function( VAR ){
+	return basicEffectSetting( VAR, this.id, 3 );
 };
 
 var DesperateAttack = function(){
@@ -28,6 +35,94 @@ var DesperateAttack = function(){
         condition : function( member, member_place ){ return true; },
     };
 };
+var DesperatePrepareAttack = function(){
+    COUNT_FACTOR['DesperatePrepareAttack'] = {
+        factor    : function( member, member_place ){ return 2; },
+        prob      : 1,
+        condition : function( member, member_place ){ return member['type'] == 'GOD'; },
+    };
+}
+var DesperatePrepareEnd = function(){	
+    var recover = makeNewRecover();
+    recover['base']  = TOTAL_HEALTH_POINT;
+    recover['factor']= 1;
+    recover['style'] = "additionalEffect";
+    recover['log']   = "DesperatePrepare";
+    makeDirectRecovery( recover );
+}
+var DesperatePrepareSetting = function( VAR ){
+    var injure = makeNewInjure();
+    var damage = HEALTH_POINT-1;
+    injure['label']  = "CourageOfSacrificeEffectAdd";
+    injure['damage'] = damage;
+    makeDirectInjure( injure );
+
+    var attack = makeNewAttack();
+    attack['base']   = damage;
+    attack['color']  =  VAR['COLOR'];
+    attack['factor'] = 50;
+    attack['goal']   = 'all';
+    attack['style']  = 'directDamage';
+    attack['log']    = 'DesperatePrepare';
+    makeDirectAttack(attack);
+
+	return basicEffectSetting( VAR, this.id, 1 );
+}
+//==============================================================
+var HarvestOfLifeDamage = function( attack ){
+    var damage = attack['damage'];
+    var recover = makeNewRecover();
+    recover['base']  = damage;
+    recover['factor']= 0.2;
+    recover['style'] = "additionalEffect";
+    recover['log']   = "HarvestOfLife";
+    RECOVER_STACK.push( recover );
+}
+var HarvestOfLifeEXDamage = function( attack ){
+    var damage = attack['damage'];
+    var recover = makeNewRecover();
+    recover['base']  = damage;
+    recover['factor']= 0.5;
+    recover['style'] = "additionalEffect";
+    recover['log']   = "HarvestOfLifeEX";
+    RECOVER_STACK.push( recover );
+}
+var PlunderOfLifeDamage = function( attack ){
+    var damage = attack['damage'];
+    var recover = makeNewRecover();
+    recover['base']  = damage;
+    recover['factor']= 0.2;
+    recover['style'] = "additionalEffect";
+    recover['log']   = "PlunderOfLife";
+    RECOVER_STACK.push( recover );
+}
+//==============================================================
+var SourceOfLifeAttack = function(){
+	setColorBelongsByConfig( { 'w': {'h':1}, 'f': {'h':1}, 'p': {'h':1}, 'l': {'h':1}, 'd': {'h':1} } );
+}
+var SourceOfLifeEndEffect = function(){	
+    for(var i = 0; i < TD_NUM; i++){
+    	if( this.variable['PROBS'][i] > 0 ){
+        	COLOR_PROB[i][ 'h' ] = this.variable['PROBS'][i];
+    	}else{
+    		delete COLOR_PROB[i][ 'h' ];
+    	}
+    }
+}
+var SourceOfLifeSetting = function( VAR ){
+	var probs = [];
+    for(var td = 0; td < TD_NUM; td++){
+    	if( 'h' in COLOR_PROB[td] ){
+    		probs.push( COLOR_PROB[td][ 'h' ] );
+    	}else{
+    		probs.push( 0 );
+    	}
+        COLOR_PROB[td][ 'h' ] = 0.3;
+    }
+    var variable = basicEffectSetting( VAR, this.id, 2 );
+    variable['PROBS'] = probs;
+	return variable;
+};
 //==============================================================
 var PossSpiritAttack = function(){
 	var color = this.variable['COLOR'];
@@ -39,16 +134,6 @@ var DragonShieldInjureReduce = function(){
 	var count = countMembrsTypeByArr( ['DRAGON'] );
 	COUNT_INJURE_REDUCE *= ( 1 - count*0.1 );
 }
-var DragonResonanceSetting = function( place, i, VAR ){
-	return {
-		ID       : this.id,
-		PLACE    : place,
-		i        : i,
-		COLOR    : VAR['COLOR'],
-		TYPE     : "DRAGON",
-		DURATION : 2,
-	}
-};
 var DragonResonance = function(){
 	var max_attack_base = 0;
 	var max_attack_factor = 0;
@@ -68,12 +153,12 @@ var DragonResonance = function(){
 		ATTACK_STACK[i]['factor'] = max_attack_factor;
 	}
 }  
-var CourageOfSacrificeSetting = function( place, i, VAR ){
+var CourageOfSacrificeSetting = function( VAR ){
     var injure = makeNewInjure();
     injure['label']  = "CourageOfSacrificeEffectAdd";
     injure['damage'] = Math.round( HEALTH_POINT*0.75 );
     makeDirectInjure( injure );
-	return basicEffectSetting( place, i, VAR );
+	return basicEffectSetting( VAR, this.id, 1 );
 };
 var CourageOfSacrificeAttack = function(){
 	COUNT_FACTOR['CourageOfSacrificeAttack'] = {
@@ -234,34 +319,132 @@ var MagicStageNewItem = function(){
 // ENEMY EFFECT
 //==============================================================
 //==============================================================
-
-var BattleFieldSetting = function( place, i, VAR, enemy ){
+var BasicEnemyEffectSetting = function( VAR, enemy ){
+	return basicEnemyEffectSetting( VAR, enemy, this.id, duration );
+}
+function basicEnemyEffectSetting( VAR, enemy, ID, duration ){
 	return {
-		ID       : this.id,
-		PLACE    : place,
-		i        : i,
+		ID       : ID,
+		PLACE    : VAR['PLACE'],
+		i        : VAR['i'],
+		SOURCE   : VAR['SOURCE'],
 		COLOR    : VAR['COLOR'],
 		TYPE     : VAR['TYPE'],
-		DURATION : 2,
+		DURATION : duration,
 		ENEMY    : enemy,
-	}
+	};
 };
+var Duration2EnemyEffectSetting = function( VAR, enemy ){
+	return basicEnemyEffectSetting( VAR, enemy, this.id, 2 );
+}
+var Duration3EnemyEffectSetting = function( VAR, enemy ){
+	return basicEnemyEffectSetting( VAR, enemy, this.id, 3 );
+}
+var Duration5EnemyEffectSetting = function( VAR, enemy ){
+	return basicEnemyEffectSetting( VAR, enemy, this.id, 5 );
+}
+
+var BubbleBurstDamageEnd = function(){
+	var VAR = this.variable;
+	var enemy = VAR['ENEMY'];
+	$.each(enemy['variable']['HATRED'], function(a, attack){
+        VAR['DAMAGE'] += attack['damage'];
+    });
+
+    if( VAR['DURATION'] == 1 ){  
+        var damage = Math.round( VAR['DAMAGE']*0.7 );
+	    var attack = makeNewAttack();
+	    attack['base']   = damage;
+	    attack['color']  = '_';
+        attack['damage'] = damage;
+	    attack['factor'] = 1;
+	    attack['goal']   = 'enemy';
+	    attack['target'] = [enemy];
+		attack['style']  = 'directDamage';
+	    attack['log']    = 'BubbleBurst';
+
+    	mapAttackToEnemy( 0, attack );
+    }
+}
+var BubbleBurstSetting = function( VAR, enemy ){
+	var variable = basicEnemyEffectSetting( VAR, enemy, this.id, 3 );
+	variable['DAMAGE'] = 0;
+	return variable;
+};
+var BubbleBurstEXDamageEnd = function(){ 
+	var VAR = this.variable;
+	var enemy = VAR['ENEMY'];
+	$.each(enemy['variable']['HATRED'], function(a, attack){
+        VAR['DAMAGE'] += attack['damage'];
+    });
+
+    if( VAR['DURATION'] == 1 ){  
+        var damage = Math.round( VAR['DAMAGE']*1.1 );
+	    var attack = makeNewAttack();
+	    attack['base']   = damage;
+	    attack['color']  = '_';
+	    attack['factor'] = 1;
+	    attack['goal']   = 'enemy';
+	    attack['target'] = [enemy];
+		attack['style']  = 'directDamage';
+	    attack['log']    = 'BubbleBurstEX';
+
+    	mapAttackToEnemy( 0, attack );
+    }
+}
+var BubbleBurstEXSetting = function( VAR, enemy ){
+	var variable = basicEnemyEffectSetting( VAR, enemy, this.id, 2 );
+	variable['DAMAGE'] = 0;
+	return variable;
+};
+//==============================================================
+var IgnitionAttack = function(){
+	this.variable['ENEMY']['variable']['COLOR'] = 'f';
+
+	var attack = makeNewAttack();
+	attack['base']   = this.variable['ENEMY']['variable']['ATTACK'];
+	attack['color']  = 'f';
+	attack['factor'] = 30;
+	attack['goal']   = 'enemy';
+	attack['style']  = 'enemyEffect';
+	attack['target'] = [ this.variable['ENEMY'] ]
+	attack['log']    = 'Ignition';
+
+	ATTACK_STACK.push( attack );
+}
+//==============================================================
+var PrevationDamageEnd = function(){
+	var thisEnemy = this.variable['ENEMY'];E
+	var damage = 0;
+	$.each(thisEnemy['variable']['HATRED'], function(a, attack){
+        damage += attack['damage'];
+    });
+    damage = Math.round( damage*0.5 );
+
+    $.each(ENEMY, function(i, enemy){
+    	if( enemy != thisEnemy ){
+		    var attack = makeNewAttack();
+		    attack['base']   = damage;
+		    attack['color']  = '_';
+		    attack['factor'] = 1;
+		    attack['goal']   = 'enemy';
+	    	attack['target'] = [enemy];
+		    attack['style']  = 'directDamage';
+		    attack['log']    = 'Prevation';
+
+    		mapAttackToEnemy( 0, attack );
+    	}
+    });
+}
+//==============================================================
 var BattleFieldAttack = function(){
 	COUNT_COLOR_FACTOR[ this.variable['COLOR'] ] *= 1.5;
 	this.variable['ENEMY']['variable']['COLOR'] = COLOR_EXCLUSIVE[ this.variable['COLOR'] ];
 };
 //==============================================================
-var BlazingCircleSetting = function( place, i, VAR, enemy ){
+var BlazingCircleSetting = function( VAR, enemy ){
 	enemy['variable']['COOLDOWN'] += 3;
-	return {
-		ID       : this.id,
-		PLACE    : place,
-		i        : i,
-		COLOR    : VAR['COLOR'],
-		TYPE     : VAR['TYPE'],
-		DURATION : 3,
-		ENEMY    : enemy,
-	}
+	return  basicEnemyEffectSetting( VAR, enemy, this.id, 3 );
 };
 var BlazingCircleAttack = function(){
 	this.variable['ENEMY']['variable']['COLOR'] = COLOR_EXCLUSIVE[ 'f' ];
@@ -286,6 +469,31 @@ var ADDITIONAL_EFFECT_DATA = {
 		preSet    : BasicEffectSetting,
 		tag       : ['attack'],
 	},
+	HARVEST_OF_LIFE : {
+		id        : 'HARVEST_OF_LIFE',
+		damage    : HarvestOfLifeDamage,
+		preSet    : Duration3EffectSetting,
+		tag       : ['damageRecover'],
+	},
+	HARVEST_OF_LIFE_EX : {
+		id        : 'HARVEST_OF_LIFE',
+		damage    : HarvestOfLifeEXDamage,
+		preSet    : Duration3EffectSetting,
+		tag       : ['damageRecover'],
+	},
+	PLUNDER_OF_LIFE : {
+		id        : 'PLUNDER_OF_LIFE',
+		damage    : PlunderOfLifeDamage,
+		preSet    : Duration2EffectSetting,
+		tag       : ['damageRecover'],
+	},
+	SOURCE_OF_LIFE : {
+		id        : 'SOURCE_OF_LIFE',
+		attack    : SourceOfLifeAttack,
+		endEffect : SourceOfLifeEndEffect,
+		preSet    : SourceOfLifeSetting,
+		tag       : ['belongColor'],
+	},
 	POSS_LIGHT_SPIRIT : {
 		id        : 'POSS_LIGHT_SPIRIT',
 		attack    : PossSpiritAttack,
@@ -307,7 +515,7 @@ var ADDITIONAL_EFFECT_DATA = {
 	DRAGON_RESONANCE : {
 		id        : 'DRAGON_RESONANCE',
 		resonance : DragonResonance,
-		preSet    : DragonResonanceSetting,
+		preSet    : Duration2EffectSetting,
 		tag       : ['attack'],
 	},
 	COURAGE_OF_SACRIFICE : {
@@ -423,13 +631,57 @@ var ADDITIONAL_EFFECT_DATA = {
 		preSet    : BasicEffectSetting,
 		tag       : ['newItem'],
 	},
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+	DESPERATE_PREPARE : {
+		id        : 'DESPERATE_PREPARE',
+		attack    : DesperatePrepareAttack,
+		end       : DesperatePrepareEnd,
+		preSet    : DesperatePrepareSetting,
+		tag       : ['attack'],
+	},
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 };
 
 var ENEMY_EFFECT_DATA = {
+	BIBBLE_BURST : {
+		id        : 'BIBBLE_BURST',
+		damgeEnd  : BubbleBurstDamageEnd,
+		preSet    : BubbleBurstSetting,
+		tag       : ['damage'],
+	},
+	BIBBLE_BURST_EX : {
+		id        : 'BIBBLE_BURST_EX',
+		damageEnd : BubbleBurstEXDamageEnd,
+		preSet    : BubbleBurstEXSetting,
+		tag       : ['damage']
+	},
+	IGNITION : {
+		id        : 'IGNITION',
+		attack    : IgnitionAttack,
+		preSet    : Duration3EnemyEffectSetting,
+		tag       : ['changeColor'],
+	},
+	PREVASION : {
+		id        : 'PREVASION',
+		damageEnd : PrevationDamageEnd,
+		preSet    : Duration3EnemyEffectSetting,
+		tag       : ['damage'],
+	},
+	PREVASION_EX : {
+		id        : 'PREVASION_EX',
+		damageEnd : PrevationDamageEnd,
+		preSet    : Duration5EnemyEffectSetting,
+		tag       : ['damage'],
+	},
+	BEWITCHMENT : {
+		id        : 'BEWITCHMENT',
+		preSet    : Duration3EnemyEffectSetting,
+		tag       : ['bewitchment'],
+	},
 	BATTLEFIELD_P : {
 		id        : 'BATTLEFIELD_P',
 		attack    : BattleFieldAttack,
-		preSet    : BattleFieldSetting,
+		preSet    : Duration2EnemyEffectSetting,
 		tag       : ['changeColor'],
 	},
 	BLAZING_CIRCLE : {
@@ -437,7 +689,7 @@ var ENEMY_EFFECT_DATA = {
 		attack    : BlazingCircleAttack,
 		preSet    : BlazingCircleSetting,
 		tag       : ['changeColor', 'addCoolDown'],
-	}
+	},
 }
 
 function NewAdditionalEffect( id ){
@@ -467,11 +719,27 @@ function checkAdditionEffectByKey( key ){
         }
     });    
 }
+function checkAdditionEffectByKeyVar( key, Var ){
+    $.each(ADDITIONAL_EFFECT_STACK, function(i, effect){
+        if( key in effect ){
+            effect[ key ]( Var );
+        }
+    });    
+}
 function checkEnemyEffectByKey( key ){
     $.each(ENEMY, function(e, enemy){
         $.each(enemy['variable']['EFFECT'], function(i, effect){
 	        if( key in effect ){
 	            effect[ key ]();
+	        }
+    	});
+    });
+}
+function checkEnemyEffectByKeyVar( key, Var ){
+    $.each(ENEMY, function(e, enemy){
+        $.each(enemy['variable']['EFFECT'], function(i, effect){
+	        if( key in effect ){
+	            effect[ key ]( Var );
 	        }
     	});
     });
