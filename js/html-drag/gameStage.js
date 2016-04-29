@@ -26,12 +26,14 @@ var COLOR_MAP = {};
 var COLOR_PROB = [ {}, {}, {}, {}, {}, {} ];
 var TEAM_COLORS_CHANGEABLE = true;
 
-var STRAIGHT_SETS = [];
-var HORIZONTAL_SETS = [];
-var COLOR_SETS = {'w':[], 'f':[], 'p':[], 'l':[], 'd':[], 'h':[]};
+var STRAIGHT_SETS      = [];
+var HORIZONTAL_SETS    = [];
+var COLOR_SETS         = {'w':[], 'f':[], 'p':[], 'l':[], 'd':[], 'h':[]};
 var COLOR_SETS_PREPARE = {'w':[], 'f':[], 'p':[], 'l':[], 'd':[], 'h':[]};
-var GROUP_SIZE = {'w':3, 'f':3, 'p':3, 'l':3, 'd':3, 'h':3};
-var GROUP_SETS = {'w':[], 'f':[], 'p':[], 'l':[], 'd':[], 'h':[]};
+var SET_SIZE           = {'w':3, 'f':3, 'p':3, 'l':3, 'd':3, 'h':3};
+var GROUP_SIZE         = {'w':3, 'f':3, 'p':3, 'l':3, 'd':3, 'h':3};
+var GROUP_SETS         = {'w':[], 'f':[], 'p':[], 'l':[], 'd':[], 'h':[]};
+var GROUP_SETS_PREPARE = {'w':[], 'f':[], 'p':[], 'l':[], 'd':[], 'h':[]};
 
 var REMOVE_STACK = [];
 var STRONG_STACK = {};
@@ -248,6 +250,7 @@ function resetColorGroupSet(){
     COLOR_SETS_PREPARE = {'w':[], 'f':[], 'p':[], 'l':[], 'd':[], 'h':[]};
 
     GROUP_SETS = {'w':[], 'f':[], 'p':[], 'l':[], 'd':[], 'h':[]};
+    GROUP_SETS_PREPARE = {'w':[], 'f':[], 'p':[], 'l':[], 'd':[], 'h':[]};
 }
 function resetDropStack(){
     REMOVE_STACK = [];

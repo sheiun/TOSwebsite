@@ -39,6 +39,14 @@ var ElementFactor3_5Attack = function( VAR, direct ){
         condition : function( member, member_place ){ return member['color'] == color; },
     };
 }
+var ElementFactor4Attack = function( VAR, direct ){
+    var color = VAR['COLOR'];
+    COUNT_FACTOR['ElementFactor4'+direct] = {
+        factor    : function( member, member_place ){ return 4; },
+        prob      : 1,
+        condition : function( member, member_place ){ return member['color'] == color; },
+    };
+}
 
 var SpiritFactor2Attack = function( VAR, direct ){
     COUNT_FACTOR['SpiritFactor2'+direct] = {
@@ -342,6 +350,8 @@ var DragonBeastPlantDamage = function( VAR, direct, attack ){
 //==============================================================
 var CoupleSetting = function( MEMBER ){
     TEAM_COLORS_CHANGEABLE = false;
+    SET_SIZE[ MEMBER['color'] ] = 2;
+    SET_SIZE['h'] = 2;
     GROUP_SIZE[ MEMBER['color'] ] = 2;
     GROUP_SIZE['h'] = 2;
     return {
@@ -791,6 +801,43 @@ var HeartQueenSetting = function( MEMBER ){
 }
 
 //==============================================================
+// Old Greek
+//==============================================================
+var OldGreekSetting = function( MEMBER ){
+    for( var c of [ 'w', 'f', 'p', 'l', 'd', 'h' ] ){
+        SET_SIZE[c] = 2;
+        GROUP_SIZE[c] = 3;
+    }
+    return {
+        COLOR : MEMBER['color'],
+        COUNT : 0,
+    };
+}
+var OldGreekLAttack = function( VAR, direct ){
+    if( checkMembersTypeVarietyByConfig( {
+            types : [ "GOD", "HUMAN", "SPIRIT", "BEAST", "DRAGON", "DEVIL" ],
+            check : 5,
+        } ) ){
+        COUNT_FACTOR['OldGreekL5Type'+direct] = {
+            factor    : function( member, member_place ){ return 2; },
+            prob      : 1,
+            condition : function( member, member_place ){ return true; },
+        };
+    }
+    if( checkMembersColorVarietyByConfig( {
+            colors : [ "w", "f", "p", "l", "d" ],
+            check  : 5,
+        } ) ){
+        COUNT_FACTOR['OldGreekL5Color'+direct] = {
+            factor    : function( member, member_place ){ return 2; },
+            prob      : 1,
+            condition : function( member, member_place ){ return true; },
+        };
+    }
+}
+
+
+//==============================================================
 //==============================================================
 // Skill Database
 //==============================================================
@@ -913,6 +960,41 @@ var LEADER_SKILLS_DATA = {
         label     : "幽冥怒嘯",
         info      : "暗屬性攻擊力 3.5 倍",
         attack    : ElementFactor3_5Attack,
+        preSet    : BasicLeaderSetting,
+    },
+    ELEMENT_FACTOR4_W : {
+        id        : "ELEMENT_FACTOR4_W",
+        label     : "浪濤萬鈞之怒",
+        info      : "水屬性攻擊力 4 倍",
+        attack    : ElementFactor4Attack,
+        preSet    : BasicLeaderSetting,
+    },
+    ELEMENT_FACTOR4_F : {
+        id        : "ELEMENT_FACTOR4_F",
+        label     : "熾燄萬鈞之怒",
+        info      : "火屬性攻擊力 4 倍",
+        attack    : ElementFactor4Attack,
+        preSet    : BasicLeaderSetting,
+    },
+    ELEMENT_FACTOR4_P : {
+        id        : "ELEMENT_FACTOR4_P",
+        label     : "藤木萬鈞之怒",
+        info      : "木屬性攻擊力 4 倍",
+        attack    : ElementFactor4Attack,
+        preSet    : BasicLeaderSetting,
+    },
+    ELEMENT_FACTOR4_L : {
+        id        : "ELEMENT_FACTOR4_L",
+        label     : "玄光萬鈞之怒",
+        info      : "光屬性攻擊力 4 倍",
+        attack    : ElementFactor4Attack,
+        preSet    : BasicLeaderSetting,
+    },
+    ELEMENT_FACTOR4_D : {
+        id        : "ELEMENT_FACTOR4_D",
+        label     : "幽冥萬鈞之怒",
+        info      : "暗屬性攻擊力 4 倍",
+        attack    : ElementFactor4Attack,
         preSet    : BasicLeaderSetting,
     },
     SPIRIT_FACTOR_2 : {
@@ -1342,6 +1424,23 @@ var LEADER_SKILLS_DATA = {
         setTime   : DevilCircleSetTime,
         preSet    : BasicLeaderSetting,
     },
+
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// CREATURE
+    OLD_GREEK_WD : {
+        id        : "OLD_GREEK_WD",
+        label     : "界限變革",
+        info      : "所有符石只要同屬性 3 粒相連即可消除",
+        preSet    : OldGreekSetting,
+    },
+    OLD_GREEK_L : {
+        id        : "OLD_GREEK_L",
+        label     : "五念凝匯 ‧ 極",
+        info      : "隊員有 5 種屬性，全隊攻擊力 2 倍；隊員有 5 種種族，全隊額外 2 倍攻擊力。",
+        attack    : OldGreekLAttack,
+        preSet    : BasicLeaderSetting,
+    },
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 };
 
 function NewLeaderSkill( id ){

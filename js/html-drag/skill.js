@@ -143,6 +143,28 @@ function getStackOfPanelByColorArrWithoutStrong(colorArr){
     }
     return stack;
 }
+function getStackOfPanelByColorWithStrong(color){
+    var stack = [];
+    for(var i = 0; i < TD_NUM*TR_NUM; i++){
+        var c = $("#dragContainment tr td").eq(i).find("img.over").attr("color");
+        var strong = parseInt( $("#dragContainment tr td").eq(i).find("img.over").attr("strong") );
+        if( c == color && (strong > 0) ){
+            stack.push(i);
+        }
+    }
+    return stack;
+}
+function getStackOfPanelByColorArrWithStrong(colorArr){
+    var stack = [];
+    for(var i = 0; i < TD_NUM*TR_NUM; i++){
+        var c = $("#dragContainment tr td").eq(i).find("img.over").attr("color");
+        var strong = parseInt( $("#dragContainment tr td").eq(i).find("img.over").attr("strong") );
+        if( colorArr.indexOf(c) >= 0 && (strong > 0) ){
+            stack.push(i);
+        }
+    }
+    return stack;
+}
 function getStackOfStraight(place){
     var stack = [];
     for(var i = 0; i < TR_NUM; i++){
@@ -195,6 +217,14 @@ function getStackOfHorizontalByColorArr(i, colorArr){
             stack.push(i*TD_NUM+j);
         }
     }
+    return stack;
+}
+function getStackNearbyID(id){
+    var stack = [];
+    if( id+1 <  TD_NUM*TR_NUM && id%TD_NUM < TD_NUM-1          ){ stack.push(id+1); }
+    if( id-1 >= 0             && id%TD_NUM > 0                 ){ stack.push(id-1); }
+    if( id+6 <  TD_NUM*TR_NUM && id        < TD_NUM*(TR_NUM-1) ){ stack.push(id+6); }
+    if( id-6 >= 0             && id        >= TD_NUM           ){ stack.push(id-6); }
     return stack;
 }
 
@@ -471,6 +501,27 @@ function checkMembersColorByConfig( config ){
     }
     return check;
 }
+function checkMembersColorVarietyByConfig(config){
+    var countColor = {};
+    var check = true;
+    for(var c of config['colors'] ){
+        countColor[c] = 0;
+    }
+    $.each(TEAM_MEMBERS, function(i, member){
+        if( member['color'] in countColor ){
+            countColor[ member['color'] ] += 1;
+        }else if( member['id'] == 'EMPTY' ){
+        }else if( 'OTHER' in countColor ){
+            countColor[ 'OTHER' ] += 1;
+        }
+    });
+    for(var c of config['colors']){
+        if( countColor[c] >= 1 ){
+            check +=1;
+        }
+    }
+    return check >= config['check'];
+}
 function checkMembersTypeByConfig( config ){
     var countType = {};
     var check = true;
@@ -493,6 +544,27 @@ function checkMembersTypeByConfig( config ){
         }
     }
     return check;
+}
+function checkMembersTypeVarietyByConfig(config){
+    var countType = {};
+    var check = 0;
+    for(var type of config['types']){
+        countType[type] = 0;
+    }
+    $.each(TEAM_MEMBERS, function(i, member){
+        if( member['type'] in countType ){
+            countType[ member['type'] ] += 1;
+        }else if( member['id'] == 'EMPTY' ){
+        }else if( 'OTHER' in countType ){
+            countType[ 'OTHER' ] += 1;
+        }
+    });
+    for(var type of config['types']){
+        if( countType[type] >= 1 ){
+            check +=1;
+        }
+    }
+    return check >= config['check'];
 }
 function checkMembersIDByConfig( config ){
     var countId = {};
@@ -595,7 +667,7 @@ function countMembrsIDByArr( typeArr ){
 
 
 //==============================================================
-// H_A_R Increase
+// LastMember
 //==============================================================
 function increaseHARByLastMember( memberID, healthFactor, attackFactor, recoverYFactor ){
     $.each(TEAM_MEMBERS, function(i, member){

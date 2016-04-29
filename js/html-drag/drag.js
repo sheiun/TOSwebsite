@@ -351,7 +351,7 @@ function countColor(){
                     break;
                 }
             }
-            if( set.size >= GROUP_SIZE[color] ){
+            if( set.size >= SET_SIZE[color] ){
                 COLOR_SETS[color].push(new Set(set));
                 COLOR_SETS_PREPARE[color].push( new Set(set) );
                 STRAIGHT_SETS[i].push(new Set(set));
@@ -387,7 +387,7 @@ function countColor(){
                     break;
                 }
             }
-            if( set.size >= GROUP_SIZE[color] ){
+            if( set.size >= SET_SIZE[color] ){
                 COLOR_SETS[color].push(new Set(set));
                 COLOR_SETS_PREPARE[color].push(new Set(set));
                 HORIZONTAL_SETS[i].push(new Set(set));
@@ -402,7 +402,7 @@ function countGroup(){
             var set = COLOR_SETS_PREPARE[ key ].pop();
             var setArr = Array.from(set);
             for(var id of setArr){
-                for(var already_set of GROUP_SETS[ key ] ){
+                for(var already_set of GROUP_SETS_PREPARE[ key ] ){
                     if(   already_set.has(id)                                           ||
                         ( already_set.has(id+1)      && id%TD_NUM < TD_NUM-1          ) ||
                         ( already_set.has(id-1)      && id%TD_NUM > 0                 ) ||
@@ -411,11 +411,20 @@ function countGroup(){
                         for(var already_i of already_set){
                             set.add(already_i);
                         }
-                        GROUP_SETS[ key ].splice( GROUP_SETS[ key ].indexOf( already_set ), 1);
+                        GROUP_SETS_PREPARE[ key ].splice( GROUP_SETS_PREPARE[ key ].indexOf( already_set ), 1);
                     }
                 }
             }
-            GROUP_SETS[ key ].push(set);
+
+            GROUP_SETS_PREPARE[ key ].push(set);
+        }
+    }
+
+    for( var key in GROUP_SETS_PREPARE ){
+        for( var set of GROUP_SETS_PREPARE[ key ] ){
+            if( set.size >= GROUP_SIZE[key] ){
+                GROUP_SETS[ key ].push(set);
+            }
         }
     }
 

@@ -43,6 +43,7 @@ $(document).ready( function(){
         resetMemberSelect();
         resetTeamMembers();
         newRandomPlain();
+        resetHistory();
     }
     MAIN_STATE = MAIN_STATE_ENUM.READY;
     PLAY_TYPE = PLAY_TYPE_ENUM.DRAG;
@@ -164,10 +165,7 @@ function replay(){
     disbalePanelControl( true );
     COLOR_RANDOM = HISTORY_RANDOM;
     loadTeamMembers(HISTORY_TEAM_MEMBER);
-    $("#TeamMember select").each(function(i){
-        var msdropdown = $(this).msDropDown().data("dd");
-        msdropdown.setIndexByValue( TEAM_MEMBERS[i]["id"] );
-    });
+
     resetTeamMembers();
     loadSkillVariable(HISTORY_SKILL_VARIABLE);
     showTeamInfomation();
@@ -211,6 +209,8 @@ function startEditTeam(){
     $("#TeamMember").show();
     $("#OpenSysInfo").show();
     $("#CloseSysInfo").hide();
+
+    closeCanvas();
     resetTimeLifeDiv();
     resetTeamMemberSelectDiv();
     showTeamInfomation();
@@ -454,6 +454,12 @@ function loadTeamMembers(members){
         MEMBER_4,
         TEAM_FRIEND,
     ];
+    $("#TeamLeaderSelect input[value='"+members[0]+"']").click();
+    $("#TeamMember1Select input[value='"+members[1]+"']").click();
+    $("#TeamMember2Select input[value='"+members[2]+"']").click();
+    $("#TeamMember3Select input[value='"+members[3]+"']").click();
+    $("#TeamMember4Select input[value='"+members[4]+"']").click();
+    $("#TeamFriendSelect input[value='"+members[5]+"']").click();
 }
 function resetMemberSelect(){
     $("#TeamMember div.characterSelect").each(function(i){
@@ -467,8 +473,10 @@ function resetMemberSelectAt( select ){
 
     for(var id in CHARACTERS_DATA){
         if( ( typeArr == null && CHARACTERS_DATA[id]['id'].indexOf("CREATURE") < 0 ) ||
-            ( typeArr != null && typeArr.indexOf( "CREATURE" ) >= 0 && CHARACTERS_DATA[id]['id'].indexOf("CREATURE") >= 0 ) ||
-            ( typeArr != null && typeArr.indexOf( CHARACTERS_DATA[id]["type"] ) >= 0 ) ){
+            ( typeArr != null && typeArr.indexOf( "CREATURE" ) >= 0 && 
+              CHARACTERS_DATA[id]['id'].indexOf("CREATURE") >= 0 ) ||
+            ( typeArr != null && typeArr.indexOf( CHARACTERS_DATA[id]["type"] ) >= 0 && 
+              CHARACTERS_DATA[id]['id'].indexOf("CREATURE") < 0  ) ){
             var charID = CHARACTERS_DATA[id]['id'];
 
             var radio = $("<input>").attr('type','radio');
@@ -476,7 +484,7 @@ function resetMemberSelectAt( select ){
             var label =  $("<label></label>").attr('for',selectID+'Radio'+charID).val(charID);
             label.css('background-image','url("'+CHARACTERS_DATA[charID]["img"]+'")');
             label.click(function(){
-                $(select).val( $(this).val());
+                $(select).val( $(this).val() );
                 resetTeamMembers();
             });
             $(select).append( radio ).append( label );
@@ -562,7 +570,8 @@ function showEndGame(){
 }
 function showEnemySuffer(){
     $.each(ENEMY, function(i, enemy){
-        if( enemy['variable']['SUFFER'] > 0 ){        
+        if( enemy['variable']['SUFFER'] > 0 &&
+            enemy['id'] != 'EMPTY' ){        
             $("#BattleInfomation").append( 
                 $("<span></span>").text(
                     "給予 敵人("+(i+1)+")"+enemy['label']+' '+enemy['variable']['SUFFER']+' 點傷害 ， '+

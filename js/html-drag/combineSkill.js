@@ -373,7 +373,6 @@ function combineSkillMapping( combineID, needArr ){
 				}
 			});
 			if( check ){
-console.log($.extend(true, {}, need));
 				var combineSkill = NewCombineSkill( combineID );
 				var member = TEAM_MEMBERS[place];
 				var combine_i = TEAM_COMBINE_SKILL[place].length;

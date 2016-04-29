@@ -22,7 +22,7 @@ var ENEMY_DATA = {
 		id       : 'EMPTY',
 		label    : '',
 		info     : '',
-		health   : 1,
+		health   : Infinity,
 		attack   : 1,
 		defence  : 0,
 		color    : '_',

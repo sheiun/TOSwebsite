@@ -10,6 +10,13 @@ function basicTeamSkillAdd( teamSkillID ){
     TEAM_SKILL.push( teamSkill );
 }
 
+function BasicTeamSkillSetting( LEADER, FRIEND ){    
+    return {
+        COLOR    : LEADER['color'],
+    };
+}
+
+
 //==============================================================
 // PROTAGONIST
 //==============================================================
@@ -47,20 +54,20 @@ var TeamNordicMapping = function(){
 
 var TeamNordicOdinSetting = function( LEADER, FRIEND ){
     if( LEADER['color'] == 'w' ){
-        LEADER['leader'] = "ELEMENT_FACTOR3_5_W";
-        FRIEND['leader'] = "ELEMENT_FACTOR3_5_W";
+        LEADER['leader'] = "ELEMENT_FACTOR4_W";
+        FRIEND['leader'] = "ELEMENT_FACTOR4_W";
     }else if( LEADER['color'] == 'f' ){
-        LEADER['leader'] = "ELEMENT_FACTOR3_5_F";
-        FRIEND['leader'] = "ELEMENT_FACTOR3_5_F";
+        LEADER['leader'] = "ELEMENT_FACTOR4_F";
+        FRIEND['leader'] = "ELEMENT_FACTOR4_F";
     }else if( LEADER['color'] == 'p' ){
-        LEADER['leader'] = "ELEMENT_FACTOR3_5_P";
-        FRIEND['leader'] = "ELEMENT_FACTOR3_5_F";
+        LEADER['leader'] = "ELEMENT_FACTOR4_P";
+        FRIEND['leader'] = "ELEMENT_FACTOR4_F";
     }else if( LEADER['color'] == 'f' ){
-        LEADER['leader'] = "ELEMENT_FACTOR3_5_L";
-        FRIEND['leader'] = "ELEMENT_FACTOR3_5_L";
+        LEADER['leader'] = "ELEMENT_FACTOR4_L";
+        FRIEND['leader'] = "ELEMENT_FACTOR4_L";
     }else if( LEADER['color'] == 'd' ){
-        LEADER['leader'] = "ELEMENT_FACTOR3_5_D";
-        FRIEND['leader'] = "ELEMENT_FACTOR3_5_D";
+        LEADER['leader'] = "ELEMENT_FACTOR4_D";
+        FRIEND['leader'] = "ELEMENT_FACTOR4_D";
     }
 
     $.each(TEAM_MEMBERS, function(place, member){
@@ -576,6 +583,76 @@ var TeamDevilCircleMapping = function(){
 }
 
 //==============================================================
+// Old Greek WD
+//==============================================================
+var TeamOldGreekWDNewItem = function( VAR ){
+    var color = VAR['COLOR'];
+    if( DROP_WAVES == 0 ){
+        for( var num = GROUP_SETS[color].length; num > 0; num-- ){
+            var rand_i = Math.floor( randomBySeed() *REMOVE_STACK.length );
+            var id = REMOVE_STACK[rand_i];
+            REMOVE_STACK.splice(rand_i,1);
+            STRONG_STACK[id] = color;
+        }
+    }
+}
+var TeamOldGreekWDAttack = function( VAR ){
+    COUNT_FACTOR['TEAM_OLD_GREEK_WD'] = {
+        factor    : function( member, membe_place ){ return 9; },
+        prob      : 1,
+        condition : function( member, membe_place ){ return member['color'] == VAR['COLOR'];
+        },
+    };
+}
+var TeamOldGreekWDMapping = function(){
+    if( TEAM_LEADER['id'] == TEAM_FRIEND['id'] && TEAM_FRIEND['leader'] == 'OLD_GREEK_WD' ){
+        basicTeamSkillAdd( this.id );
+    }
+}
+
+var TeamOldGreekFPEnd = function( VAR ){
+    var stack = getStackOfPanelByColorWithStrong( VAR['COLOR'] );
+    for( var num = 2; num > 0 && stack.length > 0; num-- ){
+        var id = selectAndRemoveRandomItemFromArrBySeed( stack );
+        var nearby_stack = getStackNearbyID(id);
+        for( var i of nearby_stack ){
+            turnElementToColorByID(i, VAR['COLOR'] );
+        }
+    }
+}
+var TeamOldGreekFPMapping = function(){
+    if( TEAM_LEADER['id'] == TEAM_FRIEND['id'] && 
+        ( TEAM_FRIEND['id'] == 'OLD_GREEK_F_CREATURE' || TEAM_FRIEND['id'] == 'OLD_GREEK_P_CREATURE' ) ){
+        basicTeamSkillAdd( this.id );
+    }
+}
+
+var TeamOldGreekLAttack = function( VAR ){
+    COUNT_FACTOR['TEAM_OLD_GREEK_L'] = {
+        factor    : function( member, membe_place ){ return 2.4; },
+        prob      : 1,
+        condition : function( member, membe_place ){ 
+            return COUNT_COMBO >= 4;
+        },
+    };
+}
+var TeamOldGreekLSetting = function( LEADER, FRIEND ){
+    $.each(TEAM_MEMBERS, function(i, member){
+        member['health']   = Math.round( 1.2*member['health'] );
+        member['attack']   = Math.round( 1.2*member['attack'] );
+        member['recovery'] = Math.round( 1.2*member['recovery'] );
+    });
+    return {
+        COLOR    : LEADER['color'],
+    };
+}
+var TeamOldGreekLMapping = function(){
+    if( TEAM_LEADER['id'] == TEAM_FRIEND['id'] && TEAM_FRIEND['leader'] == 'OLD_GREEK_L' ){
+        basicTeamSkillAdd( this.id );
+    }
+}
+
+//==============================================================
 //==============================================================
 // Team Skill Database
 //==============================================================
@@ -643,7 +720,7 @@ var TEAM_SKILLS_DATA = {
         info      : '當前生命力全滿時，下一次所受傷害不會使你死亡（即滿血根性）（同一回合只會發動一次）',
         will      : DiabloShieldWill,
         mapping   : DiabloShieldMapping,
-        preSet    : NoneSetting,
+        preSet    : BasicTeamSkillSetting,
     },
     DIABLO_OVERFLOW : {
         id        : 'DIABLO_OVERFLOW',
@@ -651,7 +728,7 @@ var TEAM_SKILLS_DATA = {
         info      : '以回血溢出值作全體攻擊，最大 10 倍',
         mapping   : DiabloOverflowMapping,
         overflow  : DiabloOverflow,
-        preSet    : NoneSetting,
+        preSet    : BasicTeamSkillSetting,
     },
     DRAGON_SERVANT : {
         id        : 'DRAGON_SERVANT',
@@ -710,7 +787,7 @@ var TEAM_SKILLS_DATA = {
         info      : '火屬性攻擊力提升 6 倍',
         attack    : TeamCoupleAttackFF,
         mapping   : TeamCoupleFFMapping,
-        preSet    : NoneSetting,
+        preSet    : BasicTeamSkillSetting,
     },
     COUPLE_PP : {
         id        : 'COUPLE_PP',
@@ -718,7 +795,7 @@ var TEAM_SKILLS_DATA = {
         info      : '木屬性攻擊力提升 6 倍',
         attack    : TeamCoupleAttackPP,
         mapping   : TeamCouplePPMapping,
-        preSet    : NoneSetting,
+        preSet    : BasicTeamSkillSetting,
     },
     COUPLE_FP : {
         id        : 'COUPLE_FP',
@@ -726,7 +803,7 @@ var TEAM_SKILLS_DATA = {
         info      : '火及木屬性攻擊力提升 3 倍；木符石兼具火符石效果，同時火符石兼具木符石效果',
         attack    : TeamCoupleAttackFP,
         mapping   : TeamCoupleFPMapping,
-        preSet    : NoneSetting,
+        preSet    : BasicTeamSkillSetting,
     },
     COMMON_SOURCE : {
         id        : 'COMMON_SOURCE',
@@ -749,7 +826,7 @@ var TEAM_SKILLS_DATA = {
         info      : '心符石兼具所有屬性符石效果。於 2 直行或以上消除 4 粒或以上符石時 (只計算首批消除的符石)，全隊攻擊力提升，最大 1.5 倍',
         attack    : TeamDarkLuciferAttack,
         mapping   : TeamDarkLuciferMapping,
-        preSet    : NoneSetting,
+        preSet    : BasicTeamSkillSetting,
     },
     DEVIL_ILLUSION : {
         id        : 'DEVIL_ILLUSION',
@@ -767,6 +844,35 @@ var TEAM_SKILLS_DATA = {
         mapping   : TeamDevilCircleMapping,
         preSet    : TeamDevilCircleSetting,
     },
+
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// CREATURE
+    OLD_GREEK_WD : {
+        id        : 'OLD_GREEK_WD',
+        label     : '雙界限變革',
+        info      : '自身屬性攻擊力 9 倍；每首批消除一組符石，將產生 1 粒與自身屬性相同的符石。',
+        attack    : TeamOldGreekWDAttack,
+        mapping   : TeamOldGreekWDMapping,
+        newItem   : TeamOldGreekWDNewItem,
+        preSet    : BasicTeamSkillSetting,
+    },
+    OLD_GREEK_FP : {
+        id        : 'OLD_GREEK_FP',
+        label     : '雙萬鈞之怒',
+        info      : '每回合完結時，最多 2 粒自身屬性強化符石四週將轉化為自身屬性符石。',
+        end       : TeamOldGreekFPEnd,
+        mapping   : TeamOldGreekFPMapping,
+        preSet    : BasicTeamSkillSetting,
+    },
+    OLD_GREEK_L : {
+        id        : 'OLD_GREEK_L',
+        label     : '雙五念凝匯',
+        info      : '全員的生命力、攻擊力和回復力 1.2 倍，4 連擊以上全隊攻擊力 2.4 倍。',
+        attack    : TeamOldGreekLAttack,
+        mapping   : TeamOldGreekLMapping,
+        preSet    : TeamOldGreekLSetting,
+    },
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 };
 
 function NewTeamSkill( id ){

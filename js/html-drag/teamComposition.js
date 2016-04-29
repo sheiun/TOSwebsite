@@ -25,7 +25,7 @@ function resetTeamComposition(){
     resetMemberActiveSkill();
     checkCombineSkill();
     checkActiveCoolDownByWake();
-
+    
     resetColors();
     resetHealthPoint();
     resetBattleStack();
