@@ -16,6 +16,7 @@ function resetTeamComposition(){
     ];  
     cleanColors();
     resetDropColors();
+    resetSetGroupSize();
 
     // wake & teamSkill may change the active/leader
     resetMemberWakes();
@@ -79,9 +80,6 @@ function checkCombineSkill(){
 }
 
 function resetTeamLeaderSkill(){
-    TEAM_COLORS_CHANGEABLE = true;
-    GROUP_SIZE = {'w':3, 'f':3, 'p':3, 'l':3, 'd':3, 'h':3};
-
     TEAM_LEADER_SKILL = NewLeaderSkill( TEAM_LEADER['leader'] );
     TEAM_FRIEND_SKILL = NewLeaderSkill( TEAM_FRIEND['leader'] );
 

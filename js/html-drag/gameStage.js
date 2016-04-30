@@ -252,6 +252,11 @@ function resetColorGroupSet(){
     GROUP_SETS = {'w':[], 'f':[], 'p':[], 'l':[], 'd':[], 'h':[]};
     GROUP_SETS_PREPARE = {'w':[], 'f':[], 'p':[], 'l':[], 'd':[], 'h':[]};
 }
+function resetSetGroupSize(){    
+    TEAM_COLORS_CHANGEABLE = true;
+    SET_SIZE = {'w':3, 'f':3, 'p':3, 'l':3, 'd':3, 'h':3};
+    GROUP_SIZE = {'w':3, 'f':3, 'p':3, 'l':3, 'd':3, 'h':3};
+}
 function resetDropStack(){
     REMOVE_STACK = [];
     STRONG_STACK = {};
