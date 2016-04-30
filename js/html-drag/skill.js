@@ -503,7 +503,7 @@ function checkMembersColorByConfig( config ){
 }
 function checkMembersColorVarietyByConfig(config){
     var countColor = {};
-    var check = true;
+    var check = 0;
     for(var c of config['colors'] ){
         countColor[c] = 0;
     }
