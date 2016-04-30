@@ -804,6 +804,7 @@ var HeartQueenSetting = function( MEMBER ){
 // Old Greek
 //==============================================================
 var OldGreekSetting = function( MEMBER ){
+    TEAM_COLORS_CHANGEABLE = false;
     for( var c of [ 'w', 'f', 'p', 'l', 'd', 'h' ] ){
         SET_SIZE[c] = 2;
         GROUP_SIZE[c] = 3;
