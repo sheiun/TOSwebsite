@@ -588,7 +588,12 @@ var TeamDevilCircleMapping = function(){
 var TeamOldGreekWDNewItem = function( VAR ){
     var color = VAR['COLOR'];
     if( DROP_WAVES == 0 ){
-        for( var num = GROUP_SETS[color].length; num > 0; num-- ){
+        var num = 0;
+        for( var key in GROUP_SETS ){
+            num += GROUP_SETS[key].length;
+        }
+
+        for( ; num > 0; num-- ){
             var rand_i = Math.floor( randomBySeed() *REMOVE_STACK.length );
             var id = REMOVE_STACK[rand_i];
             REMOVE_STACK.splice(rand_i,1);
