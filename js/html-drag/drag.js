@@ -280,13 +280,14 @@ function countTimeLimit(){
     if( TIME_FIXED ){
         if( TIME_FIX_LIST.length > 0 ){
             TIME_LIMIT = TIME_FIX_LIST[ TIME_FIX_LIST.length-1 ];
+            TIME_FIX_LIST = [];
         }
     }else{
-        for( var key in TIME_MULTI_LIST ){
-            TIME_LIMIT *= TIME_MULTI_LIST[key];
-        }
         for( var key in TIME_ADD_LIST ){
             TIME_LIMIT += TIME_ADD_LIST[key];
+        }
+        for( var key in TIME_MULTI_LIST ){
+            TIME_LIMIT *= TIME_MULTI_LIST[key];
         }
     }
     TIME_LIMIT = Math.max( 1, TIME_LIMIT );

@@ -53,14 +53,22 @@ function selectRandomItemFromArrBySeed( array, seed = 'COLOR_RANDOM' ){
 function selectAndRemoveRandomItemFromArrBySeed( array, seed = 'COLOR_RANDOM' ){
     var rand = ( seed == 'COLOR_RANDOM' ) ? randomBySeed() : randomBySepcialSeed( seed );
     var rand_i = Math.floor( rand * array.length );
-    var id = array[rand_i];
+    var item = array[rand_i];
     array.splice(rand_i, 1);
-    return id;
+    return item;
+}
+function selectMultiRandomItemFromArrBySeed(  array, num, seed = 'COLOR_RANDOM' ){
+    selects = []
+    for( var i = 0; i < num; i++ ){
+        var rand = ( seed == 'COLOR_RANDOM' ) ? randomBySeed() : randomBySepcialSeed( seed );
+        var rand_i = Math.floor( rand * array.length );
+        var item = array[rand_i];
+        array.splice(rand_i, 1);
+        selects.push( item );
+    }
+    return selects
 }
 
-function getArrayOfObjectValue(Obj){
-    return $.map(Obj, function(value, index) { return [value]; });
-}
 function getOtherColorsFromColorArr( colorArr ){
     var colors = [ 'w', 'f', 'p', 'l', 'd', 'h' ];
     for(var c of colorArr){
@@ -69,17 +77,6 @@ function getOtherColorsFromColorArr( colorArr ){
         }
     }
     return colors;
-}
-
-function makeArrayShuffle(array) {
-    var count, rand_i, temp;
-    for (count = array.length; count; count -= 1) {
-        rand_i = Math.floor(Math.random() * count);
-        temp = array[count - 1];
-        array[count - 1] = array[rand_i];
-        array[rand_i] = temp;
-    }
-    return array;
 }
 
 //==============================================================
@@ -227,18 +224,63 @@ function getStackNearbyID(id){
     if( id-6 >= 0             && id        >= TD_NUM           ){ stack.push(id-6); }
     return stack;
 }
+function getAllCornersStack(){
+    rightUpCorner   = [ 0, 1, TD_NUM, TD_NUM+1 ];
+    leftUpCorner    = [ TD_NUM-2, TD_NUM-1, 2*TD_NUM-2, 2*TD_NUM-1 ];
+    rightDownCorner = [ (TR_NUM-2)*TD_NUM, (TR_NUM-2)*TD_NUM+1, (TR_NUM-1)*TD_NUM, (TR_NUM-1)*TD_NUM+1 ];
+    leftDownCorner  = [ (TR_NUM-1)*TD_NUM-2, (TR_NUM-1)*TD_NUM-1, TR_NUM*TD_NUM-2, TR_NUM*TD_NUM-1 ];
+    return [ rightUpCorner, leftUpCorner, rightDownCorner, leftDownCorner ]
+}
+function getAllPanelStack(){
+    var stack = [];
+    for( var i = 0; i < TD_NUM*TR_NUM-1; i++ ){
+        stack.push( i );
+    }
+    return stack;
+}
 
+function findMaxColorOfColorArr( colorArr ){
+    var colors = {};
+    var max = 0;
+    var tmp_colors = [];
+    for( var i = 0; i < TD_NUM*TR_NUM; i++ ){
+        var c = $("#dragContainment tr td img.over ").eq(i).attr("color");
+        if( colorArr.indexOf(c) >= 0 ){
+            colors[c] = ( c in colors ) ? colors[c]+1 : 0;
+        }
+    }
+    for(var c in colors){
+        if( colors[c] > max ){
+            max = colors[c];
+            tmp_colors = [ c ];
+        }else if( colors[c] == max && max > 0 ){
+            tmp_colors.push(c);
+        }
+    }
+    return { colors: tmp_colors, num: max };
+}
+
+//==============================================================
+// change Element
+//==============================================================
 function turnElementToColorByID(id, color){
     var imgs = $("#dragContainment tr td").eq(id).find("img");
+    if( imgs.length == 0 ){
+        var hide_items = newElementByItem(color);
+        $("#dragContainment tr td").eq(id).append( hide_items );
+        $(hide_items[0]).hide().delay( FADEOUT_TIME ).fadeIn( FADEOUT_TIME );
+        $(hide_items[1]).hide().delay( FADEOUT_TIME ).fadeIn( FADEOUT_TIME, function(){
+            resetDraggable();
+            startDragging();
+        } );
+        return;
+    }
+
     imgs.attr('color', color[0] );
     var item = imgs.attr('item');
     item = color + item.substr(1);
     imgs.attr('item', item);
-    var hide_items = newElementByItem(item);
-    if( hide_items[0].attr('item') != item ){
-        hide_items[0].attr('item') = hide_items[0].attr('item').replace('q','').replace('k','');
-        hide_items[1].attr('item') = hide_items[1].attr('item').replace('q','').replace('k','');
-    }
+    var hide_items = newElementByItem( item.replace('q','').replace('k','') );
 
     $(hide_items[0]).hide();
     $(hide_items[1]).hide();
@@ -252,14 +294,14 @@ function turnElementToColorByID(id, color){
 }
 function turnElementToStrongByID(id){
     var imgs = $("#dragContainment tr td").eq(id).find("img");
+    if( imgs.length == 0 ){
+        return;
+    }
+
     var item = imgs.attr("item");
     item = item + "+";
     imgs.attr('item', item);
-    var hide_items = newElementByItem(item);
-    if( hide_items[0].attr('item') != item ){
-        hide_items[0].attr('item') = hide_items[0].attr('item').replace('q','').replace('k','');
-        hide_items[1].attr('item') = hide_items[1].attr('item').replace('q','').replace('k','');
-    }
+    var hide_items = newElementByItem( item.replace('q','').replace('k','') );
 
     $(hide_items[0]).hide();
     $(hide_items[1]).hide();
@@ -304,27 +346,6 @@ function turnRandomElementToColorByProb( config ){
             num--;
         }
     }    
-}
-
-function findMaxColorOfColorArr( colorArr ){
-    var colors = {};
-    var max = 0;
-    var tmp_colors = [];
-    for( var i = 0; i < TD_NUM*TR_NUM; i++ ){
-        var c = $("#dragContainment tr td img.over ").eq(i).attr("color");
-        if( colorArr.indexOf(c) >= 0 ){
-            colors[c] = ( c in colors ) ? colors[c]+1 : 0;
-        }
-    }
-    for(var c in colors){
-        if( colors[c] > max ){
-            max = colors[c];
-            tmp_colors = [ c ];
-        }else if( colors[c] == max && max > 0 ){
-            tmp_colors.push(c);
-        }
-    }
-    return { colors: tmp_colors, num: max };
 }
 
 //==============================================================

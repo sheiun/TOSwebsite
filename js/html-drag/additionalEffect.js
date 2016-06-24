@@ -313,6 +313,36 @@ var MagicStageNewItem = function(){
         }
     }
 }
+//==============================================================
+var MasteryOfElementsAttack = function(){
+    setColorBelongsByConfig( { 
+    	'w' : { 'f': 0.8, 'p': 0.8, 'l': 0.8, 'd': 0.8 },  
+    	'f' : { 'w': 0.8, 'p': 0.8, 'l': 0.8, 'd': 0.8 },
+    	'p' : { 'w': 0.8, 'f': 0.8, 'l': 0.8, 'd': 0.8 },
+    	'l' : { 'w': 0.8, 'f': 0.8, 'p': 0.8, 'd': 0.8 },
+    	'd' : { 'w': 0.8, 'f': 0.8, 'p': 0.8, 'l': 0.8 } 
+    } );
+}
+//==============================================================
+var TreatyOfOldGreekAttack  = function(){
+	var VAR = this.variable;
+	if( COUNT_MAX_AMOUNT[ VAR['COLOR'] ] >= 5 ){
+		COUNT_FACTOR['TreatyOfOldGreekAttack'+VAR['COLOR']] = {
+			factor    : function( member, member_place ){ return 1.5; },
+			prob      : 1,
+			condition : function( member, member_place ){ return member['color'] == VAR['COLOR']; },
+		};
+	}
+}
+var QuintupleCoherenceAttack = function(){
+    setColorBelongsByConfig( { 
+    	'w' : { 'f': 0.3, 'p': 0.3, 'l': 0.3, 'd': 0.3 },  
+    	'f' : { 'w': 0.3, 'p': 0.3, 'l': 0.3, 'd': 0.3 },
+    	'p' : { 'w': 0.3, 'f': 0.3, 'l': 0.3, 'd': 0.3 },
+    	'l' : { 'w': 0.3, 'f': 0.3, 'p': 0.3, 'd': 0.3 },
+    	'd' : { 'w': 0.3, 'f': 0.3, 'p': 0.3, 'l': 0.3 } 
+    } );
+}
 
 //==============================================================
 //==============================================================
@@ -631,6 +661,31 @@ var ADDITIONAL_EFFECT_DATA = {
 		preSet    : BasicEffectSetting,
 		tag       : ['newItem'],
 	},
+	MASTERY_OF_ELEMENTS : {
+		id        : "MASTERY_OF_ELEMENTS",
+        attack    : MasteryOfElementsAttack,
+		preSet    : BasicEffectSetting,
+		tag       : ['attack', 'belongColor'],
+	},
+	TREATY_OF_OLD_GREEK_F : {
+		id        : 'TREATY_OF_OLD_GREEK_F',
+        attack    : TreatyOfOldGreekAttack,
+		preSet    : BasicEffectSetting,
+		tag       : ['attack'],
+	},
+	TREATY_OF_OLD_GREEK_P : {
+		id        : 'TREATY_OF_OLD_GREEK_P',
+        attack    : TreatyOfOldGreekAttack,
+		preSet    : BasicEffectSetting,
+		tag       : ['attack'],
+	},
+	QUINTUPLE_COHERENCE : {
+		id        : 'QUINTUPLE_COHERENCE',
+        attack    : QuintupleCoherenceAttack,
+		preSet    : BasicEffectSetting,
+		tag       : ['belongColor'],
+	},
+
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 	DESPERATE_PREPARE : {
 		id        : 'DESPERATE_PREPARE',

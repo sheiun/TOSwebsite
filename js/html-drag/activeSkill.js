@@ -336,6 +336,28 @@ var WaterFairyTransfer = function( place, i ){
         turnElementToColorByID(id, 'w');
     }
 }
+var MasteryOfElementsTransfer = function( place, i ){
+    var colors = [  'w', 'w', 'w', 'w',
+                    'f', 'f', 'f', 'f',
+                    'p', 'p', 'p', 'p',
+                    'l', 'l', 'l', 'l',
+                    'd', 'd', 'd', 'd' ];
+    colors = makeArrayShuffle(colors);
+    var randoms = selectMultiRandomItemFromArrBySeed( getAllPanelStack(), 20 )
+    $.each(colors, function(i, color){
+        id = randoms[i];
+        turnElementToColorByID(id, color);
+    });
+}
+//==============================================================
+var FloralCornerTransfer = function( place, i ){
+    var corners = selectMultiRandomItemFromArrBySeed( getAllCornersStack(), 2 )
+    for(var corner of corners){
+        for(var id of corner){
+            turnElementToColorByID(id, this.variable['COLOR']);
+        }
+    }
+}
 
 //==============================================================
 var TransformationCheck = function( place, i ){
@@ -1433,6 +1455,62 @@ var ACTIVE_SKILLS_DATA = {
         check     : NewItemAdditionalEffectCheck,
         preSet    : BasicActiveSetting,
     },
+    MASTERY_OF_ELEMENTS : {
+        id        : "MASTERY_OF_ELEMENTS",
+        label     : '元素掌控術',
+        info      : '隨機將 20 粒符石轉化為固定數量的水、火、木、光及暗符石；1 回合內，所有屬性符石兼具 80% 所有屬性符石效果',
+        coolDown  : 10,
+        addEffect : BasicAddtionalEffectAdd,
+        check     : BelongColorAdditionalEffectCheck,
+        transfer  : MasteryOfElementsTransfer,
+        preSet    : BasicActiveSetting,
+    },
+    FLORAL_CORNER_W : {
+        id        : 'FLORAL_CORNER_W',
+        label     : '隅角花海 ‧ 水',
+        info      : '隨機將 2 個角落共 8 粒符石轉化為水符石',
+        coolDown  : 5,
+        check     : BasicActiveCheck,
+        transfer  : FloralCornerTransfer,
+        preSet    : BasicActiveSetting,
+    },
+    FLORAL_CORNER_D : {
+        id        : 'FLORAL_CORNER_D',
+        label     : '隅角花海 ‧ 暗',
+        info      : '隨機將 2 個角落共 8 粒符石轉化為暗符石',
+        coolDown  : 5,
+        check     : BasicActiveCheck,
+        transfer  : FloralCornerTransfer,
+        preSet    : BasicActiveSetting,
+    },
+    TREATY_OF_OLD_GREEK_F : {
+        id        : 'TREATY_OF_OLD_GREEK_F',
+        label     : '火影約章',
+        info      : '1 回合內，消除一組 5 粒或以上的木屬性符石，火屬性攻擊力 1.5 倍',
+        coolDown  : 5,
+        addEffect : BasicAddtionalEffectAdd,
+        check     : AddtionalEffectCheck,
+        preSet    : BasicActiveSetting,
+    },
+    TREATY_OF_OLD_GREEK_P : {
+        id        : 'TREATY_OF_OLD_GREEK_P',
+        label     : '木葉約章',
+        info      : '1 回合內，消除一組 5 粒或以上的木屬性符石，木屬性攻擊力 1.5 倍',
+        coolDown  : 5,
+        addEffect : BasicAddtionalEffectAdd,
+        check     : AddtionalEffectCheck,
+        preSet    : BasicActiveSetting,
+    },
+    QUINTUPLE_COHERENCE : {
+        id        : 'QUINTUPLE_COHERENCE',
+        label     : '五屬同源',
+        info      : '1 回合內，所有符石兼具其他屬性符石 30% 效果',
+        coolDown  : 6,
+        addEffect : BasicAddtionalEffectAdd,
+        check     : BelongColorAdditionalEffectCheck,
+        preSet    : BasicActiveSetting,
+    },
+
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
     RUNE_STRONG_SWITCH : {
         id        : 'TRUNE_STRONG_SWITCH',

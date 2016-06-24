@@ -583,6 +583,19 @@ var TeamDevilCircleMapping = function(){
 }
 
 //==============================================================
+// Boss YogSothoth
+//==============================================================
+var TeamBossYogSothothMapping = function(){
+    if( TEAM_LEADER['id'] == TEAM_FRIEND['id'] && TEAM_FRIEND['id'] == "BOSS_YOG_SOTHOTH" ){
+        basicTeamSkillAdd( this.id );
+    }
+}
+var TeamBossYogSothothSetTime = function( VAR ){
+    TIME_FIXED = true;
+    TIME_FIX_LIST.push( 25 );
+}
+
+//==============================================================
 // Old Greek WD
 //==============================================================
 var TeamOldGreekWDNewItem = function( VAR ){
@@ -627,7 +640,7 @@ var TeamOldGreekFPEnd = function( VAR ){
 }
 var TeamOldGreekFPMapping = function(){
     if( TEAM_LEADER['id'] == TEAM_FRIEND['id'] && 
-        ( TEAM_FRIEND['id'] == 'OLD_GREEK_F_CREATURE' || TEAM_FRIEND['id'] == 'OLD_GREEK_P_CREATURE' ) ){
+        ( TEAM_FRIEND['id'] == 'OLD_GREEK_F' || TEAM_FRIEND['id'] == 'OLD_GREEK_P' ) ){
         basicTeamSkillAdd( this.id );
     }
 }
@@ -849,9 +862,14 @@ var TEAM_SKILLS_DATA = {
         mapping   : TeamDevilCircleMapping,
         preSet    : TeamDevilCircleSetting,
     },
-
-// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-// CREATURE
+    BOSS_YOGSOTHOTH : {
+        id        : 'BOSS_YOGSOTHOTH',
+        label     : '雙元素建構',
+        info      : '移動符石時間延長至 25 秒；隊伍中魔族成員愈多，每回合每個連擊 (Combo) 減少所受的傷害愈多：最多每個連擊 (Combo) 可減少所受傷害 10% (只計算首批消除的符石)，最多每回合可減少所受傷害 40%，減傷效果持續至下回合移動符石前',
+        mapping   : TeamBossYogSothothMapping,
+        preSet    : BasicTeamSkillSetting,
+        setTime   : TeamBossYogSothothSetTime,
+    },
     OLD_GREEK_WD : {
         id        : 'OLD_GREEK_WD',
         label     : '雙界限變革',
@@ -877,7 +895,6 @@ var TEAM_SKILLS_DATA = {
         mapping   : TeamOldGreekLMapping,
         preSet    : TeamOldGreekLSetting,
     },
-// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 };
 
 function NewTeamSkill( id ){

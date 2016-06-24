@@ -801,6 +801,31 @@ var HeartQueenSetting = function( MEMBER ){
 }
 
 //==============================================================
+// BOSS_YOG_SOTHOTH
+//==============================================================
+var elementalAggressionAttack = function( VAR, direct ){
+    colorVariety = 0;
+    for( var c of [ 'w', 'f', 'p', 'l', 'd' ] ){
+        if( COUNT_AMOUNT[c] > 0 ){ colorVariety += 1; }
+    }
+    attackFactor = 3 + ( ( colorVariety-3 ) / 2 );
+    if( colorVariety >= 3 ){
+        COUNT_FACTOR['ElementalAggression'+direct] = {
+            factor    : function( member, member_place ){ return attackFactor; },
+            prob      : 1,
+            condition : function( member, member_place ){ return true; }
+        };
+    }
+}
+var elementalAggressionSetting = function( MEMBER ){    
+    TEAM_COLORS_CHANGEABLE = false;
+    return {
+        COLOR : MEMBER['color'],
+        COUNT : 0,
+    };
+}
+
+//==============================================================
 // Old Greek
 //==============================================================
 var OldGreekSetting = function( MEMBER ){
@@ -1425,9 +1450,13 @@ var LEADER_SKILLS_DATA = {
         setTime   : DevilCircleSetTime,
         preSet    : BasicLeaderSetting,
     },
-
-// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-// CREATURE
+    ELEMENTAL_AGGRESSION : {
+        id        : "ELEMENTAL_AGGRESSION",
+        label     : "元素逼力",
+        info      : "消除符石的屬性愈多，全隊攻擊力愈高：最少消除 3 種屬性符石，全隊攻擊力 3 倍，消除 5 種屬性符石可達至最高 4 倍。所有符石掉落機率不受其他技能影響 (包括改變掉落符石屬性的技能)",
+        attack    : elementalAggressionAttack,
+        preSet    : elementalAggressionSetting,
+    },
     OLD_GREEK_WD : {
         id        : "OLD_GREEK_WD",
         label     : "界限變革",
@@ -1441,7 +1470,6 @@ var LEADER_SKILLS_DATA = {
         attack    : OldGreekLAttack,
         preSet    : BasicLeaderSetting,
     },
-// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 };
 
 function NewLeaderSkill( id ){

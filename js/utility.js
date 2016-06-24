@@ -59,3 +59,19 @@ String.prototype.formatByArray = function(){
     var args = arguments[0];
     return this.replace(/\{(\d+)\}/g, function (m, n) { return args[n]; });
 };
+
+
+function getArrayOfObjectValue(Obj){
+    return $.map(Obj, function(value, index) { return [value]; });
+}
+
+function makeArrayShuffle(array) {
+    var count, rand_i, temp;
+    for (count = array.length; count; count -= 1) {
+        rand_i = Math.floor(Math.random() * count);
+        temp = array[count - 1];
+        array[count - 1] = array[rand_i];
+        array[rand_i] = temp;
+    }
+    return array;
+}
