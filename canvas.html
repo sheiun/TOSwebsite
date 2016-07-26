@@ -42,6 +42,7 @@
     <script type="text/javascript" src="dragJcanvas.js"></script>
 
     <script type="text/javascript" >
+    MAIN_STATE = MAIN_STATE_ENUM.READY;
     for(var i = 0; i < 6; i++){
         for(var j = 0; j < 5; j++){
             $('canvas').addLayer({
@@ -52,21 +53,15 @@
               },
               type:"image",
               source: 'img/Icon/d.png',
+              fromCenter: false,
               draggable: true,
-              x: 50+100*i, y: 50+100*j,
-              width: 100, height: 100,
-      remove: function(layer) {
-        console.log( 'B is removed' );
-      },
-      add: function(layer){
-        console.log( 'B is added' );
-      },
+              x: 80*i, y: 80*j,
+              width: 80, height: 80,
       dragstart: function(layer, event){
         countGridPositon(layer);
       },
       drag: function(layer){
-        console.log( layer.top );
-        console.log( layer.left );
+        dragPosition(layer);
       },
       dragstop: function(layer){
         console.log( 'is drag end?' );
@@ -81,6 +76,21 @@
         console.log( $('canvas').getLayers().length );
     }
     </script>
+
+
+    <script type="text/javascript" src="js/html-drag/gameStage.js"></script>
+    <script type="text/javascript" src="js/html-drag/skill.js"></script>
+    <script type="text/javascript" src="js/html-drag/teamComposition.js"></script>
+    <script type="text/javascript" src="js/html-drag/teamSkill.js"></script>
+    <script type="text/javascript" src="js/html-drag/leaderSkill.js"></script>
+    <script type="text/javascript" src="js/html-drag/activeSkill.js"></script>
+    <script type="text/javascript" src="js/html-drag/combineSkill.js"></script>
+    <script type="text/javascript" src="js/html-drag/wake.js"></script>
+    <script type="text/javascript" src="js/html-drag/additionalEffect.js"></script>
+    <script type="text/javascript" src="js/html-drag/enemy.js"></script>
+    <script type="text/javascript" src="js/html-drag/battle.js"></script>
+    <script type="text/javascript" src="js/html-drag/data.js"></script>
+
 </body>
 
 </html>
