@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html >
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="louisalflame">
+
+    <title>Tower of Saviors 神魔之塔 卡片圖鑑表</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+
+</head>
+
+<body>
+
+
+    <!-- Page Content -->
+    <div class="container">
+
+        <button onclick="doSth()">
+        DO STH
+        </button>
+        <canvas id="canvas" style="background-color:#888888;" width="600" height="500">
+            <p>123</p>
+        </canvas>
+
+    </div>
+    <!-- /.container -->
+
+    <!-- jQuery -->
+    <script type="text/javascript" src="js/jquery.js"></script>
+    <script type="text/javascript" src="js/jquery-1.11.0.min.js"></script>
+    <!-- Bootstrap Core JavaScript -->
+    <script type="text/javascript" src="js/bootstrap/bootstrap.min.js"></script>
+
+    <script type="text/javascript" src="js/jcanvas/jcanvas.min.js"></script>
+    <script type="text/javascript" src="dragJcanvas.js"></script>
+
+    <script type="text/javascript" >
+    for(var i = 0; i < 6; i++){
+        for(var j = 0; j < 5; j++){
+            $('canvas').addLayer({
+              name: i+"_"+j,
+              data:{
+                TD_INDEX : i,
+                TR_INDEX : j,
+              },
+              type:"image",
+              source: 'img/Icon/d.png',
+              draggable: true,
+              x: 50+100*i, y: 50+100*j,
+              width: 100, height: 100,
+      remove: function(layer) {
+        console.log( 'B is removed' );
+      },
+      add: function(layer){
+        console.log( 'B is added' );
+      },
+      dragstart: function(layer, event){
+        countGridPositon(layer);
+      },
+      drag: function(layer){
+        console.log( layer.top );
+        console.log( layer.left );
+      },
+      dragstop: function(layer){
+        console.log( 'is drag end?' );
+      }
+            })
+
+
+        }
+    }
+
+    function doSth(){
+        console.log( $('canvas').getLayers().length );
+    }
+    </script>
+</body>
+
+</html>
