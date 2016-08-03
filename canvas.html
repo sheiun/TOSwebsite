@@ -13,84 +13,465 @@
 
     <!-- Bootstrap Core CSS -->
     <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+    <!-- CSS for this html -->
+    <link rel="stylesheet" type="text/css" href="css/bootstrap-select.min.css">
+    <link rel="stylesheet" type="text/css" href="css/jquery.mCustomScrollbar.css">
+    <link rel="stylesheet" type="text/css" href="css/scrollbar-style.css">
+    <link rel="stylesheet" type="text/css" href="css/dd/dd.css" />
+
+    <link rel="stylesheet" type="text/css" href="css/html-drag/drag.css">
+    <link rel="stylesheet" type="text/css" href="css/html-drag/imageDropDown.css">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-74512169-1', 'auto');
+      ga('send', 'pageview');
+    </script>
+
+    <!--
+
+    TODO: 
+    make attack/recovery be object
+    -->
+
 
 </head>
 
 <body>
 
+    <nav class="navbar navbar-inverse navbar-fixed-top" >
+        <div class="container" >
+            <div class="navbar-header" >
+                <a class="navbar-brand" href="index.html">Tower of Saviors 神魔之塔</a>
+            </div>
+            <ul class="nav navbar-nav">
+                <li class="nav-bar-li">
+                    <a href="table.html">卡片圖鑑表</a>
+                </li>
+                <li class="active nav-bar-li">
+                    <a href="drag.html">轉珠模擬器</a>
+                </li>
+                <li class="nav-bar-li">
+                    <a >Coming so...on</a>
+                </li>
+            </ul>
+            <form class="navbar-form navbar-right" role="search">
+                <button type="button" class="btn btn-default" onclick="scroll_top()">
+                    <span class="glyphicon glyphicon-chevron-up" ></span>
+                </button>
+                <button type="button" class="btn btn-default" onclick="scroll_bottom()">
+                    <span class="glyphicon glyphicon-chevron-down" ></span>
+                </button>
+                <input type="button" id="upload" value="儲存紀錄" onclick="download()" class="btn btn-default">
+                <input type="file" id="file" onclick=" " class="filestyle" data-input="false" data-icon="false" data-buttonText="讀取紀錄" >
+                <button type="button" class="btn btn-default" onclick="hide_navbar()">
+                    <span class="glyphicon glyphicon-remove" ></span>
+                </button>
+            </form>
+        </div>
+    </nav>
 
-    <!-- Page Content -->
-    <div class="container">
+    <div class="container" >
 
-        <button onclick="doSth()">
-        DO STH
-        </button>
-        <canvas id="canvas" style="background-color:#888888;" width="600" height="500">
-            <p>123</p>
-        </canvas>
+        <div class="row">
+            <div class="col-lg-12" align="center">
+                <img src="img/UI/top.png" >
+            </div>
+        </div>
 
-    </div>
-    <!-- /.container -->
+        <div class="row">
+
+            <div  id="main_workplace" class="col-lg-10" align="center">
+                <p id="title">轉珠模擬器</p>
+
+                <div id="playBtn" class="btn-group" role="group">
+                    <button id="normalDrag" class="btn btn-default btn-lg" onclick="toggleFreeDrag()">
+                        <sapn >一般移動</span></button>
+                    <button id="freeDrag" class="btn btn-default btn-lg" onclick="toggleFreeDrag()" style="display: none;">
+                        <sapn>自由移動</span></button>
+
+                    <button id="timeLimit" class="btn btn-default btn-lg" onclick="toggleTimeLimit()">
+                        <span>限制時間</span></button>
+                    <button id="timeNoLimit" class="btn btn-default btn-lg" onclick="toggleTimeLimit()" style="display: none;">
+                        <span>無限時間</span></button>
+                    <input type="number" id="timeRange" value="5" max="60" min="1" class="btn btn-default btn-lg">
+
+                    <button id="Dropable" class="btn btn-default btn-lg" onclick="toggleDropable()">
+                        <span>取消落珠</span></button>
+                    <button id="NoDropable" class="btn btn-default btn-lg" onclick="toggleDropable()" style="display: none;">
+                        <span>隨機落珠</span></button>
+
+                    <button id="NoAudio" class="btn btn-default btn-lg" onclick="toggleAudio()" style="display: none;">
+                        <span>關閉音效</span></button>
+                    <button id="PlayAudio" class="btn btn-default btn-lg" onclick="toggleAudio()">
+                        <span>播放音效</span></button>
+                </div>
+                <br><br>
+
+                <div id="reviewBtn" class="btn-group" role="group">
+                    <button class="btn btn-default btn-lg" onclick="initialPlain()">
+                        <span id="initial">初始版面</span></button>
+                    <button class="btn btn-default btn-lg"onclick="finalPlain()">
+                        <span id="final">最終版面</span></button>
+
+                    <button class="btn btn-default btn-lg"onclick="replay()">
+                        <span id="replay">重播紀錄</span></button>
+                    <button id="ShowReview" class="btn btn-default btn-lg"onclick="toggleReviewPath()">
+                        <span>顯示軌跡</span></button>
+                    <button id="CloseReview" class="btn btn-default btn-lg"onclick="toggleReviewPath()" style="display: none;">
+                        <span>隱藏軌跡</span></button>
+
+                    <select id="speedSelect" class="selectpicker" data-width="130px" title="重播速度" >
+                      <option value="2400" >龜速</option>
+                      <option value="1200" >極慢</option>
+                      <option value="900"  >緩慢</option>
+                      <option value="600"  >中等</option>
+                      <option value="450"  >正常</option>
+                      <option value="300"  >快速</option>
+                      <option value="150"  >極快</option>
+                      <option value="60"   >須臾</option>
+                      <option value="15"   >剎那</option>
+                    </select>
+                </div>
+                    <button id="clipboard"  class="btn btn-danger btn-lg" data-clipboard-text="null" >
+                        <span> &nbsp;產生網址&nbsp;</span>
+                    </button>
+                <br><br>
+
+                <table id="TeamMember" style="display: none;">
+                    <tr id="AttackNumber">
+                        <td> </td> <td> </td> <td> </td> <td> </td> <td> </td> <td> </td>
+                    </tr>
+                    <tr id="RecoverNumber">
+                        <td> </td> <td> </td> <td> </td> <td> </td> <td> </td> <td> </td>
+                    </tr>
+                    <tr id="AdditionalEffectTD">
+                        <td colspan="6"></td>
+                    </tr>
+                    <tr id="MemberTypeSelectTD" >
+                        <td> 
+                            <select id="TeamLeaderTypeSelect" class="selectpicker TeamMemberTypeSelect" data-width="120px" title="選擇種族" multiple action="TeamLeaderSelect">
+                              <option value="GOD" >神族</option><option value="HUMAN" >人類</option><option value="DEVIL" >魔族</option><option value="BEAST" >獸類</option><option value="SPIRIT" >妖精</option><option value="DRAGON" >龍族</option><option value="CREATURE" >自創</option>
+                            </select> 
+                        </td>
+                        <td> 
+                            <select id="TeamMember1TypeSelect" class="selectpicker TeamMemberTypeSelect" data-width="120px" title="選擇種族" multiple action="TeamMember1Select">
+                              <option value="GOD" >神族</option><option value="HUMAN" >人類</option><option value="DEVIL" >魔族</option><option value="BEAST" >獸類</option><option value="SPIRIT" >妖精</option><option value="DRAGON" >龍族</option><option value="CREATURE" >自創</option>
+                            </select>
+                        </td>
+                        <td> 
+                            <select id="TeamMember2TypeSelect" class="selectpicker TeamMemberTypeSelect" data-width="120px" title="選擇種族" multiple action="TeamMember2Select">
+                              <option value="GOD" >神族</option><option value="HUMAN" >人類</option><option value="DEVIL" >魔族</option><option value="BEAST" >獸類</option><option value="SPIRIT" >妖精</option><option value="DRAGON" >龍族</option><option value="CREATURE" >自創</option>
+                            </select>
+                        </td>
+                        <td> 
+                            <select id="TeamMember3TypeSelect" class="selectpicker TeamMemberTypeSelect" data-width="120px" title="選擇種族" multiple action="TeamMember3Select">
+                              <option value="GOD" >神族</option><option value="HUMAN" >人類</option><option value="DEVIL" >魔族</option><option value="BEAST" >獸類</option><option value="SPIRIT" >妖精</option><option value="DRAGON" >龍族</option><option value="CREATURE" >自創</option>
+                            </select> 
+                        </td>
+                        <td> 
+                            <select id="TeamMember4TypeSelect" class="selectpicker TeamMemberTypeSelect" data-width="120px" title="選擇種族" multiple action="TeamMember4Select">
+                              <option value="GOD" >神族</option><option value="HUMAN" >人類</option><option value="DEVIL" >魔族</option><option value="BEAST" >獸類</option><option value="SPIRIT" >妖精</option><option value="DRAGON" >龍族</option><option value="CREATURE" >自創</option>
+                            </select>
+                        </td>
+                        <td> 
+                            <select id="TeamFriendTypeSelect" class="selectpicker TeamMemberTypeSelect" data-width="120px" title="選擇種族" multiple action="TeamFriendSelect">
+                              <option value="GOD" >神族</option><option value="HUMAN" >人類</option><option value="DEVIL" >魔族</option><option value="BEAST" >獸類</option><option value="SPIRIT" >妖精</option><option value="DRAGON" >龍族</option><option value="CREATURE" >自創</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr id="MemberSelectTD" >
+                        <td> 
+                            <div name="MemberSelect" id="TeamLeaderSelect" class="characterSelect" action="TeamLeaderTypeSelect"></div>  
+                        </td>
+                        <td> 
+                            <div name="MemberSelect" id="TeamMember1Select" class="characterSelect" action="TeamMember1TypeSelect"></div>  
+                        </td>
+                        <td> 
+                            <div name="MemberSelect" id="TeamMember2Select" class="characterSelect" action="TeamMember2TypeSelect"></div>  
+                        </td>
+                        <td> 
+                            <div name="MemberSelect" id="TeamMember3Select" class="characterSelect" action="TeamMember3TypeSelect"></div>  
+                        </td>
+                        <td> 
+                            <div name="MemberSelect" id="TeamMember4Select" class="characterSelect" action="TeamMember4TypeSelect"></div>  
+                        </td>
+                        <td> 
+                            <div name="MemberSelect" id="TeamFriendSelect" class="characterSelect" action="TeamFriendTypeSelect"></div> 
+                        </td>
+                    </tr>
+                    <tr id="ActiveButtonTD">
+                        <td> <div class="activeBtn"></div><div class="combineBtn"></div> </td>
+                        <td> <div class="activeBtn"></div><div class="combineBtn"></div> </td>
+                        <td> <div class="activeBtn"></div><div class="combineBtn"></div> </td>
+                        <td> <div class="activeBtn"></div><div class="combineBtn"></div> </td>
+                        <td> <div class="activeBtn"></div><div class="combineBtn"></div> </td>
+                        <td> <div class="activeBtn"></div><div class="combineBtn"></div> </td>
+                    </tr>
+                    <tr id="ActiveCoolDownTD">
+                        <td> </td> <td> </td> <td> </td> <td> </td> <td> </td> <td> </td>
+                    </tr>
+                </table>
+                <br>
+
+                <div id="TimeLife" >
+                    <img id="timeLifeIcon" src="img/UI/heart.png">
+                    <div id="timeLifeRect"></div>
+                    <div id="timeLifeBack"></div>
+                </div>
+
+                <canvas id="dragCanvas"></canvas>
+                <canvas id="BaseCanvas" tr="5" td="6" width="480" height="400"></canvas>
+                <br>
+
+                <table id="SystemInfomation" style="display: none;">
+                    <tr >
+                        <th> <span > 資訊 </span>  </th>
+                        <td colspan="6"> 
+                            <div id="BattleInfomationScrollbar" class="content mCustomScrollbar">
+                                <div id="BattleInfomation"></div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr id="LabelInfomation">
+                        <th> <span >名稱</span> </th>
+                        <td><span></span></td> <td><span></span></td> <td><span></span></td>
+                        <td><span></span></td> <td><span></span></td> <td><span></span></td>
+                    </tr>
+                    <tr id="HealthInfomation">
+                        <th> <span>生命力</span> </th>
+                        <td><span></span></td> <td><span></span></td> <td><span></span></td>
+                        <td><span></span></td> <td><span></span></td> <td><span></span></td>
+                    </tr>
+                    <tr id="AttackInfomation">
+                        <th> <span>攻擊力</span> </th>
+                        <td><span></span></td> <td><span></span></td> <td><span></span></td>
+                        <td><span></span></td> <td><span></span></td> <td><span></span></td>
+                    </tr>
+                    <tr id="RecoveryInfomation">
+                        <th> <span>回復力</span> </th>
+                        <td><span></span></td> <td><span></span></td> <td><span></span></td>
+                        <td><span></span></td> <td><span></span></td> <td><span></span></td>
+                    </tr>
+                    <tr id="Wakes1Infomation">
+                        <th> <span>昇華一</span> </th>
+                        <td><span></span></td> <td><span></span></td> <td><span></span></td>
+                        <td><span></span></td> <td><span></span></td> <td><span></span></td>
+                    </tr>
+                    <tr id="Wakes2Infomation">
+                        <th> <span>昇華二</span> </th>
+                        <td><span></span></td> <td><span></span></td> <td><span></span></td>
+                        <td><span></span></td> <td><span></span></td> <td><span></span></td>
+                    </tr>
+                    <tr id="Wakes3Infomation">
+                        <th> <span>昇華三</span> </th>
+                        <td><span></span></td> <td><span></span></td> <td><span></span></td>
+                        <td><span></span></td> <td><span></span></td> <td><span></span></td>
+                    </tr>
+                    <tr id="Wakes4Infomation">
+                        <th> <span>昇華四</span> </th>
+                        <td><span></span></td> <td><span></span></td> <td><span></span></td>
+                        <td><span></span></td> <td><span></span></td> <td><span></span></td>
+                    </tr>
+                    <tr id="ActiveSkillInfomation">
+                        <th> <span> 主動技 </span> </th>
+                        <td></td> <td></td> <td></td> <td></td> <td></td> <td></td>
+                    </tr>
+                    <tr id="LeaderSkillInfomation">
+                        <th> <span> 隊長技 </span> </th>
+                        <td colspan="3"> 
+                            <span onclick="$('#LeaderSkillInfo').toggle()" class="labelInfo"></span> <br>
+                            <span id="LeaderSkillInfo" style="display: none;"></span>
+                        </td>
+                        <td colspan="3"> 
+                            <span onclick="$('#FriendSkillInfo').toggle()" class="labelInfo"></span> <br>
+                            <span id="FriendSkillInfo" style="display: none;"></span>
+                        </td>
+                    </tr>
+                    <tr id="TeamLeaderSkillInfomation">
+                        <th> <span> 隊伍技 </span> </th>
+                        <td id="TeamSkillInfoTD" colspan="6"> </td>
+                    </tr>
+                </table>
+                <br><br>
+
+                <div id="panelButton" class="btn-group" role="group">
+                    <button class="btn btn-default btn-lg" onclick="newRandomPlain()">
+                        <span id="randomPanel" >隨機版面</span> </button>
+                    <button id="OptionalPanel" class="btn btn-default btn-lg" onclick="newOptionalPlain()">
+                        <span>開始自選版面</span></button>
+                    <button id="EndOptionalPanel" class="btn btn-default btn-lg" onclick="endOptionalPlain()" style="display: none;">
+                        <span >完成版面製作</span></button>
+                    <select id="colorSelect" class="selectpicker" data-width="150px" title="符石花色">
+                      <option value="w,f,p,l,d,h" >普通</option>
+                      <option value="w+,f+,p+,l+,d+,h+" >強化</option>
+                      <option value="w_,f_,p_,l_,d_,h_" >黑白普通</option>
+                      <option value="w+_,f+_,p+_,l+_,d+_,h+_" >黑白強化</option>
+                      <option value="wq,fq,pq,lq,dq,hq" >問號普通</option>
+                      <option value="w+q,f+q,p+q,l+q,d+q,h+q" >問號強化</option>
+                      <option value="wx,fx,px,lx,dx,hx" >風化普通</option>
+                      <option value="w+x,f+x,p+x,l+x,d+x,h+x" >風化強化</option>
+                      <option value="wX,fX,pX,lX,dX,hX" >隱藏風化普通</option>
+                      <option value="w+X,f+X,p+X,l+X,d+X,h+X" >隱藏風化強化</option>
+                      <option value="wk,fk,pk,lk,dk,hk" >鎖定</option>
+                      <option value="wi0,fi0,pi0,li0,di0,hi0" >冰凍0</option>
+                      <option value="wi1,fi1,pi1,li1,di1,hi1" >冰凍1</option>
+                      <option value="wi2,fi2,pi2,li2,di2,hi2" >冰凍2</option>
+                      <option value="wi3,fi3,pi3,li3,di3,hi3" >冰凍3</option>
+                    </select>
+                </div><br>
+                <div id="panelControl" class="btn-group" role="group">
+                    <button class="btn btn-default" onclick="setColor('w',0)">
+                        <img src="img/Icon/w.png">
+                    </button>
+                    <button class="btn btn-default" onclick="setColor('f',1)">
+                        <img src="img/Icon/f.png">
+                    </button>
+                    <button class="btn btn-default" onclick="setColor('p',2)">
+                        <img src="img/Icon/p.png">
+                    </button>
+                    <button class="btn btn-default" onclick="setColor('l',3)">
+                        <img src="img/Icon/l.png">
+                    </button>
+                    <button class="btn btn-default" onclick="setColor('d',4)">
+                        <img src="img/Icon/d.png">
+                    </button>
+                    <button class="btn btn-default" onclick="setColor('h',5)">
+                        <img src="img/Icon/h.png">
+                    </button>
+                </div>
+                <br><br>
+                    
+                <span class="teamLabel">進階選項：</span>
+                <select id="dropColorSelect" class="selectpicker" data-width="150px" title="落珠選擇">
+                    <option value="w,f,p,l,d,h" >正常分布</option>
+                    <option value="w,f,p,l,d" >禁心珠</option>
+                    <option value="MAP,h,w" >亡命感應 ‧ 水</option>
+                    <option value="MAP,h,f" >亡命感應 ‧ 火</option>
+                    <option value="MAP,h,p" >亡命感應 ‧ 木</option>
+                    <option value="MAP,h,l" >聖言詠歌</option>
+                    <option value="MAP,h,d" >夜言鳴曲</option>
+                    <option value="question" >問號掉落</option>
+                    <option value="optional" >自訂義</option>
+                </select>
+                <select id="locusSelect" class="selectpicker" data-width="150px" title="軌跡選擇">
+                    <option value="null" >無軌跡</option>
+                    <option value="_" >軌跡黑白</option>
+                    <option value="_Inf" >持續軌跡黑白</option>
+                    <option value="q" >軌跡問號</option>
+                    <option value="qInf" >持續軌跡問號</option>
+                    <option value="fire" >軌跡燃燒</option>
+                    <option value="fireInf" >持續軌跡燃燒</option>
+                    <option value="rot" >軌跡腐蝕</option>
+                    <option value="rotInf" >持續軌跡腐蝕</option>
+                </select>
+                <br><br>
+
+                <span class="teamLabel">隊伍選項：</span>
+                <button id="StartTeam" onclick="startEditTeam()" class="btn btn-default btn-lg">
+                    <span>開啟隊伍編輯</span>
+                </button>
+                <button id="CloseTeam" onclick="closeEditTeam()" class="btn btn-default btn-lg" style="display: none;">
+                    <span>關閉隊伍編輯</span>
+                </button>
+                <button id="OpenSysInfo" onclick="toggleSystemInfomation()" class="btn btn-default btn-lg" style="display: none;">
+                    <span>開啟隊伍資訊</span>
+                </button>
+                <button id="CloseSysInfo" onclick="toggleSystemInfomation()" class="btn btn-default btn-lg" style="display: none;">
+                    <span>關閉隊伍資訊</span>
+                </button>
+                <button id="ActiveCoolDown" onclick="ActiveCoolDownToZero()" class="btn btn-default btn-lg" style="display: none;">
+                    <span>主動技快速冷卻</span>
+                </button>
+                <br><br>
+
+                <div id="HorizontalScrollbar" class="content horizontal-images" style="display: none;">
+                    <ul id="optionalColors" IDmaker="0">
+                        <li>
+                            <div class="addNewColor" onclick="addColorIntoBar()" >
+                                <span class="glyphicon glyphicon-plus"></span>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <br>
+
+            </div>
+
+            <div class="col-lg-2">
+                <br><br>
+                <div id="comboDiv">
+                    <br>
+                    <div id="comboHit" align="center">
+                      <span id="historyNum"></span> 步 <br>
+                      <span id="comboNum"></span><span id="extraCombo"></span> Combo <br>
+                    </div>
+                    <div id="Scrollbar" class="content mCustomScrollbar">
+                        <div id="comboBox" wave="-1"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <footer> 
+            <br><br>
+            <div class="row">
+                <div class="col-lg-12" align="center">
+                    <img src="img/UI/logo.png" >
+                    <p>Copyright &copy; louisalflame@PTT</p>
+                    <p>最後修改日期: 2016/06/24</p>
+                </div>
+            </div>
+        </footer>
+
+  </div>
 
     <!-- jQuery -->
     <script type="text/javascript" src="js/jquery.js"></script>
-    <script type="text/javascript" src="js/jquery-1.11.0.min.js"></script>
     <!-- Bootstrap Core JavaScript -->
     <script type="text/javascript" src="js/bootstrap/bootstrap.min.js"></script>
-
+    <!-- Javascript for this html -->
+    <script type="text/javascript" src="js/bootstrap-select/bootstrap-select.min.js" ></script>
+    <script type="text/javascript" src="js/filestyle/bootstrap-filestyle.min.js"> </script>
+    <script type="text/javascript" src="js/autohidingnavbar/jquery.bootstrap-autohidingnavbar.min.js" ></script>
+    <script type="text/javascript" src="js/jquery-ui/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="js/jquery-ui/jquery.ui.touch-punch.min.js"></script>
     <script type="text/javascript" src="js/jcanvas/jcanvas.min.js"></script>
-    <script type="text/javascript" src="dragJcanvas.js"></script>
+    <script type="text/javascript" src="js/url/url.min.js"></script>
+    <script type="text/javascript" src="js/clipboard/clipboard.min.js"></script>
+    <script type="text/javascript" src="js/scrollbar/jquery.mCustomScrollbar.concat.min.js"></script>
+    <script type="text/javascript" src="js/LZstring/lz-string.min.js"></script>
+    <script type="text/javascript" src="js/msdropdown/jquery.dd.js"></script>
+    <script type="text/javascript" src="js/utility.js"></script>
 
-    <script type="text/javascript" >
-    MAIN_STATE = MAIN_STATE_ENUM.READY;
-    for(var i = 0; i < 6; i++){
-        for(var j = 0; j < 5; j++){
-            $('canvas').addLayer({
-              name: i+"_"+j,
-              data:{
-                TD_INDEX : i,
-                TR_INDEX : j,
-              },
-              type:"image",
-              source: 'img/Icon/d.png',
-              fromCenter: false,
-              draggable: true,
-              x: 80*i, y: 80*j,
-              width: 80, height: 80,
-      dragstart: function(layer, event){
-        countGridPositon(layer);
-      },
-      drag: function(layer){
-        dragPosition(layer);
-      },
-      dragstop: function(layer){
-        console.log( 'is drag end?' );
-      }
-            })
+    <script type="text/javascript" src="js/html-canvas/gameStage.js"></script>
+    <script type="text/javascript" src="js/html-canvas/drag.js"></script>
+    <script type="text/javascript" src="js/html-canvas/element.js"></script>
+    <script type="text/javascript" src="js/html-canvas/skill.js"></script>
+    <script type="text/javascript" src="js/html-canvas/teamComposition.js"></script>
+    <script type="text/javascript" src="js/html-canvas/teamSkill.js"></script>
+    <script type="text/javascript" src="js/html-canvas/leaderSkill.js"></script>
+    <script type="text/javascript" src="js/html-canvas/activeSkill.js"></script>
+    <script type="text/javascript" src="js/html-canvas/combineSkill.js"></script>
+    <script type="text/javascript" src="js/html-canvas/wake.js"></script>
+    <script type="text/javascript" src="js/html-canvas/additionalEffect.js"></script>
+    <script type="text/javascript" src="js/html-canvas/enemy.js"></script>
+    <script type="text/javascript" src="js/html-canvas/battle.js"></script>
+    <script type="text/javascript" src="js/html-canvas/data.js"></script>
 
-
-        }
-    }
-
-    function doSth(){
-        console.log( $('canvas').getLayers().length );
-    }
-    </script>
-
-
-    <script type="text/javascript" src="js/html-drag/gameStage.js"></script>
-    <script type="text/javascript" src="js/html-drag/skill.js"></script>
-    <script type="text/javascript" src="js/html-drag/teamComposition.js"></script>
-    <script type="text/javascript" src="js/html-drag/teamSkill.js"></script>
-    <script type="text/javascript" src="js/html-drag/leaderSkill.js"></script>
-    <script type="text/javascript" src="js/html-drag/activeSkill.js"></script>
-    <script type="text/javascript" src="js/html-drag/combineSkill.js"></script>
-    <script type="text/javascript" src="js/html-drag/wake.js"></script>
-    <script type="text/javascript" src="js/html-drag/additionalEffect.js"></script>
-    <script type="text/javascript" src="js/html-drag/enemy.js"></script>
-    <script type="text/javascript" src="js/html-drag/battle.js"></script>
-    <script type="text/javascript" src="js/html-drag/data.js"></script>
-
+    <script type="text/javascript" src="js/html-canvas/history.js"></script>
+    <script type="text/javascript" src="js/html-canvas/button.js"></script>
 </body>
 
 </html>
