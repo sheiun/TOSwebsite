@@ -8,31 +8,76 @@ function initialTable(){
 function initialColor(){
     for(var i = 0; i < TD_NUM; i++){
         for(var j = 0; j < TR_NUM; j++){
-            itemData = newElementByID( j*TD_NUM+i );
-            itemData['TD_INDEX'] = i;
-            itemData['TR_INDEX'] = j;
-
-            $('#BaseCanvas').addLayer({
-                name: i+"_"+j,
-                data: itemData,
-                type: "image",
-                source: itemData['src_path'],
-                fromCenter: false,
-                draggable: true,
-                x: WIDTH*i, y: HEIGHT*j,
-                width: WIDTH, height: HEIGHT,
-                dragstart: function(layer, event){
-                    countGridPositon(layer);
-                },
-                drag: function(layer){
-                    dragPosition(layer);
-                },
-                dragstop: function(layer){
-                    console.log( 'is drag end?' );
-                }
-            });
+            drawNewItemLayer( i, j );
         }
     }
+}
+function drawNewItemLayer( i, j ){
+    var itemData = newElementByID( j*TD_NUM+i );
+    itemData.TD_INDEX = i;
+    itemData.TR_INDEX = j;
+    $('#BaseCanvas').addLayer({
+        name: i+"_"+j,
+        groups: ['item'],
+        data: itemData,
+        type: "image",
+        source: itemData['src_path'],
+        fromCenter: false,
+        draggable: true,
+        x: WIDTH*i,
+        y: HEIGHT*j,
+        width: WIDTH,
+        height: HEIGHT,
+        dragstart: function(layer, event){
+            countGridPositon(layer);
+        },
+        drag: function(layer){
+            dragPosition(layer);
+        },
+        dragstop: function(layer){
+            console.log( 'is drag end?' );
+        }
+    });
+}
+function drawItemLayerAtXY( x, y, itemData ){
+    $('#BaseCanvas').addLayer({
+        name: i+"_"+j,
+        groups: ['item'],
+        data: itemData,
+        type: "image",
+        source: itemData['src_path'],
+        fromCenter: false,
+        draggable: true,
+        x: x,
+        y: y,
+        width: WIDTH,
+        height: HEIGHT,
+        dragstart: function(layer, event){
+            countGridPositon(layer);
+        },
+        drag: function(layer){
+            dragPosition(layer);
+        },
+        dragstop: function(layer){
+            console.log( 'is drag end?' );
+        }
+    });
+}
+
+function IndexToI_J(id){
+    var i = id%TD_NUM;
+    var j = ( id - i )/TD_NUM;
+    return i+'_'+j;
+}
+function I_JToIndex(id){
+    var i = parseInt( id.split('_')[0] );
+    var j = parseInt( id.split('_')[1] );
+    return j*TD_NUM+i;
+}
+function I_JToij(id){
+    var i = parseInt( id.split('_')[0] );
+    var j = parseInt( id.split('_')[1] );
+    return [i, j];
 }
 
 function mapColor(color){

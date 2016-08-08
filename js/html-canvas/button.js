@@ -760,15 +760,20 @@ function autoCheckDropGroups(){
         num += GROUP_SETS[color].length;
     }
     while( num > 0 && times < MAX_AUTO_DROP_TIMES ){
-        for(var i = TD_NUM*TR_NUM-1; i >= 0; i--){
-            if( REMOVE_STACK.indexOf(i) >= 0 ){ continue; }
-            var isSet = inGroup(i);
-            if( isSet ){
-                var setArr = Array.from(isSet);
-                for(var id of setArr){
-                    REMOVE_STACK.push(id);
-                    $("#dragContainment tr td").eq(id).find("img").remove();
-                    $("#dragContainment tr td").eq(id).append( newElementByID(id) );
+        for(var i = 0; i < TD_NUM; i++){
+            for(var j = 0; j < TR_NUM; j ++){
+                now_id = i+'_'+j;
+                if( REMOVE_STACK.indexOf(now_id) >= 0 ){ continue; }
+
+                var isSet = inGroup(now_id);
+                if( isSet ){
+                    var setArr = Array.from(isSet);
+                    for(var id of setArr){
+                        REMOVE_STACK.push(id);
+                        $('#BaseCanvas').removeLayer(id);
+                        var ij = I_JToij(id);
+                        drawNewItemLayer( ij[0], ij[1] );
+                    }
                 }
             }
         }

@@ -469,8 +469,9 @@ function countComboStack(){
 function removeGroups(next){
     var i = next;
     for( ; i >= 0; i--){
-        if( REMOVE_STACK.indexOf(i) >= 0 ){ continue; }
-        var isSet = inGroup(i);
+        var id = IndexToI_J(i);
+        if( REMOVE_STACK.indexOf(id) >= 0 ){ continue; }
+        var isSet = inGroup(id);
         if( isSet ){
             setTimeout( function(){
                 removePeriod(isSet, i-1);
@@ -487,8 +488,12 @@ function removePeriod(set, next){
     var comboSet = makeComboSet( Array.from(set) );
     for(var id of setArr){
         REMOVE_STACK.push(id);
-        $("#dragContainment tr td").eq(id).find("img").fadeOut( FADEOUT_TIME, function (){
-            $(this).remove();
+        $('#BaseCanvas').animateLayer(
+            id,
+            { opacity: 0, },
+            FADEOUT_TIME, 
+            function(layer){
+                $('#BaseCanvas').removeLayer(layer)
         });
     }
     COMBO_SHOW += 1;
@@ -566,32 +571,35 @@ function dropGroups(){
         var num = 0;
         var length = DROP_STACK[i].length;
         for(var j = TR_NUM-1; j >= 0; j--){
-            if( $("#dragContainment tr td").eq(j*TD_NUM+i).children().length == 0 ){
+            id = i+'_'+j;
+            if( ! $('#BaseCanvas').getLayer(id) ){
                 num++;
             }else{
                 if( num > 0 ){
-                    var imgs = $("#dragContainment tr td").eq(j*TD_NUM+i).find("img").remove();
-                    $(imgs).attr("drop",num).attr("toLeft",BASE_LEFT+i*WIDTH).attr("toTop",BASE_TOP+j*HEIGHT);
-                    $("#dragContainment tr td").eq((j+num)*TD_NUM+i).append(imgs);
+                    layer = $('#BaseCanvas').getLayer(id);
+                    layer.data.drop = num;
                 }
             }
         }
         for(var n = 0; n < length; n++){
-            var elements = DROP_STACK[i].pop();
-            elements[0].attr("drop",num).attr("toLeft",BASE_LEFT+i*WIDTH).attr("toTop",BASE_TOP-(length-n)*HEIGHT);
-            elements[1].attr("drop",num).attr("toLeft",BASE_LEFT+i*WIDTH).attr("toTop",BASE_TOP-(length-n)*HEIGHT);
-            $("#dragContainment tr td").eq( (n+num-length)*TD_NUM+i ).append(elements);
+            var itemData = DROP_STACK[i].pop();
+            itemData.TD_INDEX = i;
+            itemData.TR_INDEX = n+num-length;
+            itemData.drop = num;
+            drawItemLayerAtXY( i*WIDTH, -(length-n)*HEIGHT );
         }
     }
     
     var max_drop = 0;
-    $("#dragContainment tr td img").each(function(){
-        if( $(this).attr("drop") ){
-            max_drop = Math.max( $(this).attr("drop"), max_drop );
-            $(this).offset({top: $(this).attr("toTop"), left: $(this).attr("toLeft")});
-            $(this).animate({"top": "+="+parseInt($(this).attr("drop"))*HEIGHT+"px" },
-                            {duration: parseInt($(this).attr("drop"))*DROP_TIME});
-            $(this).removeAttr("drop").removeAttr("toTop").removeAttr("toLeft");
+    $('#BaseCanvas').getLayers( function(layer){
+        if( layer.data.drop ){
+            max_drop = Math.max( parseInt(layer.data.drop), max_drop );
+            $('#BaseCanvas').animateLayer(
+                layer.name,
+                { y: '+='+parseInt(layer.data.drop)*HEIGHT, },
+                parseInt(layer.data.drop)*DROP_TIME,
+                function(layer){ delete layer.data.drop; }
+            );
         }
     });
 
