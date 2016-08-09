@@ -18,8 +18,7 @@ function resetDraggable(){
                 MAIN_STATE == MAIN_STATE_ENUM.TIME_TO_MOVE ||
                 MAIN_STATE == MAIN_STATE_ENUM.MOVING ){
                 dragPosition(this);
-            }
-            else{ return false; }
+            }else{ return false; }
         },
         stop: function(){
             resetLocus();

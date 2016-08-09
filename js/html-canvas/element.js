@@ -28,18 +28,9 @@ function drawNewItemLayer( i, j ){
         y: HEIGHT*j,
         width: WIDTH,
         height: HEIGHT,
-        dragstart: function(layer, event){
-            countGridPositon(layer);
-        },
-        drag: function(layer){
-            dragPosition(layer);
-        },
-        dragstop: function(layer){
-            console.log( 'is drag end?' );
-        }
     });
 }
-function drawItemLayerAtXY( x, y, itemData ){
+function drawItemLayerAtXY( x, y, i, j, itemData ){
     $('#BaseCanvas').addLayer({
         name: i+"_"+j,
         groups: ['item'],
@@ -52,16 +43,8 @@ function drawItemLayerAtXY( x, y, itemData ){
         y: y,
         width: WIDTH,
         height: HEIGHT,
-        dragstart: function(layer, event){
-            countGridPositon(layer);
-        },
-        drag: function(layer){
-            dragPosition(layer);
-        },
-        dragstop: function(layer){
-            console.log( 'is drag end?' );
-        }
     });
+                    console.log( $('#BaseCanvas').getLayer(i+"_"+j) );
 }
 
 function IndexToI_J(id){

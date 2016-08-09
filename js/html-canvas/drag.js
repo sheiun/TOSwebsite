@@ -3,29 +3,34 @@
 // drag item analysis
 //==============================================================
 function resetDraggable(){
-    $("#dragContainment tr td img").removeAttr("style");
-    $("img.draggable").draggable({
-        containment: "#dragContainment",
-        zIndex: 2500,
-        start: function(event, ui){
-            countGridPositon(this);
+    $('#BaseCanvas').getLayers( function(layer){
+        layer.x = layer.data.TD_INDEX * WIDTH;
+        layer.y = layer.data.TR_INDEX * HEIGHT;
+    });
+    $('#BaseCanvas').getLayers( function(layer){
+        layer.dragstart = function(layer, event){
+            $('#BaseCanvas').moveLayer(layer, TR_INDEX*TD_INDEX-1);
+            layer.opacity = 0.7;
+            $('#BaseCanvas').drawLayer(layer);
+            countGridPositon(layer);
             if( MAIN_STATE == MAIN_STATE_ENUM.READY ){
                 initialMoveWave();
             }
-        },
-        drag: function(event, ui) {
+        };
+        layer.drag = function(layer){
             if( MAIN_STATE == MAIN_STATE_ENUM.READY ||
                 MAIN_STATE == MAIN_STATE_ENUM.TIME_TO_MOVE ||
                 MAIN_STATE == MAIN_STATE_ENUM.MOVING ){
-                dragPosition(this);
-            }
-            else{ return false; }
-        },
-        stop: function(){
+                dragPosition(layer);
+            }else{ return false; }
+        };
+        layer.dragstop = function(layer){
+            layer.opacity = 1;
+            $('#BaseCanvas').drawLayer(layer);
             resetLocus();
             closeCanvas();
             if( MAIN_STATE == MAIN_STATE_ENUM.MOVING ){
-                endPosition(this);
+                endPosition(layer);
             }
             if( PLAY_TYPE == PLAY_TYPE_ENUM.FREE && MAIN_STATE == MAIN_STATE_ENUM.MOVING ){
                 HISTORY.push(null);
@@ -37,18 +42,26 @@ function resetDraggable(){
                 resetDraggable();
                 startDragging();
             }
-        },
+        };
     });
+    $('#BaseCanvas').drawLayers();
 }
 
 function stopDragging(){
     MOVE_OUT_OF_TIME = true;
-    $("#dragContainment tr td img").removeAttr("style");
-    $("img.draggable").draggable({ disabled: true });
+    $('#BaseCanvas').getLayers( function(layer){
+        layer.draggable = false;
+        layer.x = layer.data.TD_INDEX * WIDTH;
+        layer.y = layer.data.TR_INDEX * HEIGHT;
+    });
+    $('#BaseCanvas').drawLayers();
 }
 function startDragging(){
     MOVE_OUT_OF_TIME = false;
-    $("img.draggable").draggable({ disabled: false });
+    $('#BaseCanvas').getLayers( function(layer){
+        layer.draggable = true;
+    });
+    $('#BaseCanvas').drawLayers();
 }
 
 function countGridPositon(layer){
@@ -57,22 +70,15 @@ function countGridPositon(layer){
 }
 
 function endPosition(layer){
-    dragPosition(e);
-
-    var over = $(e).clone();
-    $("#dragContainment tr td").eq(TR_INDEX*TD_NUM+TD_INDEX).prepend(over);
-    $(e).remove();
+    layer.x = TD_INDEX*WIDTH;
+    layer.y = TR_INDEX*HEIGHT;
+    $('#BaseCanvas').drawLayer(layer);
 }
 
-function dragPosition(e){
-    $("#dragContainment tr td img").each( function(){
-        if ( !$(this).is('.ui-draggable-dragging') && $(this).attr("animate") != "busy" ) {
-            $(this).removeAttr('style');
-        }
-    } );
+function dragPosition(layer){
 
-    var left = Math.max( 0, Math.min( $(e).offset().left - BASE_LEFT, WIDTH*(TD_NUM-1) ) );
-    var top  = Math.max( 0, Math.min( $(e).offset().top  - BASE_TOP, HEIGHT*(TR_NUM-1) ) );
+    var left = Math.max( 0, Math.min( layer.x , WIDTH*(TD_NUM-1) ) );
+    var top  = Math.max( 0, Math.min( layer.y , HEIGHT*(TR_NUM-1) ) );
     var left_index = TD_INDEX;
     var top_index  = TR_INDEX;
     var left_vector = (left - (TD_INDEX*WIDTH) )/WIDTH;
@@ -118,35 +124,40 @@ function dragPosition(e){
             }         
         }
 
-        var td_base = $("#dragContainment tr td").eq(TR_INDEX*TD_NUM+TD_INDEX);
-        var td_goal = $("#dragContainment tr td").eq(top_index*TD_NUM+left_index);
-        var items = $(td_base).find("img");
-        var item_base = $(td_base).find("img.under");
-        var item_goal = $(td_goal).find("img");
+        var item_goal = $('#BaseCanvas').getLayer( left_index+'_'+top_index );
+        console.log( left_index+'_'+top_index );
+        if( item_goal ){
 
-        if( $(td_goal).children().length > 0 ){
-            var offset_base = $(item_base).offset();
-            var offset_goal = $(item_goal).offset();
-            var top_vector = (offset_base.top - offset_goal.top);
-            var left_vector = (offset_base.left - offset_goal.left);
+            var move_left = layer.data.TD_INDEX - item_goal.data.TD_INDEX;
+            var move_top  = layer.data.TR_INDEX - item_goal.data.TR_INDEX;
+            layer.data.TD_INDEX = left_index;
+            layer.data.TR_INDEX = top_index;
+            item_goal.data.TD_INDEX = TD_INDEX;
+            item_goal.data.TR_INDEX = TR_INDEX;
 
-            items.remove();
-            item_goal.remove();
-            $(td_base).append(item_goal);
-            $(td_goal).append(items);
+            $('#BaseCanvas').animateLayer(
+                item_goal.name,
+                {
+                    x: '+='+move_left*WIDTH,
+                    y: '+='+move_top*HEIGHT,
+                },
+                DRAG_ANIMATE_TIME,
+                function(layer){}
+            );
 
-            $(item_base).offset(offset_goal);
-            $(item_goal).offset(offset_goal);
-            $(item_goal).attr("animate","busy");
-            $(item_goal).animate( { top: "+="+top_vector+"px",left: "+="+left_vector+"px"},
-                                  { duration: DRAG_ANIMATE_TIME,
-                                        complete: function(){
-                                            $(this).removeAttr("animate");
-                                        } } );
-        }else{
-            items.remove();
-            $(td_goal).append(items);
-            $(item_base).offset(offset_goal);
+            $('#BaseCanvas').setLayer(
+                item_goal,
+                { name: 'tmp', }
+            );
+            $('#BaseCanvas').setLayer(
+                layer,
+                { name: left_index+'_'+top_index, }
+            );
+            $('#BaseCanvas').setLayer(
+                item_goal,
+                { name: TD_INDEX+'_'+TR_INDEX, }
+            );
+
         }
         
         TD_INDEX = left_index;
@@ -156,7 +167,7 @@ function dragPosition(e){
         setHistoryShow();
 
         locusUpdate( TR_INDEX*TD_NUM+TD_INDEX );
-        checkInhibit(td_goal, item_base, item_goal);
+        //checkInhibit(td_goal, item_base, item_goal);
     }
 }
 
@@ -326,18 +337,23 @@ function countColor(){
     //count for straight
     for(var i = 0; i < TD_NUM; i++){
         for(var j = 0; j < TR_NUM; j ++){
-            var set = new Set();
 
             now_id = i+'_'+j;
             layer = $('#BaseCanvas').getLayer( now_id );
+            if( !layer ){ continue; }
+
             var color = layer.data.color;
             var frozen = layer.data.frozen;
-            if( frozen && (parseInt(frozen) > 0) ){ continue; }            
+            if( frozen && (parseInt(frozen) > 0) ){ continue; } 
+
+            var set = new Set();           
             set.add( now_id );
 
             while( j < TR_NUM-1 ){
                 next_id = i+'_'+(j+1);
                 next_layer = $('#BaseCanvas').getLayer( next_id );
+                if( !next_layer ){ break; }
+
                 var next_color = next_layer.data.color;
                 var next_frozen = next_layer.data.frozen;
                 if( next_frozen && (parseInt(next_frozen) > 0) ){ break; }
@@ -360,18 +376,23 @@ function countColor(){
     //count for horizontal
     for(var j = 0; j < TR_NUM; j++){
         for(var i = 0; i < TD_NUM; i ++){
-            var set = new Set();
 
             now_id = i+'_'+j;
             layer = $('#BaseCanvas').getLayer( now_id );
+            if( !layer ){ continue; }
+
             var color = layer.data.color;
             var frozen = layer.data.frozen;
-            if( frozen && (parseInt(frozen) > 0) ){ continue; }           
+            if( frozen && (parseInt(frozen) > 0) ){ continue; }  
+
+            var set = new Set();         
             set.add( now_id );
 
             while( i < TD_NUM-1 ){
                 next_id = (i+1)+'_'+j;
                 next_layer = $('#BaseCanvas').getLayer( next_id );
+                if( !next_layer ){ break; }
+
                 var next_color = next_layer.data.color;
                 var next_frozen = next_layer.data.frozen;
                 if( next_frozen && (parseInt(next_frozen) > 0) ){ break; }
@@ -386,7 +407,7 @@ function countColor(){
             if( set.size >= SET_SIZE[color] ){
                 COLOR_SETS[color].push(new Set(set));
                 COLOR_SETS_PREPARE[color].push(new Set(set));
-                HORIZONTAL_SETS[i].push(new Set(set));
+                HORIZONTAL_SETS[j].push(new Set(set));
             }
         }
     }
@@ -531,26 +552,27 @@ function newGroups(){
     for(var color in GROUP_SETS){
         for(var set of GROUP_SETS[color]){
             if( set.size >= 5 ){
-                var rand_i = Math.floor( randomBySeed() * REMOVE_STACK.length );
-                var id = REMOVE_STACK[rand_i];
-                REMOVE_STACK.splice(rand_i,1);
+                var id = selectAndRemoveRandomItemFromArrBySeed( REMOVE_STACK )
                 STRONG_STACK[id] = color+'+';
             }
         }
     }
-    for(var i = 0; i < TD_NUM*TR_NUM; i++){
-        if( REMOVE_STACK.indexOf(i) >= 0 ){
-            if( DROPABLE ){
-                var elements = newElementByID(i);
-                if( elements ){
-                    DROP_STACK[i%TD_NUM].push( elements );
+    for(var i = 0; i < TD_NUM; i++){
+        for(var j = 0; j < TR_NUM; j ++){
+            var id = i+'_'+j;
+            if( REMOVE_STACK.indexOf(id) >= 0 ){
+                if( DROPABLE ){
+                    var elements = newElementByID( j*TD_NUM+i );
+                    if( elements ){
+                        DROP_STACK[i].push( elements );
+                    }
                 }
-            }
-        }else if( i in STRONG_STACK ){
-            if( DROPABLE ){
-                var elements = newElementByItem(STRONG_STACK[i]);
-                if( elements ){
-                    DROP_STACK[i%TD_NUM].push( elements );
+            }else if( i in STRONG_STACK ){
+                if( DROPABLE ){
+                    var elements = newElementByItem(STRONG_STACK[i]);
+                    if( elements ){
+                        DROP_STACK[i].push( elements );
+                    }
                 }
             }
         }
@@ -578,6 +600,8 @@ function dropGroups(){
                 if( num > 0 ){
                     layer = $('#BaseCanvas').getLayer(id);
                     layer.data.drop = num;
+                    layer.data.newTR = parseInt(layer.data.TR_INDEX) + num;
+                    layer.data.newName = true;
                 }
             }
         }
@@ -586,7 +610,9 @@ function dropGroups(){
             itemData.TD_INDEX = i;
             itemData.TR_INDEX = n+num-length;
             itemData.drop = num;
-            drawItemLayerAtXY( i*WIDTH, -(length-n)*HEIGHT );
+            itemData.newTR = n+num-length;
+            itemData.newName = true;
+            drawItemLayerAtXY( i*WIDTH, -(length-n)*HEIGHT, i, 'add'+n, itemData );
         }
     }
     
@@ -595,10 +621,16 @@ function dropGroups(){
         if( layer.data.drop ){
             max_drop = Math.max( parseInt(layer.data.drop), max_drop );
             $('#BaseCanvas').animateLayer(
-                layer.name,
+                layer,
                 { y: '+='+parseInt(layer.data.drop)*HEIGHT, },
                 parseInt(layer.data.drop)*DROP_TIME,
-                function(layer){ delete layer.data.drop; }
+                function(layer){ 
+                    if( layer.data.newName ){
+                        checkAndChangeLayerName( layer.data.TD_INDEX+'_'+layer.data.newTR );
+                        changeLayerName(layer);
+                    }
+                    delete layer.data.drop;
+                }
             );
         }
     });
@@ -606,4 +638,22 @@ function dropGroups(){
     setTimeout( function(){
         checkGroups();
     }, max_drop*DROP_TIME );
+}
+
+function changeLayerName(layer){
+    layer.data.TR_INDEX = layer.data.newTR;
+    console.log( layer.name+' => '+layer.data.TD_INDEX+'_'+layer.data.newTR );
+    $('#BaseCanvas').setLayer(
+        layer,
+        { name: layer.data.TD_INDEX+'_'+layer.data.newTR }
+    );
+    delete layer.data.newTR;
+    delete layer.data.newName;
+}
+function checkAndChangeLayerName(name){
+    if( ! $('#BaseCanvas').getLayer(name) ){ return; }
+    layer = $('#BaseCanvas').getLayer(name);
+    if( ! layer.data.newName ){ return; }
+    checkAndChangeLayerName( layer.data.TD_INDEX+'_'+layer.data.newTR );
+    changeLayerName(layer);
 }
