@@ -3,6 +3,8 @@
 // make element
 //==============================================================
 function initialTable(){
+    $('#BaseCanvas').removeLayerGroup('item');
+    $('#BaseCanvas').drawLayers();
 }
 
 function initialColor(){
@@ -11,11 +13,27 @@ function initialColor(){
             drawNewItemLayer( i, j );
         }
     }
+    $('#BaseCanvas').drawLayers();
 }
 function drawNewItemLayer( i, j ){
     var itemData = newElementByID( j*TD_NUM+i );
     itemData.TD_INDEX = i;
     itemData.TR_INDEX = j;
+    $('#BaseCanvas').addLayer({
+        name: i+"_"+j,
+        groups: ['item'],
+        data: itemData,
+        type: "image",
+        source: itemData['src_path'],
+        fromCenter: false,
+        draggable: true,
+        x: WIDTH*i,
+        y: HEIGHT*j,
+        width: WIDTH,
+        height: HEIGHT,
+    });
+}
+function drawItemLayer( i, j, itemData ){
     $('#BaseCanvas').addLayer({
         name: i+"_"+j,
         groups: ['item'],
@@ -44,7 +62,6 @@ function drawItemLayerAtXY( x, y, i, j, itemData ){
         width: WIDTH,
         height: HEIGHT,
     });
-                    console.log( $('#BaseCanvas').getLayer(i+"_"+j) );
 }
 
 function IndexToI_J(id){

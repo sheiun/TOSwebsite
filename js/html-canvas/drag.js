@@ -593,7 +593,7 @@ function dropGroups(){
         var num = 0;
         var length = DROP_STACK[i].length;
         for(var j = TR_NUM-1; j >= 0; j--){
-            id = i+'_'+j;
+            var id = i+'_'+j;
             if( ! $('#BaseCanvas').getLayer(id) ){
                 num++;
             }else{
@@ -602,6 +602,9 @@ function dropGroups(){
                     layer.data.drop = num;
                     layer.data.newTR = parseInt(layer.data.TR_INDEX) + num;
                     layer.data.newName = true;
+                    $('#BaseCanvas').setLayer(
+                        layer, { name: 'tmp_'+layer.name }
+                    );
                 }
             }
         }
@@ -626,8 +629,14 @@ function dropGroups(){
                 parseInt(layer.data.drop)*DROP_TIME,
                 function(layer){ 
                     if( layer.data.newName ){
-                        checkAndChangeLayerName( layer.data.TD_INDEX+'_'+layer.data.newTR );
-                        changeLayerName(layer);
+                        layer.data.TR_INDEX = layer.data.newTR;
+                        console.log( layer.name+' => '+layer.data.TD_INDEX+'_'+layer.data.newTR );
+                        $('#BaseCanvas').setLayer(
+                            layer,
+                            { name: layer.data.TD_INDEX+'_'+layer.data.newTR }
+                        );
+                        delete layer.data.newTR;
+                        delete layer.data.newName;
                     }
                     delete layer.data.drop;
                 }
@@ -638,22 +647,4 @@ function dropGroups(){
     setTimeout( function(){
         checkGroups();
     }, max_drop*DROP_TIME );
-}
-
-function changeLayerName(layer){
-    layer.data.TR_INDEX = layer.data.newTR;
-    console.log( layer.name+' => '+layer.data.TD_INDEX+'_'+layer.data.newTR );
-    $('#BaseCanvas').setLayer(
-        layer,
-        { name: layer.data.TD_INDEX+'_'+layer.data.newTR }
-    );
-    delete layer.data.newTR;
-    delete layer.data.newName;
-}
-function checkAndChangeLayerName(name){
-    if( ! $('#BaseCanvas').getLayer(name) ){ return; }
-    layer = $('#BaseCanvas').getLayer(name);
-    if( ! layer.data.newName ){ return; }
-    checkAndChangeLayerName( layer.data.TD_INDEX+'_'+layer.data.newTR );
-    changeLayerName(layer);
 }

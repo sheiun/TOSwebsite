@@ -9,15 +9,14 @@ function resetHistory(){
     HISTORY_TEAM_MEMBER = saveTeamMembers();
     HISTORY = [];
     INITIAL_PANEL = [];
-    for(var i = 0; i < TR_NUM*TD_NUM; i++){
-        if( $("#dragContainment tr td").eq(i).find("img") == 0 ){
-            INITIAL_PANEL.push( undefined );
-        }else{
-            try{
-                var item = $("#dragContainment tr td").eq(i).find("img.over").attr("item");
-                INITIAL_PANEL.push( item );
-            }catch(e){
+    for(var i = 0; i < TD_NUM; i++){
+        for(var j = 0; j < TR_NUM; j ++){
+            var id = i+'_'+j;
+            if( ! $('#BaseCanvas').getLayer(id) ||
+                ! $('#BaseCanvas').getLayer(id).data.item ){
                 INITIAL_PANEL.push( undefined );
+            }else{
+                INITIAL_PANEL.push( $('#BaseCanvas').getLayer(id).data.item );
             }
         }
     }
@@ -25,15 +24,14 @@ function resetHistory(){
 }
 function recordFinal(){
     FINAL_PANEL = [];
-    for(var i = 0; i < TR_NUM*TD_NUM; i++){
-        if( $("#dragContainment tr td").eq(i).find("img") == 0 ){
-            INITIAL_PANEL.push( undefined );
-        }else{
-            try{
-                var item = $("#dragContainment tr td").eq(i).find("img.under").attr("item");
-                FINAL_PANEL.push( item );
-            }catch(e){
+    for(var i = 0; i < TD_NUM; i++){
+        for(var j = 0; j < TR_NUM; j ++){
+            var id = i+'_'+j;
+            if( ! $('#BaseCanvas').getLayer(id) ||
+                ! $('#BaseCanvas').getLayer(id).data.item ){
                 FINAL_PANEL.push( undefined );
+            }else{
+                FINAL_PANEL.push( $('#BaseCanvas').getLayer(id).data.item );
             }
         }
     }
@@ -47,28 +45,48 @@ function recordFinal(){
 // show history path
 //==============================================================
 function backInitColor(){
-    for(var i = 0; i < TR_NUM*TD_NUM; i++){
-        $("#dragContainment tr td").eq(i).children().remove();
-        if( i < INITIAL_PANEL.length && INITIAL_PANEL[i] ){
-            var item = INITIAL_PANEL[i];
-            if( item ){
-                $("#dragContainment tr td").eq(i).append( newElementByItem(item) );
+    console.log(INITIAL_PANEL);
+    for(var i = 0; i < TD_NUM; i++){
+        for(var j = 0; j < TR_NUM; j ++){
+            var id = i+'_'+j;
+            if( $('#BaseCanvas').getLayer(id) ){
+                $('#BaseCanvas').removeLayer(id);
+            }
+            var index = i*TR_NUM+j;
+            if( index < INITIAL_PANEL.length && INITIAL_PANEL[index] ){
+                var item = INITIAL_PANEL[index];
+                if( item ){
+                    var itemData = newElementByItem(item) ;
+                    itemData.TD_INDEX = i;
+                    itemData.TR_INDEX = j;
+                    drawItemLayer( i, j, itemData );
+                }
             }
         }
     }
+    $('#BaseCanvas').drawLayers();
 }
 function backFinalColor(){
-    for(var i = 0; i < TR_NUM*TD_NUM; i++){
-        $("#dragContainment tr td").eq(i).children().remove();
-        if( i < FINAL_PANEL.length && FINAL_PANEL[i] ){
-            var item = FINAL_PANEL[i];
-            if( item ){
-                $("#dragContainment tr td").eq(i).append( newElementByItem(item) );
+    for(var i = 0; i < TD_NUM; i++){
+        for(var j = 0; j < TR_NUM; j ++){
+            var id = i+'_'+j;
+            if( $('#BaseCanvas').getLayer(id) ){
+                $('#BaseCanvas').removeLayer(id);
+            }
+            var index = i*TR_NUM+j;
+            if( index < FINAL_PANEL.length && FINAL_PANEL[index] ){
+                var item = FINAL_PANEL[index];
+                if( item ){
+                    var itemData = newElementByItem(item) ;
+                    itemData.TD_INDEX = i;
+                    itemData.TR_INDEX = j;
+                    drawItemLayer( i, j, itemData );
+                }
             }
         }
     }
-}
-    
+    $('#BaseCanvas').drawLayers();
+}    
 
 function drawPath(){
     //clean prepare
