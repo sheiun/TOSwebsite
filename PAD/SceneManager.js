@@ -9,6 +9,7 @@ var SceneManager = function(elementId, touchDevice){
     var self = this;
     this.scene = null;
     this.mouseInfo = new MouseInfo();
+    // 顯示消除動畫
     this.skipMode = false;
     this.nextScene = null;
     this.element = document.getElementById(elementId);
@@ -17,56 +18,66 @@ var SceneManager = function(elementId, touchDevice){
 * @param {Object} scene 切り替える対象のシーン
 */
     this.changeScene = function(scene){
-	this.nextScene = scene;
+	   this.nextScene = scene;
     };
+    // 取得相對(canvas)座標XY
     this.updateMousePoint = function(event){
         var rect = event.target.getBoundingClientRect();
         self.mouseInfo.point.x = event.clientX - rect.left;
         self.mouseInfo.point.y = event.clientY - rect.top;
     };
+
+    //=========================================================
+    // 電腦版
+    //=========================================================
     this.mouseDown = function (event){
         self.updateMousePoint(event);
         self.mouseInfo.pressed = true;
-	if(self.scene)
-            self.scene.updateMouseInfo(self.mouseInfo);
+    	if(self.scene)
+                self.scene.updateMouseInfo(self.mouseInfo);
         return false;
     };
     this.mouseUp = function(event){
         self.updateMousePoint(event);
         self.mouseInfo.pressed = false;
-	if(self.scene)
-            self.scene.updateMouseInfo(self.mouseInfo);
+    	if(self.scene)
+                self.scene.updateMouseInfo(self.mouseInfo);
         return false;
     };
     this.mouseMove = function (event){
         self.updateMousePoint(event);
-	if(self.scene)
-            self.scene.updateMouseInfo(self.mouseInfo);
+    	if(self.scene)
+                self.scene.updateMouseInfo(self.mouseInfo);
         return false;
     };
     this.mouseOut = function(event){
         self.updateMousePoint(event);
         self.mouseInfo.pressed = false;
-	if(self.scene)
-            self.scene.updateMouseInfo(self.mouseInfo);
+    	if(self.scene)
+                self.scene.updateMouseInfo(self.mouseInfo);
         return false;
     };
+    //=========================================================
+
+    //=========================================================
+    // 觸控板
+    //=========================================================
     this.touchStart = function (){
         var e = event.touches[0];
         self.updateMousePoint(e);
         self.mouseInfo.pressed = true;
-	if(self.scene)
-            self.scene.updateMouseInfo(self.mouseInfo);
+    	if(self.scene)
+                self.scene.updateMouseInfo(self.mouseInfo);
         return false;
     };
     this.touchEnd = function(){
         try{
             // 何故かiPhoneでエラーになる？
-//             var e = event.touches[0];
-//         self.updateMousePoint(e);
+            // var e = event.touches[0];
+            // self.updateMousePoint(e);
             self.mouseInfo.pressed = false;
-	    if(self.scene)
-		self.scene.updateMouseInfo(self.mouseInfo);
+    	    if(self.scene)
+    		  self.scene.updateMouseInfo(self.mouseInfo);
             if(touchDevice){
                 self.click();
             }
@@ -86,6 +97,11 @@ var SceneManager = function(elementId, touchDevice){
             self.scene.updateMouseInfo(self.mouseInfo);
         return false;
     };
+    //=========================================================
+
+    //=========================================================
+    // 不斷用 timeInterval update
+    //=========================================================
     this.timerFunc = function(){
         self.update();
         self.draw();
@@ -94,26 +110,23 @@ var SceneManager = function(elementId, touchDevice){
     this.update = function(){
         self.mouseInfo.lastPressed = self.mouseInfo.pressed;
         if(self.nextScene){
-	    if(self.scene){
-		self.scene.finalize();
-		self.scene = null;
-	    }
+	        if(self.scene){
+		        self.scene.finalize();
+		        self.scene = null;
+	        }
             self.scene = self.nextScene;
             self.nextScene = null;
             self.scene.initialize();
         }
-	if(self.scene){
+    	if(self.scene){
             self.scene.update();
-	}
+    	}
     };
     this.draw = function(){
         if(!self.skipMode){
-            // var ctx = self.canvas.getContext('2d');
-            // ctx.clearRect(0, 0, self.canvas.width, self.canvas.height);
-            // self.scene.draw(self.canvas);
-	    if(self.scene){
-		self.scene.draw();
-	    }
+    	    if(self.scene){
+    		    self.scene.draw();
+    	    }
         }
     };
     this.stopInterval = function(){
@@ -124,11 +137,17 @@ var SceneManager = function(elementId, touchDevice){
         self.skipMode = skipMode;
         clearInterval(self.timerId);
         if(self.skipMode){
+            // 直接顯示消除結果的話: 將timeinterval->0
             self.timerId = setInterval(self.timerFunc, 0);
         }else{
             self.timerId = setInterval(self.timerFunc, 33);
         }
     };
+    //=========================================================
+
+    //=========================================================
+    // 電腦<->觸控 bind 不同function
+    //=========================================================
     if(!touchDevice){
         this.element.onmousemove = this.mouseMove;
         this.element.onmousedown = this.mouseDown;
@@ -140,4 +159,5 @@ var SceneManager = function(elementId, touchDevice){
         this.element.ontouchend = this.touchEnd;
     }
     this.element.onclick = this.click;
+    //=========================================================
 };

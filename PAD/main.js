@@ -4,6 +4,13 @@ var ballSelectScene = null;
 var sceneManagerField = null;
 var sceneManagerBallSelect = null;
 
+var comboNum = 0;
+var moveNum = 0;
+var slantMove = false;
+var deletedColors = new Array();
+var date = null;
+
+
 function init(){
 
   var arg = new Object;
@@ -148,39 +155,39 @@ function setMode(mode){
     var div3 = document.getElementById("playModeControllers");
     div3.style.display = "none";
     switch(mode){
-    case Mode.EDIT:
-      fieldScene.reloadByLayout(fieldScene.lastLayout);
-      fieldScene.setStrategy(new FieldStrategyDropEdit(fieldScene));
-      btn1.style.backgroundColor = "#AFA";
-      div1.style.display = "block";
-      break;
-    case Mode.MOVE:
-      // 配置モードから移動モードに移行する場合はレイアウトをセーブする
-      if(currentMode == Mode.EDIT){
-        fieldScene.saveLayout();
-      }
-      // レイアウトを復元
-      if(fieldScene.lastLayout){
+      case Mode.EDIT:
         fieldScene.reloadByLayout(fieldScene.lastLayout);
-      }
-      fieldScene.setStrategy(new FieldStrategyDropMove(fieldScene, false));
-      btn2.style.backgroundColor = "#AFA";
-      div2.style.display = "block";
-      updateInfo();
-      break;
-    case Mode.PLAY:
-      // レイアウトを復元
-      if(fieldScene.lastLayout){
-        fieldScene.reloadByLayout(fieldScene.lastLayout);
-      }
-      fieldScene.setStrategy(new FieldStrategyDropMove(fieldScene, true));
-      if(fieldScene.lastRoute){
-        fieldScene.strategy.frameToRecordPlayStart = 12;
-      }
-      btn3.style.backgroundColor = "#AFA";
-      div3.style.display = "block";
-      updateInfo();
-      break;
+        fieldScene.setStrategy(new FieldStrategyDropEdit(fieldScene));
+        btn1.style.backgroundColor = "#AFA";
+        div1.style.display = "block";
+        break;
+      case Mode.MOVE:
+        // 配置モードから移動モードに移行する場合はレイアウトをセーブする
+        if(currentMode == Mode.EDIT){
+          fieldScene.saveLayout();
+        }
+        // レイアウトを復元
+        if(fieldScene.lastLayout){
+          fieldScene.reloadByLayout(fieldScene.lastLayout);
+        }
+        fieldScene.setStrategy(new FieldStrategyDropMove(fieldScene, false));
+        btn2.style.backgroundColor = "#AFA";
+        div2.style.display = "block";
+        updateInfo();
+        break;
+      case Mode.PLAY:
+        // レイアウトを復元
+        if(fieldScene.lastLayout){
+          fieldScene.reloadByLayout(fieldScene.lastLayout);
+        }
+        fieldScene.setStrategy(new FieldStrategyDropMove(fieldScene, true));
+        if(fieldScene.lastRoute){
+          fieldScene.strategy.frameToRecordPlayStart = 12;
+        }
+        btn3.style.backgroundColor = "#AFA";
+        div3.style.display = "block";
+        updateInfo();
+        break;
     }
     currentMode = mode;
   }
@@ -264,6 +271,59 @@ function stop(){
   }
   fieldScene.setStrategy(new FieldStrategyDropMove(fieldScene, true));
 }
+function shareImage(){
+  fieldScene.combos = new Array();
+  fieldScene.movingBall = null;
+  // レイアウトを復元
+  if(fieldScene.lastLayout){
+    fieldScene.reloadByLayout(fieldScene.lastLayout);
+    fieldScene.draw();
+  }
+  var canvas = document.getElementById("fieldCanvas");
+  drawRoute(canvas, parseRouteInfo(fieldScene.lastRoute));
+  var image = new Image();
+  image.src = canvas.toDataURL("image/png");
+  window.open(image.src, null);
+}
+function shareWeb(){
+  // パラメータ作成
+  var param = "?layout=" + fieldScene.lastLayout + "&route=" + fieldScene.lastRoute + "&ctwMode=" + fieldScene.isCtwMode;
+  window.open("index.html" + param, null);
+}
+
+function updateInfo(){
+  comboNum = fieldScene.combos.length;
+  moveNum = fieldScene.moveNum;
+  slantMove = fieldScene.slantMove;
+  var infoElement = document.getElementById("info");
+  infoElement.innerHTML = "コンボ数:" + comboNum + " 手数:" + moveNum;
+  deletedColors = fieldScene.deletedColors;
+  document.getElementById("red").style.opacity = deletedColors[BallColor.RED] ? "1.0" : "0.4";
+  document.getElementById("green").style.opacity = deletedColors[BallColor.GREEN] ? "1.0" : "0.4";
+  document.getElementById("blue").style.opacity = deletedColors[BallColor.BLUE] ? "1.0" : "0.4";
+  document.getElementById("light").style.opacity = deletedColors[BallColor.LIGHT] ? "1.0" : "0.4";
+  document.getElementById("dark").style.opacity = deletedColors[BallColor.DARK] ? "1.0" : "0.4";
+  document.getElementById("life").style.opacity = deletedColors[BallColor.LIFE] ? "1.0" : "0.4";
+  document.getElementById("poison").style.opacity = deletedColors[BallColor.POISON] ? "1.0" : "0.4";
+  document.getElementById("ozyama").style.opacity = deletedColors[BallColor.OZYAMA] ? "1.0" : "0.4";
+}
+
+
+
+/*
+function openTodaysQuestion(){
+  // パラメータ作成
+  var date = new Date();
+  var yy = date.getYear();
+  var mm = date.getMonth() + 1;
+  var dd = date.getDate();
+  if (yy < 2000) { yy += 1900; }
+  if (mm < 10) { mm = "0" + mm; }
+  if (dd < 10) { dd = "0" + dd; }
+  var param = "?date=" + yy + mm + dd;
+  window.open("index.html" + param, null);
+}
+
 function shareTwitter(){
   var useUnuse = slantMove ? '%e6%9c%89%e3%82%8a' : '%e7%84%a1%e3%81%97';
   var red = '%e7%81%ab';
@@ -297,150 +357,4 @@ function shareTwitter(){
     window.open('http://twitter.com/intent/tweet?source=webclient&text=%e3%83%91%e3%82%ba%e3%83%89%e3%83%a9%e5%ae%9a%e7%9f%b3%e3%83%a1%e3%83%bc%e3%82%ab%e3%83%bc%20%e3%81%93%e3%81%ae%e9%85%8d%e7%bd%ae%e3%81%a7'+moveNum+'%e6%89%8b%e3%81%a7'+comboNum+'%e9%80%a3%e9%8e%96%e3%81%97%e3%81%9f%e3%82%88%e3%80%82%20'+extra+'%20'+url+'%20%23puzzdra_theory_maker');
   }
 }
-function shareImage(){
-  fieldScene.combos = new Array();
-  fieldScene.movingBall = null;
-  // レイアウトを復元
-  if(fieldScene.lastLayout){
-    fieldScene.reloadByLayout(fieldScene.lastLayout);
-    fieldScene.draw();
-  }
-  var canvas = document.getElementById("fieldCanvas");
-  drawRoute(canvas, parseRouteInfo(fieldScene.lastRoute));
-  var image = new Image();
-  image.src = canvas.toDataURL("image/png");
-  window.open(image.src, null);
-}
-function shareWeb(){
-  // パラメータ作成
-  var param = "?layout=" + fieldScene.lastLayout + "&route=" + fieldScene.lastRoute + "&ctwMode=" + fieldScene.isCtwMode;
-  window.open("index.html" + param, null);
-}
-var comboNum = 0;
-var moveNum = 0;
-var slantMove = false;
-var deletedColors = new Array();
-var date = null;
-function updateInfo(){
-  comboNum = fieldScene.combos.length;
-  moveNum = fieldScene.moveNum;
-  slantMove = fieldScene.slantMove;
-  var infoElement = document.getElementById("info");
-  infoElement.innerHTML = "コンボ数:" + comboNum + " 手数:" + moveNum;
-  deletedColors = fieldScene.deletedColors;
-  document.getElementById("red").style.opacity = deletedColors[BallColor.RED] ? "1.0" : "0.4";
-  document.getElementById("green").style.opacity = deletedColors[BallColor.GREEN] ? "1.0" : "0.4";
-  document.getElementById("blue").style.opacity = deletedColors[BallColor.BLUE] ? "1.0" : "0.4";
-  document.getElementById("light").style.opacity = deletedColors[BallColor.LIGHT] ? "1.0" : "0.4";
-  document.getElementById("dark").style.opacity = deletedColors[BallColor.DARK] ? "1.0" : "0.4";
-  document.getElementById("life").style.opacity = deletedColors[BallColor.LIFE] ? "1.0" : "0.4";
-  document.getElementById("poison").style.opacity = deletedColors[BallColor.POISON] ? "1.0" : "0.4";
-  document.getElementById("ozyama").style.opacity = deletedColors[BallColor.OZYAMA] ? "1.0" : "0.4";
-}
-function openTodaysQuestion(){
-  // パラメータ作成
-  var date = new Date();
-  var yy = date.getYear();
-  var mm = date.getMonth() + 1;
-  var dd = date.getDate();
-  if (yy < 2000) { yy += 1900; }
-  if (mm < 10) { mm = "0" + mm; }
-  if (dd < 10) { dd = "0" + dd; }
-  var param = "?date=" + yy + mm + dd;
-  window.open("index.html" + param, null);
-}
-
-function layoutImageFileLoaded(file){
-  var canvas = document.createElement("canvas");
-  // document.body.appendChild(canvas); // Todo! TestCode
-  var ctx = canvas.getContext('2d');
-  var img = new Image();
-  var fr = new FileReader();
-  fr.onload = function() {
-    // 画像がloadされた後に、canvasに描画する
-    img.onload = function() {
-      canvas.width = img.width;
-      canvas.height = img.height;
-      // alert("width="+canvas.width+" height="+canvas.height);
-      ctx.drawImage(img, 0, 0);
-      // ピクセル取得
-      var colorArray = new Array(6 * 5);
-      // 座標の色を入れてく
-      var V_NUM = 5;
-      var H_NUM = 6;
-      function toAbsoluteX(x){
-        switch(x){
-        case 0:
-          return 56;
-        case 1:
-          return 161;
-        case 2:
-          return 266;
-        case 3:
-          return 371;
-        case 4:
-          return 476;
-        case 5:
-          return 581;
-        }
-      }
-      function toAbsoluteY(y){
-        switch(y){
-        case 0:
-          return canvas.height - 474;
-        case 1:
-          return canvas.height - 369;
-        case 2:
-          return canvas.height - 264;
-        case 3:
-          return canvas.height - 159;
-        case 4:
-          return canvas.height - 54;
-        }
-      }
-      function toBallColor(r,g,b){
-        // alert("toBallColor("+r+","+g+","+b+")");
-        if(Math.abs(r - 223) < 24 && Math.abs(g - 40) < 24 && Math.abs(b - 140) < 24){
-          return BallColor.LIFE;
-        }
-        else if(Math.abs(r - 255) < 10 && Math.abs(g - 119) < 40 && Math.abs(b - 68) < 40){
-          return BallColor.RED;
-        }
-        else if(Math.abs(r - 201) < 24 && Math.abs(g - 101) < 24 && Math.abs(b - 187) < 24){
-          return BallColor.DARK;
-        }
-        else if(Math.abs(r - 68) < 40 && Math.abs(g - 255) < 10 && Math.abs(b - 102) < 40){
-          return BallColor.GREEN;
-        }
-        else if(Math.abs(r - 255) < 10 && Math.abs(g - 255) < 10 && Math.abs(b - 136) < 24){
-          return BallColor.LIGHT;
-        }
-        else if(Math.abs(r - 66) < 40 && Math.abs(g - 238) < 40 && Math.abs(b - 255) < 10){
-          return BallColor.BLUE;
-        }
-        return BallColor.RED;
-      }
-      var layout = "";
-      for(var y = 0 ; y < V_NUM ; ++ y){
-        for(var x = 0 ; x < H_NUM ; ++ x){
-          var pixelX = toAbsoluteX(x);
-          var pixelY = toAbsoluteY(y);
-          // console.log("pixelX="+pixelX+" pixelY="+pixelY);
-          var imageData = ctx.getImageData(pixelX, pixelY, 1, 1);
-          colorArray[x + y * H_NUM] = new Object();
-          colorArray[x + y * H_NUM].red = imageData.data[0];
-          colorArray[x + y * H_NUM].green = imageData.data[1];
-          colorArray[x + y * H_NUM].blue = imageData.data[2];
-          colorArray[x + y * H_NUM].alpha = imageData.data[3];
-          // console.log("colorArray["+x+","+y+"]=ARGB("+colorArray[x + y * H_NUM].alpha+","+colorArray[x + y * H_NUM].red+","+colorArray[x + y * H_NUM].green+","+colorArray[x + y * H_NUM].blue+")");
-          layout += String(toBallColor(colorArray[x + y * H_NUM].red, colorArray[x + y * H_NUM].green, colorArray[x + y * H_NUM].blue));
-        }
-      }
-      fieldScene.lastLayout = layout;
-      loadLayout();
-    };
-    img.src = fr.result;  // 読み込んだ画像データをsrcにセット
-    // document.getElementById('preview_field').appendChild(img);
-  };
-  fr.readAsDataURL(file);  // 画像読み込み
-}
+*/

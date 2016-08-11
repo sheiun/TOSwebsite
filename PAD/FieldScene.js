@@ -32,6 +32,8 @@ var FieldScene = function(elementId){
     this.deletedColors[i] = false;
   }
   this.movingBall = null;
+
+
   this.initialize = function(){
     // console.log("FieldScene.initialize");
     if(self.lastLayout){
@@ -51,13 +53,23 @@ var FieldScene = function(elementId){
       setSkipMode(true);
     }
     return;
-    // 固定配置
-    for(var y = 0 ; y < self.vNum ; ++ y){
-      for(var x = 0 ; x < self.hNum ; ++ x){
-        self.createBall(x, y, (x + y * self.hNum) % (BallColor.NUM - 1));
+  };
+  this.finalize = function(){
+    // console.log("FieldScene.finalize");
+  };
+  this.reset = function(){
+    try{
+      for(var y = 5 ; y < self.vNum ; ++ y){
+        for(var x = 0 ; x < self.hNum ; ++ x){
+          var color = self.random.nextInt(0, /*BallColor.NUM*/ 6);
+          self.balls[x + y * self.hNum] = new Ball(self.gridPointToPoint(new Point(x, y)), color, BALL_SIZE);
+        }
       }
+    }catch(e){
+      // console.log("Field.reset\n" + e + "\n");
     }
   };
+
   this.createBall = function(gridX, gridY, color){
     self.balls[gridX + gridY * self.hNum] = new Ball(self.gridPointToPoint(new Point(gridX, gridY)), color, BALL_SIZE);
   };
@@ -100,21 +112,6 @@ var FieldScene = function(elementId){
       }
     }
     // alert(self.lastRoute);
-  };
-  this.finalize = function(){
-    // console.log("FieldScene.finalize");
-  };
-  this.reset = function(){
-    try{
-      for(var y = 5 ; y < self.vNum ; ++ y){
-        for(var x = 0 ; x < self.hNum ; ++ x){
-          var color = self.random.nextInt(0, /*BallColor.NUM*/ 6);
-          self.balls[x + y * self.hNum] = new Ball(self.gridPointToPoint(new Point(x, y)), color, BALL_SIZE);
-        }
-      }
-    }catch(e){
-      // console.log("Field.reset\n" + e + "\n");
-    }
   };
   this.setStrategy = function(strategy){
     if(self.strategy){
