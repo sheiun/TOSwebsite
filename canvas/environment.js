@@ -44,7 +44,7 @@ var EnvironmentManager = function(){
 	                team_colors[c] = prob + self.colorProb[i][c];
 	                prob += self.colorProb[i][c];
 	            }
-
+	            // 最終的機率是累加
 	            var elseProb = 1 - prob;
 	            for( var c in tmp_colors ){
 	                var c_prob = tmp_colors[c] * ( elseProb / color_len ) ;

@@ -17,9 +17,8 @@ if (navigator.userAgent.indexOf('iPhone') > 0
 // =================================================================
 (function(){
     var oldLog = console.log;
-    console.log = function (message) {
-        
-        $('pre').text( $('pre').text()+'\n'+message );
+    console.log = function (message) {        
+        $('#log').append( '\n'+message );
         oldLog.apply(console, arguments);
     };
 })();
@@ -49,7 +48,7 @@ try{
 
     
 }catch(e){
-    $('pre').text(e);
+    $('#catch').text(e);
 }
 
 
