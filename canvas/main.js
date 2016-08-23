@@ -19,42 +19,27 @@ if (navigator.userAgent.indexOf('iPhone') > 0
 
 
 $(document).ready( function(){
-    console.log('startReady');
-try{
-    // check device
-    if( TOUCH_DEVICE ){
-        $('nav').hide();
+    try{
+        // check device
+        if( TOUCH_DEVICE ){
+            $('nav').hide();
+        }
+
+        // read url message and load 
+        historyManager = new HistoryManager();
+        historyManager.initialize();
+        environmentManager = new EnvironmentManager();
+        environmentManager.initialize();
+
+        // build canvas object
+        sceneManagerField = new SceneManager( $("#DragCanvas"), TOUCH_DEVICE );
+        sceneManagerField.startInterval(false);
+        fieldManager = new FieldManager( $("#DragCanvas"), historyManager, environmentManager );
+        sceneManagerField.changeScene(fieldManager);
+
+        
+    }catch(e){
+        $('#catch').text(e);
     }
-
-    var p = new Point(0, 1);
-    console.log(p);
-    var m = new MouseInfo();
-    console.log(m);
-
-    // read url message and load 
-    historyManager = new HistoryManager();
-    console.log('historyManager.new');
-    historyManager.initialize();
-    console.log('historyManager.initialize');
-    environmentManager = new EnvironmentManager();
-    console.log('environmentManager.new');
-    environmentManager.initialize();
-    console.log('environmentManager.initialize');
-
-    // build canvas object
-    sceneManagerField = new SceneManager( $("#DragCanvas"), TOUCH_DEVICE );
-    console.log('sceneManagerField.new');
-    sceneManagerField.startInterval(false);
-    console.log('sceneManagerField.startInterval');
-    fieldManager = new FieldManager( $("#DragCanvas"), historyManager, environmentManager );
-    console.log('fieldManager.new');
-    sceneManagerField.changeScene(fieldManager);
-    console.log('fieldManager.changeScene');
-
-    
-}catch(e){
-    $('#catch').text(e);
-}
-
 
 });

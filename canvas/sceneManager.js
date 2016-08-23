@@ -3,14 +3,11 @@ var SceneManager = function(element, touchDevice){
 
     var self = this;
     this.scene = null;
-    console.log('sceneManagerField.new.scene');
     this.mouseInfo = new MouseInfo();
-    console.log('sceneManagerField.new.MouseInfo');
 
     this.skipMode = false;
     this.nextScene = null;
     this.element = element;
-    console.log('sceneManagerField.new.element');
 
     this.changeScene = function(scene){
 	   this.nextScene = scene;
@@ -109,7 +106,6 @@ var SceneManager = function(element, touchDevice){
         this.element[0].ontouchend = this.touchEnd;
     }
     this.element[0].onclick = this.click;
-    console.log('sceneManagerField.touchDevice');
     //=========================================================
 
 	//=========================================================
