@@ -25,7 +25,7 @@ if (navigator.userAgent.indexOf('iPhone') > 0
 })();
 
 
-$(document).ready( function(){
+function HTML_INITIAL(){
     console.log('startReady');
 try{
     // check device
@@ -37,7 +37,7 @@ try{
     console.log(p);
     var m = new MouseInfo();
     console.log(m);
-    
+
     // read url message and load 
     historyManager = new HistoryManager();
     console.log('historyManager.new');
