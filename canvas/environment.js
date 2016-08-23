@@ -1,5 +1,5 @@
 
-var Point = function(x, y, grid=true){
+var Point = function(x, y, grid){
     console.log('point.start');
 
     var self = this;

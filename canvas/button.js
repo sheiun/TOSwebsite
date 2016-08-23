@@ -7,7 +7,6 @@
     };
 })();
 
-    console.log('button.start');
 
 var CREATE_COLOR = {
     color   : null,
