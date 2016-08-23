@@ -215,12 +215,12 @@ var FieldManager = function(canvas, history, environment){
         for(var x = 0 ; x < hNum ; ++ x){
             for(var y = 0 ; y < vNum ; ++ y){
                 var color = self.environment.nextColorAtX(x);
-                self.balls[x * vNum + y] = new Ball( new CanvasPoint(x, y, true), color );
+                self.balls[x * vNum + y] = new Ball( new Point(x, y, true), color );
             }
         }
     };
     this.createBall = function(gridX, gridY, color){
-        self.balls[gridX + gridY * hNum] = new Ball(self.gridPointToPoint(new CanvasPoint(gridX, gridY)), color, BALL_SIZE);
+        self.balls[gridX + gridY * hNum] = new Ball(self.gridPointToPoint(new Point(gridX, gridY)), color, BALL_SIZE);
     };
 
     //=========================================================

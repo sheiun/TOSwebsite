@@ -1,5 +1,10 @@
 
-var CanvasPoint = function(x, y, grid=true){
+    console.log('utility.start');
+
+
+var Point = function(x, y, grid=true){
+    console.log('point.start');
+
     var self = this;
     if(grid){
         this.x = x * BALL_SIZE;
@@ -26,14 +31,16 @@ var CanvasPoint = function(x, y, grid=true){
         this.y = Math.floor( self.y / BALL_SIZE) * BALL_SIZE;
     };
     this.clone = function(){
-        return new CanvasPoint(self.x, self.y, false);
+        return new Point(self.x, self.y, false);
     };
 };
 
 var MouseInfo = function(){
+    console.log('mouseInfo.start');
+
     var self = this;
     console.log('MouseInfo.start');
-    this.point = new CanvasPoint();
+    this.point = new Point();
     console.log('MouseInfo.point');
     this.lastPressed = false;
     this.pressed = false;
@@ -46,6 +53,10 @@ var MouseInfo = function(){
     };
 };
 
+    var po = new Point(0, 1);
+    console.log(po);
+    var mo = new MouseInfo();
+    console.log(mo);
 
 // =================================================================
 // =================================================================

@@ -33,7 +33,7 @@ try{
         $('nav').hide();
     }
 
-    var p = new CanvasPoint(0, 1);
+    var p = new Point(0, 1);
     console.log(p);
     var m = new MouseInfo();
     console.log(m);
