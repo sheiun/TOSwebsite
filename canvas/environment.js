@@ -23,7 +23,10 @@ var EnvironmentManager = function(){
 	    self.colorChangeable = true;
     console.log('environmentManager.initialize.colorChangeable');
 
-	    self.colorProb.fill( {} );
+	    //self.colorProb.fill( {} );
+	    for(var i = 0; i < self.hNum; i++){
+	    	self.colorProb[i] = {};
+	    }
     console.log('environmentManager.initialize.fill');
 	    self.setTeamColorProb();
     console.log('environmentManager.initialize.setTeamColorProb');
