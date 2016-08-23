@@ -4,10 +4,12 @@ var SceneManager = function(element, touchDevice){
     var self = this;
     this.scene = null;
     this.mouseInfo = new MouseInfo();
+    console.log('sceneManagerField.new.MouseInfo');
 
     this.skipMode = false;
     this.nextScene = null;
     this.element = element;
+    console.log('sceneManagerField.new.element');
 
     this.changeScene = function(scene){
 	   this.nextScene = scene;
@@ -95,17 +97,18 @@ var SceneManager = function(element, touchDevice){
     //=========================================================
     // 電腦<->觸控 bind 不同function
     //=========================================================
-    if(!touchDevice){
-        this.element.onmousemove = this.mouseMove;
-        this.element.onmousedown = this.mouseDown;
-        this.element.onmouseup = this.mouseUp;
-        this.element.onmouseout = this.mouseOut;
+    if( !touchDevice ){
+        this.element[0].onmousemove = this.mouseMove;
+        this.element[0].onmousedown = this.mouseDown;
+        this.element[0].onmouseup = this.mouseUp;
+        this.element[0].onmouseout = this.mouseOut;
     }else{
-        this.element.ontouchmove = this.touchMove;
-        this.element.ontouchstart = this.touchStart;
-        this.element.ontouchend = this.touchEnd;
+        this.element[0].ontouchmove = this.touchMove;
+        this.element[0].ontouchstart = this.touchStart;
+        this.element[0].ontouchend = this.touchEnd;
     }
-    this.element.onclick = this.click;
+    this.element[0].onclick = this.click;
+    console.log('sceneManagerField.touchDevice');
     //=========================================================
 
 	//=========================================================
@@ -152,22 +155,6 @@ var SceneManager = function(element, touchDevice){
     	    }
         }
     };
-
-    //=========================================================
-    // 電腦<->觸控 bind 不同function
-    //=========================================================
-    if( !touchDevice ){
-        this.element[0].onmousemove = this.mouseMove;
-        this.element[0].onmousedown = this.mouseDown;
-        this.element[0].onmouseup = this.mouseUp;
-        this.element[0].onmouseout = this.mouseOut;
-    }else{
-        this.element[0].ontouchmove = this.touchMove;
-        this.element[0].ontouchstart = this.touchStart;
-        this.element[0].ontouchend = this.touchEnd;
-    }
-    this.element[0].onclick = this.click;
-    //=========================================================
 }
 
 

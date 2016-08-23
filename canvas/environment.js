@@ -21,9 +21,11 @@ var EnvironmentManager = function(){
 	    self.colorMap        = {};
 	    self.colorProb       = new Array(self.hNum);
 	    self.colorChangeable = true;
+    console.log('environmentManager.initialize.colorChangeable');
 
 	    self.colorProb.fill( new Object() );
 	    self.setTeamColorProb();
+    console.log('environmentManager.initialize.setTeamColorProb');
     };
     this.setTeamColorProb = function(){
 	    for(var i = 0; i < self.hNum; i++){
