@@ -28,7 +28,10 @@ if (navigator.userAgent.indexOf('iPhone') > 0
 $(document).ready( function(){
     console.log('startReady');
 try{
-
+    var p = new Point(0, 1);
+    console.log(p);
+    var m = new MouseInfo();
+    console.log(m);
     // check device
     if( TOUCH_DEVICE ){
         $('nav').hide();
