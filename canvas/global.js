@@ -36,8 +36,6 @@ var Point = function(x, y, grid=true){
 };
 
 var MouseInfo = function(){
-    console.log('mouseInfo.start');
-
     var self = this;
     console.log('MouseInfo.start');
     this.point = new Point();
