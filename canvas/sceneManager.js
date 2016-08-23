@@ -54,23 +54,6 @@ var SceneManager = function(element, touchDevice){
         return false;
     };
 
-
-    //=========================================================
-    // 電腦<->觸控 bind 不同function
-    //=========================================================
-    if(!touchDevice){
-        this.element.onmousemove = this.mouseMove;
-        this.element.onmousedown = this.mouseDown;
-        this.element.onmouseup = this.mouseUp;
-        this.element.onmouseout = this.mouseOut;
-    }else{
-        this.element.ontouchmove = this.touchMove;
-        this.element.ontouchstart = this.touchStart;
-        this.element.ontouchend = this.touchEnd;
-    }
-    this.element.onclick = this.click;
-    //=========================================================
-
     //=========================================================
     // 觸控板
     //=========================================================
@@ -108,6 +91,22 @@ var SceneManager = function(element, touchDevice){
         if(self.onCanvasClick)
             self.onCanvasClick();
     };
+
+    //=========================================================
+    // 電腦<->觸控 bind 不同function
+    //=========================================================
+    if(!touchDevice){
+        this.element.onmousemove = this.mouseMove;
+        this.element.onmousedown = this.mouseDown;
+        this.element.onmouseup = this.mouseUp;
+        this.element.onmouseout = this.mouseOut;
+    }else{
+        this.element.ontouchmove = this.touchMove;
+        this.element.ontouchstart = this.touchStart;
+        this.element.ontouchend = this.touchEnd;
+    }
+    this.element.onclick = this.click;
+    //=========================================================
 
 	//=========================================================
     // 不斷用 timeInterval update
