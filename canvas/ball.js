@@ -98,3 +98,15 @@ var BallState = {
     DELETING:2,
     DELETED:3
 };
+
+var BallColor = {
+    RED:0,
+    GREEN:1,
+    BLUE:2,
+    LIGHT:3,
+    DARK:4,
+    LIFE:5,
+    POISON:6,
+    OZYAMA:7,
+    NUM:8
+};

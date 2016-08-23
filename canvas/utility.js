@@ -1,5 +1,5 @@
 
-var Point = function(x, y, grid=true){
+var CanvasPoint = function(x, y, grid=true){
     var self = this;
     if(grid){
         this.x = x * BALL_SIZE;
@@ -26,14 +26,14 @@ var Point = function(x, y, grid=true){
         this.y = Math.floor( self.y / BALL_SIZE) * BALL_SIZE;
     };
     this.clone = function(){
-        return new Point(self.x, self.y, false);
+        return new CanvasPoint(self.x, self.y, false);
     };
 };
 
 var MouseInfo = function(){
     var self = this;
     console.log('MouseInfo.start');
-    this.point = new Point();
+    this.point = new CanvasPoint();
     console.log('MouseInfo.point');
     this.lastPressed = false;
     this.pressed = false;
