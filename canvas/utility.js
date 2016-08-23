@@ -11,20 +11,20 @@ var Point = function(x, y, grid=true){
 
     this.getX = function(){
         return self.x;
-    }
+    };
     this.getY = function(){
         return self.y;
-    }
+    };
     this.getGridX = function(){
         return Math.floor( self.x / BALL_SIZE);
-    }
+    };
     this.getGridY = function(){
         return Math.floor( self.y / BALL_SIZE);
-    }
+    };
     this.toGrid = function(){
         this.x = Math.floor( self.x / BALL_SIZE) * BALL_SIZE;
         this.y = Math.floor( self.y / BALL_SIZE) * BALL_SIZE;
-    }
+    };
     this.clone = function(){
         return new Point(self.x, self.y, false);
     };
