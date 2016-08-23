@@ -12,21 +12,6 @@ var EnvironmentManager = function(){
     this.colorProb       = null;
     this.colorChangeable = true;
 
-    this.initialize = function(){
-	    self.hNum = 6;
-	    self.vNum = 5;
-
-		self.colors          = ['w', 'f', 'p', 'l', 'd', 'h'];
-	    self.teamColors      = new Array(self.hNum);
-	    self.colorMap        = {};
-	    self.colorProb       = new Array(self.hNum);
-	    self.colorChangeable = true;
-    console.log('environmentManager.initialize.colorChangeable');
-
-	    self.colorProb.fill( new Object() );
-	    self.setTeamColorProb();
-    console.log('environmentManager.initialize.setTeamColorProb');
-    };
     this.setTeamColorProb = function(){
 	    for(var i = 0; i < self.hNum; i++){
 	        if( self.colorChangeable ){
@@ -60,6 +45,21 @@ var EnvironmentManager = function(){
 	                                    'l': 4/6, 'd': 5/6, 'h': 6/6 } );
 	        }
 	    }
+    };
+    this.initialize = function(){
+	    self.hNum = 6;
+	    self.vNum = 5;
+
+		self.colors          = ['w', 'f', 'p', 'l', 'd', 'h'];
+	    self.teamColors      = new Array(self.hNum);
+	    self.colorMap        = {};
+	    self.colorProb       = new Array(self.hNum);
+	    self.colorChangeable = true;
+    console.log('environmentManager.initialize.colorChangeable');
+
+	    self.colorProb.fill( new Object() );
+	    self.setTeamColorProb();
+    console.log('environmentManager.initialize.setTeamColorProb');
     };
 
     this.nextColorAtX = function(x){

@@ -32,7 +32,9 @@ var Point = function(x, y, grid=true){
 
 var MouseInfo = function(){
     var self = this;
+    console.log('MouseInfo.start');
     this.point = new Point();
+    console.log('MouseInfo.point');
     this.lastPressed = false;
     this.pressed = false;
     this.clone = function(){

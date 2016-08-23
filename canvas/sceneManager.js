@@ -3,6 +3,7 @@ var SceneManager = function(element, touchDevice){
 
     var self = this;
     this.scene = null;
+    console.log('sceneManagerField.new.scene');
     this.mouseInfo = new MouseInfo();
     console.log('sceneManagerField.new.MouseInfo');
 
