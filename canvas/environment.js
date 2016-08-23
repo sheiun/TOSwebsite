@@ -24,7 +24,7 @@ var EnvironmentManager = function(){
 
 	    self.colorProb.fill( new Object() );
 	    self.setTeamColorProb();
-    }
+    };
     this.setTeamColorProb = function(){
 	    for(var i = 0; i < self.hNum; i++){
 	        if( self.colorChangeable ){

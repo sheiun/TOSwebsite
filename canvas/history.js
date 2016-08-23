@@ -9,5 +9,5 @@ var HistoryManager = function(){
     this.random = 0;
 
     this.initialize = function(){
-    }
+    };
 };
