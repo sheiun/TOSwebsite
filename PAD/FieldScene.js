@@ -169,7 +169,7 @@ var FieldScene = function(elementId){
     if(self.movingBall != null){
       drawBall(self.movingBall);
     }
-    // コンボ描画
+    // Combo描画
     for(i = 0 ; i < self.combos.length ; ++ i){
       self.combos[i].draw(self.canvas);
     }
@@ -262,12 +262,12 @@ var FieldScene = function(elementId){
             // 底ではないし1つ下も存在しないなら落下
             else{
               var dropGrid = 0;
+              // yy從y的位置往下(yy++)找到實心底層(yy+1)，則設此ball會落下至yy層
               for(var yy = y ;  ; ++ yy){
                 if(yy >= self.vNum - 1 || existsArray[x + (yy + 1) * self.hNum] != null){
                   existsArray[x + yy * self.hNum] = true;
                   ball.dropGrid = dropGrid;
                   ball.setState(BallState.DROPPING);
-		  //                                     console.log("drop!! dropGrid = " + dropGrid + "\n");
                   break;
                 }else{
                   ++dropGrid;
@@ -305,17 +305,18 @@ var FieldStrategyDropEdit = function(parent){
       var selectedColor = getSelectedColor();
       var doSet = true;
       // 同じグリッドに同じ色を何度も置かないように
+      // 感覺沒必要做這個防呆處理
       if(self.lastSetGrid != null){
-	if(self.lastSetGrid.x == gridPoint.x && self.lastSetGrid.y == gridPoint.y && self.lastSetColor == selectedColor){
-	  doSet = false;
-	}
+	     if(self.lastSetGrid.x == gridPoint.x && self.lastSetGrid.y == gridPoint.y && self.lastSetColor == selectedColor){
+	       doSet = false;
+	     }
       }
       if(doSet){
-	parent.deleteBallAtGridPoint(gridPoint);
-	var ball = new Ball(parent.gridPointToPoint(gridPoint), selectedColor, BALL_SIZE);
-	parent.setBallAtGridPoint(ball, gridPoint);
-	self.lastSetGrid = gridPoint.clone();
-	self.lastSetColor = selectedColor;
+      	parent.deleteBallAtGridPoint(gridPoint);
+      	var ball = new Ball(parent.gridPointToPoint(gridPoint), selectedColor, BALL_SIZE);
+      	parent.setBallAtGridPoint(ball, gridPoint);
+      	self.lastSetGrid = gridPoint.clone();
+      	self.lastSetColor = selectedColor;
       }
     }
   };
@@ -532,6 +533,7 @@ var FieldStrategyDropMove = function(parent, recordPlay){
   self.frameToRecordPlayStart = -1;
   self.recordPlayFrameCount = 0;
   self.tmpRouteInfo = null;
+  this.lastGridPoint = null;
   var MovingInfo = function(){
     this.lastMousePoint = null;
   };
@@ -558,12 +560,12 @@ var FieldStrategyDropMove = function(parent, recordPlay){
       self.updateRecordPlayMouseInfo();
     }
     switch(self.mode){
-    case Mode.WAITING:
-      self.updateWaiting();
-      break;
-    case Mode.MOVING:
-      self.updateMoving();
-      break;
+      case Mode.WAITING:
+        self.updateWaiting();
+        break;
+      case Mode.MOVING:
+        self.updateMoving();
+        break;
     }
     if(parent.isCtwMode && parent.ctwTimerStarted){
       // console.log("ctwTimer=" + parent.ctwTimer);
@@ -690,7 +692,6 @@ var FieldStrategyDropMove = function(parent, recordPlay){
       }
     }
   };
-  this.lastGridPoint = null;
   this.updateMoving = function(){
     var mouseInfo = recordPlay ? self.recordPlayMouseInfo : parent.mouseInfo;
     try{
@@ -720,12 +721,15 @@ var FieldStrategyDropMove = function(parent, recordPlay){
         var newGridPoint = parent.getBallGridPoint(parent.movingBall);
         var direction = getDirectionByGridPoints(self.lastGridPoint, newGridPoint);
         var angle = getAngleByPoints(parent.gridPointToPoint(self.lastGridPoint)  ,parent.movingBall.point);
-          var angleIsSlant = (angle > (90 * 0) + 45 - 15 && angle < (90 * 0) + 45 + 15) || (angle > (90 * 1) + 45 - 15 && angle < (90 * 1) + 45 + 15) || (angle > (90 * 2) + 45 - 15 && angle < (90 * 2) + 45 + 15) || (angle > (90 * 3) + 45 - 15 && angle < (90 * 3) + 45 + 15);
+        var angleIsSlant = (angle > (90 * 0) + 45 - 15 && angle < (90 * 0) + 45 + 15) || (angle > (90 * 1) + 45 - 15 && angle < (90 * 1) + 45 + 15) || (angle > (90 * 2) + 45 - 15 && angle < (90 * 2) + 45 + 15) || (angle > (90 * 3) + 45 - 15 && angle < (90 * 3) + 45 + 15);
+        
+        console.log(self.lastGridPoint, newGridPoint, (self.lastGridPoint.x != newGridPoint.x || self.lastGridPoint.y != newGridPoint.y));
+
         // ボールの存在グリッドが変わったかを判定
         if(self.lastGridPoint.x != newGridPoint.x || self.lastGridPoint.y != newGridPoint.y){
-//           console.log("grid changed! ("+self.lastGridPoint.x+","+self.lastGridPoint.y+")->("+newGridPoint.x+","+newGridPoint.y+")");
+          //   console.log("grid changed! ("+self.lastGridPoint.x+","+self.lastGridPoint.y+")->("+newGridPoint.x+","+newGridPoint.y+")");
           var slantMove = (direction == Direction8.TENKEY_1) || (direction == Direction8.TENKEY_3) || (direction == Direction8.TENKEY_7) || (direction == Direction8.TENKEY_9);
-//           console.log("angle="+angle+" angleIsSlant="+angleIsSlant+" slantMove="+slantMove);
+          // console.log("angle="+angle+" angleIsSlant="+angleIsSlant+" slantMove="+slantMove);
           // 移動した角度が45度に近い場合は斜め移動以外は移動を保留
           if(!slantMove && angleIsSlant){
               return;
@@ -744,6 +748,7 @@ var FieldStrategyDropMove = function(parent, recordPlay){
           }
           updateInfo();
         }
+
       }
       // マウスが離されたら
       if(mouseReleased){

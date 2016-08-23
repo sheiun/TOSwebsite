@@ -59,38 +59,38 @@ var BallColor = {
 };
 
 var Direction8 = {
-  TENKEY_1:0,
+  TENKEY_1:0,                   // </
   TENKEY_2:1,                   // ↓
-  TENKEY_3:2,
+  TENKEY_3:2,                   // \>
   TENKEY_4:3,                   // ←
   TENKEY_6:4,                   // →
-  TENKEY_7:5,
+  TENKEY_7:5,                   // <\
   TENKEY_8:6,                   // ↑
-  TENKEY_9:7
+  TENKEY_9:7                    // />
 };
 
 // 全体で共通の情報
 var ImageResource = {
-    BALL_RED:null,
-    BALL_GREEN:null,
-    BALL_BLUE:null,
-    BALL_LIGHT:null,
-    BALL_DARK:null,
-    BALL_LIFE:null,
-    BALL_POISON:null,
-    BALL_OZYAMA:null,
-    TITLE_01:null,
+    BALL_RED:new Image(),
+    BALL_GREEN:new Image(),
+    BALL_BLUE:new Image(),
+    BALL_LIGHT:new Image(),
+    BALL_DARK:new Image(),
+    BALL_LIFE:new Image(),
+    BALL_POISON:new Image(),
+    BALL_OZYAMA:new Image(),
+    TITLE_01:new Image()
 };
 
-ImageResource.BALL_RED = new Image();
+//ImageResource.BALL_RED = new Image();
 ImageResource.BALL_RED.src = "images/block_red.png";
-ImageResource.BALL_GREEN = new Image();
+//ImageResource.BALL_GREEN = new Image();
 ImageResource.BALL_GREEN.src = "images/block_green.png";
-ImageResource.BALL_BLUE = new Image();
+//ImageResource.BALL_BLUE = new Image();
 ImageResource.BALL_BLUE.src = "images/block_blue.png";
-ImageResource.BALL_LIGHT = new Image();
+//ImageResource.BALL_LIGHT = new Image();
 ImageResource.BALL_LIGHT.src = "images/block_light.png";
-ImageResource.BALL_DARK = new Image();
+//ImageResource.BALL_DARK = new Image();
 ImageResource.BALL_DARK.src = "images/block_dark.png";
 ImageResource.BALL_LIFE = new Image();
 ImageResource.BALL_LIFE.src = "images/block_life.png";

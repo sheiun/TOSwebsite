@@ -200,6 +200,7 @@ function replaceRandom(){
   fieldScene.reset();
   // 消させる
   var savedStrategy = fieldScene.strategy;
+  // FieldStrategyDropDelete( field, newdrop, record )
   fieldScene.setStrategy(new FieldStrategyDropDelete(fieldScene, true, false));
   // 消し終わったらスキップモードを解除しStrategyを元の状態に戻す
   fieldScene.strategy.deleteFinished = function(){
