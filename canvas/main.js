@@ -25,6 +25,7 @@ if (navigator.userAgent.indexOf('iPhone') > 0
 })();
 
 $(document).ready( function(){
+    console.log('startReady');
 try{
 
     // check device
@@ -35,8 +36,10 @@ try{
     // read url message and load 
     historyManager = new HistoryManager();
     historyManager.initialize();
+    console.log('historyManager.initialize');
     environmentManager = new EnvironmentManager();
     environmentManager.initialize();
+    console.log('environmentManager.initialize');
 
     // build canvas object
     sceneManagerField = new SceneManager( $("#DragCanvas"), TOUCH_DEVICE );
