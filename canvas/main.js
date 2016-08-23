@@ -15,6 +15,7 @@ if (navigator.userAgent.indexOf('iPhone') > 0
     TOUCH_DEVICE = true;
 }
 // =================================================================
+
 (function(){
     var oldLog = console.log;
     console.log = function (message) {        
@@ -22,6 +23,21 @@ if (navigator.userAgent.indexOf('iPhone') > 0
         oldLog.apply(console, arguments);
     };
 })();
+
+var MouseInfo = function(){
+    var self = this;
+    this.point = new Point();
+    this.lastPressed = false;
+    this.pressed = false;
+    this.clone = function(){
+        var ret = new MouseInfo();
+        ret.point = self.point.clone();
+        ret.pressed = self.pressed;
+        ret.lastPressed = self.lastPressed;
+        return ret;
+    };
+};
+
 
 $(document).ready( function(){
     console.log('startReady');
