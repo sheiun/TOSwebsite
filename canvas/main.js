@@ -5,8 +5,12 @@ var historyManager     = null;
 var environmentManager = null;
 
 $(document).ready( function(){
+try{
 
     // check device
+    if( TOUCH_DEVICE ){
+        $('nav').hide();
+    }
 
     // read url message and load 
     historyManager = new HistoryManager();
@@ -20,6 +24,10 @@ $(document).ready( function(){
     fieldManager = new FieldManager( $("#DragCanvas"), historyManager, environmentManager );
     sceneManagerField.changeScene(fieldManager);
 
+    
+}catch(e){
+    $('pre').text(e);
+}
 
 
 });
