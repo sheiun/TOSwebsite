@@ -1,17 +1,4 @@
 
-// =================================================================
-// 觸控判定
-// =================================================================
-var TOUCH_DEVICE = false;
-if (navigator.userAgent.indexOf('iPhone') > 0
-    || navigator.userAgent.indexOf('iPod') > 0
-    || navigator.userAgent.indexOf('iPad') > 0
-    || navigator.userAgent.indexOf('Android') > 0) {
-    TOUCH_DEVICE = true;
-}
-// =================================================================
-
-
 var Point = function(x, y, grid=true){
     var self = this;
     if(grid){
@@ -73,10 +60,3 @@ function randomBySeed(seed){
     return rand - Math.floor(rand);
 }
 
-
-var CREATE_COLOR = null;
-function setColor(color, n){
-    CREATE_COLOR = color;
-    $("#ColorSelector button").css('background','');
-    $("#ColorSelector button").eq(n).css('background','black');
-}
