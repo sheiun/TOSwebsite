@@ -1,4 +1,14 @@
 
+(function(){
+    var oldLog = console.log;
+    console.log = function (message) {        
+        $('#log').append( '\n'+message );
+        oldLog.apply(console, arguments);
+    };
+})();
+
+    console.log('button.start');
+
 var CREATE_COLOR = {
     color   : null,
     strong  : null,

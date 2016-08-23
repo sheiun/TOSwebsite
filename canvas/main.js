@@ -16,16 +16,9 @@ if (navigator.userAgent.indexOf('iPhone') > 0
 }
 // =================================================================
 
-(function(){
-    var oldLog = console.log;
-    console.log = function (message) {        
-        $('#log').append( '\n'+message );
-        oldLog.apply(console, arguments);
-    };
-})();
 
 
-function HTML_INITIAL(){
+$(document).ready( function(){
     console.log('startReady');
 try{
     // check device
@@ -64,4 +57,4 @@ try{
 }
 
 
-};
+});
