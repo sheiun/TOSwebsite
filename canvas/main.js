@@ -15,7 +15,14 @@ if (navigator.userAgent.indexOf('iPhone') > 0
     TOUCH_DEVICE = true;
 }
 // =================================================================
-
+(function(){
+    var oldLog = console.log;
+    console.log = function (message) {
+        
+        $('pre').text( $('pre').text()+'\n'+message );
+        oldLog.apply(console, arguments);
+    };
+})();
 
 $(document).ready( function(){
 try{
