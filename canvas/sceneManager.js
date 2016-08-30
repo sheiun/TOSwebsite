@@ -111,6 +111,10 @@ var SceneManager = function(element, touchDevice){
 	//=========================================================
     // 不斷用 timeInterval update
     //=========================================================
+    this.setSkipMode = function(skipMode){
+        self.stopInterval();
+        self.startInterval(skipMode);
+    }
     this.stopInterval = function(){
         clearInterval(self.timerId);
         self.timerId = null;
@@ -146,17 +150,16 @@ var SceneManager = function(element, touchDevice){
     	}
     };
     this.draw = function(){
-        if(!self.skipMode){
-    	    if(self.scene){
-    		    self.scene.draw();
-    	    }
-        }
+        if(self.scene){
+    		self.scene.draw();
+    	}
     };
 }
 
 
-var FieldManager = function(canvas, history, environment){
+var FieldManager = function(scene, canvas, history, environment){
     var self = this;
+    this.sceneManager   = scene;
     this.canvas         = canvas;
     this.historyManager = history;
     this.environment    = environment;
@@ -167,13 +170,12 @@ var FieldManager = function(canvas, history, environment){
 
     this.movingBall = null;
     this.balls      = new Array();
-    this.newBalls   = new Array();
 
     // 待整理
     this.isCtwMode = false;
     this.routeInfos = new Array();
     this.moveNum = 0;
-    this.deletedColors = new Array(6);
+    this.deletedColors = new Array(self.environment.hNum);
     this.slantMove = false;
     this.ctwTimeLimit = 30 * 5;
     this.ctwTimer = 0;
@@ -183,40 +185,53 @@ var FieldManager = function(canvas, history, environment){
         if(self.lastLayout){
             self.reloadByLayout(self.lastLayout);
         }else{
-            self.reset();
+            var savedStrategy = self.strategy;
+            var savedNewDrop  = self.environment.newDrop;
+            var deleteFinished = function(){
+                self.setStrategy(savedStrategy);
+                self.environment.newDrop = savedNewDrop;
+                self.sceneManager.setSkipMode(false); 
+            }
 
-            /*
-            var savedStrategy = fieldScene.strategy;
-            self.setStrategy(new FieldStrategyDropDelete(self, true, false));
-            // 消し終わったらスキップモードを解除しStrategyを元の状態に戻す
-            self.strategy.deleteFinished = function(){
-            self.setStrategy(savedStrategy);
-            setSkipMode(false);
-            };
-            // 消去処理は見せないためにスキップモード設定
-            setSkipMode(true);*/
+            self.reset();
+            self.setStrategy( new FieldStrategyDropDelete(self, deleteFinished, null ) );
+            self.environment.newDrop = true;
+            self.sceneManager.setSkipMode(true);
         }
         return;
     };
     this.finalize = function(){
         // console.log("FieldScene.finalize");
     };
+    this.setStrategy = function(strategy){
+        if(self.strategy){
+            self.strategy.finalize();
+        }
+        self.strategy = strategy;
+        self.strategy.initialize();
+    };
 
     this.reset = function(){
-        var hNum = self.environment.hNum;
-        var vNum = self.environment.vNum;
-        self.canvas.attr('width', hNum * BALL_SIZE).attr('height', vNum * BALL_SIZE);
-        self.balls = new Array(hNum * vNum);
-
-        for(var x = 0 ; x < hNum ; ++ x){
-            for(var y = 0 ; y < vNum ; ++ y){
+        self.canvas.attr('width', self.environment.hNum * BALL_SIZE).attr('height', self.environment.vNum * BALL_SIZE);
+        self.balls = new Array( self.environment.hNum * self.environment.vNum );
+        for(var x = 0 ; x < self.environment.hNum; ++ x){
+            for(var y = 0 ; y < self.environment.vNum; ++ y){
                 var color = self.environment.nextColorAtX(x);
-                self.balls[x * vNum + y] = new Ball( new Point(x, y, true), color );
+                self.createBall( new Point(x, y, true), color );
             }
         }
     };
-    this.createBall = function(gridX, gridY, color){
-        self.balls[gridX + gridY * hNum] = new Ball(self.gridPointToPoint(new Point(gridX, gridY)), color, BALL_SIZE);
+    this.setHistoryPanel = function(){
+        self.canvas.attr('width', self.environment.hNum * BALL_SIZE).attr('height', self.environment.vNum * BALL_SIZE);
+        self.balls = new Array( self.historyManager.panel.length );
+        for(var i = 0; i < self.historyManager.panel.length; i++ ){
+            self.createBall( new Point( Math.floor(i/self.environment.vNum), i%self.environment.vNum, true), 
+                self.historyManager.panel[i] );
+        }
+    }
+    this.createBall = function(point, color){
+        if( self.checkIllegalPoint(point) ){ return null; }
+        self.balls[point.getGridX() * self.environment.vNum + point.getGridY()] = new Ball( point, color, BALL_SIZE );
     };
 
     //=========================================================
@@ -250,32 +265,27 @@ var FieldManager = function(canvas, history, environment){
     //=========================================================
     // Point 和 ball 的交接
     //=========================================================
+    this.checkIllegalPoint = function(point){
+        return point.getGridX() < 0 || point.getGridX() >= self.hNum || 
+               point.getGridY() < 0 || point.getGridY() >= self.vNum
+    }
     this.getBallAtPoint = function(point){
-        if( point.getGridX() < 0 || point.getGridX() >= self.hNum || 
-            point.getGridY() < 0 || point.getGridY() >= self.vNum ){
-            return null;
-        }
+        if( self.checkIllegalPoint(point) ){ return null; }
         return self.balls [point.getGridX() * self.environment.vNum + point.getGridY()];
     };
     this.deleteBallAtPoint = function(point){
-        if( point.getGridX() < 0 || point.getGridX() >= self.hNum || 
-            point.getGridY() < 0 || point.getGridY() >= self.vNum ){
-            return null;
-        }
+        if( self.checkIllegalPoint(point) ){ return null; }
         self.balls[point.getGridX() * self.environment.vNum + point.getGridY()] = null;
     };
     this.setBallAtPoint = function(ball, point){
-        if( point.getGridX() < 0 || point.getGridX() >= self.hNum || 
-            point.getGridY() < 0 || point.getGridY() >= self.vNum ){
-            return null;
-        }
+        if( self.checkIllegalPoint(point) ){ return null; }
         if(ball != null){
             ball.point = point.clone();
         }
         self.balls[point.getGridX() * self.environment.vNum + point.getGridY()] = ball;
     };
-    this.getBallPoint = function(ball){
-        return ball.point.clone();
+    this.getBallCenterPoint = function(ball){
+        return new Point( Math.floor( (ball.point.getX() + BALL_SIZE/2) / BALL_SIZE ),
+                          Math.floor( (ball.point.getY() + BALL_SIZE/2) / BALL_SIZE ), true );
     };
-
 };

@@ -13,6 +13,11 @@ var EnvironmentManager = function(){
     this.colorProb       = null;
     this.colorChangeable = true;
 
+    this.newDrop  = false;
+    this.freeMove = false;
+
+    this.pairSize = {w:3, f:3, p:3, l:3, d:3, h:3};
+
     this.initialize = function(){
 	    self.hNum = 6;
 	    self.vNum = 5;
@@ -81,4 +86,11 @@ var EnvironmentManager = function(){
 	    return color;
 	};
 
+	this.getColorIndex = function(color){
+		var i = 0
+	    for(; i < self.colors.length; i++){
+	    	if( self.colors[i] == color ){ return i; }
+	    }
+	    return null;
+	}
 };

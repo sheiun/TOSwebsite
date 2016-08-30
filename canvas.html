@@ -108,8 +108,7 @@
 
             <div  id="main_workplace" class="col-lg-10" align="center">
                 <p id="title">轉珠模擬器</p>
-                <pre id="log">ver 116</pre>
-                <pre id="catch"></pre>
+                <pre id="log">ver 117</pre>
 
                 <div id="TimeLife" >
                     <img id="timeLifeIcon" src="img/UI/heart.png">
@@ -120,55 +119,68 @@
                 <canvas id="DragCanvas" ></canvas>
                 <br>
 
-                <div id="playBtn" class="btn-group" role="group">
-                    <button id="Edit" class="btn btn-default btn-lg" onclick="">
+                <div id="MainButton" class="btn-group" role="group">
+                    <button id="Edit" class="btn btn-default btn-lg" onclick="setEditMode(this)">
                         <span >盤面設定</span></button>
-                    <button id="Move" class="btn btn-default btn-lg" onclick="">
+                    <button id="Move" class="btn btn-default btn-lg" onclick="setMoveMode(this)">
                         <span >移動設定</span></button>
-                    <button id="Replay" class="btn btn-default btn-lg" onclick="">
+                    <button id="Replay" class="btn btn-default btn-lg" onclick="setReplayMode(this)">
                         <span >重播設定</span></button>
                 </div>
                 <br><br>
 
-
-                <div id="ColorSelector" class="btn-group" role="group">
-                    <button class="btn btn-default" onclick="setColor('w', this)">
-                        <img src="img/Icon/w.png">
-                    </button>
-                    <button class="btn btn-default" onclick="setColor('f', this)">
-                        <img src="img/Icon/f.png">
-                    </button>
-                    <button class="btn btn-default" onclick="setColor('p', this)">
-                        <img src="img/Icon/p.png">
-                    </button>
-                    <button class="btn btn-default" onclick="setColor('l', this)">
-                        <img src="img/Icon/l.png">
-                    </button>
-                    <button class="btn btn-default" onclick="setColor('d', this)">
-                        <img src="img/Icon/d.png">
-                    </button>
-                    <button class="btn btn-default" onclick="setColor('h', this)">
-                        <img src="img/Icon/h.png">
-                    </button>
-                </div><br>
-                <div id="ColorAttrSelector" class="btn-group" role="group">
-                    <button class="btn btn-default btn-lg" onclick="setColorAttr('strong', this)">
-                        <span >強化珠</span></button>
-                    <button class="btn btn-default btn-lg" onclick="setColorAttr('weather', this)">
-                        <span >風化珠</span></button>
-                    <button class="btn btn-default btn-lg" onclick="setColorAttr('locking', this)">
-                        <span >鎖定珠</span></button>
-                    <button class="btn btn-default btn-lg" onclick="setColorAttr('unknown', this)">
-                        <span >問號珠</span></button>
-                    <button class="btn btn-default btn-lg" onclick="setColorAttr('reverse', this)">
-                        <span >黑白珠</span></button>
-                    <button class="btn btn-default btn-lg" onclick="setColorAttr('inhibit', this)">
-                        <span >隱藏風化</span></button>
-                    <button class="btn btn-default btn-lg" onclick="setColorFrozen('frozen', this)">
-                        <span >冰凍珠</span></button>
+                <div id="EditModeButton">
+                    <div id="ColorSelector" class="btn-group" role="group">
+                        <button class="btn btn-default" onclick="setColor('w', this)">
+                            <img src="img/Icon/w.png">
+                        </button>
+                        <button class="btn btn-default" onclick="setColor('f', this)">
+                            <img src="img/Icon/f.png">
+                        </button>
+                        <button class="btn btn-default" onclick="setColor('p', this)">
+                            <img src="img/Icon/p.png">
+                        </button>
+                        <button class="btn btn-default" onclick="setColor('l', this)">
+                            <img src="img/Icon/l.png">
+                        </button>
+                        <button class="btn btn-default" onclick="setColor('d', this)">
+                            <img src="img/Icon/d.png">
+                        </button>
+                        <button class="btn btn-default" onclick="setColor('h', this)">
+                            <img src="img/Icon/h.png">
+                        </button>
+                    </div><br>
+                    <div id="ColorAttrSelector" class="btn-group" role="group">
+                        <button class="btn btn-default btn-lg" onclick="setColorAttr('strong', this)">
+                            <span >強化珠</span></button>
+                        <button class="btn btn-default btn-lg" onclick="setColorAttr('weather', this)">
+                            <span >風化珠</span></button>
+                        <button class="btn btn-default btn-lg" onclick="setColorAttr('locking', this)">
+                            <span >鎖定珠</span></button>
+                        <button class="btn btn-default btn-lg" onclick="setColorAttr('unknown', this)">
+                            <span >問號珠</span></button>
+                        <button class="btn btn-default btn-lg" onclick="setColorAttr('reverse', this)">
+                            <span >黑白珠</span></button>
+                        <button class="btn btn-default btn-lg" onclick="setColorAttr('inhibit', this)">
+                            <span >隱藏風化</span></button>
+                        <button class="btn btn-default btn-lg" onclick="setColorFrozen('frozen', this)">
+                            <span >冰凍珠</span></button>
+                    </div>
                 </div>
-                <br><br>
-                
+
+                <div id="MoveModeButton">
+                    <div id="MoveAttrSetting" class="btn-group" role="group">
+                        <button class="btn btn-default btn-lg" onclick="setFreeMove(this)">
+                            <span >自由移動</span></button>
+                        <button class="btn btn-default btn-lg" onclick="setNewDrop(this)">
+                            <span >隨機落珠</span></button>
+                    </div>
+                </div>
+
+                <div id="ReplayModeButton">
+                </div>
+
+            <br><br>                
             </div>
 
 

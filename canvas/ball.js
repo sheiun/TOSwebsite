@@ -1,18 +1,17 @@
 
 var Ball = function(point, item, size){
-
     var self = this;
+    this.state  = BallState.NORMAL;
+    this.point  = point;
+    this.item   = item;
+    this.color  = item[0];
+    this.size   = size;
 
-    this.state = BallState.NORMAL;
-    this.point = point;
-    this.color = item[0];
-    this.item = item;
-    this.size = size;
-    this.stateFrameCount = 0;
-    this.alpha = 1.0;
-    this.frameCountToDelete = 15;
-    this.frameCountToDropEnd = 16;
-    this.dropGrid = 0;
+    this.alpha               = 1.0;
+    this.dropGrid            = 0;
+    this.stateFrameCount     = 0;
+    this.frameCountToDelete  = 15;
+    this.frameCountToDropEnd = 10;
 
     this.strong  = item.indexOf('+') >= 0 ? 1 : null;
     this.inhibit = item.indexOf('x') >= 0 ? 1 : null;
@@ -32,17 +31,17 @@ var Ball = function(point, item, size){
         }
     };
     this.update = function(){
-        if(self.state == BallState.DELETING){
-            if(self.stateFrameCount >= self.frameCountToDelete - 15){
+        if( self.state == BallState.DELETING ){
+            if( self.stateFrameCount >= self.frameCountToDelete - 15 ){
                 self.alpha = 1.0 * (self.frameCountToDelete - self.stateFrameCount) / 15.0;
             }
-            if(self.stateFrameCount >= self.frameCountToDelete){
+            if( self.stateFrameCount >= self.frameCountToDelete ){
                 self.setState(BallState.DELETED);
             }
         }
-        else if(self.state == BallState.DROPPING){
+        else if( self.state == BallState.DROPPING ){
             self.point.y = self.point.y + (self.size / self.frameCountToDropEnd) * self.dropGrid;
-            if(self.stateFrameCount == self.frameCountToDropEnd - 1){
+            if( self.stateFrameCount == self.frameCountToDropEnd - 1){
                 self.setState(BallState.NORMAL);
             }
         }
@@ -55,7 +54,6 @@ var Ball = function(point, item, size){
         ctx.save();
         ctx.globalAlpha = self.alpha;
         ctx.drawImage(image, self.point.getX(), self.point.getY(), BALL_SIZE, BALL_SIZE);
-        ctx.restore();
 
         if(self.frozen){
             var frozenImage = new Image();
@@ -67,6 +65,8 @@ var Ball = function(point, item, size){
             weatherImage.src = "img/Icon/+.png";
             ctx.drawImage(weatherImage, self.point.getX(), self.point.getY(), BALL_SIZE, BALL_SIZE);
         }
+        
+        ctx.restore();
     };
 
     this.mapImgSrc = function(){
@@ -87,26 +87,33 @@ var Ball = function(point, item, size){
 
 };
 
+var BallPair = function(){
+    var self = this;
+    this.points = new Array();
+    this.balls  = new Array();
+    this.color  = null;
 
-
-
-var BALL_SIZE =  80;
+    this.empty = function(){
+        return this.balls.length == 0;
+    }
+    this.addBall = function(ball){
+        self.points.push( ball.point.clone() );
+        self.balls.push( ball );
+    }
+    this.reset = function(){
+        self.points = new Array();
+        self.balls  = new Array();
+        self.color  = null;
+    }
+};
 
 var BallState = {
-    NORMAL:0,
-    MOVING:1,
-    DELETING:2,
-    DELETED:3
+    NORMAL   :0,
+    MOVING   :1,
+    DELETING :2,
+    DELETED  :3,
+    DROPPING :4
 };
 
-var BallColor = {
-    RED:0,
-    GREEN:1,
-    BLUE:2,
-    LIGHT:3,
-    DARK:4,
-    LIFE:5,
-    POISON:6,
-    OZYAMA:7,
-    NUM:8
-};
+var DELETE_SPEED = 10;
+var DROP_SPEED   = 5;

@@ -594,7 +594,7 @@ var FieldStrategyDropMove = function(parent, recordPlay){
       }
     }
     // ドロップをつかむ開始
-    if(self.recordPlayFrameCount == 8){
+    if(self.recordPlayFrameCount == 1){
       self.recordPlayMouseInfo = new MouseInfo();
       self.recordPlayMouseInfo.point = new Point(self.recordRouteInfo.startGrid.x * BALL_SIZE + BALL_SIZE / 2, self.recordRouteInfo.startGrid.y * BALL_SIZE + BALL_SIZE / 2);
       self.recordPlayMouseInfo.lastPressed = false;
@@ -606,7 +606,7 @@ var FieldStrategyDropMove = function(parent, recordPlay){
     var FRAME_TO_MOVE = 9;      // 何フレームで1マス進むか
     var SPEED = BALL_SIZE / FRAME_TO_MOVE;
     // 移動開始
-    if(self.recordPlayFrameCount >= 24){
+    if(self.recordPlayFrameCount >=0){
       var routeIndex = Math.floor((self.recordPlayFrameCount - 24) / Math.floor(FRAME_TO_MOVE));
       // もう存在しないならボタン離す
       if(routeIndex >= self.recordRouteInfo.route.length){
@@ -723,7 +723,6 @@ var FieldStrategyDropMove = function(parent, recordPlay){
         var angle = getAngleByPoints(parent.gridPointToPoint(self.lastGridPoint)  ,parent.movingBall.point);
         var angleIsSlant = (angle > (90 * 0) + 45 - 15 && angle < (90 * 0) + 45 + 15) || (angle > (90 * 1) + 45 - 15 && angle < (90 * 1) + 45 + 15) || (angle > (90 * 2) + 45 - 15 && angle < (90 * 2) + 45 + 15) || (angle > (90 * 3) + 45 - 15 && angle < (90 * 3) + 45 + 15);
         
-        console.log(self.lastGridPoint, newGridPoint, (self.lastGridPoint.x != newGridPoint.x || self.lastGridPoint.y != newGridPoint.y));
 
         // ボールの存在グリッドが変わったかを判定
         if(self.lastGridPoint.x != newGridPoint.x || self.lastGridPoint.y != newGridPoint.y){
@@ -773,6 +772,7 @@ var FieldStrategyDropMove = function(parent, recordPlay){
         if(!parent.isCtwMode){
           if(!recordPlay)
             parent.saveRoute();
+          //console.log(  parent.lastRoute, parent.routeInfos );
           parent.setStrategy(new FieldStrategyDropDelete(parent, false, recordPlay));
         }
         // 「CTWモード」の場合は再生モード時は時間切れで消去Strategyに、操作モード時は操作の完了を以て消去Strategyに

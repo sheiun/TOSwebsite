@@ -316,12 +316,12 @@ function getDirectionByGridPoints(oldGridPoint, newGridPoint){
   return null;
 }
 function getAngleByPoints(lhs, rhs){
-//   console.log("("+lhs.x+","+lhs.y+")("+rhs.x+","+rhs.y+")");
+  //console.log("("+lhs.x+","+lhs.y+")("+rhs.x+","+rhs.y+")");
   var offsetX = rhs.x - lhs.x;
   var offsetY = rhs.y - lhs.y;
   var angle = Math.atan2(offsetY, offsetX) * ( 180.0 / 3.141592 ) + 90;
   angle = (angle + 360) % 360;
-//   console.log("angle="+angle);
+  //   console.log("angle="+angle);
   return angle;
 }
 function parseRouteInfo(recordInfoString){

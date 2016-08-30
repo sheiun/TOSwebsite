@@ -24,6 +24,7 @@ var Point = function(x, y, grid){
     this.toGrid = function(){
         this.x = Math.floor( self.x / BALL_SIZE) * BALL_SIZE;
         this.y = Math.floor( self.y / BALL_SIZE) * BALL_SIZE;
+        return this;
     };
     this.clone = function(){
         return new Point(self.x, self.y, false);
@@ -44,8 +45,7 @@ var MouseInfo = function(){
     };
 };
 
-// =================================================================
-// =================================================================
+
 // =================================================================
 // =================================================================
 
@@ -59,3 +59,52 @@ function randomBySeed(seed){
     return rand - Math.floor(rand);
 }
 
+
+// =================================================================
+// =================================================================
+
+
+var Direction8 = {
+    TENKEY_1 :1, // </
+    TENKEY_2 :2, // ↓
+    TENKEY_3 :3, // \>
+    TENKEY_4 :4, // ←
+    TENKEY_5 :5, // x
+    TENKEY_6 :6, // →
+    TENKEY_7 :7, // <\
+    TENKEY_8 :8, // ↑
+    TENKEY_9 :9  // />
+};
+function getDirectionByPoints(lastPoint, newPoint){
+    if( newPoint.getGridX() > lastPoint.getGridX() ){
+        if( newPoint.getGridY() > lastPoint.getGridY() ){ return Direction8.TENKEY_3; }
+        else if( newPoint.getGridY() < lastPoint.getGridY() ){ return Direction8.TENKEY_9; }
+        else if( newPoint.getGridY() == lastPoint.getGridY() ){ return Direction8.TENKEY_6; }
+    }else if( newPoint.getGridX() < lastPoint.getGridX() ){
+        if( newPoint.getGridY() > lastPoint.getGridY() ){ return Direction8.TENKEY_1; }
+        else if( newPoint.getGridY() < lastPoint.getGridY() ){ return Direction8.TENKEY_7; }
+        else if( newPoint.getGridY() == lastPoint.getGridY() ){ return Direction8.TENKEY_4; }
+    }else{
+        if( newPoint.getGridY() > lastPoint.getGridY() ){ return Direction8.TENKEY_2; }
+        else if( newPoint.getGridY() < lastPoint.getGridY() ){ return Direction8.TENKEY_8; }
+        else{ return Direction8.TENKEY_5; }
+    }
+}
+function getAngleByPoints(lastPoint, newPoint){
+    var offsetX = newPoint.getX() - lastPoint.getX();
+    var offsetY = newPoint.getY() - lastPoint.getY();
+    var angle = Math.atan2(offsetY, offsetX) * ( 180.0 / Math.PI ) ;
+    angle = (angle + 360) % 360;
+    return angle;
+}
+
+
+
+// =================================================================
+// =================================================================
+
+var BALL_SIZE     = 80;
+var DELETE_SPEED  = 10;
+var DROP_SPEED    = 5;
+var MOVE_FRAME    = 6;
+var SPEED         = BALL_SIZE / MOVE_FRAME;

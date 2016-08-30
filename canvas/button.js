@@ -1,13 +1,3 @@
-
-(function(){
-    var oldLog = console.log;
-    console.log = function (message) {        
-        $('#log').append( '\n'+message );
-        oldLog.apply(console, arguments);
-    };
-})();
-
-
 var CREATE_COLOR = {
     color   : null,
     strong  : null,
@@ -50,4 +40,26 @@ function setColorFrozen(attr, button){
     	$(button).css('background','').css('color','black');
     	$(button).text( "冰凍珠" );
     }
+}
+
+
+function setFreeMove(button){
+    if( !environmentManager ){ return; }
+    if( !environmentManager.freeMove ){
+        environmentManager.freeMove = true;
+        $(button).css('background','#004d66').css('color','white');
+    }else{
+        environmentManager.freeMove = false;
+        $(button).css('background','').css('color','black');
+    } 
+}
+function setNewDrop(button){
+    if( !environmentManager ){ return; }
+    if( !environmentManager.newDrop ){
+        environmentManager.newDrop = true;
+        $(button).css('background','#004d66').css('color','white');
+    }else{
+        environmentManager.newDrop = false;
+        $(button).css('background','').css('color','black');
+    }    
 }
