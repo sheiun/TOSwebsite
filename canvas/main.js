@@ -1,8 +1,12 @@
 
-var fieldManager       = null;
-var sceneManagerField  = null;
 var historyManager     = null;
 var environmentManager = null;
+
+var sceneManagerField  = null;
+var fieldManager       = null;
+var barManager         = null;
+var comboManager       = null;
+
 
 // =================================================================
 // 觸控判定
@@ -29,8 +33,28 @@ $(document).ready( function(){
     //try{
         // check device
         if( TOUCH_DEVICE ){
+            BALL_SIZE = 60;
             $('nav').hide();
+            $('#DragCanvas').css('background-size', (BALL_SIZE*4)+' px '+(BALL_SIZE*4)+' px');
         }
+        //initail autoHidingNavbar
+        $(".navbar-fixed-top").autoHidingNavbar();
+        //initial Scrollbar
+        /*
+        var amount=Math.max.apply(Math,$("#HorizontalScrollbar li").map(function(){return $(this).outerWidth(true);}).get());
+        $("#HorizontalScrollbar").mCustomScrollbar({
+            axis:"x",
+            theme:"minimal-dark",
+            advanced:{
+                autoExpandHorizontalScroll:true
+            },
+            snapAmount: amount,
+        });
+        $("#BattleInfomationScrollbar").mCustomScrollbar({
+            axis:"y",
+            theme:"inset-dark"
+        });*/
+        $('.selectpicker').selectpicker({ style:'btn-default btn-lg' });
 
         // read url message and load 
         historyManager = new HistoryManager();
@@ -41,8 +65,19 @@ $(document).ready( function(){
         // build canvas object
         sceneManagerField = new SceneManager( $("#DragCanvas"), TOUCH_DEVICE );
         sceneManagerField.startInterval(false);
+
+        barManager = new BarManager( $("#BarCanvas"), environmentManager );
+        barManager.initialize();
+        comboManager = new ComboManager( $('#comboScrollbar'), $('#comboInfo'), historyManager );
+        comboManager.initialize();
+
         fieldManager = new FieldManager( sceneManagerField, $("#DragCanvas"), historyManager, environmentManager );
         sceneManagerField.changeScene(fieldManager);
+
+        $("#EditModeButton").hide();
+        $("#MoveModeButton").hide();
+        $("#ReplayModeButton").hide();
+
         
     //}catch(e){  
     //    $('#log').append( '\n'+e );

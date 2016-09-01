@@ -63,3 +63,9 @@ function setNewDrop(button){
         $(button).css('background','').css('color','black');
     }    
 }
+function setTimeLimit(button){
+    var num = parseInt( $(button).val() );
+    num = Math.min( Math.max( num, 1 ), 60 );
+    environmentManager.timeLimit = num;
+    $(button).val( num );
+}

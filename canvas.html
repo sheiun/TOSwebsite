@@ -9,21 +9,6 @@
     <meta name="description" content="">
     <meta name="author" content="louisalflame">
 
-    <!-- jQuery -->
-    <script type="text/javascript" src="js/jquery.js"></script>
-    <!-- Bootstrap Core JavaScript -->
-    <script type="text/javascript" src="js/bootstrap/bootstrap.min.js"></script>
-    <!-- Javascript for this html -->
-
-    <script type="text/javascript" src="canvas/button.js"></script>
-    <script type="text/javascript" src="canvas/sceneManager.js"></script>
-    <script type="text/javascript" src="canvas/strategy.js"></script>
-    <script type="text/javascript" src="canvas/ball.js"></script>
-    <script type="text/javascript" src="canvas/history.js"></script>
-    <script type="text/javascript" src="canvas/environment.js"></script>
-    <script type="text/javascript" src="canvas/global.js"></script>
-    <script type="text/javascript" src="canvas/main.js"></script>
-
     <title>Tower of Saviors 神魔之塔 卡片圖鑑表</title>
 
     <!-- Bootstrap Core CSS -->
@@ -79,20 +64,16 @@
                 <li class="nav-bar-li">
                     <a >Coming so...on</a>
                 </li>
+                <li class="nav-bar-li ">
+                    <a ><span class="glyphicon glyphicon-chevron-up" ></span></a>
+                </li>
+                <li class="nav-bar-li ">
+                    <a ><span class="glyphicon glyphicon-chevron-down" ></span></a>
+                </li>
+                <li class="nav-bar-li ">
+                    <a ><span class="glyphicon glyphicon-remove" ></span></a>
+                </li>
             </ul>
-            <form class="navbar-form navbar-right" role="search">
-                <button type="button" class="btn btn-default" onclick="scroll_top()">
-                    <span class="glyphicon glyphicon-chevron-up" ></span>
-                </button>
-                <button type="button" class="btn btn-default" onclick="scroll_bottom()">
-                    <span class="glyphicon glyphicon-chevron-down" ></span>
-                </button>
-                <input type="button" id="upload" value="儲存紀錄" onclick="download()" class="btn btn-default">
-                <input type="file" id="file" onclick=" " class="filestyle" data-input="false" data-icon="false" data-buttonText="讀取紀錄" >
-                <button type="button" class="btn btn-default" onclick="hide_navbar()">
-                    <span class="glyphicon glyphicon-remove" ></span>
-                </button>
-            </form>
         </div>
     </nav>
 
@@ -110,14 +91,12 @@
                 <p id="title">轉珠模擬器</p>
                 <pre id="log">ver 117</pre>
 
-                <div id="TimeLife" >
-                    <img id="timeLifeIcon" src="img/UI/heart.png">
-                    <div id="timeLifeRect"></div>
-                    <div id="timeLifeBack"></div>
-                </div>
 
-                <canvas id="DragCanvas" ></canvas>
+                
+                <canvas id="BarCanvas" ></canvas>
                 <br>
+                <canvas id="DragCanvas" ></canvas>
+                <br><br>
 
                 <div id="MainButton" class="btn-group" role="group">
                     <button id="Edit" class="btn btn-default btn-lg" onclick="setEditMode(this)">
@@ -172,12 +151,53 @@
                     <div id="MoveAttrSetting" class="btn-group" role="group">
                         <button class="btn btn-default btn-lg" onclick="setFreeMove(this)">
                             <span >自由移動</span></button>
+                        <span class="btn btn-default btn-lg">時間</span>
+                        <input type="number" value="5" max="60" min="1" class="btn btn-default btn-lg" onchange="setTimeLimit(this)" >
+                    </div>
+                    <button class="btn btn-danger btn-lg" onclick="(this)">
+                        <span >開始轉珠</span></button>
+                    <br><br>
+                    
+                    <div id="DropAttrSetting" class="btn-group" role="group">
                         <button class="btn btn-default btn-lg" onclick="setNewDrop(this)">
                             <span >隨機落珠</span></button>
+                        <select id="dropColorSelect" class="selectpicker" data-width="150px" title="落珠選擇">
+                            <option value="w,f,p,l,d,h" >正常分布</option>
+                            <option value="w,f,p,l,d" >禁心珠</option>
+                            <option value="MAP,h,w" >亡命感應 ‧ 水</option>
+                            <option value="MAP,h,f" >亡命感應 ‧ 火</option>
+                            <option value="MAP,h,p" >亡命感應 ‧ 木</option>
+                            <option value="MAP,h,l" >聖言詠歌</option>
+                            <option value="MAP,h,d" >夜言鳴曲</option>
+                            <option value="question" >問號掉落</option>
+                            <option value="optional" >自訂義</option>
+                        </select>
+                    </div>
+                    <div id="locusAttrSetting" class="btn-group" role="group">
+                        <button class="btn btn-default btn-lg" onclick="(this)">
+                            <span >持續軌跡</span></button>
+                        <select id="locusSelect" class="selectpicker" data-width="150px" title="軌跡選擇">
+                            <option value="null" >無軌跡</option>
+                            <option value="_" >軌跡黑白</option>
+                            <option value="q" >軌跡問號</option>
+                            <option value="fire" >軌跡燃燒</option>
+                            <option value="rot" >軌跡腐蝕</option>
+                        </select>
                     </div>
                 </div>
 
                 <div id="ReplayModeButton">
+                    <div id="ReplayAttrSetting" class="btn-group" role="group">
+                        <button class="btn btn-default btn-lg" onclick="(this)">
+                            <span >暫停動作</span></button>
+                        <button class="btn btn-default btn-lg" onclick="(this)">
+                            <span >顯示軌跡</span></button>
+                        <span class="btn btn-default btn-lg">速度</span>
+                        <input type="number" value="5" max="10" min="1" class="btn btn-default btn-lg" onchange="(this)" >
+                    </div>
+
+                    <button class="btn btn-danger btn-lg" onclick="(this)">
+                        <span >開始重播</span></button>
                 </div>
 
             <br><br>                
@@ -188,11 +208,11 @@
                 <br><br>
                 <div id="comboDiv">
                     <br>
-                    <div id="comboHit" align="center">
-                      <span id="historyNum"></span> 步 <br>
-                      <span id="comboNum"></span><span id="extraCombo"></span> Combo <br>
+                    <div id="comboInfo" align="center">
+                        <span id="moveNum"></span> 步 <br>
+                        <span id="comboNum"></span><span id="extraCombo"></span> Combo <br>
                     </div>
-                    <div id="Scrollbar" class="content mCustomScrollbar">
+                    <div id="comboScrollbar" class="content mCustomScrollbar">
                         <div id="comboBox" wave="-1"></div>
                     </div>
                 </div>
@@ -202,17 +222,48 @@
 
         <footer> 
             <br><br>
+                    <input type="button" id="upload" value="儲存紀錄" onclick="download()" class="btn btn-default">
+                    <input type="file" id="file" onclick=" " class="filestyle" data-input="false" data-icon="false" data-buttonText="讀取紀錄" >
             <div class="row">
                 <div class="col-lg-12" align="center">
                     <img src="img/UI/logo.png" >
                     <p>Copyright &copy; louisalflame@PTT</p>
-                    <p>最後修改日期: 2016/06/24</p>
+                    <p>最後修改日期: 2016/08/31</p>
                 </div>
             </div>
         </footer>
 
-  </div>
+    </div>
 
+    <!-- jQuery -->
+    <script type="text/javascript" src="js/jquery.js"></script>
+    <!-- Bootstrap Core JavaScript -->
+    <script type="text/javascript" src="js/bootstrap/bootstrap.min.js"></script>
+    <!-- Javascript for this html -->
+
+    <script type="text/javascript" src="js/bootstrap-select/bootstrap-select.min.js" ></script>
+    <script type="text/javascript" src="js/filestyle/bootstrap-filestyle.min.js"> </script>
+    <script type="text/javascript" src="js/autohidingnavbar/jquery.bootstrap-autohidingnavbar.min.js" ></script>
+    <script type="text/javascript" src="js/jquery-ui/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="js/jquery-ui/jquery.ui.touch-punch.min.js"></script>
+    <script type="text/javascript" src="js/jcanvas/jcanvas.min.js"></script>
+    <script type="text/javascript" src="js/url/url.min.js"></script>
+    <script type="text/javascript" src="js/clipboard/clipboard.min.js"></script>
+    <script type="text/javascript" src="js/scrollbar/jquery.mCustomScrollbar.concat.min.js"></script>
+    <script type="text/javascript" src="js/LZstring/lz-string.min.js"></script>
+    <script type="text/javascript" src="js/msdropdown/jquery.dd.js"></script>
+    <script type="text/javascript" src="js/utility.js"></script>
+
+
+    <script type="text/javascript" src="canvas/button.js"></script>
+    <script type="text/javascript" src="canvas/sceneManager.js"></script>
+    <script type="text/javascript" src="canvas/UIManager.js"></script>
+    <script type="text/javascript" src="canvas/strategy.js"></script>
+    <script type="text/javascript" src="canvas/ball.js"></script>
+    <script type="text/javascript" src="canvas/history.js"></script>
+    <script type="text/javascript" src="canvas/environment.js"></script>
+    <script type="text/javascript" src="canvas/global.js"></script>
+    <script type="text/javascript" src="canvas/main.js"></script>
 
 </body>
 

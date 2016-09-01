@@ -126,7 +126,7 @@ var SceneManager = function(element, touchDevice){
             // 直接顯示消除結果的話: 將timeinterval->0
             self.timerId = setInterval(self.timerFunc, 0);
         }else{
-            self.timerId = setInterval(self.timerFunc, 33);
+            self.timerId = setInterval(self.timerFunc, Math.floor(1000/SECOND_FRAMES) );
         }
     };
     this.timerFunc = function(){
@@ -164,7 +164,7 @@ var FieldManager = function(scene, canvas, history, environment){
     this.historyManager = history;
     this.environment    = environment;
 
-    this.strategy = new FieldStrategyEdit(self);
+    this.strategy = new FieldStrategyEmpty(self);
     this.mouseInfo  = new MouseInfo();
     this.frameCount = 0;
 
@@ -190,7 +190,11 @@ var FieldManager = function(scene, canvas, history, environment){
             var deleteFinished = function(){
                 self.setStrategy(savedStrategy);
                 self.environment.newDrop = savedNewDrop;
-                self.sceneManager.setSkipMode(false); 
+                self.sceneManager.setSkipMode(false);
+
+                barManager.resetTime();
+                comboManager.resetBox();
+                self.historyManager.savePanel( self.balls );
             }
 
             self.reset();
@@ -217,22 +221,25 @@ var FieldManager = function(scene, canvas, history, environment){
         for(var x = 0 ; x < self.environment.hNum; ++ x){
             for(var y = 0 ; y < self.environment.vNum; ++ y){
                 var color = self.environment.nextColorAtX(x);
-                self.createBall( new Point(x, y, true), color );
+                self.balls[x * self.environment.vNum + y] = new Ball( new Point(x, y, true), color, BALL_SIZE );
             }
         }
     };
     this.setHistoryPanel = function(){
+        if( !self.historyManager.panel ){ return; }
+
         self.canvas.attr('width', self.environment.hNum * BALL_SIZE).attr('height', self.environment.vNum * BALL_SIZE);
         self.balls = new Array( self.historyManager.panel.length );
         for(var i = 0; i < self.historyManager.panel.length; i++ ){
-            self.createBall( new Point( Math.floor(i/self.environment.vNum), i%self.environment.vNum, true), 
-                self.historyManager.panel[i] );
+            var point = new Point( Math.floor(i/self.environment.vNum), Math.floor(i%self.environment.vNum), true);
+            var num = Math.floor(i/self.environment.vNum) * self.environment.vNum + Math.floor(i%self.environment.vNum);
+            if( self.historyManager.panel[i] ){
+                self.balls[num] = new Ball( point, self.historyManager.panel[i], BALL_SIZE );
+            }else{
+                self.balls[num] = null;
+            }
         }
     }
-    this.createBall = function(point, color){
-        if( self.checkIllegalPoint(point) ){ return null; }
-        self.balls[point.getGridX() * self.environment.vNum + point.getGridY()] = new Ball( point, color, BALL_SIZE );
-    };
 
     //=========================================================
     // SceneManager update 時會一直call update, updateMouseInfo, draw
@@ -289,3 +296,4 @@ var FieldManager = function(scene, canvas, history, environment){
                           Math.floor( (ball.point.getY() + BALL_SIZE/2) / BALL_SIZE ), true );
     };
 };
+

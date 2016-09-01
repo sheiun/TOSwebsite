@@ -103,8 +103,13 @@ function getAngleByPoints(lastPoint, newPoint){
 // =================================================================
 // =================================================================
 
+var ICON_SIZE     = 50;
 var BALL_SIZE     = 80;
+
 var DELETE_SPEED  = 10;
 var DROP_SPEED    = 5;
+
+var SECOND_FRAMES = 40;
+
 var MOVE_FRAME    = 6;
-var SPEED         = BALL_SIZE / MOVE_FRAME;
+var REPLAY_SPEED  = BALL_SIZE / MOVE_FRAME;

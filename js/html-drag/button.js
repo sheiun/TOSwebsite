@@ -377,6 +377,7 @@ function addComboSet(comboSet){
         div.append(e);
     }
     $("#comboBox").append(div.append("<hr>"));
+    $("#comboBox").append($("#comboBox").attr("wave",DROP_WAVES).append("<hr>"));
 
     $("#Scrollbar").mCustomScrollbar("update");
 }

@@ -10,8 +10,9 @@ var Ball = function(point, item, size){
     this.alpha               = 1.0;
     this.dropGrid            = 0;
     this.stateFrameCount     = 0;
-    this.frameCountToDelete  = 15;
-    this.frameCountToDropEnd = 10;
+    this.frameCountToDelete  = DELETE_SPEED;
+    this.frameCountToDropEnd = DROP_SPEED;
+    this.deletedPair         = null;
 
     this.strong  = item.indexOf('+') >= 0 ? 1 : null;
     this.inhibit = item.indexOf('x') >= 0 ? 1 : null;
@@ -32,11 +33,15 @@ var Ball = function(point, item, size){
     };
     this.update = function(){
         if( self.state == BallState.DELETING ){
-            if( self.stateFrameCount >= self.frameCountToDelete - 15 ){
-                self.alpha = 1.0 * (self.frameCountToDelete - self.stateFrameCount) / 15.0;
+            if( self.stateFrameCount >= self.frameCountToDelete - DELETE_SPEED ){
+                self.alpha = 1.0 * (self.frameCountToDelete - self.stateFrameCount) / DELETE_SPEED;
             }
             if( self.stateFrameCount >= self.frameCountToDelete ){
                 self.setState(BallState.DELETED);
+                if( self.deletedPair ){
+                    comboManager.addComboSet( self.deletedPair );
+                    self.deletedPair = null;
+                }
             }
         }
         else if( self.state == BallState.DROPPING ){
@@ -47,6 +52,7 @@ var Ball = function(point, item, size){
         }
         ++ self.stateFrameCount;
     };
+
 
     this.drawBall = function(ctx){
         var image = new Image();
@@ -114,6 +120,3 @@ var BallState = {
     DELETED  :3,
     DROPPING :4
 };
-
-var DELETE_SPEED = 10;
-var DROP_SPEED   = 5;

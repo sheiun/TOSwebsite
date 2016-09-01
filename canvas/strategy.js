@@ -16,7 +16,11 @@ var FieldStrategyEdit = function(field){
     this.field = field;
     this.lastSetPoint = null;
     this.lastSetColor = null;
-    this.initialize = function(){};
+    this.initialize = function(){
+        barManager.resetTime();
+        comboManager.resetBox();
+        self.field.setHistoryPanel();
+    };
     this.finalize = function(){
         self.field.historyManager.savePanel( self.field.balls );
     };
@@ -29,37 +33,34 @@ var FieldStrategyEdit = function(field){
         if( self.field.mouseInfo.pressed ){
             var point = self.field.mouseInfo.point.clone();
             var selectedColor = CREATE_COLOR.color;
-            var doSet = true;
 
             // 感覺沒必要做這個防呆處理
             if( self.lastSetPoint != null ){
                 if( self.lastSetPoint.getGridX() == point.getGridX() && 
                     self.lastSetPoint.getGridY() == point.getGridY() && 
                     self.lastSetColor            == selectedColor ){
-                    doSet = false;
+                    return;
                 }
             }
             // 整理color item
             if( !selectedColor ){
-                doSet = false;
-            }else{
-                if( CREATE_COLOR.strong  ){ selectedColor += "+"; }
-                if( CREATE_COLOR.inhibit ){ selectedColor += "x"; }
-                if( CREATE_COLOR.weather ){ selectedColor += "*"; }
-                if( CREATE_COLOR.frozen  ){ selectedColor += "i"+CREATE_COLOR.frozen; }
-                if( CREATE_COLOR.locking ){ selectedColor += "k"; }
-                if( CREATE_COLOR.unknown ){ selectedColor += "q"; }
-                if( CREATE_COLOR.reverse ){ selectedColor += "_"; }
+                var selectedBall = self.field.getBallAtPoint(point);
+                if( !selectedBall ){ return; }
+                selectedColor = selectedBall.color;
             }
+            if( CREATE_COLOR.strong  ){ selectedColor += "+"; }
+            if( CREATE_COLOR.inhibit ){ selectedColor += "x"; }
+            if( CREATE_COLOR.weather ){ selectedColor += "*"; }
+            if( CREATE_COLOR.frozen  ){ selectedColor += "i"+CREATE_COLOR.frozen; }
+            if( CREATE_COLOR.locking ){ selectedColor += "k"; }
+            if( CREATE_COLOR.unknown ){ selectedColor += "q"; }
+            if( CREATE_COLOR.reverse ){ selectedColor += "_"; }
 
-            if( doSet ){
-                point.toGrid();
-                self.field.deleteBallAtPoint(point);
-                var ball = new Ball(point, selectedColor, BALL_SIZE);
-                self.field.setBallAtPoint(ball, point);
-                self.lastSetPoint = point;
-                self.lastSetColor = selectedColor;
-            }
+            self.field.deleteBallAtPoint(point);
+            var ball = new Ball(point.toGrid(), selectedColor, BALL_SIZE);
+            self.field.setBallAtPoint(ball, point);
+            self.lastSetPoint = point;
+            self.lastSetColor = selectedColor;
         }
     };
 };
@@ -78,13 +79,15 @@ var FieldStrategyDropDelete = function(field, deleteFinished, dropFinished){
     this.frameCount = 0;
     this.mode       = Mode.TRY_DELETE;
 
+    this.deletedWave = null;
     this.deleteFinished = deleteFinished;
     this.dropFinished   = dropFinished;
 
-    this.initialize = function(){ };
-    this.finalize = function(){
-        self.field.slantMove = false;
+    this.initialize = function(){
+        self.field.historyManager.resetDeletedInfo();
+        self.deletedWave = self.field.historyManager.startDeleted();
     };
+    this.finalize = function(){};
     this.update = function(){        
         for(var i = 0; i < self.field.balls.length; ++ i){
             if( self.field.balls[i] ){
@@ -103,24 +106,32 @@ var FieldStrategyDropDelete = function(field, deleteFinished, dropFinished){
 
     this.updateTryDelete = function(){
         // 被消除名單
-        var deleteLists = self.countDeleteBalls( self.field.balls );
+        self.countDeleteBalls( self.field.balls );
 
-        if( deleteLists.length == 0 ){
+        if( self.deletedWave.orderDeletePairs.length == 0 ){
+            //落珠結束 進入下一階段
             self.mode = Mode.WAITING;
             self.frameCount = 0;
-            if( self.deleteFinished ){
+            if( self.deleteFinished ){console.log(self.field.historyManager.deletedInfo);
                 self.deleteFinished();
             }
-            //updateInfo();
         }else{
-            for(var i = 0 ; i < deleteLists.length ; i++){
+            //設定消除珠動畫
+            for(var i = 0 ; i < self.deletedWave.orderDeletePairs.length ; i++){
+                self.deletedWave.orderDeletePairs[i].balls[0].deletedPair = self.deletedWave.orderDeletePairs[i].balls;
+
                 var startFrame = DELETE_SPEED * (i + 1);
-                for(var j = 0 ; j < deleteLists[i].balls.length ; j++){
-                    var ball = deleteLists[i].balls[j];
+                for(var j = 0 ; j < self.deletedWave.orderDeletePairs[i].balls.length ; j++){
+                    var ball = self.deletedWave.orderDeletePairs[i].balls[j];
                     ball.setState( BallState.DELETING );
                     ball.frameCountToDelete = startFrame;
                 }
             }
+            //紀錄落珠
+            self.field.historyManager.addDeletedWave( self.deletedWave );
+            self.deletedWave = self.field.historyManager.startDeleted();
+            comboManager.addWave( self.field.historyManager.getWaveNum() );
+
             self.mode = Mode.DELETING;
             self.frameCount = 0;
         }
@@ -238,15 +249,9 @@ var FieldStrategyDropDelete = function(field, deleteFinished, dropFinished){
             }
             return false;
         }
-
-        var deleteWave = {
-            vDeletePairs : new Array(),
-            hDeletePairs : new Array(),
-            orderDeletePairs : new Array(),
-            colorDeletePairs : new Array(self.field.environment.colors.length),
-        };
+       
         for(var i = 0; i < self.field.environment.colors.length; i++){
-            deleteWave.colorDeletePairs[i] = new Array();
+            self.deletedWave.colorDeletePairs[i] = new Array();
         }
 
         // vertical
@@ -263,17 +268,17 @@ var FieldStrategyDropDelete = function(field, deleteFinished, dropFinished){
                     }else if( checkConnect( pair, ball ) ){
                         pair.addBall( ball );
                     }else{
-                        checkDelete(pair, deleteWave.vDeletePairs);
+                        checkDelete(pair, self.deletedWave.vDeletePairs);
                         pair = new BallPair();
                         pair.addBall( ball );
                         pair.color = ball.color;
                     }
                 }else{
-                    checkDelete(pair, deleteWave.vDeletePairs);
+                    checkDelete(pair, self.deletedWave.vDeletePairs);
                     pair = new BallPair();
                 }
             }
-            checkDelete(pair, deleteWave.vDeletePairs);
+            checkDelete(pair, self.deletedWave.vDeletePairs);
         }
         // horizontal
         for(var i =0; i < self.field.environment.vNum; i++ ){
@@ -289,57 +294,57 @@ var FieldStrategyDropDelete = function(field, deleteFinished, dropFinished){
                     }else if( checkConnect( pair, ball ) ){
                         pair.addBall( ball );
                     }else{
-                        checkDelete(pair, deleteWave.hDeletePairs);
+                        checkDelete(pair, self.deletedWave.hDeletePairs);
                         pair = new BallPair();
                         pair.addBall( ball );
                         pair.color = ball.color;
                     }
                 }else{
-                    checkDelete(pair, deleteWave.hDeletePairs);
+                    checkDelete(pair, self.deletedWave.hDeletePairs);
                     pair = new BallPair();
                 }
             }
-            checkDelete(pair, deleteWave.hDeletePairs);
+            checkDelete(pair, self.deletedWave.hDeletePairs);
         }
 
         // merge Pairs in color
-        for(var i = 0; i < deleteWave.vDeletePairs.length; i++){
-            deleteWave.orderDeletePairs.push( deleteWave.vDeletePairs[i] );
+        for(var i = 0; i < self.deletedWave.vDeletePairs.length; i++){
+            self.deletedWave.orderDeletePairs.push( self.deletedWave.vDeletePairs[i] );
         }
-        for(var i = 0; i < deleteWave.hDeletePairs.length; i++){
-            deleteWave.orderDeletePairs.push( deleteWave.hDeletePairs[i] );
+        for(var i = 0; i < self.deletedWave.hDeletePairs.length; i++){
+            self.deletedWave.orderDeletePairs.push( self.deletedWave.hDeletePairs[i] );
         }
-        for(var i = 0; i < deleteWave.orderDeletePairs.length; i++){
-            var pair = deleteWave.orderDeletePairs[i];
+        for(var i = 0; i < self.deletedWave.orderDeletePairs.length; i++){
+            var pair = self.deletedWave.orderDeletePairs[i];
             var colorIndex = self.field.environment.getColorIndex( pair.color );
-            for(var j = 0; j < deleteWave.colorDeletePairs[colorIndex].length; j++ ){
-                var savedPair = deleteWave.colorDeletePairs[colorIndex][j];
+            for(var j = 0; j < self.deletedWave.colorDeletePairs[colorIndex].length; j++ ){
+                var savedPair = self.deletedWave.colorDeletePairs[colorIndex][j];
                 if( checkOverlap(pair, savedPair) ){
                     mergePair(pair, savedPair);
                 }
             }
-            deleteWave.colorDeletePairs[colorIndex].push(pair);
+            self.deletedWave.colorDeletePairs[colorIndex].push(pair);
         }
 
         // remove empty pair
         var tmpArray = new Array();
-        for(var i = 0; i < deleteWave.orderDeletePairs.length; i++){
-            if( !deleteWave.orderDeletePairs[i].empty() ){
-                tmpArray.push( deleteWave.orderDeletePairs[i] );
+        for(var i = 0; i < self.deletedWave.orderDeletePairs.length; i++){
+            if( !self.deletedWave.orderDeletePairs[i].empty() ){
+                tmpArray.push( self.deletedWave.orderDeletePairs[i] );
             }
         }
-        deleteWave.orderDeletePairs = tmpArray;
-        for(var i = 0; i < deleteWave.colorDeletePairs.length; i++){
+        self.deletedWave.orderDeletePairs = tmpArray;
+        for(var i = 0; i < self.deletedWave.colorDeletePairs.length; i++){
             var tmpArray = new Array();
-            for(var j = 0; j < deleteWave.colorDeletePairs[i].length; j++ ){
-                if( !deleteWave.colorDeletePairs[i][j].empty() ){
-                    tmpArray.push( deleteWave.colorDeletePairs[i][j] );
+            for(var j = 0; j < self.deletedWave.colorDeletePairs[i].length; j++ ){
+                if( !self.deletedWave.colorDeletePairs[i][j].empty() ){
+                    tmpArray.push( self.deletedWave.colorDeletePairs[i][j] );
                 }
             }
-            deleteWave.colorDeletePairs[i] = tmpArray;
+            self.deletedWave.colorDeletePairs[i] = tmpArray;
         }
 
-        return deleteWave.orderDeletePairs;
+        return self.deletedWave.orderDeletePairs;
     };
 
 }
@@ -363,19 +368,20 @@ var FieldStrategyMove = function(field, replay){
     this.replayRouteInfo = null;
     this.replayMouseInfo = null;
 
-    self.lastPoint = null;
+    this.lastPoint  = null;
 
-    this.initialize = function(){        
+    this.timerStart      = null;
+    this.timerFrameCount = 0;
+    this.timeOver        = false;
+
+    this.initialize = function(){
+        barManager.resetTime();
+        comboManager.resetBox();
+
         self.field.setHistoryPanel();
         self.field.historyManager.resetRouteInfo();
-
-        //待整理
-        /*
-        self.field.moveNum = 0;
-        self.field.slantMove = false;
-        self.field.ctwTimer = 0;
-        self.field.ctwTimerStarted = false;
-        self.field.routeInfos = new Array();*/
+        self.field.historyManager.resetDeletedInfo();
+        self.field.timerStart = false;
     };
     this.finalize = function(){
         self.field.movingBall = null;
@@ -394,23 +400,28 @@ var FieldStrategyMove = function(field, replay){
             case Mode.WAITING : self.updateWaiting(); break;
             case Mode.MOVING  : self.updateMoving();  break;
         }
-        if( self.field.isCtwMode && self.field.ctwTimerStarted ){
-            self.field.ctwTimer++;
+
+        if( self.timerStart ){ 
+            self.updateTimerBar();
+            ++ self.timerFrameCount;
         }
+        self.timeOver = self.timerStart && self.timerFrameCount >= (self.field.environment.timeLimit * SECOND_FRAMES);
         ++ self.modeFrameCount;
     };
 
     this.updateReplayMouseInfo = function(){
         if( self.replayFrameCount == null ){ return; }
         // 路徑設定
-        if( self.replayFrameCount == 0 ){
+        if( self.replayFrameCount == 1 ){
             self.replayMovePrepare();
+        }
+        if( self.replayFrameCount == SECOND_FRAMES-1 ){
             self.replayMoveStart();
         }
 
         // 移動開始
-        if(self.replayFrameCount >= 2){
-            var routeIndex = Math.floor( (self.replayFrameCount - 2) / MOVE_FRAME);
+        if( self.replayFrameCount >= SECOND_FRAMES ){
+            var routeIndex = Math.floor( (self.replayFrameCount - SECOND_FRAMES) / MOVE_FRAME);
 
             if( routeIndex < self.replayRoute.record.length ){
                 self.replayMouseInfo.lastPressed = true;
@@ -428,7 +439,7 @@ var FieldStrategyMove = function(field, replay){
         }
 
         ++ self.replayFrameCount;
-    }
+    };
     this.updateWaiting = function(){
         var mouseInfo = self.replay ? self.replayMouseInfo : self.field.mouseInfo;
 
@@ -436,49 +447,45 @@ var FieldStrategyMove = function(field, replay){
             self.mode = Mode.MOVING;
             self.modeFrameCount = 0;
 
+            // 取得按下位置的珠 設為移動珠
             self.movingInfo = new MovingInfo( mouseInfo );
             self.field.movingBall = self.field.getBallAtPoint( mouseInfo.point );
             self.field.movingBall.setState( BallState.MOVING );
             self.field.deleteBallAtPoint( mouseInfo.point );
             self.lastPoint = self.field.getBallCenterPoint( self.field.movingBall );
 
-            /* ctwモードの場合はWAITING->MOVINGになった瞬間にタイマーリセット
-            if(parent.isCtwMode && !parent.ctwTimerStarted){
-                parent.ctwTimer = 0;
-                parent.ctwTimerStarted = true;
-            }*/
-
             // 記録
             if( !self.replay ){
                 self.field.historyManager.startNewRoute( mouseInfo.point );
+
+                // 時間開始記錄
+                if( !self.timerStart ){ console.log('timeStart');
+                    self.timerStart = true;
+                    self.timerFrameCount = 0;
+                }
             }
 
         }
-        /* 自由移動時間內判定
-        var ctwTimeOver = parent.ctwTimer >= parent.ctwTimeLimit;
-        if(!recordPlay){
-          if(parent.isCtwMode && ctwTimeOver){
-            parent.saveRoute();
-            parent.setStrategy(new FieldStrategyDropDelete(parent, false, recordPlay));
-          }
-        }*/
-    }
+
+        // 自由移動時間內判定
+        if( !self.replay && self.field.environment.freeMove && self.timeOver ){
+            self.field.historyManager.saveRouteInfo();
+            self.setDropStrategy();
+        }
+    };
     this.updateMoving = function(){
 
-        var mouseInfo = self.replay ? self.replayMouseInfo : self.field.mouseInfo;
-
-        var mouseMoved = mouseInfo && 
-                         mouseInfo.point.getX() != self.movingInfo.lastMousePoint.x || 
-                         mouseInfo.point.getY() != self.movingInfo.lastMousePoint.y;
+        var mouseInfo     = self.replay ? self.replayMouseInfo : self.field.mouseInfo;
+        var mouseMoved    = mouseInfo && 
+                            ( mouseInfo.point.getX() != self.movingInfo.lastMousePoint.getX() || 
+                              mouseInfo.point.getY() != self.movingInfo.lastMousePoint.getY()    );
         var mouseReleased = mouseInfo && !mouseInfo.pressed;
-        /* CTWモードでは時間切れの場合に強制的にマウスが離された事にする。
-        //var ctwTimeOver = parent.ctwTimer >= parent.ctwTimeLimit;
-        if(!recordPlay){
-            if(parent.isCtwMode && ctwTimeOver){
-              mouseMoved = false;
-              mouseReleased = true;
-            }
-        }*/
+
+        // 時間判定優先
+        if( !self.replay && self.timeOver ){
+            mouseMoved = false;
+            mouseReleased = true;
+        }
 
         if( mouseMoved ){
             // 1. 計算滑鼠移動量
@@ -503,82 +510,70 @@ var FieldStrategyMove = function(field, replay){
 
         }
         if( mouseReleased ){
-            self.field.setBallAtPoint( self.field.movingBall, self.field.getBallCenterPoint( self.field.movingBall ) );
-            self.field.movingBall.setState( BallState.NORMAL );
-            self.field.movingBall = null;
+            self.returnMovingBall();
 
             self.movingInfo = null;
             self.lastPoint = null;
-
             self.mode = Mode.WAITING;
             self.modeFrameCount = 0;
-            self.field.setStrategy( new FieldStrategyDropDelete(self.field, false, null, null) );
             
             // 記録
             if( !self.replay ){
                 self.field.historyManager.saveRouteInfo();
+                if( !self.field.environment.freeMove || self.timeOver ){
+                    self.setDropStrategy();      
+                }
+            }else{
+                // 走完最後一個route
+                if( !self.replayRouteInfo.index ){ 
+                    self.setDropStrategy();
+                }
             }
 
-/*          // 「非CTWモード」の場合は再生モード、操作モード共に消去Strategyに
-            if(!parent.isCtwMode){
-              if(!recordPlay)
-                parent.saveRoute();
-              parent.setStrategy(new FieldStrategyDropDelete(parent, false, recordPlay));
-            }
-            // 「CTWモード」の場合は再生モード時は時間切れで消去Strategyに、操作モード時は操作の完了を以て消去Strategyに
-            else {
-              if(!recordPlay){
-                if(ctwTimeOver){
-                  parent.saveRoute();
-                  parent.setStrategy(new FieldStrategyDropDelete(parent, false, recordPlay));
-                }
-              }else{
-                // 普通に考えるとlastRoute = self.recordRouteIndex == self.recordRouteInfos.length;とするべきだがself.recordRouteIndexは操作再生の処理で一足先にインクリメントされているので。
-                var lastRoute = self.recordRouteIndex == self.recordRouteInfos.length;
-                console.log(self.recordRouteIndex + "," + self.recordRouteInfos.length);
-                if(lastRoute){
-                  parent.setStrategy(new FieldStrategyDropDelete(parent, false, recordPlay));
-                }
-              }
-            }
-
-            */
         }
-    }
+    };
+
 
     //===========================================================
     // 計算用
     //===========================================================
-    this.replayMovePrepare = function(){console.log('prepare');
+    this.replayMovePrepare = function(){
         if( !self.replayRouteInfo ){
             self.replayRouteInfo = self.field.historyManager.getRouteInfo();
+            if( self.replayRouteInfo.routes.length == 0 ){
+                self.replayFrameCount = -1 * Infinity;
+                self.replayMouseInfo = new MouseInfo();
+                return;
+            }
         }
         self.replayRoute = self.replayRouteInfo.getCurrentRoute();
-    }
+    };
     this.replayMoveStart = function(){
+        if( !self.replayRoute ){ return; }
+
         self.replayMouseInfo = new MouseInfo();
         self.replayMouseInfo.point = new Point(
             self.replayRoute.startPoint.getX() + BALL_SIZE / 2, 
             self.replayRoute.startPoint.getY() + BALL_SIZE / 2 );
         self.replayMouseInfo.lastPressed = false;
         self.replayMouseInfo.pressed = true;
-    }
+    };
     this.updateReplayMouseMoveVector = function( direction ){
         switch(direction){
-            case Direction8.TENKEY_4: self.replayMouseInfo.point.x -= SPEED; break;
-            case Direction8.TENKEY_8: self.replayMouseInfo.point.y -= SPEED; break;
-            case Direction8.TENKEY_6: self.replayMouseInfo.point.x += SPEED; break;
-            case Direction8.TENKEY_2: self.replayMouseInfo.point.y += SPEED; break;
-            case Direction8.TENKEY_1: self.replayMouseInfo.point.x -= SPEED;
-                                      self.replayMouseInfo.point.y += SPEED; break;
-            case Direction8.TENKEY_3: self.replayMouseInfo.point.x += SPEED;
-                                      self.replayMouseInfo.point.y += SPEED; break;
-            case Direction8.TENKEY_7: self.replayMouseInfo.point.x -= SPEED;
-                                      self.replayMouseInfo.point.y -= SPEED; break;
-            case Direction8.TENKEY_9: self.replayMouseInfo.point.x += SPEED;
-                                      self.replayMouseInfo.point.y -= SPEED; break;
+            case Direction8.TENKEY_4: self.replayMouseInfo.point.x -= REPLAY_SPEED; break;
+            case Direction8.TENKEY_8: self.replayMouseInfo.point.y -= REPLAY_SPEED; break;
+            case Direction8.TENKEY_6: self.replayMouseInfo.point.x += REPLAY_SPEED; break;
+            case Direction8.TENKEY_2: self.replayMouseInfo.point.y += REPLAY_SPEED; break;
+            case Direction8.TENKEY_1: self.replayMouseInfo.point.x -= REPLAY_SPEED;
+                                      self.replayMouseInfo.point.y += REPLAY_SPEED; break;
+            case Direction8.TENKEY_3: self.replayMouseInfo.point.x += REPLAY_SPEED;
+                                      self.replayMouseInfo.point.y += REPLAY_SPEED; break;
+            case Direction8.TENKEY_7: self.replayMouseInfo.point.x -= REPLAY_SPEED;
+                                      self.replayMouseInfo.point.y -= REPLAY_SPEED; break;
+            case Direction8.TENKEY_9: self.replayMouseInfo.point.x += REPLAY_SPEED;
+                                      self.replayMouseInfo.point.y -= REPLAY_SPEED; break;
         }
-    }
+    };
 
     this.updateMovingBall = function(mouseInfo){
         var moveVector = new Point( mouseInfo.point.getX() - self.movingInfo.lastMousePoint.getX(), 
@@ -590,7 +585,7 @@ var FieldStrategyMove = function(field, replay){
         //範圍限制
         self.field.movingBall.point.x = Math.min( Math.max( self.field.movingBall.point.getX(), 0 ), BALL_SIZE * (self.field.environment.hNum-1) );
         self.field.movingBall.point.y = Math.min( Math.max( self.field.movingBall.point.getY(), 0 ), BALL_SIZE * (self.field.environment.vNum-1) );
-    }
+    };
     this.checkMoveVector = function( newPoint, direction, angle, angleIsSlant, slantMove ){
         if( self.lastPoint.getGridX() != newPoint.getGridX() || 
             self.lastPoint.getGridY() != newPoint.getGridY() ){
@@ -598,17 +593,37 @@ var FieldStrategyMove = function(field, replay){
             return true;
         }
         return false; 
-    }
+    };
     this.exchangeBall = function( newPoint, direction ){
         var ball      = self.field.getBallAtPoint( newPoint );
         self.field.deleteBallAtPoint( newPoint );
         self.field.setBallAtPoint( ball, self.lastPoint );
         self.lastPoint = newPoint.clone();
 
+        comboManager.addMove();
         // 記録
         if( !self.replay ){
             self.field.historyManager.addRecord( direction );
         }
-    }
+    };
+    this.returnMovingBall = function(){
+        var movingPoint = self.field.getBallCenterPoint( self.field.movingBall );
+        if( self.field.getBallAtPoint( movingPoint ) ){
+            movingPoint = self.lastPoint;
+        }
+        self.field.setBallAtPoint( self.field.movingBall, movingPoint );
+        self.field.movingBall.setState( BallState.NORMAL );
+        self.field.movingBall = null;
+    };
+    this.setDropStrategy = function(){
+        var deleteFinished = function(){
+            self.field.setStrategy(new FieldStrategyEmpty(self.field));
+        }
+        self.field.setStrategy( new FieldStrategyDropDelete(self.field, deleteFinished, null) ); 
+    };
+    this.updateTimerBar = function(){
+        var timeFraction = self.timerFrameCount / (self.field.environment.timeLimit * SECOND_FRAMES);
+        barManager.drawTimeBar( 1-timeFraction );
+    };
 
 }

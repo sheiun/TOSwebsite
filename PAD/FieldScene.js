@@ -594,7 +594,7 @@ var FieldStrategyDropMove = function(parent, recordPlay){
       }
     }
     // ドロップをつかむ開始
-    if(self.recordPlayFrameCount == 1){
+    if(self.recordPlayFrameCount == 6){
       self.recordPlayMouseInfo = new MouseInfo();
       self.recordPlayMouseInfo.point = new Point(self.recordRouteInfo.startGrid.x * BALL_SIZE + BALL_SIZE / 2, self.recordRouteInfo.startGrid.y * BALL_SIZE + BALL_SIZE / 2);
       self.recordPlayMouseInfo.lastPressed = false;
@@ -606,7 +606,7 @@ var FieldStrategyDropMove = function(parent, recordPlay){
     var FRAME_TO_MOVE = 9;      // 何フレームで1マス進むか
     var SPEED = BALL_SIZE / FRAME_TO_MOVE;
     // 移動開始
-    if(self.recordPlayFrameCount >=0){
+    if(self.recordPlayFrameCount >=24){
       var routeIndex = Math.floor((self.recordPlayFrameCount - 24) / Math.floor(FRAME_TO_MOVE));
       // もう存在しないならボタン離す
       if(routeIndex >= self.recordRouteInfo.route.length){

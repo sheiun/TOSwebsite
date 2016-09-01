@@ -14,7 +14,9 @@ var EnvironmentManager = function(){
     this.colorChangeable = true;
 
     this.newDrop  = false;
+
     this.freeMove = false;
+    this.timeLimit = 5;
 
     this.pairSize = {w:3, f:3, p:3, l:3, d:3, h:3};
 
@@ -28,7 +30,6 @@ var EnvironmentManager = function(){
 	    self.colorProb       = new Array(self.hNum);
 	    self.colorChangeable = true;
 
-	    //self.colorProb.fill( {} );
 	    for(var i = 0; i < self.hNum; i++){
 	    	self.colorProb[i] = {};
 	    }
