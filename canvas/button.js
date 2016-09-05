@@ -258,35 +258,41 @@ function shareUrl(button){
     window.open( "canvas.html" + url, "_blank" );
 }
 function parseUrl(){
-    var settingInfo = LZString.decompressFromEncodedURIComponent( $.url("?info") );
-    settingInfo = JSON.parse( settingInfo );
-    //盤面
-    historyManager.panel = settingInfo.panel.split(",");
-    historyManager.routeInfoString = settingInfo.route;
-    historyManager.random = settingInfo.random;
-    RANDOM = settingInfo.random;
-    //落珠
-    environmentManager.newDrop = settingInfo.newDrop;
-    if( environmentManager.newDrop ){
-        $("#DropAttrSetting button").eq(0).css('background','#004d66').css('color','white');
-    }
-    environmentManager.showRecord = settingInfo.showRecord;
-    if( environmentManager.showRecord ){
-        $("#ReplayAttrSetting button").eq(1).css('background','#004d66').css('color','white');
-    }
+    var settingInfoText = LZString.decompressFromEncodedURIComponent( $.url("?info") );
+    if( !settingInfoText ){ return; }
 
-    dropColorManager.mode = settingInfo.dropMode;
-    dropColorManager.selector.val(settingInfo.dropMode);
-    dropColorManager.selector.selectpicker('refresh');
-    if( settingInfo.optional ){        
-        dropColorManager.scrollbar.show();
-        dropColorManager.optionalList.find("li.option").remove();
-        initialOptional = settingInfo.optional.split(",");
-        for(var i = 0; i < initialOptional.length; i++){
-            dropColorManager.addColor( initialOptional[i] );
+    try{        
+        var settingInfo = JSON.parse( settingInfoText );
+        //盤面
+        historyManager.panel = settingInfo.panel.split(",");
+        historyManager.routeInfoString = settingInfo.route;
+        historyManager.random = settingInfo.random;
+        RANDOM = settingInfo.random;
+        //落珠
+        environmentManager.newDrop = settingInfo.newDrop;
+        if( environmentManager.newDrop ){
+            $("#DropAttrSetting button").eq(0).css('background','#004d66').css('color','white');
         }
+        environmentManager.showRecord = settingInfo.showRecord;
+        if( environmentManager.showRecord ){
+            $("#ReplayAttrSetting button").eq(1).css('background','#004d66').css('color','white');
+        }
+
+        dropColorManager.mode = settingInfo.dropMode;
+        dropColorManager.selector.val(settingInfo.dropMode);
+        dropColorManager.selector.selectpicker('refresh');
+        if( settingInfo.optional ){        
+            dropColorManager.scrollbar.show();
+            dropColorManager.optionalList.find("li.option").remove();
+            initialOptional = settingInfo.optional.split(",");
+            for(var i = 0; i < initialOptional.length; i++){
+                dropColorManager.addColor( initialOptional[i] );
+            }
+        }
+        //隊伍
+    }catch(e){
+        alert(e);
     }
-    //隊伍
 }
 
 //====================================================
