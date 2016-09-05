@@ -12,13 +12,17 @@ var Ball = function(point, item, size){
     this.stateFrameCount     = 0;
     this.frameCountToDelete  = DELETE_SPEED;
     this.frameCountToDropEnd = DROP_SPEED;
-    this.deletedPair         = null;
 
     this.strong  = item.indexOf('+') >= 0 ? 1 : null;
     this.inhibit = item.indexOf('x') >= 0 ? 1 : null;
     this.locking = item.indexOf('k') >= 0 ? 1 : null;
     this.frozen  = item.indexOf('i') >= 0 ? parseInt( item[ item.indexOf('i') + 1 ] ) : null;
     this.weather = item.indexOf('*') >= 0 ? 1 : null;
+    this.reverse = item.indexOf('_') >= 0 ? 1 : null;
+    this.unknown = item.indexOf('q') >= 0 ? 1 : null;
+
+    this.deletedPair  = null;
+    this.locusMode    = null;
 
     this.setState = function(state){
         self.state = state;
@@ -53,10 +57,16 @@ var Ball = function(point, item, size){
         ++ self.stateFrameCount;
     };
 
+    this.checkInhibit = function(){
+        if( self.inhibit || self.weather ){ return true; }
+        return false;
+    }
 
     this.drawBall = function(ctx){
         var image = new Image();
-        image.src = self.mapImgSrc();
+        if( self.locusMode ){ image.src = self.mapImgSrc( self.item + self.locusMode ); }
+        else{ image.src = self.mapImgSrc( self.item ); }
+
         ctx.save();
         ctx.globalAlpha = self.alpha;
         ctx.drawImage(image, self.point.getX(), self.point.getY(), BALL_SIZE, BALL_SIZE);
@@ -75,20 +85,43 @@ var Ball = function(point, item, size){
         ctx.restore();
     };
 
-    this.mapImgSrc = function(){
-        var plus     = self.item.indexOf('+') >= 0 ? '+' : '';
-        var reverse  = self.item.indexOf('_') >= 0 ? '_' : '';
+    this.mapImgSrc = function(item){
+        if( !item ){ item = self.item; }
+        var plus     = item.indexOf('+') >= 0 ? '+' : '';
+        var reverse  = item.indexOf('_') >= 0 ? '_' : '';
 
+        var itemSrc = '';
         if( item.indexOf('x') >= 0 ){
-            item = 'x';
+            itemSrc = 'x';
         }else if( item.indexOf('q') >= 0 ){
-            item = 'q';
+            itemSrc = 'q';
         }else if( item.indexOf('k') >= 0 ){
-            item = self.color+'k';
+            itemSrc = self.color+'k';
         }else{
-            item = self.color+plus+reverse ;
+            itemSrc = self.color+plus+reverse ;
         }
-        return "img/Icon/"+item+".png";
+        return "img/Icon/"+itemSrc+".png";
+    };
+    this.mapColorSrc = function(item){
+        if( !item ){ item = self.item; }
+        var plus     = item.indexOf('+') >= 0 ? '+' : '';
+        var reverse  = item.indexOf('_') >= 0 ? '_' : '';
+
+        var itemSrc = '';
+        if( item.indexOf('k') >= 0 ){
+            itemSrc = self.color+'k';
+        }else{
+            itemSrc = self.color+plus+reverse ;
+        }
+        return "img/Icon/"+itemSrc+".png";
+    };
+    this.itemInfomation = function(){
+        var info = '';
+        if( self.inhibit ){ info += "隱藏風化\n"; }
+        if( self.frozen  ){ info += "冰凍"+self.frozen+'\n'; }
+        if( self.unknown ){ info += "問號\n"; }
+        if( self.weather ){ info += "風化\n"; }
+        return info;
     }
 
 };

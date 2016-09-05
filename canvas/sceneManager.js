@@ -164,37 +164,30 @@ var FieldManager = function(scene, canvas, history, environment){
     this.historyManager = history;
     this.environment    = environment;
 
-    this.strategy = new FieldStrategyEmpty(self);
+    this.strategy   = new FieldStrategyEmpty(self);
     this.mouseInfo  = new MouseInfo();
     this.frameCount = 0;
 
     this.movingBall = null;
     this.balls      = new Array();
 
-    // 待整理
-    this.isCtwMode = false;
-    this.routeInfos = new Array();
-    this.moveNum = 0;
-    this.deletedColors = new Array(self.environment.hNum);
-    this.slantMove = false;
-    this.ctwTimeLimit = 30 * 5;
-    this.ctwTimer = 0;
-    this.ctwTimerStarted = false;
-
     this.initialize = function(){
-        if(self.lastLayout){
-            self.reloadByLayout(self.lastLayout);
+        if( self.historyManager.panel ){
+            self.setHistoryPanel();
+            setReplayMode( $("#MainButton button").eq(2) );
+            self.strategy.replayFrameCount = -1 * SECOND_FRAMES;
         }else{
             var savedStrategy = self.strategy;
             var savedNewDrop  = self.environment.newDrop;
             var deleteFinished = function(){
-                self.setStrategy(savedStrategy);
-                self.environment.newDrop = savedNewDrop;
-                self.sceneManager.setSkipMode(false);
-
                 barManager.resetTime();
                 comboManager.resetBox();
                 self.historyManager.savePanel( self.balls );
+                self.historyManager.random = RANDOM;
+
+                self.setStrategy(savedStrategy);
+                self.environment.newDrop = savedNewDrop;
+                self.sceneManager.setSkipMode(false);
             }
 
             self.reset();
@@ -240,6 +233,17 @@ var FieldManager = function(scene, canvas, history, environment){
             }
         }
     }
+    this.logBalls = function(){
+        var ballText = "";
+        for(var y = 0 ; y < self.environment.vNum; ++ y){
+            for(var x = 0 ; x < self.environment.hNum; ++ x){
+                var ball = self.balls[x * self.environment.vNum + y];
+                ballText += ball.item+' ';
+            }
+            ballText += '\n';
+        }
+        return ballText;
+    }
 
     //=========================================================
     // SceneManager update 時會一直call update, updateMouseInfo, draw
@@ -264,8 +268,17 @@ var FieldManager = function(scene, canvas, history, environment){
                 ball.drawBall( ctx );
             }
         }
-        if( self.movingBall != null ){
+        // 繪製軌跡效果
+        if( self.environment.isRecordLocus() && self.environment.locusShow ){
+            self.environment.drawLocus(ctx);
+        }
+        // 繪製移動中的珠
+        if( self.movingBall ){
             self.movingBall.drawBall( ctx );
+        }
+        // 繪製軌跡路徑
+        if( self.environment.showRecord && gameMode == GAME_MODE.REPLAY ){
+            self.historyManager.drawRecord( ctx );
         }
     };
 
@@ -286,7 +299,7 @@ var FieldManager = function(scene, canvas, history, environment){
     };
     this.setBallAtPoint = function(ball, point){
         if( self.checkIllegalPoint(point) ){ return null; }
-        if(ball != null){
+        if( ball != null ){
             ball.point = point.clone();
         }
         self.balls[point.getGridX() * self.environment.vNum + point.getGridY()] = ball;

@@ -222,7 +222,7 @@ function findEmptyShift( shift_analysis, array, vector ){
             }
         }
     }
-    var max_shift = 1;
+    var max_shift = 0;
     while( total_shift.has(max_shift) ){
         max_shift++;
     }
@@ -259,8 +259,8 @@ function makeShiftBias(shift_analysis, line, vector){
         var arr = shift_analysis[id][vector];
         max_shift = Math.max( arr[ arr.length-1 ], max_shift );
     }
-    var shift = line['shift'] - ( 1+ (( max_shift - 1 )*0.5) );
-    var shift_bias = Math.min( MAX_SHIFT, max_shift*MIN_SHIFT ) / max_shift;
+    var shift = 2*line['shift'] - max_shift;
+    var shift_bias = Math.min( MAX_SHIFT, max_shift*MIN_SHIFT ) / (max_shift+1);
     return shift * shift_bias;
 }
 function drawTerminalCircle(shift_analysis, line, terminal){    

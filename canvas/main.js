@@ -2,11 +2,13 @@
 var historyManager     = null;
 var environmentManager = null;
 
-var sceneManagerField  = null;
+var sceneManager       = null;
 var fieldManager       = null;
 var barManager         = null;
 var comboManager       = null;
+var dropColorManager   = null;
 
+var gameMode = GAME_MODE.EMPTY;
 
 // =================================================================
 // 觸控判定
@@ -31,61 +33,68 @@ if (navigator.userAgent.indexOf('iPhone') > 0
 
 $(document).ready( function(){
     //try{
-        // check device
+        // check device 大小整理
         if( TOUCH_DEVICE ){
+            //$('nav').hide();
+
             BALL_SIZE = 60;
-            $('nav').hide();
+            REPLAY_SPEED = BALL_SIZE / MOVE_FRAME;
+            SHIFT_BIAS = BALL_SIZE / 20;
+            
+            $("#ColorSelector img").addClass('img-btn-sm');
+            $("#EditModeButton .btn-lg").removeClass("btn-lg").addClass("btn-md");
+            $("#MoveModeButton .btn-lg").removeClass("btn-lg").addClass("btn-md");
+            $('.selectpicker').selectpicker({ style:'btn-default btn-md' });
+            $("#ReplayModeButton .btn-lg").removeClass("btn-lg").addClass("btn-md");
+
             $('#DragCanvas').css('background-size', (BALL_SIZE*4)+' px '+(BALL_SIZE*4)+' px');
+        }else{
+            $("#ColorSelector img").addClass('img-btn-lg');
+            $('.selectpicker').selectpicker({ style:'btn-default btn-lg' });
         }
+
         //initail autoHidingNavbar
         $(".navbar-fixed-top").autoHidingNavbar();
-        //initial Scrollbar
-        /*
-        var amount=Math.max.apply(Math,$("#HorizontalScrollbar li").map(function(){return $(this).outerWidth(true);}).get());
-        $("#HorizontalScrollbar").mCustomScrollbar({
-            axis:"x",
-            theme:"minimal-dark",
-            advanced:{
-                autoExpandHorizontalScroll:true
-            },
-            snapAmount: amount,
-        });
-        $("#BattleInfomationScrollbar").mCustomScrollbar({
-            axis:"y",
-            theme:"inset-dark"
-        });*/
-        $('.selectpicker').selectpicker({ style:'btn-default btn-lg' });
 
-        // read url message and load 
+        // 歷史紀錄和環境設定
         historyManager = new HistoryManager();
         historyManager.initialize();
+
         environmentManager = new EnvironmentManager();
         environmentManager.initialize();
 
-        // build canvas object
-        sceneManagerField = new SceneManager( $("#DragCanvas"), TOUCH_DEVICE );
-        sceneManagerField.startInterval(false);
+        // 主畫面和動畫設定
+        sceneManager = new SceneManager( $("#DragCanvas"), TOUCH_DEVICE );
+        sceneManager.startInterval(false);
 
+        // 其他元件設定
         barManager = new BarManager( $("#BarCanvas"), environmentManager );
         barManager.initialize();
         comboManager = new ComboManager( $('#comboScrollbar'), $('#comboInfo'), historyManager );
         comboManager.initialize();
+        dropColorManager = new DropColorManager( $("#DropColorSelector"), $("#DropColorScrollbar"), environmentManager );
+        dropColorManager.initialize();
 
-        fieldManager = new FieldManager( sceneManagerField, $("#DragCanvas"), historyManager, environmentManager );
-        sceneManagerField.changeScene(fieldManager);
+        // 分析網址
+        parseUrl();
+
+        fieldManager = new FieldManager( sceneManager, $("#DragCanvas"), historyManager, environmentManager );
+        sceneManager.changeScene(fieldManager);
 
         $("#EditModeButton").hide();
         $("#MoveModeButton").hide();
         $("#ReplayModeButton").hide();
 
-        
+        $("#webmenu").msDropDown({
+            visibleRows: 3,
+            rowHeight: 80,
+            openDirection: 'alwaysDown',
+        });
     //}catch(e){  
     //    $('#log').append( '\n'+e );
     //}
 
 });
-
-
 
 function setEditMode(button){
     $("#MainButton button").css('background','').css('color','black');
@@ -94,6 +103,7 @@ function setEditMode(button){
     $("#MoveModeButton").hide();
     $("#ReplayModeButton").hide();
 
+    gameMode = GAME_MODE.EDIT;
     fieldManager.setStrategy(new FieldStrategyEdit(fieldManager));
 }
 function setMoveMode(button){
@@ -103,10 +113,9 @@ function setMoveMode(button){
     $("#MoveModeButton").show();
     $("#ReplayModeButton").hide();
 
-    fieldManager.setStrategy(
-        //new FieldStrategyDropDelete(fieldManager, null, null)
-        new FieldStrategyMove(fieldManager, false)
-    );
+    checkPanelLoader();
+    gameMode = GAME_MODE.MOVE;
+    fieldManager.setStrategy( new FieldStrategyMove(fieldManager, false) );
 }
 function setReplayMode(button){
     $("#MainButton button").css('background','').css('color','black');
@@ -115,7 +124,6 @@ function setReplayMode(button){
     $("#MoveModeButton").hide();
     $("#ReplayModeButton").show();
 
-    fieldManager.setStrategy( 
-        new FieldStrategyMove(fieldManager, true) 
-    );
+    gameMode = GAME_MODE.REPLAY;
+    fieldManager.setStrategy( new FieldStrategyMove(fieldManager, true) );
 }

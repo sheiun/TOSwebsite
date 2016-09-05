@@ -26,6 +26,9 @@ var Point = function(x, y, grid){
         this.y = Math.floor( self.y / BALL_SIZE) * BALL_SIZE;
         return this;
     };
+    this.toText = function(){
+        return self.x+','+self.y;
+    };
     this.clone = function(){
         return new Point(self.x, self.y, false);
     };
@@ -58,7 +61,6 @@ function randomBySeed(seed){
     var rand = Math.sin(seed) * 10000;
     return rand - Math.floor(rand);
 }
-
 
 // =================================================================
 // =================================================================
@@ -97,8 +99,76 @@ function getAngleByPoints(lastPoint, newPoint){
     angle = (angle + 360) % 360;
     return angle;
 }
+function countGoalPoint(point, direction){
+    switch(direction){
+        case Direction8.TENKEY_4: point.x -= BALL_SIZE; break;
+        case Direction8.TENKEY_8: point.y -= BALL_SIZE; break;
+        case Direction8.TENKEY_6: point.x += BALL_SIZE; break;
+        case Direction8.TENKEY_2: point.y += BALL_SIZE; break;
+        case Direction8.TENKEY_1: point.x -= BALL_SIZE;
+                                  point.y += BALL_SIZE; break;
+        case Direction8.TENKEY_3: point.x += BALL_SIZE;
+                                  point.y += BALL_SIZE; break;
+        case Direction8.TENKEY_7: point.x -= BALL_SIZE;
+                                  point.y -= BALL_SIZE; break;
+        case Direction8.TENKEY_9: point.x += BALL_SIZE;
+                                  point.y -= BALL_SIZE; break;
+    }
+    point.x = Math.min( Math.max( point.x, 0 ), (environmentManager.hNum-1) * BALL_SIZE );
+    point.y = Math.min( Math.max( point.y, 0 ), (environmentManager.vNum-1) * BALL_SIZE );
+    return point;
+}; 
+function isOpposite(direction, nextDirection){
+    return (direction + nextDirection) == 10;
+};
+function getVeritcalDirection(direction){
+    var verticalDirection;
+    switch(direction){
+        case Direction8.TENKEY_4: verticalDirection = Direction8.TENKEY_6; break;
+        case Direction8.TENKEY_8: verticalDirection = Direction8.TENKEY_2; break;
+        case Direction8.TENKEY_6: verticalDirection = Direction8.TENKEY_4; break;
+        case Direction8.TENKEY_2: verticalDirection = Direction8.TENKEY_8; break;
+    }
+    return verticalDirection;
+};
 
+var LineSlope = {
+    HORIZENTAL : 1,
+    VERTICAL   : 2,
+    NEGATIVE   : 3,
+    POSITVE    : 4,
+};
+function mapDirectionLineSlope(direction){
+    switch(direction){
+        case Direction8.TENKEY_4: return LineSlope.HORIZENTAL;
+        case Direction8.TENKEY_6: return LineSlope.HORIZENTAL;
+        case Direction8.TENKEY_2: return LineSlope.VERTICAL;
+        case Direction8.TENKEY_8: return LineSlope.VERTICAL;
+        case Direction8.TENKEY_1: return LineSlope.POSITVE;
+        case Direction8.TENKEY_9: return LineSlope.POSITVE;
+        case Direction8.TENKEY_3: return LineSlope.NEGATIVE;
+        case Direction8.TENKEY_7: return LineSlope.NEGATIVE;
+    }
+};
+function mapDirectionVerticalLineSlope(direction){
+    switch(direction){
+        case Direction8.TENKEY_2: return LineSlope.HORIZENTAL;
+        case Direction8.TENKEY_8: return LineSlope.HORIZENTAL;
+        case Direction8.TENKEY_4: return LineSlope.VERTICAL;
+        case Direction8.TENKEY_6: return LineSlope.VERTICAL;
+    }
+};
 
+// =================================================================
+// =================================================================
+
+var GAME_MODE = {
+    EMPTY  : 1,
+    EDIT   : 2,
+    MOVE   : 3,
+    REPLAY : 4,
+};
+var COLORS = ['w', 'f', 'p', 'l', 'd', 'h'];
 
 // =================================================================
 // =================================================================
@@ -111,5 +181,7 @@ var DROP_SPEED    = 5;
 
 var SECOND_FRAMES = 40;
 
-var MOVE_FRAME    = 6;
+var MOVE_FRAME    = 5;
 var REPLAY_SPEED  = BALL_SIZE / MOVE_FRAME;
+
+var SHIFT_BIAS    = BALL_SIZE / 20;

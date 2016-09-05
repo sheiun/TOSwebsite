@@ -34,15 +34,21 @@ body{
 }
 
 
-#ColorSelector img{
-    width: 50px;
-    height: 50px;   
+img.img-btn-lg{
+    background: rgba(0%,0%,0%,0);
+    width: 40px;
+    height: 40px;   
+}
+img.img-btn-sm{
+    background: rgba(0%,0%,0%,0);
+    width: 25px;
+    height: 25px;   
 }
 
 #comboDiv{
-    border-radius: 30px;
     background: #151515;
-    width: 300px;
+    border-radius: 30px;
+    margin: auto;
     height: 520px;
 }
 #comboInfo{    
@@ -60,15 +66,8 @@ body{
 #comboScrollbar{
     border-radius: 20px;
     margin: auto;
-    margin-top: 10px;
-    margin-bottom: 10px;
-    width: 280px;
+    width: 90%;
     height: 400px;
-}
-#comboBox img.comboBox{
-    background: rgba(0%,0%,0%,0);
-    width: 40px;
-    height: 40px;   
 }
 #comboBox div.imgComboSet{ 
     margin-top: 10px;
@@ -85,27 +84,25 @@ body{
     font-size: 30px;
 }
 
-#HorizontalScrollbar{
+#DropColorScrollbar{
     background: LightGray;
     border-radius: 10px;
-    width: 400px;
-    height: 110px;
+    width: 80%;
 }
-#HorizontalScrollbar img{
+#DropColorScrollbar li{
     cursor: pointer;
-    border-radius: 10px;
-    background: DarkGray ;
-    height: 60px;
-}
-#HorizontalScrollbar .addNewColor{
-    cursor: pointer;
-    border-radius: 10px;
     background: DarkGray;
-    width: 90px;
-    height: 60px;
+    border-radius: 10px;
 }
-#HorizontalScrollbar .addNewColor span{
-    margin-top: 20px;
+#DropColorScrollbar .addNewColor{
+    text-align: center;
+    position: relative;
+}
+#DropColorScrollbar .addNewColor span{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }
 
 #TeamMember{

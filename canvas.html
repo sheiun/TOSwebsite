@@ -61,17 +61,17 @@
                 <li class="active nav-bar-li">
                     <a href="drag.html">轉珠模擬器</a>
                 </li>
-                <li class="nav-bar-li">
-                    <a >Coming so...on</a>
+                <li class="nav-bar-li ">
+                    <a onclick="scroll_top()">
+                        <span class="glyphicon glyphicon-chevron-up" /></a>
                 </li>
                 <li class="nav-bar-li ">
-                    <a ><span class="glyphicon glyphicon-chevron-up" ></span></a>
+                    <a onclick="scroll_bottom()">
+                        <span class="glyphicon glyphicon-chevron-down" /></a>
                 </li>
                 <li class="nav-bar-li ">
-                    <a ><span class="glyphicon glyphicon-chevron-down" ></span></a>
-                </li>
-                <li class="nav-bar-li ">
-                    <a ><span class="glyphicon glyphicon-remove" ></span></a>
+                    <a onclick="hide_navbar()">
+                        <span class="glyphicon glyphicon-remove" /></a>
                 </li>
             </ul>
         </div>
@@ -87,12 +87,10 @@
 
         <div class="row">
 
-            <div  id="main_workplace" class="col-lg-10" align="center">
+            <div class="col-lg-3"></div>
+            <div  id="main_workplace" class="col-lg-6" align="center">
                 <p id="title">轉珠模擬器</p>
-                <pre id="log">ver 117</pre>
 
-
-                
                 <canvas id="BarCanvas" ></canvas>
                 <br>
                 <canvas id="DragCanvas" ></canvas>
@@ -105,106 +103,136 @@
                         <span >移動設定</span></button>
                     <button id="Replay" class="btn btn-default btn-lg" onclick="setReplayMode(this)">
                         <span >重播設定</span></button>
-                </div>
-                <br><br>
+                </div><br><br>
 
                 <div id="EditModeButton">
+                    <div id="PanelSelector">
+                        <button class="btn btn-default btn-lg" onclick="randomPanel()">
+                            <span >隨機盤面</span></button>
+                        <div class="btn-group" role="group">
+                            <button class="btn btn-default btn-lg" onclick="savePanel(1, this)">
+                                <span >儲存盤面1</span></button>
+                            <button class="btn btn-default btn-lg" onclick="savePanel(2, this)">
+                                <span >儲存盤面2</span></button>
+                            <button class="btn btn-default btn-lg" onclick="savePanel(3, this)">
+                                <span >儲存盤面3</span></button>
+                        </div>
+                    </div><br>
                     <div id="ColorSelector" class="btn-group" role="group">
                         <button class="btn btn-default" onclick="setColor('w', this)">
-                            <img src="img/Icon/w.png">
-                        </button>
+                            <img src="img/Icon/w.png"></button>
                         <button class="btn btn-default" onclick="setColor('f', this)">
-                            <img src="img/Icon/f.png">
-                        </button>
+                            <img src="img/Icon/f.png"></button>
                         <button class="btn btn-default" onclick="setColor('p', this)">
-                            <img src="img/Icon/p.png">
-                        </button>
+                            <img src="img/Icon/p.png"></button>
                         <button class="btn btn-default" onclick="setColor('l', this)">
-                            <img src="img/Icon/l.png">
-                        </button>
+                            <img src="img/Icon/l.png"></button>
                         <button class="btn btn-default" onclick="setColor('d', this)">
-                            <img src="img/Icon/d.png">
-                        </button>
+                            <img src="img/Icon/d.png"></button>
                         <button class="btn btn-default" onclick="setColor('h', this)">
-                            <img src="img/Icon/h.png">
-                        </button>
+                            <img src="img/Icon/h.png"></button>
                     </div><br>
                     <div id="ColorAttrSelector" class="btn-group" role="group">
                         <button class="btn btn-default btn-lg" onclick="setColorAttr('strong', this)">
-                            <span >強化珠</span></button>
+                            <span>強化珠</span></button>
                         <button class="btn btn-default btn-lg" onclick="setColorAttr('weather', this)">
-                            <span >風化珠</span></button>
+                            <span>風化珠</span></button>
                         <button class="btn btn-default btn-lg" onclick="setColorAttr('locking', this)">
-                            <span >鎖定珠</span></button>
-                        <button class="btn btn-default btn-lg" onclick="setColorAttr('unknown', this)">
-                            <span >問號珠</span></button>
-                        <button class="btn btn-default btn-lg" onclick="setColorAttr('reverse', this)">
-                            <span >黑白珠</span></button>
-                        <button class="btn btn-default btn-lg" onclick="setColorAttr('inhibit', this)">
-                            <span >隱藏風化</span></button>
+                            <span>鎖定珠</span></button>
                         <button class="btn btn-default btn-lg" onclick="setColorFrozen('frozen', this)">
-                            <span >冰凍珠</span></button>
+                            <span>冰凍珠</span></button>
+                    </div><br>
+                    <div id="ColorAttrSelector2" class="btn-group" role="group">
+                        <button class="btn btn-default btn-lg" onclick="setColorAttr('unknown', this)">
+                            <span>問號珠</span></button>
+                        <button class="btn btn-default btn-lg" onclick="setColorAttr('reverse', this)">
+                            <span>黑白珠</span></button>
+                        <button class="btn btn-default btn-lg" onclick="setColorAttr('inhibit', this)">
+                            <span>隱藏風化</span></button>
+                    </div><br><br>
+
+                    <div id="DropAttrSetting" class="btn-group" role="group">
+                        <button class="btn btn-default btn-lg" onclick="setNewDrop(this)">
+                            <span >隨機落珠</span></button>
+                        <button class="btn btn-default btn-lg" onclick="resetRandom(this)">
+                            <span >新亂數</span></button>
+                        <select id="DropColorSelector" class="selectpicker" data-width="150px" title="落珠選擇" onchange="selectDropColor(this)">
+                            <option value="0" >正常分布</option>
+                            <option value="1" >禁心珠</option>
+                            <option value="2" >亡命感應 ‧ 水</option>
+                            <option value="3" >亡命感應 ‧ 火</option>
+                            <option value="4" >亡命感應 ‧ 木</option>
+                            <option value="5" >聖言詠歌</option>
+                            <option value="6" >夜言鳴曲</option>
+                            <option value="7" >問號掉落</option>
+                            <option value="8" >自訂義</option>
+                        </select>
+                    </div><br>
+                    <div id="DropColorScrollbar" class="content horizontal-images">
+                        <ul id="OptionalColors" IDmaker="0">
+                            <li>
+                                <div class="addNewColor" onclick="addColorIntoBar()" >
+                                    <span class="glyphicon glyphicon-plus"style="vertical-align:middle"></span>
+                                </div>
+                            </li>
+                        </ul>
+                    </div><br><br>
+                    <div id="teamAttrSetting" class="btn-group" role="group">
                     </div>
                 </div>
 
                 <div id="MoveModeButton">
+                    <div id="PanelLoader">
+                        <button class="btn btn-default btn-lg" onclick="randomPanelToMove()">
+                            <span>隨機盤面</span></button>
+                        <div class="btn-group" role="group">
+                            <button class="btn btn-default btn-lg" onclick="loadPanel(1)">
+                                <span>讀取盤面1</span></button>
+                            <button class="btn btn-default btn-lg" onclick="loadPanel(2)">
+                                <span>讀取盤面2</span></button>
+                            <button class="btn btn-default btn-lg" onclick="loadPanel(3)">
+                                <span>讀取盤面3</span></button>
+                        </div>
+                    </div><br>
                     <div id="MoveAttrSetting" class="btn-group" role="group">
                         <button class="btn btn-default btn-lg" onclick="setFreeMove(this)">
                             <span >自由移動</span></button>
                         <span class="btn btn-default btn-lg">時間</span>
                         <input type="number" value="5" max="60" min="1" class="btn btn-default btn-lg" onchange="setTimeLimit(this)" >
                     </div>
-                    <button class="btn btn-danger btn-lg" onclick="(this)">
-                        <span >開始轉珠</span></button>
                     <br><br>
                     
-                    <div id="DropAttrSetting" class="btn-group" role="group">
-                        <button class="btn btn-default btn-lg" onclick="setNewDrop(this)">
-                            <span >隨機落珠</span></button>
-                        <select id="dropColorSelect" class="selectpicker" data-width="150px" title="落珠選擇">
-                            <option value="w,f,p,l,d,h" >正常分布</option>
-                            <option value="w,f,p,l,d" >禁心珠</option>
-                            <option value="MAP,h,w" >亡命感應 ‧ 水</option>
-                            <option value="MAP,h,f" >亡命感應 ‧ 火</option>
-                            <option value="MAP,h,p" >亡命感應 ‧ 木</option>
-                            <option value="MAP,h,l" >聖言詠歌</option>
-                            <option value="MAP,h,d" >夜言鳴曲</option>
-                            <option value="question" >問號掉落</option>
-                            <option value="optional" >自訂義</option>
-                        </select>
-                    </div>
                     <div id="locusAttrSetting" class="btn-group" role="group">
-                        <button class="btn btn-default btn-lg" onclick="(this)">
+                        <button class="btn btn-default btn-lg" onclick="setInfLocus(this)">
                             <span >持續軌跡</span></button>
-                        <select id="locusSelect" class="selectpicker" data-width="150px" title="軌跡選擇">
-                            <option value="null" >無軌跡</option>
-                            <option value="_" >軌跡黑白</option>
-                            <option value="q" >軌跡問號</option>
-                            <option value="fire" >軌跡燃燒</option>
-                            <option value="rot" >軌跡腐蝕</option>
+                        <select id="locusSelect" class="selectpicker" data-width="150px" title="軌跡選擇" onchange="setLocusMode(this)">
+                            <option value="0" >無軌跡</option>
+                            <option value="1" >軌跡黑白</option>
+                            <option value="2" >軌跡問號</option>
+                            <option value="3" >軌跡燃燒</option>
+                            <option value="4" >軌跡腐蝕</option>
                         </select>
                     </div>
                 </div>
 
                 <div id="ReplayModeButton">
                     <div id="ReplayAttrSetting" class="btn-group" role="group">
-                        <button class="btn btn-default btn-lg" onclick="(this)">
-                            <span >暫停動作</span></button>
-                        <button class="btn btn-default btn-lg" onclick="(this)">
-                            <span >顯示軌跡</span></button>
+                        <button class="btn btn-default btn-lg" onclick="stopReplay(this)">
+                            <span>暫停動作</span></button>
+                        <button class="btn btn-default btn-lg" onclick="showRecord(this)">
+                            <span>顯示軌跡</span></button>
                         <span class="btn btn-default btn-lg">速度</span>
-                        <input type="number" value="5" max="10" min="1" class="btn btn-default btn-lg" onchange="(this)" >
-                    </div>
-
-                    <button class="btn btn-danger btn-lg" onclick="(this)">
-                        <span >開始重播</span></button>
+                        <input type="number" value="5" max="10" min="1" class="btn btn-default btn-lg" onchange="setReplaySpeed(this)" >
+                    </div><br><br>
+                    <button id="ReplayURLSetting" class="btn btn-primary btn-lg" onclick="shareUrl(this)">
+                        <span>播放連結</span></button>
                 </div>
 
             <br><br>                
             </div>
 
 
-            <div class="col-lg-2">
+            <div class="col-lg-3">
                 <br><br>
                 <div id="comboDiv">
                     <br>
@@ -219,11 +247,8 @@
             </div>
         </div>
 
-
         <footer> 
             <br><br>
-                    <input type="button" id="upload" value="儲存紀錄" onclick="download()" class="btn btn-default">
-                    <input type="file" id="file" onclick=" " class="filestyle" data-input="false" data-icon="false" data-buttonText="讀取紀錄" >
             <div class="row">
                 <div class="col-lg-12" align="center">
                     <img src="img/UI/logo.png" >
@@ -245,15 +270,11 @@
     <script type="text/javascript" src="js/filestyle/bootstrap-filestyle.min.js"> </script>
     <script type="text/javascript" src="js/autohidingnavbar/jquery.bootstrap-autohidingnavbar.min.js" ></script>
     <script type="text/javascript" src="js/jquery-ui/jquery-ui.min.js"></script>
-    <script type="text/javascript" src="js/jquery-ui/jquery.ui.touch-punch.min.js"></script>
-    <script type="text/javascript" src="js/jcanvas/jcanvas.min.js"></script>
     <script type="text/javascript" src="js/url/url.min.js"></script>
-    <script type="text/javascript" src="js/clipboard/clipboard.min.js"></script>
     <script type="text/javascript" src="js/scrollbar/jquery.mCustomScrollbar.concat.min.js"></script>
     <script type="text/javascript" src="js/LZstring/lz-string.min.js"></script>
     <script type="text/javascript" src="js/msdropdown/jquery.dd.js"></script>
     <script type="text/javascript" src="js/utility.js"></script>
-
 
     <script type="text/javascript" src="canvas/button.js"></script>
     <script type="text/javascript" src="canvas/sceneManager.js"></script>
@@ -265,6 +286,8 @@
     <script type="text/javascript" src="canvas/global.js"></script>
     <script type="text/javascript" src="canvas/main.js"></script>
 
+    <script src="js/msdropdown/jquery.dd.js" type="text/javascript"></script>
+    <link rel="stylesheet" type="text/css" href="css/dd/dd.css" />
 </body>
 
 </html>

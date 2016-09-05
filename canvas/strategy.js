@@ -108,11 +108,12 @@ var FieldStrategyDropDelete = function(field, deleteFinished, dropFinished){
         // 被消除名單
         self.countDeleteBalls( self.field.balls );
 
-        if( self.deletedWave.orderDeletePairs.length == 0 ){
+        if( self.deletedWave.orderDeletePairs.length == 0 ||
+            self.field.historyManager.deletedInfo.waveNum > 100 ){
             //落珠結束 進入下一階段
             self.mode = Mode.WAITING;
             self.frameCount = 0;
-            if( self.deleteFinished ){console.log(self.field.historyManager.deletedInfo);
+            if( self.deleteFinished ){
                 self.deleteFinished();
             }
         }else{
@@ -248,11 +249,7 @@ var FieldStrategyDropDelete = function(field, deleteFinished, dropFinished){
                 }
             }
             return false;
-        }
-       
-        for(var i = 0; i < self.field.environment.colors.length; i++){
-            self.deletedWave.colorDeletePairs[i] = new Array();
-        }
+        }       
 
         // vertical
         for(var i =0; i < self.field.environment.hNum; i++ ){
@@ -343,8 +340,6 @@ var FieldStrategyDropDelete = function(field, deleteFinished, dropFinished){
             }
             self.deletedWave.colorDeletePairs[i] = tmpArray;
         }
-
-        return self.deletedWave.orderDeletePairs;
     };
 
 }
@@ -373,6 +368,7 @@ var FieldStrategyMove = function(field, replay){
     this.timerStart      = null;
     this.timerFrameCount = 0;
     this.timeOver        = false;
+    this.forceStop       = false;
 
     this.initialize = function(){
         barManager.resetTime();
@@ -381,10 +377,16 @@ var FieldStrategyMove = function(field, replay){
         self.field.setHistoryPanel();
         self.field.historyManager.resetRouteInfo();
         self.field.historyManager.resetDeletedInfo();
+        self.field.historyManager.parseRecordLines();
+        self.field.historyManager.resetRandom();
+
+        self.field.environment.resetReplaySpeed();
+        self.field.environment.colorSetting();
+
         self.field.timerStart = false;
     };
     this.finalize = function(){
-        self.field.movingBall = null;
+        self.field.movingBall = null;        
     };
     this.update = function(){
         for(var i = 0 ; i < self.field.balls.length ; ++ i){
@@ -401,7 +403,7 @@ var FieldStrategyMove = function(field, replay){
             case Mode.MOVING  : self.updateMoving();  break;
         }
 
-        if( self.timerStart ){ 
+        if( self.timerStart && !self.replay ){ 
             self.updateTimerBar();
             ++ self.timerFrameCount;
         }
@@ -409,8 +411,11 @@ var FieldStrategyMove = function(field, replay){
         ++ self.modeFrameCount;
     };
 
+    //===========================================================
+    // 更新重播滑鼠
+    //===========================================================
     this.updateReplayMouseInfo = function(){
-        if( self.replayFrameCount == null ){ return; }
+        if( self.replayFrameCount == null || self.field.environment.stopReplay ){ return; }
         // 路徑設定
         if( self.replayFrameCount == 1 ){
             self.replayMovePrepare();
@@ -457,12 +462,6 @@ var FieldStrategyMove = function(field, replay){
             // 記録
             if( !self.replay ){
                 self.field.historyManager.startNewRoute( mouseInfo.point );
-
-                // 時間開始記錄
-                if( !self.timerStart ){ console.log('timeStart');
-                    self.timerStart = true;
-                    self.timerFrameCount = 0;
-                }
             }
 
         }
@@ -482,57 +481,141 @@ var FieldStrategyMove = function(field, replay){
         var mouseReleased = mouseInfo && !mouseInfo.pressed;
 
         // 時間判定優先
-        if( !self.replay && self.timeOver ){
+        if( !self.replay && ( self.timeOver || self.forceStop ) ){
             mouseMoved = false;
             mouseReleased = true;
         }
 
         if( mouseMoved ){
-            // 1. 計算滑鼠移動量
-            // 2. 以移動量更動移動珠位置
-            // 3. 計算移動珠所在格
-            var newPoint  = self.field.getBallCenterPoint( self.field.movingBall );
-            var direction = getDirectionByPoints( self.lastPoint, newPoint );
-            var angle         = getAngleByPoints( self.lastPoint, self.field.movingBall.point );
-            var angleIsSlant  = (angle > (90 * 0) + 45 - 15 && angle < (90 * 0) + 45 + 15) ||
-                                (angle > (90 * 1) + 45 - 15 && angle < (90 * 1) + 45 + 15) ||
-                                (angle > (90 * 2) + 45 - 15 && angle < (90 * 2) + 45 + 15) ||
-                                (angle > (90 * 3) + 45 - 15 && angle < (90 * 3) + 45 + 15);
-            var slantMove     = (direction == Direction8.TENKEY_1) || 
-                                (direction == Direction8.TENKEY_3) || 
-                                (direction == Direction8.TENKEY_7) || 
-                                (direction == Direction8.TENKEY_9); 
-
-            self.updateMovingBall( mouseInfo );
-            if( self.checkMoveVector( newPoint, direction, angle, angleIsSlant, slantMove ) ){
-                self.exchangeBall( newPoint, direction )
-            }
-
+            self.updateMouseMoved( mouseInfo );
         }
         if( mouseReleased ){
-            self.returnMovingBall();
+            self.updateMouseReleased();
+        }
+    };
+    this.updateMouseMoved = function( mouseInfo ){
+        // 1. 計算滑鼠移動量
+        // 2. 以移動量更動移動珠位置
+        // 3. 計算移動珠所在格
+        var newPoint  = self.field.getBallCenterPoint( self.field.movingBall );
+        var direction = getDirectionByPoints( self.lastPoint, newPoint );
+        var angle         = getAngleByPoints( self.lastPoint, self.field.movingBall.point );
+        var angleIsSlant  = (angle > (90 * 0) + 45 - 15 && angle < (90 * 0) + 45 + 15) ||
+                            (angle > (90 * 1) + 45 - 15 && angle < (90 * 1) + 45 + 15) ||
+                            (angle > (90 * 2) + 45 - 15 && angle < (90 * 2) + 45 + 15) ||
+                            (angle > (90 * 3) + 45 - 15 && angle < (90 * 3) + 45 + 15);
+        var slantMove     = (direction == Direction8.TENKEY_1) || 
+                            (direction == Direction8.TENKEY_3) || 
+                            (direction == Direction8.TENKEY_7) || 
+                            (direction == Direction8.TENKEY_9); 
 
-            self.movingInfo = null;
-            self.lastPoint = null;
-            self.mode = Mode.WAITING;
-            self.modeFrameCount = 0;
+        self.updateMovingBall( mouseInfo );
+        if( self.checkMoveVector( newPoint, direction, angle, angleIsSlant, slantMove ) ){
+            self.exchangeBall( newPoint, direction );
+
+            // 時間開始記錄
+            if( !self.timerStart ){
+                self.timerStart = true;
+                self.timerFrameCount = 0;
+            }
+        }
+    };
+    this.updateMouseReleased = function(){
+        self.returnMovingBall();
+
+        self.movingInfo      = null;
+        self.lastPoint       = null;
+        self.mode            = Mode.WAITING;
+        self.modeFrameCount  = 0;
             
-            // 記録
-            if( !self.replay ){
+        // 記録
+        if( !self.replay ){
+            if( self.timerStart ){
+                if( self.field.environment.hasLocus() ){
+                    self.cleanLocus();
+                }
+
                 self.field.historyManager.saveRouteInfo();
                 if( !self.field.environment.freeMove || self.timeOver ){
                     self.setDropStrategy();      
                 }
             }else{
-                // 走完最後一個route
-                if( !self.replayRouteInfo.index ){ 
-                    self.setDropStrategy();
-                }
+                // 還沒開始，重新記錄下個路徑
+                self.field.historyManager.resetRouteInfo();
             }
-
+        }else{
+            // 走完最後一個route
+            if( !self.replayRouteInfo.index ){ 
+                self.setDropStrategy();
+            }
         }
     };
+    this.exchangeBall = function( newPoint, direction ){
+        var ball = self.field.getBallAtPoint( newPoint );
+        self.field.deleteBallAtPoint( newPoint );
+        self.field.setBallAtPoint( ball, self.lastPoint );
+        self.lastPoint = newPoint.clone();
+        
+        comboManager.addMove();
 
+
+        // 記録
+        if( !self.replay ){
+            // 繪製軌跡特效
+            if( self.field.environment.hasLocus() ){
+                self.updateLocus( ball );
+            }
+
+            // 檢查風化腐蝕等
+            if( ball.checkInhibit() || self.field.environment.checkLocusInhibit(newPoint) ){
+                self.forceStop = true;
+            }
+
+            self.field.historyManager.addRecord( direction );
+        }
+    };
+    this.updateLocus = function(ball){
+        // 將軌跡轉化為點路徑
+        var route = self.field.historyManager.routeInfo.getCurrentRoute();
+        var points = new Array();
+        var point = route.startPoint.clone();
+        points.push(point);
+        for(var i = 0; i < route.record.length; i++){
+            point = countGoalPoint( point.clone(), route.record[i] );
+            points.push(point);
+        }
+
+        var locusLength = self.field.environment.locusInf ? Infinity : 6;
+        var locusItem = self.field.environment.mapLocusItem();
+        if( self.field.environment.isBallLocus() ){
+            for(var i = 0; i < points.length; i++){
+                var ball = self.field.getBallAtPoint( points[i] );
+                if( ball ){
+                    if( i < points.length - locusLength ){
+                        ball.locusMode = null;
+                    }else{
+                        ball.locusMode = locusItem;
+                    }
+                }
+            }
+        }else if( self.field.environment.isRecordLocus() ){
+            var drawPoints = new Array();
+            for(var i = 0; i < points.length; i++){
+                if( i >= points.length - locusLength ){
+                    drawPoints.push( points[i] );
+                }
+            }
+            self.field.environment.prepareDrawLocus( drawPoints );
+        }
+    }
+    this.cleanLocus = function(){
+        for(var i = 0; i < self.field.balls.length; i++){
+            var ball = self.field.balls[i];
+            if( ball ){ ball.locusMode = null; }
+        }
+        self.field.environment.locusShow = false;
+        self.field.environment.locusPoints = null;
+    };
 
     //===========================================================
     // 計算用
@@ -574,7 +657,18 @@ var FieldStrategyMove = function(field, replay){
                                       self.replayMouseInfo.point.y -= REPLAY_SPEED; break;
         }
     };
+    this.checkMoveVector = function( newPoint, direction, angle, angleIsSlant, slantMove ){
+        if( self.lastPoint.getGridX() != newPoint.getGridX() || 
+            self.lastPoint.getGridY() != newPoint.getGridY() ){
+            if( !slantMove && angleIsSlant ){ return false; }
+            return true;
+        }
+        return false; 
+    };
 
+    //===========================================================
+    // 移動細節
+    //===========================================================
     this.updateMovingBall = function(mouseInfo){
         var moveVector = new Point( mouseInfo.point.getX() - self.movingInfo.lastMousePoint.getX(), 
                                     mouseInfo.point.getY() - self.movingInfo.lastMousePoint.getY(), false );
@@ -585,26 +679,6 @@ var FieldStrategyMove = function(field, replay){
         //範圍限制
         self.field.movingBall.point.x = Math.min( Math.max( self.field.movingBall.point.getX(), 0 ), BALL_SIZE * (self.field.environment.hNum-1) );
         self.field.movingBall.point.y = Math.min( Math.max( self.field.movingBall.point.getY(), 0 ), BALL_SIZE * (self.field.environment.vNum-1) );
-    };
-    this.checkMoveVector = function( newPoint, direction, angle, angleIsSlant, slantMove ){
-        if( self.lastPoint.getGridX() != newPoint.getGridX() || 
-            self.lastPoint.getGridY() != newPoint.getGridY() ){
-            if( !slantMove && angleIsSlant ){ return false; }
-            return true;
-        }
-        return false; 
-    };
-    this.exchangeBall = function( newPoint, direction ){
-        var ball      = self.field.getBallAtPoint( newPoint );
-        self.field.deleteBallAtPoint( newPoint );
-        self.field.setBallAtPoint( ball, self.lastPoint );
-        self.lastPoint = newPoint.clone();
-
-        comboManager.addMove();
-        // 記録
-        if( !self.replay ){
-            self.field.historyManager.addRecord( direction );
-        }
     };
     this.returnMovingBall = function(){
         var movingPoint = self.field.getBallCenterPoint( self.field.movingBall );
