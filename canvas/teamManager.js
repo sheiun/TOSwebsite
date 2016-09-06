@@ -102,9 +102,8 @@ var TeamManager = function( table, environment ){
         self.friendSkill.variable = new self.friendSkill.init( self.friend );
     };
 
-
     this.checkLeaderSkill = function( key ){
-        if( self.leaderSkill[key] ){console.log(key)
+        if( self.leaderSkill && self.leaderSkill[key] ){console.log(key)
             self.leaderSkill[key]( self.leader, "LEADER" );
         }
     }
