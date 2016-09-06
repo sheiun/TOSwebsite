@@ -4,6 +4,8 @@ var environmentManager = null;
 
 var sceneManager       = null;
 var fieldManager       = null;
+
+var teamManager        = null;
 var barManager         = null;
 var comboManager       = null;
 var dropColorManager   = null;
@@ -21,6 +23,28 @@ if (navigator.userAgent.indexOf('iPhone') > 0
     TOUCH_DEVICE = true;
 }
 // =================================================================
+
+window.requestAnimFrame = (function(callback){
+    return  window.requestAnimationFrame ||
+            window.webkitRequestAnimationFrame || 
+            window.mozRequestAnimationFrame || 
+            window.oRequestAnimationFrame || 
+            window.msRequestAnimationFrame ||
+            function(callback) {
+                window.setTimeout(callback, 1);
+            };
+})();
+
+window.cancelAnimationFrame = (function(callback){
+    return  window.cancelAnimationFrame ||
+            window.webkitCancelAnimationFrame || 
+            window.webkitCancelRequestAnimationFrame || 
+            window.mozCancelAnimationFrame || 
+            window.mozCancelRequestAnimationFrame ||
+            function(id) {
+                clearTimeout(id);;
+            };
+})();
 
 /*
 (function(){
@@ -74,6 +98,8 @@ $(document).ready( function(){
         comboManager.initialize();
         dropColorManager = new DropColorManager( $("#DropColorSelector"), $("#DropColorScrollbar"), environmentManager );
         dropColorManager.initialize();
+        teamManager = new TeamManager( $("#TeamMember") );
+        teamManager.initialize();
 
         // 分析網址
         parseUrl();
@@ -82,14 +108,9 @@ $(document).ready( function(){
         sceneManager.changeScene(fieldManager);
 
         $("#EditModeButton").hide();
+        $("#TeamModeButton").hide();
         $("#MoveModeButton").hide();
         $("#ReplayModeButton").hide();
-
-        $("#webmenu").msDropDown({
-            visibleRows: 3,
-            rowHeight: 80,
-            openDirection: 'alwaysDown',
-        });
     //}catch(e){  
     //    $('#log').append( '\n'+e );
     //}
@@ -100,16 +121,29 @@ function setEditMode(button){
     $("#MainButton button").css('background','').css('color','black');
     $(button).css('background','#4d3900').css('color','white');
     $("#EditModeButton").show();
+    $("#TeamModeButton").hide();
     $("#MoveModeButton").hide();
     $("#ReplayModeButton").hide();
 
     gameMode = GAME_MODE.EDIT;
     fieldManager.setStrategy(new FieldStrategyEdit(fieldManager));
 }
+function setTeamMode(button){
+    $("#MainButton button").css('background','').css('color','black');
+    $(button).css('background','#4d3900').css('color','white');
+    $("#EditModeButton").hide();
+    $("#TeamModeButton").show();
+    $("#MoveModeButton").hide();
+    $("#ReplayModeButton").hide();
+
+    gameMode = GAME_MODE.TEAM;
+    fieldManager.setStrategy(new FieldStrategyEmpty(fieldManager));
+}
 function setMoveMode(button){
     $("#MainButton button").css('background','').css('color','black');
     $(button).css('background','#4d3900').css('color','white');
     $("#EditModeButton").hide();
+    $("#TeamModeButton").hide();
     $("#MoveModeButton").show();
     $("#ReplayModeButton").hide();
 
@@ -121,9 +155,13 @@ function setReplayMode(button){
     $("#MainButton button").css('background','').css('color','black');
     $(button).css('background','#4d3900').css('color','white');
     $("#EditModeButton").hide();
+    $("#TeamModeButton").hide();
     $("#MoveModeButton").hide();
     $("#ReplayModeButton").show();
 
     gameMode = GAME_MODE.REPLAY;
     fieldManager.setStrategy( new FieldStrategyMove(fieldManager, true) );
 }
+
+
+

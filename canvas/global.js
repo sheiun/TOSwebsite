@@ -165,8 +165,9 @@ function mapDirectionVerticalLineSlope(direction){
 var GAME_MODE = {
     EMPTY  : 1,
     EDIT   : 2,
-    MOVE   : 3,
-    REPLAY : 4,
+    TEAM   : 3,
+    MOVE   : 4,
+    REPLAY : 5,
 };
 var COLORS = ['w', 'f', 'p', 'l', 'd', 'h'];
 

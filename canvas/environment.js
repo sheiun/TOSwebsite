@@ -19,7 +19,8 @@ var EnvironmentManager = function(){
     this.colorProb       = null;
     this.colorMap        = null;
     this.colorChangeable = true;
-    this.pairSize        = {w:3, f:3, p:3, l:3, d:3, h:3};
+    this.pairSize        = null;
+    this.groupSize        = null;
 
     this.newDrop      = false;
     this.locusMode    = null;
@@ -50,17 +51,19 @@ var EnvironmentManager = function(){
         self.colorMap        = {};
         self.colorChangeable = true;
         self.pairSize        = {w:3, f:3, p:3, l:3, d:3, h:3};
+        self.groupSize       = {w:3, f:3, p:3, l:3, d:3, h:3};
         for(var i = 0; i < self.hNum; i++){
             self.colorProb[i] = {};
         }
     };
     // 設定落珠機率流程 
-    this.colorSetting = function(){
+    this.resetTeamComposition = function(){
         self.resetColorSetting();
 
         //檢查落珠設定
         dropColorManager.setColor();
         //檢查隊伍技能
+        teamManager.setTeamAbility();
 
         self.setTeamColorProb();
     }

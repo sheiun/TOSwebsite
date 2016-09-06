@@ -158,6 +158,9 @@ var FieldStrategyDropDelete = function(field, deleteFinished, dropFinished){
         }
     };
     this.updateTryDrop = function(){
+
+        teamManager.checkLeaderSkill("newItem");
+
         // 計算落下距離
         for(var i = 0; i < self.field.environment.hNum; i++){
             var dropGrid = 0;
@@ -216,7 +219,7 @@ var FieldStrategyDropDelete = function(field, deleteFinished, dropFinished){
             if( !ball || !ball.color || !ballPair.color ){ return false; }
             return ball.color == ballPair.color;
         }
-        var checkDelete = function(ballPair, list){
+        var checkDeletePair = function(ballPair, list){
             if( ballPair.balls.length >= self.field.environment.pairSize[ ballPair.color ] ){
                 list.push(ballPair);
             }
@@ -265,17 +268,17 @@ var FieldStrategyDropDelete = function(field, deleteFinished, dropFinished){
                     }else if( checkConnect( pair, ball ) ){
                         pair.addBall( ball );
                     }else{
-                        checkDelete(pair, self.deletedWave.vDeletePairs);
+                        checkDeletePair(pair, self.deletedWave.vDeletePairs[i]);
                         pair = new BallPair();
                         pair.addBall( ball );
                         pair.color = ball.color;
                     }
                 }else{
-                    checkDelete(pair, self.deletedWave.vDeletePairs);
+                    checkDeletePair(pair, self.deletedWave.vDeletePairs[i]);
                     pair = new BallPair();
                 }
             }
-            checkDelete(pair, self.deletedWave.vDeletePairs);
+            checkDeletePair(pair, self.deletedWave.vDeletePairs[i]);
         }
         // horizontal
         for(var i =0; i < self.field.environment.vNum; i++ ){
@@ -291,25 +294,29 @@ var FieldStrategyDropDelete = function(field, deleteFinished, dropFinished){
                     }else if( checkConnect( pair, ball ) ){
                         pair.addBall( ball );
                     }else{
-                        checkDelete(pair, self.deletedWave.hDeletePairs);
+                        checkDeletePair(pair, self.deletedWave.hDeletePairs[i]);
                         pair = new BallPair();
                         pair.addBall( ball );
                         pair.color = ball.color;
                     }
                 }else{
-                    checkDelete(pair, self.deletedWave.hDeletePairs);
+                    checkDeletePair(pair, self.deletedWave.hDeletePairs[i]);
                     pair = new BallPair();
                 }
             }
-            checkDelete(pair, self.deletedWave.hDeletePairs);
+            checkDeletePair(pair, self.deletedWave.hDeletePairs[i]);
         }
-
+        
         // merge Pairs in color
-        for(var i = 0; i < self.deletedWave.vDeletePairs.length; i++){
-            self.deletedWave.orderDeletePairs.push( self.deletedWave.vDeletePairs[i] );
+        for(var i = 0; i < self.field.environment.hNum; i++ ){
+            for(var j = 0; j < self.deletedWave.vDeletePairs[i].length; j++){
+                self.deletedWave.orderDeletePairs.push( self.deletedWave.vDeletePairs[i][j] );
+            }
         }
-        for(var i = 0; i < self.deletedWave.hDeletePairs.length; i++){
-            self.deletedWave.orderDeletePairs.push( self.deletedWave.hDeletePairs[i] );
+        for(var i =0; i < self.field.environment.vNum; i++ ){
+            for(var j = 0; j < self.deletedWave.hDeletePairs[i].length; j++){
+                self.deletedWave.orderDeletePairs.push( self.deletedWave.hDeletePairs[i][j] );
+            }
         }
         for(var i = 0; i < self.deletedWave.orderDeletePairs.length; i++){
             var pair = self.deletedWave.orderDeletePairs[i];
@@ -326,8 +333,14 @@ var FieldStrategyDropDelete = function(field, deleteFinished, dropFinished){
         // remove empty pair
         var tmpArray = new Array();
         for(var i = 0; i < self.deletedWave.orderDeletePairs.length; i++){
-            if( !self.deletedWave.orderDeletePairs[i].empty() ){
-                tmpArray.push( self.deletedWave.orderDeletePairs[i] );
+            var pair = self.deletedWave.orderDeletePairs[i];
+            if( !pair.empty() ){
+                // check ball pair group size
+                if( pair.balls.length >= self.field.environment.groupSize[ pair.color ] ){
+                    tmpArray.push( pair );
+                }else{
+                    pair.reset();
+                }
             }
         }
         self.deletedWave.orderDeletePairs = tmpArray;
@@ -381,7 +394,7 @@ var FieldStrategyMove = function(field, replay){
         self.field.historyManager.resetRandom();
 
         self.field.environment.resetReplaySpeed();
-        self.field.environment.colorSetting();
+        self.field.environment.resetTeamComposition();
 
         self.field.timerStart = false;
     };

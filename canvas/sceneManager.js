@@ -2,12 +2,15 @@
 var SceneManager = function(element, touchDevice){
 
     var self = this;
-    this.scene = null;
+
+    this.scene     = null;
+    this.nextScene = null;
+    this.element   = element;
     this.mouseInfo = new MouseInfo();
 
-    this.skipMode = false;
-    this.nextScene = null;
-    this.element = element;
+    this.startTime = null;
+    this.then      = null;
+    this.skipMode  = false;
 
     this.changeScene = function(scene){
 	   this.nextScene = scene;
@@ -111,28 +114,42 @@ var SceneManager = function(element, touchDevice){
 	//=========================================================
     // 不斷用 timeInterval update
     //=========================================================
-    this.setSkipMode = function(skipMode){
+    this.setSkipMode = function(skipMode){        
         self.stopInterval();
         self.startInterval(skipMode);
     }
     this.stopInterval = function(){
-        clearInterval(self.timerId);
-        self.timerId = null;
-    };
-    this.startInterval = function(skipMode){
-        self.skipMode = skipMode;
-        clearInterval(self.timerId);
-        if(self.skipMode){
-            // 直接顯示消除結果的話: 將timeinterval->0
-            self.timerId = setInterval(self.timerFunc, 0);
-        }else{
-            self.timerId = setInterval(self.timerFunc, Math.floor(1000/SECOND_FRAMES) );
+        if( self.timerId ){
+            window.cancelAnimationFrame(self.timerId);
+            self.timerId = null;
         }
     };
+    this.startInterval = function(skipMode){
+        if( !self.timerId ){
+            window.cancelAnimationFrame(self.timerId);
+            self.timerId = null;
+        }
+            
+        self.skipMode = skipMode;
+        self.fpsInterval = self.skipMode ? 1 : 1000 / SECOND_FRAMES;
+        
+        self.startTime = new Date().getTime();
+        self.then = self.startTime;
+        self.timerFunc();
+    };
     this.timerFunc = function(){
-        self.update();
-        self.draw();
-        ++ self.frameCount;
+        var now     = new Date().getTime();
+        var elapsed = now - self.then;
+
+        if( elapsed > self.fpsInterval ){
+            self.then = now - (elapsed % self.fpsInterval);
+
+            self.update();
+            self.draw();
+            ++ self.frameCount;
+        }
+        
+        self.timerId = window.requestAnimationFrame( self.timerFunc );
     };
     this.update = function(){
         self.mouseInfo.lastPressed = self.mouseInfo.pressed;

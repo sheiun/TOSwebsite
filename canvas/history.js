@@ -2,13 +2,14 @@
 var HistoryManager = function(){
     var DeletedWave = function(){
         var self = this;
-        this.vDeletePairs      = new Array();
-        this.hDeletePairs      = new Array();
+        this.vDeletePairs      = new Array( environmentManager.hNum );
+        this.hDeletePairs      = new Array( environmentManager.vNum );
         this.orderDeletePairs  = new Array();       
         this.colorDeletePairs  = new Array( COLORS.length );
-        for(var i = 0; i < COLORS.length; i++){
-            self.colorDeletePairs[i] = new Array();
-        }
+        for(var i = 0; i < environmentManager.hNum; i++){ self.vDeletePairs[i] = new Array(); }
+        for(var i = 0; i < environmentManager.vNum; i++){ self.hDeletePairs[i] = new Array(); }
+        for(var i = 0; i < COLORS.length; i++){ self.colorDeletePairs[i] = new Array(); }
+
     }
     var DeletedInfo = function(){
         var self = this;

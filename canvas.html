@@ -99,6 +99,8 @@
                 <div id="MainButton" class="btn-group" role="group">
                     <button id="Edit" class="btn btn-default btn-lg" onclick="setEditMode(this)">
                         <span >盤面設定</span></button>
+                    <button id="Team" class="btn btn-default btn-lg" onclick="setTeamMode(this)">
+                        <span >隊伍設定</span></button>
                     <button id="Move" class="btn btn-default btn-lg" onclick="setMoveMode(this)">
                         <span >移動設定</span></button>
                     <button id="Replay" class="btn btn-default btn-lg" onclick="setReplayMode(this)">
@@ -181,6 +183,25 @@
                     </div>
                 </div>
 
+                <div id="TeamModeButton">
+                    <table id="TeamMember" >
+                        <tr>
+                            <td>
+                                <select id="LeaderMember"></select></td>
+                            <td>
+                                <select id="TeamMember1"></select></td>
+                            <td>
+                                <select id="TeamMember2"></select></td>
+                            <td>
+                                <select id="TeamMember3"></select></td>
+                            <td>
+                                <select id="TeamMember4"></select></td>
+                            <td>
+                                <select id="FriendMember"></select></td>
+                        </tr>
+                    </table>
+                </div>
+
                 <div id="MoveModeButton">
                     <div id="PanelLoader">
                         <button class="btn btn-default btn-lg" onclick="randomPanelToMove()">
@@ -226,9 +247,7 @@
                     </div><br><br>
                     <button id="ReplayURLSetting" class="btn btn-primary btn-lg" onclick="shareUrl(this)">
                         <span>播放連結</span></button>
-                </div>
-
-            <br><br>                
+                </div><br>
             </div>
 
 
@@ -283,8 +302,12 @@
     <script type="text/javascript" src="canvas/ball.js"></script>
     <script type="text/javascript" src="canvas/history.js"></script>
     <script type="text/javascript" src="canvas/environment.js"></script>
+    <script type="text/javascript" src="canvas/teamManager.js"></script>
     <script type="text/javascript" src="canvas/global.js"></script>
     <script type="text/javascript" src="canvas/main.js"></script>
+
+    <script type="text/javascript" src="data/data.js"></script>
+    <script type="text/javascript" src="data/leaderSkill.js"></script>
 
     <script src="js/msdropdown/jquery.dd.js" type="text/javascript"></script>
     <link rel="stylesheet" type="text/css" href="css/dd/dd.css" />

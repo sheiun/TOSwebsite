@@ -105,22 +105,50 @@ img.img-btn-sm{
     transform: translate(-50%, -50%);
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #TeamMember{
     cursor: default;
     border-collapse: collapse;
     border: 1px solid Gray;
+    margin: auto;
+    width: 0px;
 }
-#TeamMember select{
-    width: 120px;
-}
-#TeamMember td{
-    height: 30px;
-    width: 120px;
-    border: 1px solid Gray;
-}
-#TeamMember img{
-    width: 80px;
-}
+
+
+
+
 #AttackNumber td{
     background: PaleTurquoise;
 }

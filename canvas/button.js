@@ -244,7 +244,7 @@ function shareUrl(button){
     //盤面
     settingInfo.panel  = historyManager.panel.join(",");
     settingInfo.route  = historyManager.routeInfoString;
-    settingInfo.random = RANDOM;
+    settingInfo.random = historyManager.random;
     //落珠
     settingInfo.newDrop  = environmentManager.newDrop;
     settingInfo.dropMode = dropColorManager.mode;
