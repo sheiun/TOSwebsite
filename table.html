@@ -46,25 +46,24 @@
                     <a href="table.html">卡片圖鑑表</a>
                 </li>
                 <li class="nav-bar-li">
-                    <a href="drag.html">轉珠模擬器</a>
+                    <a href="canvas.html">轉珠模擬器</a>
                 </li>
                 <li class="nav-bar-li">
-                    <a >Coming so...on</a>
+                    <a onclick="scroll_top()"><span class="glyphicon glyphicon-chevron-up" /></a>
+                </li>
+                <li class="nav-bar-li">
+                    <a onclick="scroll_bottom()"><span class="glyphicon glyphicon-chevron-down" /></a>
+                </li>
+                <li class="nav-bar-li">
+                    <input type="button" id="upload" value="儲存紀錄" onclick="download()" class="btn btn-default">
+                </li>
+                <li class="nav-bar-li">
+                    <input type="file" id="file" onclick=" " class="filestyle" data-input="false" data-icon="false" data-buttonText="讀取紀錄" >
+                </li>
+                <li class="nav-bar-li">
+                    <a onclick="hide_navbar()"><span class="glyphicon glyphicon-remove" /></a>
                 </li>
             </ul>
-            <form class="navbar-form navbar-right" role="search">
-                <button type="button" class="btn btn-default" onclick="scroll_top()">
-                    <span class="glyphicon glyphicon-chevron-up" ></span>
-                </button>
-                <button type="button" class="btn btn-default" onclick="scroll_bottom()">
-                    <span class="glyphicon glyphicon-chevron-down" ></span>
-                </button>
-                <input type="button" id="upload" value="儲存紀錄" onclick="download()" class="btn btn-default">
-                <input type="file" id="file" onclick=" " class="filestyle" data-input="false" data-icon="false" data-buttonText="讀取紀錄" >
-                <button type="button" class="btn btn-default" onclick="hide_navbar()">
-                    <span class="glyphicon glyphicon-remove" ></span>
-                </button>
-            </form>
         </div>
     </nav>
 
