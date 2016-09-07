@@ -31,7 +31,7 @@ function randomPanel(){
     environmentManager.resetColorSetting();
     environmentManager.setTeamColorProb();
     fieldManager.reset();
-    fieldManager.setStrategy( new FieldStrategyDropDelete( fieldManager, deleteFinished, null ) );
+    fieldManager.setStrategy( new FieldStrategyDropDelete( fieldManager, deleteFinished, null, true ) );
     fieldManager.environment.newDrop = true;
     fieldManager.sceneManager.setSkipMode(true);
 }
@@ -161,7 +161,7 @@ function randomPanelToMove(){
     }
 
     fieldManager.reset();
-    fieldManager.setStrategy( new FieldStrategyDropDelete( fieldManager, deleteFinished, null ) );
+    fieldManager.setStrategy( new FieldStrategyDropDelete( fieldManager, deleteFinished, null, true ) );
     fieldManager.environment.newDrop = true;
     fieldManager.sceneManager.setSkipMode(true);
 }
@@ -252,6 +252,7 @@ function shareUrl(button){
     //播放
     settingInfo.showRecord = environmentManager.showRecord;
     //隊伍
+    settingInfo.team = teamManager.toText();
 
     var encode = LZString.compressToEncodedURIComponent( JSON.stringify(settingInfo) );
     var url = "?info=" + encode;
@@ -288,8 +289,10 @@ function parseUrl(){
             for(var i = 0; i < initialOptional.length; i++){
                 dropColorManager.addColor( initialOptional[i] );
             }
-        }
+        }        
         //隊伍
+        teamManager.setTeamFromText( settingInfo.team );
+
     }catch(e){
         alert(e);
     }

@@ -65,7 +65,7 @@ var FieldStrategyEdit = function(field){
     };
 };
 
-var FieldStrategyDropDelete = function(field, deleteFinished, dropFinished){
+var FieldStrategyDropDelete = function(field, deleteFinished, dropFinished, hasSpace){
     var Mode = {
         WAITING    :0,
         TRY_DELETE :1,
@@ -77,7 +77,7 @@ var FieldStrategyDropDelete = function(field, deleteFinished, dropFinished){
     var self = this;
     this.field      = field;
     this.frameCount = 0;
-    this.mode       = Mode.TRY_DELETE;
+    this.mode       = hasSpace ? Mode.TRY_DROP : Mode.TRY_DELETE;
 
     this.deletedWave = null;
     this.deleteFinished = deleteFinished;
@@ -159,15 +159,23 @@ var FieldStrategyDropDelete = function(field, deleteFinished, dropFinished){
     };
     this.updateTryDrop = function(){
 
+        self.field.environment.resetDropSpace();
         teamManager.checkLeaderSkill("newItem");
+
+        if( self.field.environment.newDrop ){
+            self.field.environment.fillEmptySpace();
+            self.field.environment.pushIntoDropStack();
+        }
 
         // 計算落下距離
         for(var i = 0; i < self.field.environment.hNum; i++){
             var dropGrid = 0;
+            var spacePoints = new Array();
             for(var j = self.field.environment.vNum-1; j >= 0; j--){
                 var ball = self.field.balls[ i * self.field.environment.vNum + j ];
                 if( !ball ){
                     dropGrid += 1;
+                    spacePoints.push( new Point( i, j, true ) );
                 }else if( dropGrid > 0 ){
                     ball.dropGrid = dropGrid;
                     ball.setState(BallState.DROPPING);
@@ -176,20 +184,21 @@ var FieldStrategyDropDelete = function(field, deleteFinished, dropFinished){
                     self.field.balls[ i * self.field.environment.vNum + j ] = null;
                 }
             }
-            // 新增珠落下
-            if( self.field.environment.newDrop && dropGrid > 0 ){
-                for(var j = 1; j <= dropGrid; j++){
-                    var color = self.field.environment.nextColorAtX(i);
-                    var point = new Point(i, -1 * j, true);
-                    var ball = new Ball( point, color, BALL_SIZE );
+
+        // 新增珠落下
+            for(var j = 1; j <= dropGrid; j++){
+                if( j <= self.field.environment.dropSpace.dropStack[i].length ){
+                    var color = self.field.environment.dropSpace.dropStack[i][j-1];
+                    var ball = new Ball( new Point(i, -1 * j, true), color, BALL_SIZE );
+
                     ball.dropGrid = dropGrid;
-                    ball.setState(BallState.DROPPING);
+                    ball.setState( BallState.DROPPING );
                     ball.frameCountToDropEnd = dropGrid * DROP_SPEED;
-                    self.field.balls[ i * self.field.environment.vNum + (dropGrid-j) ] = ball;
+                    self.field.balls[ i * self.field.environment.vNum + (dropGrid-j) ] = ball;                        
                 }
             }
         }
-
+        
         self.mode = Mode.DROPPING;
         self.frameCount = 0;
     };
@@ -306,7 +315,7 @@ var FieldStrategyDropDelete = function(field, deleteFinished, dropFinished){
             }
             checkDeletePair(pair, self.deletedWave.hDeletePairs[i]);
         }
-        
+
         // merge Pairs in color
         for(var i = 0; i < self.field.environment.hNum; i++ ){
             for(var j = 0; j < self.deletedWave.vDeletePairs[i].length; j++){
@@ -320,7 +329,7 @@ var FieldStrategyDropDelete = function(field, deleteFinished, dropFinished){
         }
         for(var i = 0; i < self.deletedWave.orderDeletePairs.length; i++){
             var pair = self.deletedWave.orderDeletePairs[i];
-            var colorIndex = self.field.environment.getColorIndex( pair.color );
+            var colorIndex = getColorIndex( pair.color );
             for(var j = 0; j < self.deletedWave.colorDeletePairs[colorIndex].length; j++ ){
                 var savedPair = self.deletedWave.colorDeletePairs[colorIndex][j];
                 if( checkOverlap(pair, savedPair) ){
@@ -706,7 +715,7 @@ var FieldStrategyMove = function(field, replay){
         var deleteFinished = function(){
             self.field.setStrategy(new FieldStrategyEmpty(self.field));
         }
-        self.field.setStrategy( new FieldStrategyDropDelete(self.field, deleteFinished, null) ); 
+        self.field.setStrategy( new FieldStrategyDropDelete(self.field, deleteFinished, null, false) ); 
     };
     this.updateTimerBar = function(){
         var timeFraction = self.timerFrameCount / (self.field.environment.timeLimit * SECOND_FRAMES);

@@ -56,6 +56,12 @@ window.cancelAnimationFrame = (function(callback){
 })();*/
 
 $(document).ready( function(){
+
+    $("#EditModeButton").hide();
+    $("#TeamModeButton").hide();
+    $("#MoveModeButton").hide();
+    $("#ReplayModeButton").hide();
+
     //try{
         // check device 大小整理
         if( TOUCH_DEVICE ){
@@ -107,10 +113,6 @@ $(document).ready( function(){
         fieldManager = new FieldManager( sceneManager, $("#DragCanvas"), historyManager, environmentManager );
         sceneManager.changeScene(fieldManager);
 
-        $("#EditModeButton").hide();
-        $("#TeamModeButton").hide();
-        $("#MoveModeButton").hide();
-        $("#ReplayModeButton").hide();
     //}catch(e){  
     //    $('#log').append( '\n'+e );
     //}

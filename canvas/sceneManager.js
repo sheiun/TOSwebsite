@@ -208,9 +208,10 @@ var FieldManager = function(scene, canvas, history, environment){
             }
 
             self.reset();
-            self.setStrategy( new FieldStrategyDropDelete(self, deleteFinished, null ) );
+            self.setStrategy( new FieldStrategyDropDelete(self, deleteFinished, null, true ) );
             self.environment.newDrop = true;
             self.sceneManager.setSkipMode(true);
+            self.environment.resetTeamComposition();
         }
         return;
     };
@@ -228,12 +229,6 @@ var FieldManager = function(scene, canvas, history, environment){
     this.reset = function(){
         self.canvas.attr('width', self.environment.hNum * BALL_SIZE).attr('height', self.environment.vNum * BALL_SIZE);
         self.balls = new Array( self.environment.hNum * self.environment.vNum );
-        for(var x = 0 ; x < self.environment.hNum; ++ x){
-            for(var y = 0 ; y < self.environment.vNum; ++ y){
-                var color = self.environment.nextColorAtX(x);
-                self.balls[x * self.environment.vNum + y] = new Ball( new Point(x, y, true), color, BALL_SIZE );
-            }
-        }
     };
     this.setHistoryPanel = function(){
         if( !self.historyManager.panel ){ return; }

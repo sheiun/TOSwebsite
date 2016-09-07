@@ -169,7 +169,14 @@ var GAME_MODE = {
     MOVE   : 4,
     REPLAY : 5,
 };
+
 var COLORS = ['w', 'f', 'p', 'l', 'd', 'h'];
+var getColorIndex = function(color){        
+    for(var i = 0; i < COLORS.length; i++){
+        if( COLORS[i] == color ){ return i; }
+    }
+    return null;
+}
 
 // =================================================================
 // =================================================================
@@ -186,3 +193,24 @@ var MOVE_FRAME    = 5;
 var REPLAY_SPEED  = BALL_SIZE / MOVE_FRAME;
 
 var SHIFT_BIAS    = BALL_SIZE / 20;
+
+
+
+
+
+
+
+
+
+// =================================================================
+// utility function for checking
+// =================================================================
+function checkFirstStraightByPlace( length, x ){
+    var deletedWave = historyManager.deletedInfo.getCurrentWave();
+    if( !deletedWave ){ return; }
+
+    for(var i = 0; i < deletedWave.vDeletePairs[x].length; i++){
+        if( deletedWave.vDeletePairs[x][i].balls.length >= length ){ return true; }
+    }
+    return false;
+}

@@ -55,10 +55,7 @@ var TeamManager = function( table, environment ){
             $(this).css("width", BALL_SIZE*1.1+"px");
 
             //重建
-            var tempOptions = { 
-                NONE: CHARACTERS_DATA.NONE,
-                GREEK_W: CHARACTERS_DATA.GREEK_W };
-            for(var id in tempOptions){
+            for(var id in CHARACTERS_DATA){
                 var option = $("<option></option>");
                 option.attr("value", CHARACTERS_DATA[id]["id"]);
                 option.attr("data-image", CHARACTERS_DATA[id]["img"]);
@@ -73,6 +70,23 @@ var TeamManager = function( table, environment ){
             } ).data("dd");
         });		
 	};
+    this.toText = function(){
+        var text = new Array();
+        text.push( $("#LeaderMember").val() );
+        text.push( $("#TeamMember1").val() );
+        text.push( $("#TeamMember2").val() );
+        text.push( $("#TeamMember3").val() );
+        text.push( $("#TeamMember4").val() );
+        text.push( $("#FriendMember").val() );
+        return text.join(",");
+    }
+    this.setTeamFromText = function( text ){
+        var teamIDs = text.split(",");
+        for(var i = 0; i < teamIDs.length; i++){
+            var dd = self.table.find("select").eq(i).msDropdown().data("dd");
+            dd.setIndexByValue( teamIDs[i] );
+        }
+    }
 
     this.setTeamAbility = function(){
         self.setTeamMember();
@@ -103,8 +117,11 @@ var TeamManager = function( table, environment ){
     };
 
     this.checkLeaderSkill = function( key ){
-        if( self.leaderSkill && self.leaderSkill[key] ){console.log(key)
+        if( self.leaderSkill[key] ){
             self.leaderSkill[key]( self.leader, "LEADER" );
+        }
+        if( self.friendSkill[key] ){
+            self.friendSkill[key]( self.friend, "FRIEND" );
         }
     }
 };

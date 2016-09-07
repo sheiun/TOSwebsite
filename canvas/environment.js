@@ -1,6 +1,15 @@
 
 
 var EnvironmentManager = function(){
+    var DropSpace = function(){
+        this.newColors   = new Object();
+        this.emptyPoints = new Array();
+        this.fillPoints  = new Array();
+        this.dropStack   = new Array();
+        for(var i = 0; i < self.hNum; i++){
+            this.dropStack.push( new Array() );
+        }
+    }
     var LocusMode = {
         none    : 0,
         reverse : 1,
@@ -20,9 +29,11 @@ var EnvironmentManager = function(){
     this.colorMap        = null;
     this.colorChangeable = true;
     this.pairSize        = null;
-    this.groupSize        = null;
+    this.groupSize       = null;
 
     this.newDrop      = false;
+    this.dropSpace    = null;
+
     this.locusMode    = null;
     this.locusInf     = false;
     this.locusShow    = false; 
@@ -102,15 +113,52 @@ var EnvironmentManager = function(){
             }
         }
     };
-    this.getColorIndex = function(color){
-        var i = 0
-        for(; i < COLORS.length; i++){
-            if( COLORS[i] == color ){ return i; }
+
+    // 設定新機率環境
+    this.setColorDrop = function( colors ){
+        self.colorDrop = colors;
+    };
+    this.setColorMap = function( map ){
+        for(var key in map){
+            self.colorMap[key] = map[key];
         }
-        return null;
-    }
+    };
+    this.setColorProb = function( prob, n ){
+        for(var key in prob){
+            self.colorProb[n][key] = prob[key];
+        }
+    };
 
     // 取得新珠的隨機顏色
+    this.resetDropSpace = function(){
+        self.dropSpace = new DropSpace();
+        for(var i = 0; i < self.hNum; i++){
+            for(var j = 0; j < self.vNum; j++){
+                if( !fieldManager.balls[ i * self.vNum + j ] ){
+                    var point = new Point( i, j, true );
+                    self.dropSpace.newColors[ point.toText() ] = null;
+                    self.dropSpace.emptyPoints.push( point );
+                }
+            }
+        }
+    }
+    this.fillEmptySpace = function(){
+        while( self.dropSpace.emptyPoints.length > 0 ){
+            var point = self.dropSpace.emptyPoints.pop();
+            if( !self.dropSpace.newColors[ point.toText() ] ){
+                self.dropSpace.fillPoints.push( point );
+                self.dropSpace.newColors[ point.toText() ] = self.nextColorAtX( point.getGridX() );
+            }
+        }
+    }
+    this.pushIntoDropStack = function(){
+        for(var i = 0; i < self.dropSpace.fillPoints.length; i++){
+            var point = self.dropSpace.fillPoints[i];
+            if( self.dropSpace.newColors[ point.toText() ] ){
+                self.dropSpace.dropStack[ point.getGridX() ].push( self.dropSpace.newColors[ point.toText() ] );
+            }
+        }
+    }
     this.nextColorAtX = function(x){
         var colors = self.teamColors[x];
         var rand = randomNext();
@@ -126,21 +174,6 @@ var EnvironmentManager = function(){
             color = self.colorMap[color];
         }
         return color;
-    };
-
-    // 設定新機率環境
-    this.setColorDrop = function( colors ){
-        self.colorDrop = colors;
-    };
-    this.setColorMap = function( map ){
-        for(var key in map){
-            self.colorMap[key] = map[key];
-        }
-    };
-    this.setColorProb = function( prob, n ){
-        for(var key in prob){
-            self.colorProb[n][key] = prob[key];
-        }
     };
 
     // 設定軌跡模式

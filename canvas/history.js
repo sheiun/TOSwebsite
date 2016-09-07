@@ -9,7 +9,6 @@ var HistoryManager = function(){
         for(var i = 0; i < environmentManager.hNum; i++){ self.vDeletePairs[i] = new Array(); }
         for(var i = 0; i < environmentManager.vNum; i++){ self.hDeletePairs[i] = new Array(); }
         for(var i = 0; i < COLORS.length; i++){ self.colorDeletePairs[i] = new Array(); }
-
     }
     var DeletedInfo = function(){
         var self = this;
