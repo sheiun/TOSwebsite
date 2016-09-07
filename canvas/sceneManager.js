@@ -191,7 +191,7 @@ var FieldManager = function(scene, canvas, history, environment){
     this.initialize = function(){
         if( self.historyManager.panel ){
             self.setHistoryPanel();
-            setReplayMode( $("#MainButton button").eq(2) );
+            setReplayMode( $("#MainButton button").eq(3) );
             self.strategy.replayFrameCount = -1 * SECOND_FRAMES;
         }else{
             var savedStrategy = self.strategy;
