@@ -59,15 +59,15 @@ var BabylonNewItem = function( member, direct ){
     if( historyManager.deletedInfo.waveNum != 0 ){ return; }
 
     for(var x = 0; x < environmentManager.hNum; x++){
-        if( checkFirstStraightByPlace( 4, x ) ){console.log(x )
+        if( checkFirstStraightByPlace( 4, x ) ){
             var newItemNum = 1;
             for(var y = environmentManager.vNum-1; y >= 0 && newItemNum; y--){
                 var point = new Point( x, y, true );
                 for(var i = 0; i < environmentManager.dropSpace.emptyPoints.length; i++){
                     if( point.toText() == environmentManager.dropSpace.emptyPoints[i].toText() ){
-                        environmentManager.dropSpace.fillPoints.push( environmentManager.dropSpace.emptyPoints[i] );
                         environmentManager.dropSpace.emptyPoints.splice( i, 1 );
                         environmentManager.dropSpace.newColors[ point.toText() ] = member.color;
+                        environmentManager.dropSpace.dropStack[ x ].push( member.color );
                         -- newItemNum;
                         break;
                     }
