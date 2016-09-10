@@ -1,11 +1,15 @@
 
 var TeamManager = function( table, environment ){
-    var CharacterInfo = function(characterID){
+    var CharacterInfo = function(characterID, xIndex){
         var self = this;
         this.id      = characterID;
         this.color   = CHARACTERS_DATA[characterID].color;
         this.type    = CHARACTERS_DATA[characterID].type;
         this.leader  = CHARACTERS_DATA[characterID].leader;
+        this.wake    = CHARACTERS_DATA[characterID].wake;
+        this.wakeVar = CHARACTERS_DATA[characterID].wake_var;
+
+        this.xIndex  = xIndex;
     }
     var LeaderSkillInfo = function(skillID){
         var self = this;
@@ -15,12 +19,19 @@ var TeamManager = function( table, environment ){
         this.attack   = LEADER_SKILLS_DATA[skillID].attack;
         this.newItem  = LEADER_SKILLS_DATA[skillID].newItem;
     }
+    var WakeSkillInfo = function(wakeID){
+        var self = this;
+        this.id       = wakeID;
+        this.init     = WAKES_DATA[wakeID].init;
+        this.attack   = WAKES_DATA[wakeID].attack;
+    }
 
 	var self = this;
 
 	this.table = table;
     this.environment = environment;
 
+    this.team    = null;
 	this.leader  = null;
 	this.member1 = null;
 	this.member2 = null;
@@ -90,31 +101,74 @@ var TeamManager = function( table, environment ){
 
     this.setTeamAbility = function(){
         self.setTeamMember();
-        self.setTeamLeaderSkill();
-        /*
-        resetMemberWakes();
-        checkTeamSkill();
+        
+        self.setMemberWakeSkill();
+        self.setTeamSkill();
 
+        self.setMemberLeaderSkill();
+        /*
         resetTeamLeaderSkill();
         resetMemberActiveSkill();
         checkCombineSkill();
         checkActiveCoolDownByWake();
         */
     };
+    // 設定隊伍 初始技能
     this.setTeamMember = function(){
-        self.leader  = new CharacterInfo( $("#LeaderMember").val() );
-        self.member1 = new CharacterInfo( $("#TeamMember1").val() );
-        self.member2 = new CharacterInfo( $("#TeamMember2").val() );
-        self.member3 = new CharacterInfo( $("#TeamMember3").val() );
-        self.member4 = new CharacterInfo( $("#TeamMember4").val() );
-        self.friend  = new CharacterInfo( $("#FriendMember").val() );
+        self.leader  = new CharacterInfo( $("#LeaderMember").val(), 0 );
+        self.member1 = new CharacterInfo( $("#TeamMember1").val() , 1 );
+        self.member2 = new CharacterInfo( $("#TeamMember2").val() , 2 );
+        self.member3 = new CharacterInfo( $("#TeamMember3").val() , 3 );
+        self.member4 = new CharacterInfo( $("#TeamMember4").val() , 4 );
+        self.friend  = new CharacterInfo( $("#FriendMember").val(), 5 );
+        self.team    = [ self.leader, self.member1, self.member2,
+                         self.member3, self.member4, self.friend ];
     }
-    this.setTeamLeaderSkill = function(){
+    this.setMemberLeaderSkill = function(){
         self.leaderSkill = new LeaderSkillInfo( self.leader.leader );
         self.leaderSkill.variable = new self.leaderSkill.init( self.leader );
         self.friendSkill = new LeaderSkillInfo( self.friend.leader );
         self.friendSkill.variable = new self.friendSkill.init( self.friend );
     };
+    this.setMemberWakeSkill = function(){
+        self.leaderWake  = new Array();
+        for(var i = 0; i < self.leader.wake.length; i++){
+            var wake = new WakeSkillInfo( self.leader.wake[i] );
+            wake.init( self.leader, self.leader.wakeVar[i] );
+            self.leaderWake.push( wake );
+        }
+        self.member1Wake  = new Array();
+        for(var i = 0; i < self.member1.wake.length; i++){
+            var wake = new WakeSkillInfo( self.member1.wake[i] );
+            wake.init( self.member1, self.member1.wakeVar[i] );
+            self.member1Wake.push( wake );
+        }
+        self.member2Wake  = new Array();
+        for(var i = 0; i < self.member2.wake.length; i++){
+            var wake = new WakeSkillInfo( self.member2.wake[i] );
+            wake.init( self.member2, self.member2.wakeVar[i] );
+            self.member2Wake.push( wake );
+        }
+        self.member3Wake  = new Array();
+        for(var i = 0; i < self.member3.wake.length; i++){
+            var wake = new WakeSkillInfo( self.member3.wake[i] );
+            wake.init( self.member3, self.member3.wakeVar[i] );
+            self.member3Wake.push( wake );
+        }
+        self.member4Wake  = new Array();
+        for(var i = 0; i < self.member4.wake.length; i++){
+            var wake = new WakeSkillInfo( self.member4.wake[i] );
+            wake.init( self.member4, self.member4.wakeVar[i] );
+            self.member4Wake.push( wake );
+        }
+        self.friendWake  = new Array();
+        for(var i = 0; i < self.friend.wake.length; i++){
+            var wake = new WakeSkillInfo( self.friend.wake[i] );
+            wake.init( self.friend, self.friend.wakeVar[i] );
+            self.friendWake.push( wake );
+        }
+    }
+    this.setTeamSkill = function(){};
 
     this.checkLeaderSkill = function( key ){
         if( self.leaderSkill[key] ){

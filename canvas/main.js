@@ -75,7 +75,10 @@ $(document).ready( function(){
         $('.selectpicker').selectpicker({ style:'btn-default btn-md' });
         $("#ReplayModeButton .btn-lg").removeClass("btn-lg").addClass("btn-md");
 
+        var comboDiv = $("#ComboDiv").remove();
+        $("#MobileComboDiv").append(comboDiv);
         $('#DragCanvas').css('background-size', (BALL_SIZE*4)+' px '+(BALL_SIZE*4)+' px');
+        
     }else{
         $("#ColorSelector img").addClass('img-btn-lg');
         $('.selectpicker').selectpicker({ style:'btn-default btn-lg' });
@@ -98,7 +101,7 @@ $(document).ready( function(){
     // 其他元件設定
     barManager = new BarManager( $("#BarCanvas"), environmentManager );
     barManager.initialize();
-    comboManager = new ComboManager( $('#comboScrollbar'), $('#comboInfo'), historyManager );
+    comboManager = new ComboManager( $('#ComboScrollbar'), $('#ComboInfo'), historyManager );
     comboManager.initialize();
     dropColorManager = new DropColorManager( $("#DropColorSelector"), $("#DropColorScrollbar"), environmentManager );
     dropColorManager.initialize();

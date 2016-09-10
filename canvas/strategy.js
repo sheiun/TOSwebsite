@@ -161,6 +161,7 @@ var FieldStrategyDropDelete = function(field, deleteFinished, dropFinished, hasS
 
         self.field.environment.resetDropSpace();
         teamManager.checkLeaderSkill("newItem");
+        self.makeNewStrong();
 
         if( self.field.environment.newDrop ){
             self.field.environment.fillEmptySpace();
@@ -218,6 +219,19 @@ var FieldStrategyDropDelete = function(field, deleteFinished, dropFinished, hasS
         }
     };
 
+    this.makeNewStrong = function(){
+        var deletedWave = historyManager.deletedInfo.getCurrentWave();
+        if( !deletedWave ){ return; }
+        for(var i = 0; i < deletedWave.orderDeletePairs.length; i++){
+            var pair = deletedWave.orderDeletePairs[i];
+            if( pair.balls.length >= 5 ){                
+                var rand = Math.floor( randomNext() * environmentManager.dropSpace.emptyPoints.length );
+                var point = environmentManager.dropSpace.emptyPoints.splice(rand, 1)[0];
+                environmentManager.dropSpace.fillPoints.push( point );
+                environmentManager.dropSpace.newColors[ point.toText() ] = pair.color+'+';
+            }
+        }
+    };
     this.countDeleteBalls = function( balls ){
         var checkBall = function(ball){
             if( !ball || !ball.color ){ return false; }

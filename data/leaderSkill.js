@@ -24,8 +24,7 @@ var GreekNewItem = function( member, direct ){
     while( num >= 3 ){
         num -= 3;
         var rand = Math.floor( randomNext() * environmentManager.dropSpace.emptyPoints.length );
-        var point = environmentManager.dropSpace.emptyPoints[rand];
-        environmentManager.dropSpace.emptyPoints.splice(rand, 1);
+        var point = environmentManager.dropSpace.emptyPoints.splice(rand, 1)[0];
         environmentManager.dropSpace.fillPoints.push( point );
         environmentManager.dropSpace.newColors[ point.toText() ] = member.color+'+';
     }

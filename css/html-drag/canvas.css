@@ -45,13 +45,13 @@ img.img-btn-sm{
     height: 25px;   
 }
 
-#comboDiv{
+#ComboDiv{
     background: #151515;
     border-radius: 30px;
     margin: auto;
     height: 520px;
 }
-#comboInfo{    
+#ComboInfo{    
     color: white;
     font-family:  "Lucida Grande", "Lucida Sans", Helvetica, Arial, Sans;
     font-weight: 200;
@@ -63,7 +63,7 @@ img.img-btn-sm{
     font-weight: 200;
     font-size: 20px;
 }
-#comboScrollbar{
+#ComboScrollbar{
     border-radius: 20px;
     margin: auto;
     width: 90%;
