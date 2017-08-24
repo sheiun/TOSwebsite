@@ -128,6 +128,20 @@ function setTimeLimit(button){
     environmentManager.timeLimit = num;
     $(button).val( num );
 }
+function setTimeLimitUp(button){
+    if( !environmentManager ){ return; }
+    var num = parseInt( $(button).val() );
+    num = Math.min( Math.max( num+1, 1 ), 60 );
+    environmentManager.timeLimit = num;
+    $(button).val( num );
+}
+function setTimeLimitDown(button){
+    if( !environmentManager ){ return; }
+    var num = parseInt( $(button).val() );
+    num = Math.min( Math.max( num-1, 1 ), 60 );
+    environmentManager.timeLimit = num;
+    $(button).val( num );
+}
 function setInfLocus(button){
     if( !environmentManager ){ return; }
     if( !environmentManager.locusInf ){
