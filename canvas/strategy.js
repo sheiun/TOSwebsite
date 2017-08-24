@@ -29,6 +29,9 @@ var FieldStrategyEdit = function(field){
     // 當點下時 -> 被點位置的珠變色
     //=========================================================
     this.update = function(){
+        var handleSelectedColor = function(){
+
+        }
 
         if( self.field.mouseInfo.pressed ){
             var point = self.field.mouseInfo.point.clone();
@@ -42,6 +45,17 @@ var FieldStrategyEdit = function(field){
                     return;
                 }
             }
+
+            // 設定版面幻界(優先)
+            if( CREATE_COLOR.phantom ){
+                if( !selectedColor ){
+                    environmentManager.deletePhantom( point.toGrid() );
+                }else{
+                    environmentManager.addPhantom( point.toGrid(), selectedColor );
+                }
+                return;
+            }
+
             // 整理color item
             if( !selectedColor ){
                 var selectedBall = self.field.getBallAtPoint(point);
@@ -61,9 +75,11 @@ var FieldStrategyEdit = function(field){
             self.field.setBallAtPoint(ball, point);
             self.lastSetPoint = point;
             self.lastSetColor = selectedColor;
+
         }
     };
 };
+
 
 var FieldStrategyDropDelete = function(field, deleteFinished, dropFinished, hasSpace){
     var Mode = {
@@ -106,15 +122,27 @@ var FieldStrategyDropDelete = function(field, deleteFinished, dropFinished, hasS
 
     this.updateTryDelete = function(){
         // 被消除名單
-        self.countDeleteBalls( self.field.balls );
+        self.countDeleteBalls( self.field.balls ); 
 
-        if( self.deletedWave.orderDeletePairs.length == 0 ||
-            self.field.historyManager.deletedInfo.waveNum > 100 ){
-            //落珠結束 進入下一階段
+        // 以防當機 設定消珠上限
+        if( self.field.historyManager.deletedInfo.waveNum > 100 ){
             self.mode = Mode.WAITING;
             self.frameCount = 0;
-            if( self.deleteFinished ){
-                self.deleteFinished();
+            if( self.deleteFinished ){ self.deleteFinished(); }
+        }
+
+        if( self.deletedWave.orderDeletePairs.length == 0 ){
+            // 裂心技能判定
+            teamManager.checkTeamSkill("breakColor");
+            if( self.deletedWave.orderDeletePairs.length > 0 ){
+                self.deletedWave = self.field.historyManager.startDeleted();
+                self.mode = Mode.DELETING;
+                self.frameCount = 0;
+            }else{
+                // 落珠結束 進入下一階段
+                self.mode = Mode.WAITING;
+                self.frameCount = 0;
+                if( self.deleteFinished ){ self.deleteFinished(); }
             }
         }else{
             //設定消除珠動畫
@@ -161,6 +189,7 @@ var FieldStrategyDropDelete = function(field, deleteFinished, dropFinished, hasS
 
         self.field.environment.resetDropSpace();
         teamManager.checkLeaderSkill("newItem");
+        teamManager.checkTeamSkill("newItem");
         self.makeNewStrong();
 
         if( self.field.environment.newDrop ){
@@ -594,6 +623,14 @@ var FieldStrategyMove = function(field, replay){
         
         comboManager.addMove();
 
+        // 幻界檢查
+        if( self.field.environment.phantom ){
+            if( self.field.environment.checkPhantomPoint( newPoint ) ){
+                var phantomColor = self.field.environment.getPhantomPointColor( newPoint );
+                self.field.movingBall.color = phantomColor;
+                self.field.movingBall.item[0] = phantomColor;
+            }
+        }
 
         // 記録
         if( !self.replay ){

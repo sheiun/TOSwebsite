@@ -11,6 +11,7 @@ var CREATE_COLOR = {
     reverse : null,
     inhibit : null,
     unknown : null,
+    phantom : null,
 };
 function randomPanel(){
     var savedNewDrop = environmentManager.newDrop;
@@ -82,7 +83,7 @@ function resetRandom(){
     RANDOM = new Date().getTime();
     historyManager.random = RANDOM;
 }
-function savePanel(saveNum, button){console.log(historyManager.getSettingInfo(saveNum))
+function savePanel(saveNum, button){
     if( historyManager.getSettingInfo(saveNum) ){
         $(button).css('background','').css('color','black');
         historyManager.removeSettingInfo(saveNum);

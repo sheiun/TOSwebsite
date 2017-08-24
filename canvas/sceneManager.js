@@ -280,9 +280,14 @@ var FieldManager = function(scene, canvas, history, environment){
                 ball.drawBall( ctx );
             }
         }
+        // 繪製場地障礙(幻界)
+        if( self.environment.phantom ){
+            self.environment.drawPhantom( ctx );
+        }
+
         // 繪製軌跡效果
         if( self.environment.isRecordLocus() && self.environment.locusShow ){
-            self.environment.drawLocus(ctx);
+            self.environment.drawLocus( ctx );
         }
         // 繪製移動中的珠
         if( self.movingBall ){

@@ -29,6 +29,10 @@ var Point = function(x, y, grid){
     this.toText = function(){
         return self.x+','+self.y;
     };
+    this.buildFromText = function(text){
+        return new Point(
+            parseInt( text.split(',')[0] ), parseInt( text.split(',')[1] ), false );
+    }
     this.clone = function(){
         return new Point(self.x, self.y, false);
     };

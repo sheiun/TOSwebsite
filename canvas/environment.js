@@ -1,6 +1,7 @@
 
 
 var EnvironmentManager = function(){
+    // 落珠判定
     var DropSpace = function(){
         this.newColors   = new Object();
         this.emptyPoints = new Array();
@@ -10,6 +11,7 @@ var EnvironmentManager = function(){
             this.dropStack.push( new Array() );
         }
     }
+    // 軌跡模式
     var LocusMode = {
         none    : 0,
         reverse : 1,
@@ -17,12 +19,18 @@ var EnvironmentManager = function(){
         burn    : 3,
         inhibit : 4
     };
+    // 版面幻界
+    var Phantom = function(){
+        this.phantomPoints = new Object();
+        this.pointsArray = new Array();
+    }
 
     var self = this;
 
     this.hNum = 0;
     this.vNum = 0;
 
+    // 落珠分布 消珠模式 設定
     this.teamColors      = null;
     this.colorDrop       = null;
     this.colorProb       = null;
@@ -31,17 +39,23 @@ var EnvironmentManager = function(){
     this.pairSize        = null;
     this.groupSize       = null;
 
+    // 新落珠種類判定
     this.newDrop      = false;
     this.dropSpace    = null;
 
+    // 軌跡模式設定
     this.locusMode    = null;
     this.locusInf     = false;
     this.locusShow    = false; 
     this.locusPoints  = null;
 
+    // 版面幻界設定
+    this.phantom    = null;
+
     this.freeMove   = false;
     this.timeLimit  = 5;
 
+    // 紀錄模式
     this.stopReplay   = false;
     this.showRecord   = false;
     this.replaySpeed  = 5;
@@ -237,6 +251,62 @@ var EnvironmentManager = function(){
             }
         }
         return false;
+    }
+
+    // 設定版面幻界
+    this.addPhantom = function(point, color){
+        if( !self.phantom ){ self.phantom = new Phantom(); }
+        if( self.phantom.phantomPoints.hasOwnProperty( point.toText() ) ){
+            delete self.phantom.phantomPoints[ point.toText() ];
+            id = self.phantom.pointsArray.indexOf( point.toText() );
+            if( id > -1 ){
+                self.phantom.pointsArray.splice( id, 1 );
+            }
+        }
+        self.phantom.phantomPoints[ point.toText() ] = color;
+        self.phantom.pointsArray.push( point.toText() );
+    }
+    this.deletePhantom = function(point){
+        if( self.phantom ){
+            if( self.phantom.phantomPoints.hasOwnProperty( point.toText() ) ) {
+                delete self.phantom.phantomPoints[ point.toText() ];
+                id = self.phantom.pointsArray.indexOf( point.toText() );
+                if( id > -1 ){
+                    self.phantom.pointsArray.splice( id, 1 );
+                }
+                if( self.phantom.pointsArray.length < 1 ) {
+                    delete self.phantom;
+                }
+            }
+        }
+    }
+    this.checkPhantomPoint = function(point) {
+        if( self.phantom ){
+            return self.phantom.phantomPoints.hasOwnProperty( point.toGrid().toText() );
+        }
+        return false;
+    }
+    this.getPhantomPointColor = function(point) {
+        if( self.phantom ){
+            if ( self.phantom.phantomPoints.hasOwnProperty( point.toGrid().toText() ) ) {
+                return self.phantom.phantomPoints[ point.toGrid().toText() ];
+            }
+        }
+    }
+    this.drawPhantom = function(ctx) {
+        if( !self.phantom ){ return; }
+
+        ctx.save();
+        for(var i = 0; i < self.phantom.pointsArray.length; i++ ){
+            var pointKey = self.phantom.pointsArray[i];
+            var point = new Point().buildFromText(pointKey);
+            var color = self.phantom.phantomPoints[pointKey];
+            var image = new Image();
+            image.src = "img/Icon/"+color+"Tobe.png";
+            ctx.drawImage(image, point.getX(), point.getY(), BALL_SIZE, BALL_SIZE);
+        }
+
+        ctx.restore();
     }
 
     // 設定重播速度

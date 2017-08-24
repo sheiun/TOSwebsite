@@ -16,14 +16,20 @@ var TeamManager = function( table, environment ){
         this.variable = null;
         this.id       = skillID;
         this.init     = LEADER_SKILLS_DATA[skillID].init;
-        this.attack   = LEADER_SKILLS_DATA[skillID].attack;
         this.newItem  = LEADER_SKILLS_DATA[skillID].newItem;
     }
     var WakeSkillInfo = function(wakeID){
         var self = this;
         this.id       = wakeID;
         this.init     = WAKES_DATA[wakeID].init;
-        this.attack   = WAKES_DATA[wakeID].attack;
+    }
+    var TeamSkillInfo = function(teamID){
+        var self = this;
+        this.variable = null;
+        this.id       = teamID;
+        this.init     = TEAM_SKILLS_DATA[teamID].init;
+        this.newItem  = TEAM_SKILLS_DATA[teamID].newItem;
+        this.breakColor = TEAM_SKILLS_DATA[teamID].breakColor;
     }
 
 	var self = this;
@@ -33,28 +39,13 @@ var TeamManager = function( table, environment ){
 
     this.team    = null;
 	this.leader  = null;
-	this.member1 = null;
-	this.member2 = null;
-	this.member3 = null;
-	this.member4 = null;
 	this.friend  = null;
 
     this.leaderSkill = null;
     this.friendSkill = null;
-    this.teamSkill = new Array();
-
-    this.leaderActive  = null;
-    this.member1Active = null;
-    this.member2Active = null;
-    this.member3Active = null;
-    this.member4Active = null;
-    this.friendActive  = null;
+    this.teamSkills = new Array();
 
     this.leaderWake  = null;
-    this.member1Wake = null;
-    this.member2Wake = null;
-    this.member3Wake = null;
-    this.member4Wake = null;
     this.friendWake  = null;
 
 	this.initialize = function(){
@@ -84,10 +75,6 @@ var TeamManager = function( table, environment ){
     this.toText = function(){
         var text = new Array();
         text.push( $("#LeaderMember").val() );
-        text.push( $("#TeamMember1").val() );
-        text.push( $("#TeamMember2").val() );
-        text.push( $("#TeamMember3").val() );
-        text.push( $("#TeamMember4").val() );
         text.push( $("#FriendMember").val() );
         return text.join(",");
     }
@@ -116,13 +103,8 @@ var TeamManager = function( table, environment ){
     // 設定隊伍 初始技能
     this.setTeamMember = function(){
         self.leader  = new CharacterInfo( $("#LeaderMember").val(), 0 );
-        self.member1 = new CharacterInfo( $("#TeamMember1").val() , 1 );
-        self.member2 = new CharacterInfo( $("#TeamMember2").val() , 2 );
-        self.member3 = new CharacterInfo( $("#TeamMember3").val() , 3 );
-        self.member4 = new CharacterInfo( $("#TeamMember4").val() , 4 );
         self.friend  = new CharacterInfo( $("#FriendMember").val(), 5 );
-        self.team    = [ self.leader, self.member1, self.member2,
-                         self.member3, self.member4, self.friend ];
+        self.team    = [ self.leader, self.friend ];
     }
     this.setMemberLeaderSkill = function(){
         self.leaderSkill = new LeaderSkillInfo( self.leader.leader );
@@ -137,30 +119,6 @@ var TeamManager = function( table, environment ){
             wake.init( self.leader, self.leader.wakeVar[i] );
             self.leaderWake.push( wake );
         }
-        self.member1Wake  = new Array();
-        for(var i = 0; i < self.member1.wake.length; i++){
-            var wake = new WakeSkillInfo( self.member1.wake[i] );
-            wake.init( self.member1, self.member1.wakeVar[i] );
-            self.member1Wake.push( wake );
-        }
-        self.member2Wake  = new Array();
-        for(var i = 0; i < self.member2.wake.length; i++){
-            var wake = new WakeSkillInfo( self.member2.wake[i] );
-            wake.init( self.member2, self.member2.wakeVar[i] );
-            self.member2Wake.push( wake );
-        }
-        self.member3Wake  = new Array();
-        for(var i = 0; i < self.member3.wake.length; i++){
-            var wake = new WakeSkillInfo( self.member3.wake[i] );
-            wake.init( self.member3, self.member3.wakeVar[i] );
-            self.member3Wake.push( wake );
-        }
-        self.member4Wake  = new Array();
-        for(var i = 0; i < self.member4.wake.length; i++){
-            var wake = new WakeSkillInfo( self.member4.wake[i] );
-            wake.init( self.member4, self.member4.wakeVar[i] );
-            self.member4Wake.push( wake );
-        }
         self.friendWake  = new Array();
         for(var i = 0; i < self.friend.wake.length; i++){
             var wake = new WakeSkillInfo( self.friend.wake[i] );
@@ -168,7 +126,15 @@ var TeamManager = function( table, environment ){
             self.friendWake.push( wake );
         }
     }
-    this.setTeamSkill = function(){};
+    this.setTeamSkill = function(){
+        self.teamSkills = new Array();
+        var skills = TEAM_SKILLS_DATA.findTeamSkills(self.leader, self.friend);
+        for(var i =0; i < skills.length; i++){
+            var skill = new TeamSkillInfo(skills[i]);
+            skill.variable = new skill.init();
+            self.teamSkills.push( skill );
+        }
+    };
 
     this.checkLeaderSkill = function( key ){
         if( self.leaderSkill[key] ){
@@ -176,6 +142,13 @@ var TeamManager = function( table, environment ){
         }
         if( self.friendSkill[key] ){
             self.friendSkill[key]( self.friend, "FRIEND" );
+        }
+    }
+    this.checkTeamSkill = function( key ){
+        for(var i = 0; i < self.teamSkills.length; i++){
+            if( self.teamSkills[i][key] ){
+                self.teamSkills[i][key]( self.leader, self.friend );
+            }
         }
     }
 };

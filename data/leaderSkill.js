@@ -25,8 +25,10 @@ var GreekNewItem = function( member, direct ){
         num -= 3;
         var rand = Math.floor( randomNext() * environmentManager.dropSpace.emptyPoints.length );
         var point = environmentManager.dropSpace.emptyPoints.splice(rand, 1)[0];
-        environmentManager.dropSpace.fillPoints.push( point );
-        environmentManager.dropSpace.newColors[ point.toText() ] = member.color+'+';
+        if( point ){
+            environmentManager.dropSpace.fillPoints.push( point );
+            environmentManager.dropSpace.newColors[ point.toText() ] = member.color+'+';
+        }
     }
 
     this.variable.count = num;
@@ -75,11 +77,6 @@ var BabylonNewItem = function( member, direct ){
         }
     }
 }
-var BabylonAttack = function( VAR, direct ){
-}
-var BabylonAttackPlus = function( VAR, direct ){
-}
-
 //==============================================================
 // OLD GREEK
 //==============================================================
@@ -161,7 +158,6 @@ var LEADER_SKILLS_DATA = {
         label     : "穹蒼之賜 ‧ 水",
         info      : "水屬性攻擊力 2.5 倍；每直行消除一組 4 粒或以上符石時 (只計算首批消除的符石)，該直行將產生 1 粒水符石",
         newItem   : BabylonNewItem,
-        attack    : BabylonAttack,
         init      : BasicLeaderSetting,
     },
     BABYLON_F : {
@@ -169,7 +165,6 @@ var LEADER_SKILLS_DATA = {
         label     : "穹蒼之賜 ‧ 火",
         info      : "火屬性攻擊力 2.5 倍；每直行消除一組 4 粒或以上符石時 (只計算首批消除的符石)，該直行將產生 1 粒火符石",
         newItem   : BabylonNewItem,
-        attack    : BabylonAttack,
         init      : BasicLeaderSetting,
     },
     BABYLON_P : {
@@ -177,7 +172,6 @@ var LEADER_SKILLS_DATA = {
         label     : "穹蒼之賜 ‧ 木",
         info      : "木屬性攻擊力 2.5 倍；每直行消除一組 4 粒或以上符石時 (只計算首批消除的符石)，該直行將產生 1 粒木符石",
         newItem   : BabylonNewItem,
-        attack    : BabylonAttack,
         init      : BasicLeaderSetting,
     },
     BABYLON_L : {
@@ -185,7 +179,6 @@ var LEADER_SKILLS_DATA = {
         label     : "穹蒼之賜 ‧ 光",
         info      : "光屬性攻擊力 2.5 倍；每直行消除一組 4 粒或以上符石時 (只計算首批消除的符石)，該直行將產生 1 粒光符石",
         newItem   : BabylonNewItem,
-        attack    : BabylonAttack,
         init      : BasicLeaderSetting,
     },
     BABYLON_D : {
@@ -193,47 +186,6 @@ var LEADER_SKILLS_DATA = {
         label     : "穹蒼之賜 ‧ 暗",
         info      : "暗屬性攻擊力 2.5 倍；每直行消除一組 4 粒或以上符石時 (只計算首批消除的符石)，該直行將產生 1 粒暗符石",
         newItem   : BabylonNewItem,
-        attack    : BabylonAttack,
-        init      : BasicLeaderSetting,
-    },
-    BABYLON_PLUS_W : {
-        id        : "BABYLON_PLUS_W",
-        label     : "穹蒼之賜 ‧ 浪濤",
-        info      : "水屬性攻擊力 3 倍；每直行消除一組 4 粒或以上符石時 (只計算首批消除的符石)，該直行將產生 1 粒水符石",
-        newItem   : BabylonNewItem,
-        attack    : BabylonAttackPlus,
-        init      : BasicLeaderSetting,
-    },
-    BABYLON_PLUS_F : {
-        id        : "BABYLON_PLUS_F",
-        label     : "穹蒼之賜 ‧ 熾燄",
-        info      : "火屬性攻擊力 3 倍；每直行消除一組 4 粒或以上符石時 (只計算首批消除的符石)，該直行將產生 1 粒火符石",
-        newItem   : BabylonNewItem,
-        attack    : BabylonAttackPlus,
-        init      : BasicLeaderSetting,
-    },
-    BABYLON_PLUS_P : {
-        id        : "BABYLON_PLUS_P",
-        label     : "穹蒼之賜 ‧ 藤木",
-        info      : "木屬性攻擊力 3 倍；每直行消除一組 4 粒或以上符石時 (只計算首批消除的符石)，該直行將產生 1 粒木符石",
-        newItem   : BabylonNewItem,
-        attack    : BabylonAttackPlus,
-        init      : BasicLeaderSetting,
-    },
-    BABYLON_PLUS_L : {
-        id        : "BABYLON_PLUS_L",
-        label     : "穹蒼之賜 ‧ 玄光",
-        info      : "光屬性攻擊力 3 倍；每直行消除一組 4 粒或以上符石時 (只計算首批消除的符石)，該直行將產生 1 粒光符石",
-        newItem   : BabylonNewItem,
-        attack    : BabylonAttackPlus,
-        init      : BasicLeaderSetting,
-    },
-    BABYLON_PLUS_D : {
-        id        : "BABYLON_PLUS",
-        label     : "穹蒼之賜 ‧ 幽冥",
-        info      : "暗屬性攻擊力 3 倍；每直行消除一組 4 粒或以上符石時 (只計算首批消除的符石)，該直行將產生 1 粒暗符石",
-        newItem   : BabylonNewItem,
-        attack    : BabylonAttackPlus,
         init      : BasicLeaderSetting,
     },
     BOUNDARY_REVOLUTION: {
