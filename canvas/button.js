@@ -260,6 +260,7 @@ function shareUrl(button){
     settingInfo.panel  = historyManager.panel.join(",");
     settingInfo.route  = historyManager.routeInfoString;
     settingInfo.random = historyManager.random;
+    settingInfo.phantom  = environmentManager.phantom;
     //落珠
     settingInfo.newDrop  = environmentManager.newDrop;
     settingInfo.dropMode = dropColorManager.mode;
@@ -284,6 +285,7 @@ function parseUrl(){
         historyManager.routeInfoString = settingInfo.route;
         historyManager.random = settingInfo.random;
         RANDOM = settingInfo.random;
+        environmentManager.phantom = settingInfo.phantom;
         //落珠
         environmentManager.newDrop = settingInfo.newDrop;
         if( environmentManager.newDrop ){
