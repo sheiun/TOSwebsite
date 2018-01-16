@@ -253,7 +253,7 @@ var FieldStrategyDropDelete = function(field, deleteFinished, dropFinished, hasS
         if( !deletedWave ){ return; }
         for(var i = 0; i < deletedWave.orderDeletePairs.length; i++){
             var pair = deletedWave.orderDeletePairs[i];
-            if( pair.balls.length >= 5 ){                
+            if( pair.balls.length >= 5 && environmentManager.dropSpace.emptyPoints.length > 0 ){                
                 var rand = Math.floor( randomNext() * environmentManager.dropSpace.emptyPoints.length );
                 var point = environmentManager.dropSpace.emptyPoints.splice(rand, 1)[0];
                 environmentManager.dropSpace.fillPoints.push( point );

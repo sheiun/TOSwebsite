@@ -19,7 +19,7 @@ var CHARACTERS_DATA = {
     },
     GREEK_W : {
         id           : "GREEK_W",
-        label        : "大海之神 ‧ 波塞頓",
+        label        : "大海之神．波塞頓",
         img          : "img/Special/2/w3.png",
         color        : "w",
         type         : "GOD",
@@ -34,7 +34,7 @@ var CHARACTERS_DATA = {
     },
     GREEK_F : {
         id           : "GREEK_F",
-        label        : "煉火之神 ‧ 赫淮斯托斯",
+        label        : "煉火之神．赫淮斯托斯",
         img          : "img/Special/2/f3.png",
         color        : "f",
         type         : "GOD",
@@ -49,7 +49,7 @@ var CHARACTERS_DATA = {
     },
     GREEK_P : {
         id           : "GREEK_P",
-        label        : "戰爭女神 ‧ 雅典娜",
+        label        : "戰爭女神．雅典娜",
         img          : "img/Special/2/p3.png",
         color        : "p",
         type         : "GOD",
@@ -64,7 +64,7 @@ var CHARACTERS_DATA = {
     },
     GREEK_L : {
         id           : "GREEK_L",
-        label        : "聖光之神 ‧ 阿波羅",
+        label        : "聖光之神．阿波羅",
         img          : "img/Special/2/l3.png",
         color        : "l",
         type         : "GOD",
@@ -79,7 +79,7 @@ var CHARACTERS_DATA = {
     },
     GREEK_D : {
         id           : "GREEK_D",
-        label        : "月夜之神 ‧ 阿提密斯",
+        label        : "月夜之神．阿提密斯",
         img          : "img/Special/2/d3.png",
         color        : "d",
         type         : "GOD",
@@ -94,7 +94,7 @@ var CHARACTERS_DATA = {
     },
     COUPLE_F : {
         id           : "COUPLE_F",
-        label        : "彌勒世尊 ‧ 燃燈",
+        label        : "彌勒世尊．燃燈",
         img          : "img/Special/15/f3.png",
         color        : "f",
         type         : "GOD",
@@ -109,7 +109,7 @@ var CHARACTERS_DATA = {
     },
     COUPLE_P : {
         id           : "COUPLE_P",
-        label        : "顯聖真君 ‧ 楊戩",
+        label        : "顯聖真君．楊戩",
         img          : "img/Special/15/p3.png",
         color        : "p",
         type         : "HUMAN",
@@ -124,7 +124,7 @@ var CHARACTERS_DATA = {
     },
     BABYLON_W : {
         id           : "BABYLON_W",
-        label        : "智慧者 ‧ 阿特拉哈西斯",
+        label        : "智慧者．阿特拉哈西斯",
         img          : "img/Special/23/w2.png",
         color        : "w",
         type         : "GOD",
@@ -139,7 +139,7 @@ var CHARACTERS_DATA = {
     },
     BABYLON_F : {
         id           : "BABYLON_F",
-        label        : "暴風軍神 ‧ 尼努爾塔",
+        label        : "暴風軍神．尼努爾塔",
         img          : "img/Special/23/f2.png",
         color        : "f",
         type         : "GOD",
@@ -154,7 +154,7 @@ var CHARACTERS_DATA = {
     },
     BABYLON_P : {
         id           : "BABYLON_P",
-        label        : "牧者國王 ‧ 杜穆濟",
+        label        : "牧者國王．杜穆濟",
         img          : "img/Special/23/p2.png",
         color        : "p",
         type         : "GOD",
@@ -169,7 +169,7 @@ var CHARACTERS_DATA = {
     },
     BABYLON_L : {
         id           : "BABYLON_L",
-        label        : "月神 ‧ 伊南娜",
+        label        : "月神．伊南娜",
         img          : "img/Special/23/l2.png",
         color        : "l",
         type         : "GOD",
@@ -184,7 +184,7 @@ var CHARACTERS_DATA = {
     },
     BABYLON_D : {
         id           : "BABYLON_D",
-        label        : "惡疾之神 ‧ 納姆塔爾",
+        label        : "惡疾之神．納姆塔爾",
         img          : "img/Special/23/d2.png",
         color        : "d",
         type         : "GOD",
@@ -199,7 +199,7 @@ var CHARACTERS_DATA = {
     },
     OLD_GREEK_W : {
         id           : "OLD_GREEK_W",
-        label        : "浪濤海神 ‧ 蓬托斯",
+        label        : "浪濤海神．蓬托斯",
         img          : "img/Special/36/w2.png",
         color        : "w",
         type         : "GOD",
@@ -214,7 +214,7 @@ var CHARACTERS_DATA = {
     },
     OLD_GREEK_D : {
         id           : "OLD_GREEK_D",
-        label        : "暗影夜神 ‧ 厄瑞玻斯",
+        label        : "暗影夜神．厄瑞玻斯",
         img          : "img/Special/36/d2.png",
         color        : "d",
         type         : "GOD",
@@ -229,7 +229,7 @@ var CHARACTERS_DATA = {
     },
     FALLEN_HALO_F : {
         id           : "FALLEN_HALO_F",
-        label        : "變臉火術‧切西亞",
+        label        : "變臉火術．切西亞",
         img          : "img/Special/40/f2.png",
         color        : "f",
         type         : "GOD",
@@ -244,7 +244,7 @@ var CHARACTERS_DATA = {
     },
     FALLEN_HALO_D : {
         id           : "FALLEN_HALO_D",
-        label        : "放任孽魔‧撒旦",
+        label        : "放任孽魔．撒旦",
         img          : "img/Special/40/d2.png",
         color        : "d",
         type         : "DEVIL",
@@ -259,7 +259,7 @@ var CHARACTERS_DATA = {
     },
     IMPERIAL_WARLORD_W : {
         id           : "IMPERIAL_WARLORD_W",
-        label        : "青龍偃月‧關羽",
+        label        : "青龍偃月．關羽",
         img          : "img/Special/41/w2-1.png",
         color        : "w",
         type         : "HUMAN",
@@ -274,7 +274,7 @@ var CHARACTERS_DATA = {
     },
     TABLE_KNIGHT_L : {
         id           : "TABLE_KNIGHT_L",
-        label        : "高潔騎士‧亞瑟",
+        label        : "高潔騎士．亞瑟",
         img          : "img/Special/44/l2-1.png",
         color        : "l",
         type         : "HUMAN",
@@ -289,7 +289,7 @@ var CHARACTERS_DATA = {
     },
     DARK_GOLD_MAYA : {
         id           : "DARK_GOLD_MAYA",
-        label        : "創曆者‧馬雅",
+        label        : "創曆者．馬雅",
         img          : "img/Special/48/l1.png",
         color        : "l",
         type         : "GOD",
@@ -299,6 +299,36 @@ var CHARACTERS_DATA = {
         wake         : [ "NONE", "NONE", "NONE", "NONE" ],
         wake_var     : [ 0, 0, 0, 0 ],
         wake_info    : [ "", "", "", "" ],
+        leader       : "NONE",
+        active       : [ "NONE" ],
+    },
+    FAIRY_SAKURA : {
+        id           : "FAIRY_SAKURA",
+        label        : "閉鎖心蕾．櫻",
+        img          : "img/Special/50/f2-1.png",
+        color        : "f",
+        type         : "FAIRY",
+        health       : 2188,
+        attack       : 1403,
+        recovery     : 789,
+        wake         : [ "NONE", "NONE", "NONE", "NONE" ],
+        wake_var     : [ 0, 0, 0, 0 ],
+        wake_info    : [ "無", "無", "無", "無" ],
+        leader       : "RAIN_OF_SAKURA",
+        active       : [ "NONE" ],
+    },
+    FAIRY_ROZEN : {
+        id           : "FAIRY_ROZEN",
+        label        : "戀慕瀰漫．薔薇",
+        img          : "img/Special/50/d2-1.png",
+        color        : "d",
+        type         : "FAIRY",
+        health       : 1992,
+        attack       : 1446,
+        recovery     : 823,
+        wake         : [ "NONE", "NONE", "NONE", "NONE" ],
+        wake_var     : [ 0, 0, 0, 0 ],
+        wake_info    : [ "無", "無", "無", "無" ],
         leader       : "NONE",
         active       : [ "NONE" ],
     },

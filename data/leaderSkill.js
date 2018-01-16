@@ -194,4 +194,10 @@ var LEADER_SKILLS_DATA = {
         info      : "所有符石只要同屬性 3 粒相連即可消除",
         init      : BoundaryRevolutionSetting,
     },
+    RAIN_OF_SAKURA: {
+        id        : "RAIN_OF_SAKURA",
+        label     : "櫻之花雨",
+        info      : "2 粒火或心符石相連，即可發動消除，所有符石掉落機率不受其他技能影響（包括改變掉落符石屬性的技能）",
+        init      : CoupleSetting,
+    },
 };

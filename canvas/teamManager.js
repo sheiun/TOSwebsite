@@ -93,12 +93,6 @@ var TeamManager = function( table, environment ){
         self.setTeamSkill();
 
         self.setMemberLeaderSkill();
-        /*
-        resetTeamLeaderSkill();
-        resetMemberActiveSkill();
-        checkCombineSkill();
-        checkActiveCoolDownByWake();
-        */
     };
     // 設定隊伍 初始技能
     this.setTeamMember = function(){

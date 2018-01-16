@@ -17,7 +17,7 @@ var GreekTeamNewItem = function(leader, friend){
     if( !deletedWave ){ return; }
 
     // 第一波消除=>新回合重新計算
-    if ( historyManager.deletedInfo.waves == 1 ) { this.variable.count = 0; }
+    if ( historyManager.deletedInfo.waves.length == 1 ) { this.variable.count = 0; }
     var num = deletedWave.orderDeletePairs.length + this.variable.count;
 
     while(num >= 5){
@@ -171,7 +171,7 @@ var DarkGoldMayaBreakColor = function(leader, friend) {
 			}
 		}
 		fieldManager.strategy.deletedWave.orderDeletePairs.push( deletedPairs );
-		console.log(fieldManager.strategy.deletedWave.orderDeletePairs);
+
 	    //設定消除珠動畫
 	    for(var i = 0 ; i < fieldManager.strategy.deletedWave.orderDeletePairs.length ; i++){ 
 	        var startFrame = DELETE_SPEED;
@@ -186,6 +186,123 @@ var DarkGoldMayaBreakColor = function(leader, friend) {
 		this.variable.count = 0;
 	}
 }
+//==============================================================
+// FAIRY_SAKURA
+//==============================================================
+var FairySakuraTeamSetting = function(leader, friend){
+	this.countF = 0;
+	this.countH = 0;
+	this.wfpNum = 0;
+	this.ldhNum = 0;
+}
+var FairySakuraTeamNewItem = function(leader, friend){ 
+    var deletedWave = historyManager.deletedInfo.getCurrentWave();
+    if( !deletedWave ){ return; }
+
+    // 第一波消除=>新回合重新計算
+    if ( historyManager.deletedInfo.waves.length == 1 ) { 
+		this.variable.countF = 0; 
+		this.variable.countH = 0;
+		this.variable.wfpNum = 0; 
+		this.variable.ldhNum = 0;
+
+		//首消每串水火木 掉落4火強
+		this.variable.wfpNum = 0;
+		this.variable.wfpNum += deletedWave.colorDeletePairs[ getColorIndex('w') ].length *4;
+		this.variable.wfpNum += deletedWave.colorDeletePairs[ getColorIndex('f') ].length *4;
+		this.variable.wfpNum += deletedWave.colorDeletePairs[ getColorIndex('p') ].length *4;
+
+		//首消每串光暗心 掉落4心強
+		this.variable.ldhNum = 0;
+		this.variable.ldhNum += deletedWave.colorDeletePairs[ getColorIndex('l') ].length *4;
+		this.variable.ldhNum += deletedWave.colorDeletePairs[ getColorIndex('d') ].length *4;
+		this.variable.ldhNum += deletedWave.colorDeletePairs[ getColorIndex('h') ].length *4;
+	}
+
+	while(this.variable.wfpNum > 0 && environmentManager.dropSpace.emptyPoints.length > 0){
+		this.variable.wfpNum -= 1;
+		var rand = Math.floor( randomNext() * environmentManager.dropSpace.emptyPoints.length );
+		var point = environmentManager.dropSpace.emptyPoints.splice(rand, 1)[0];
+		environmentManager.dropSpace.fillPoints.push( point );
+		environmentManager.dropSpace.newColors[ point.toText() ] = 'f+';
+	}
+
+	while(this.variable.ldhNum > 0 && environmentManager.dropSpace.emptyPoints.length > 0){
+		this.variable.ldhNum -= 1;
+		var rand = Math.floor( randomNext() * environmentManager.dropSpace.emptyPoints.length );
+		var point = environmentManager.dropSpace.emptyPoints.splice(rand, 1)[0];
+		environmentManager.dropSpace.fillPoints.push( point );
+		environmentManager.dropSpace.newColors[ point.toText() ] = 'h+';
+	}
+
+	//每消除10火 掉落一火強
+	var fballs = deletedWave.colorDeletePairs[ getColorIndex('f') ];
+	for(var i = 0; i < fballs.length; i++){
+		this.variable.countF += fballs[i].balls.length;
+	}
+	while(this.variable.countF >= 10 && environmentManager.dropSpace.emptyPoints.length > 0){
+		this.variable.countF -= 10;
+        var rand = Math.floor( randomNext() * environmentManager.dropSpace.emptyPoints.length );
+        var point = environmentManager.dropSpace.emptyPoints.splice(rand, 1)[0];
+        environmentManager.dropSpace.fillPoints.push( point );
+        environmentManager.dropSpace.newColors[ point.toText() ] = 'f+';
+	}
+
+	//每消除10心 掉落一心強
+	var hballs = deletedWave.colorDeletePairs[ getColorIndex('h') ];
+	for(var i = 0; i < hballs.length; i++){
+		this.variable.countH += hballs[i].balls.length;
+	}
+	while(this.variable.countH >= 10 && environmentManager.dropSpace.emptyPoints.length > 0){
+		this.variable.countH -= 10;
+        var rand = Math.floor( randomNext() * environmentManager.dropSpace.emptyPoints.length );
+        var point = environmentManager.dropSpace.emptyPoints.splice(rand, 1)[0];
+        environmentManager.dropSpace.fillPoints.push( point );
+        environmentManager.dropSpace.newColors[ point.toText() ] = 'h+';
+	}
+
+}
+//==============================================================
+// FAIRY_ROZEN
+//==============================================================
+
+var FairyRozenTeamNewItem = function(leader, friend){ 
+    var deletedWave = historyManager.deletedInfo.getCurrentWave();
+    if( !deletedWave ){ return; }
+
+    // 第一波消除=>新回合重新計算
+    if ( historyManager.deletedInfo.waves.length != 1 ) { return; }
+	
+	// 每首消一橫排 掉落5心
+	var hCounters = new Array(environmentManager.vNum);
+	for(var i = 0; i < environmentManager.vNum; i++){
+		hCounters[i] = 0;
+	} 
+	for(var p = 0; p < deletedWave.orderDeletePairs.length; p++){
+		for(var b = 0; b < deletedWave.orderDeletePairs[p].balls.length; b++){
+			var ball = deletedWave.orderDeletePairs[p].balls[b];
+			var y = ball.point.getGridY();
+			hCounters[y] += 1;
+		}
+	}
+
+	var num = 0;
+	for(var i = 0; i < environmentManager.vNum; i++){
+		if( hCounters[i] == environmentManager.hNum ){
+			num += 5;
+		}
+	} 
+	while(num > 0 && environmentManager.dropSpace.emptyPoints.length > 0){
+		num -= 1;
+        var rand = Math.floor( randomNext() * environmentManager.dropSpace.emptyPoints.length );
+        var point = environmentManager.dropSpace.emptyPoints.splice(rand, 1)[0];
+        environmentManager.dropSpace.fillPoints.push( point );
+        environmentManager.dropSpace.newColors[ point.toText() ] = 'h';
+	}
+
+}
+
+
 
 //==============================================================
 //==============================================================
@@ -212,6 +329,12 @@ var TEAM_SKILLS_DATA = {
 		}
 		if( leader.id == friend.id && leader.id == "DARK_GOLD_MAYA" ){
 			skillArray.push("DARK_GOLD_MAYA_TEAM");
+		}
+		if( leader.id == friend.id && leader.id == "FAIRY_SAKURA" ){
+			skillArray.push("FAIRY_SAKURA_TEAM");
+		}
+		if( leader.id == friend.id && leader.id == "FAIRY_ROZEN" ){
+			skillArray.push("FAIRY_ROZEN_TEAM");
 		}
 		return skillArray;
 	},
@@ -254,4 +377,14 @@ var TEAM_SKILLS_DATA = {
 		init: DarkGoldMayaSetting,
 		breakColor: DarkGoldMayaBreakColor,
 	},
+	FAIRY_SAKURA_TEAM: {
+		id: "FAIRY_SAKURA_TEAM",
+		init: FairySakuraTeamSetting,
+		newItem: FairySakuraTeamNewItem,
+	},
+	FAIRY_ROZEN_TEAM: {
+		id: "FAIRY_ROZEN_TEAM",
+		init: BasicTeamSetting,
+		newItem: FairyRozenTeamNewItem,
+	}
 };
