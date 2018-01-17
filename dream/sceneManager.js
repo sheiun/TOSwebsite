@@ -201,10 +201,10 @@ var FieldManager = function(scene, canvas, history, environment){
                 comboManager.resetBox();
                 self.historyManager.savePanel( self.balls );
                 self.historyManager.random = RANDOM;
-				self.environment.resetTeamComposition();
 
                 self.setStrategy(savedStrategy);
                 self.environment.newDrop = savedNewDrop;
+				self.environment.resetTeamComposition();
                 self.sceneManager.setSkipMode(false);
             }
 
@@ -212,7 +212,6 @@ var FieldManager = function(scene, canvas, history, environment){
             self.setStrategy( new FieldStrategyDropDelete(self, deleteFinished, null, true ) );
             self.environment.newDrop = true;
             self.sceneManager.setSkipMode(true);
-            self.environment.resetTeamComposition();
         }
         return;
     };

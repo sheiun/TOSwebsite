@@ -21,7 +21,7 @@ var GreekNewItem = function( member, direct ){
         num += deletedWave.colorDeletePairs[ getColorIndex(member.color) ][i].balls.length;
     }
 
-    while( num >= 3 ){
+    while( num >= 3 && environmentManager.dropSpace.emptyPoints.length > 0 ){
         num -= 3;
         var rand = Math.floor( randomNext() * environmentManager.dropSpace.emptyPoints.length );
         var point = environmentManager.dropSpace.emptyPoints.splice(rand, 1)[0];

@@ -29,6 +29,7 @@ var TeamManager = function( table, environment ){
         this.id       = teamID;
         this.init     = TEAM_SKILLS_DATA[teamID].init;
         this.newItem  = TEAM_SKILLS_DATA[teamID].newItem;
+        this.newDelete = TEAM_SKILLS_DATA[teamID].newDelete;
         this.breakColor = TEAM_SKILLS_DATA[teamID].breakColor;
     }
 
@@ -131,10 +132,10 @@ var TeamManager = function( table, environment ){
     };
 
     this.checkLeaderSkill = function( key ){
-        if( self.leaderSkill[key] ){
+        if( self.leaderSkill && self.leaderSkill[key] ){
             self.leaderSkill[key]( self.leader, "LEADER" );
         }
-        if( self.friendSkill[key] ){
+        if( self.friendSkill && self.friendSkill[key] ){
             self.friendSkill[key]( self.friend, "FRIEND" );
         }
     }

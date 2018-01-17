@@ -17,7 +17,7 @@ var GreekTeamNewItem = function(leader, friend){
     if( !deletedWave ){ return; }
 
     // 第一波消除=>新回合重新計算
-    if ( historyManager.deletedInfo.waves.length == 1 ) { this.variable.count = 0; }
+    if ( historyManager.deletedInfo.waveNum == 0 ) { this.variable.count = 0; }
     var num = deletedWave.orderDeletePairs.length + this.variable.count;
 
     while(num >= 5){
@@ -200,7 +200,7 @@ var FairySakuraTeamNewItem = function(leader, friend){
     if( !deletedWave ){ return; }
 
     // 第一波消除=>新回合重新計算
-    if ( historyManager.deletedInfo.waves.length == 1 ) { 
+    if ( historyManager.deletedInfo.waveNum == 0 ) { 
 		this.variable.countF = 0; 
 		this.variable.countH = 0;
 		this.variable.wfpNum = 0; 
@@ -268,11 +268,11 @@ var FairySakuraTeamNewItem = function(leader, friend){
 
 var FairyRozenTeamNewItem = function(leader, friend){ 
     var deletedWave = historyManager.deletedInfo.getCurrentWave();
-    if( !deletedWave ){ return; }
+    if( !deletedWave ){ return; } 
 
-    // 第一波消除=>新回合重新計算
-    if ( historyManager.deletedInfo.waves.length != 1 ) { return; }
-	
+    // 第一波消除=>新回合重新計算 
+    if ( historyManager.deletedInfo.waveNum != 0 ) { return; }
+
 	// 每首消一橫排 掉落5心
 	var hCounters = new Array(environmentManager.vNum);
 	for(var i = 0; i < environmentManager.vNum; i++){

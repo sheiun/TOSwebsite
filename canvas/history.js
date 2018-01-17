@@ -2,6 +2,7 @@
 var HistoryManager = function(){
     var DeletedWave = function(){
         var self = this;
+		this.info              = "normal";
         this.vDeletePairs      = new Array( environmentManager.hNum );
         this.hDeletePairs      = new Array( environmentManager.vNum );
         this.orderDeletePairs  = new Array();       
