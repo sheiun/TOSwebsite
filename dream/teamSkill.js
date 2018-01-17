@@ -38,7 +38,8 @@ var NobitaTeamBreakColor = function(leader, friend) {
 	    }
 	}
 	 
-	if( this.variable.count == 0 && historyManager.deletedInfo.waveNum == 0 ){
+    var deletedWave = historyManager.deletedInfo.getCurrentWave(); 
+	if( this.variable.count == 0 &&  !deletedWave  ){
 		this.variable.count = 1;
 		var deletedPosition = [2, 7, 12, 17, 22, 27];
 		SetDeleteBalls(deletedPosition); 
