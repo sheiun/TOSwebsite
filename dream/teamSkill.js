@@ -86,7 +86,7 @@ var DoreamonTeamNewItem = function(leader, friend){
     var deletedWave = historyManager.deletedInfo.getCurrentWave();
     if( !deletedWave ){ return; }
 
-    // 首波每串+2, 次波最多+5
+    // 首消每串+2, 次消每串+1 +水珠減半
     if ( historyManager.deletedInfo.waveNum == 0 ) {  
     	var num = deletedWave.orderDeletePairs.length * 2;
 	    while(num > 0 && environmentManager.dropSpace.emptyPoints.length > 0){
