@@ -7,7 +7,7 @@
 var BasicLeaderSetting = function( member ){}
 
 //==============================================================
-// Greek
+// GREEK
 //==============================================================
 var GreekSetting = function( member ){
     this.count = 0;
@@ -15,27 +15,25 @@ var GreekSetting = function( member ){
 var GreekNewItem = function( member, direct ){
     var deletedWave = historyManager.deletedInfo.getCurrentWave();
     if( !deletedWave ){ return; }
-
+	
     var num = this.variable.count;
+    if( historyManager.deletedInfo.waveNum == 0 ){
+		num = deletedWave.orderDeletePairs.length * 3;
+	}
+
     for(var i = 0; i < deletedWave.colorDeletePairs[ getColorIndex(member.color) ].length; i++){
         num += deletedWave.colorDeletePairs[ getColorIndex(member.color) ][i].balls.length;
     }
-
-    while( num >= 3 && environmentManager.dropSpace.emptyPoints.length > 0 ){
+    while( num >= 3 && environmentManager.isDropSpaceEmpty() ){
         num -= 3;
-        var rand = Math.floor( randomNext() * environmentManager.dropSpace.emptyPoints.length );
-        var point = environmentManager.dropSpace.emptyPoints.splice(rand, 1)[0];
-        if( point ){
-            environmentManager.dropSpace.fillPoints.push( point );
-            environmentManager.dropSpace.newColors[ point.toText() ] = member.color+'+';
-        }
+		addNewItemRandomPositionIntoDropSpace(member.color+'+');
     }
 
     this.variable.count = num;
 }
 
 //==============================================================
-// Couple
+// COUPLE
 //==============================================================
 var CoupleSetting = function( member ){
     environmentManager.colorChangeable = false;
@@ -54,7 +52,7 @@ var CoupleEndSkill = function( member, direct ){
 }
 
 //==============================================================
-// Babylon
+// BABYLON
 //==============================================================
 var BabylonNewItem = function( member, direct ){
     if( historyManager.deletedInfo.waveNum != 0 ){ return; }
@@ -62,18 +60,13 @@ var BabylonNewItem = function( member, direct ){
     for(var x = 0; x < environmentManager.hNum; x++){
         if( checkFirstStraightByPlace( 4, x ) ){
             var newItemNum = 1;
-            for(var y = environmentManager.vNum-1; y >= 0 && newItemNum; y--){
-                var point = new Point( x, y, true );
-                for(var i = 0; i < environmentManager.dropSpace.emptyPoints.length; i++){
-                    if( point.toText() == environmentManager.dropSpace.emptyPoints[i].toText() ){
-                        environmentManager.dropSpace.emptyPoints.splice( i, 1 );
-                        environmentManager.dropSpace.newColors[ point.toText() ] = member.color;
-                        environmentManager.dropSpace.dropStack[ x ].push( member.color );
-                        -- newItemNum;
-                        break;
-                    }
-                }
-            }
+			while( newItemNum > 0 ){
+				newItemNum -= 1;
+				var newPointIndex = findLowestPositionIndex(environmentManager.dropSpace.emptyPoints, x);
+				if( newPointIndex != null ){
+					addNewItemIndexPositionIntoDropSpace( newPointIndex, member.color );
+				}
+			}
         }
     }
 }
@@ -89,6 +82,41 @@ var BoundaryRevolutionSetting = function( member ){
     environmentManager.pairSize[ 'd' ] = 2;
     environmentManager.pairSize[ 'h' ] = 2;
     this.count = 0;
+}
+
+//==============================================================
+// UNIVERSE AZATHOTH
+//==============================================================
+var AzathothSetting = function( member ){
+    this.count = 0;
+}
+var AzathothNewItem = function( member, direct ){
+    var deletedWave = historyManager.deletedInfo.getCurrentWave();
+    if( !deletedWave ){ return; }
+	
+    if( historyManager.deletedInfo.waveNum == 0 ){
+		this.variable.count = deletedWave.orderDeletePairs.length;
+	}
+    var num = this.variable.count;
+	 
+	var newPointIndex = findLowestPositionIndex(environmentManager.dropSpace.emptyPoints, member.xIndex);
+	while( num > 0 && newPointIndex != null ){
+		num -= 1;
+		addNewItemIndexPositionIntoDropSpace( newPointIndex, member.color+"+" );
+	    newPointIndex = findLowestPositionIndex(environmentManager.dropSpace.emptyPoints, member.xIndex);
+	}
+	
+    this.variable.count= num;
+}
+
+//==============================================================
+// WARLORD
+//==============================================================
+var FourGroupSetting = function( member ){
+	COLORS.forEach( (color) => {
+		environmentManager.pairSize[ color ] = 4;
+		environmentManager.groupSize[ color ] = 4;
+	}); 
 }
 
 //==============================================================
@@ -199,5 +227,18 @@ var LEADER_SKILLS_DATA = {
         label     : "櫻之花雨",
         info      : "2 粒火或心符石相連，即可發動消除，所有符石掉落機率不受其他技能影響（包括改變掉落符石屬性的技能）",
         init      : CoupleSetting,
+    },
+    VIOLENCE_OF_DARK_DRAGONS: {
+        id        : "VIOLENCE_OF_DARK_DRAGONS",
+        label     : "暗龍暴",
+        info      : "每首批消除 1 連擊 (Combo)，自身直行掉落 1 粒暗強化符石。",
+		newItem   : AzathothNewItem,
+        init      : AzathothSetting,
+    },
+    GREATNESS_OF_WARLORD: {
+        id        : "GREATNESS_OF_WARLORD",
+        label     : "霸者盛勢",
+        info      : "符石需 4 粒或以上相連才可發動消除",
+        init      : FourGroupSetting,
     },
 };

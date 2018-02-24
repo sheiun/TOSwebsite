@@ -11,21 +11,30 @@ var BasicTeamSetting = function(leader, friend){}
 //==============================================================
 var GreekTeamSetting = function(leader, friend){
 	this.count = 0;
+	this.colorDeleted = [ false, false, false, false, false ];
 }
 var GreekTeamNewItem = function(leader, friend){	
     var deletedWave = historyManager.deletedInfo.getCurrentWave();
     if( !deletedWave ){ return; }
 
     // 第一波消除=>新回合重新計算
-    if ( historyManager.deletedInfo.waveNum == 0 ) { this.variable.count = 0; }
-    var num = deletedWave.orderDeletePairs.length + this.variable.count;
+    if ( historyManager.deletedInfo.waveNum == 0 ) { 
+		this.variable.count = 0; 
+		this.variable.colorDeleted = [ false, false, false, false, false ];
+	}
+    var num = this.variable.count;
 
-    while(num >= 5){
-    	num -= 5;
-        var rand = Math.floor( randomNext() * environmentManager.dropSpace.emptyPoints.length );
-        var point = environmentManager.dropSpace.emptyPoints.splice(rand, 1)[0];
-        environmentManager.dropSpace.fillPoints.push( point );
-        environmentManager.dropSpace.newColors[ point.toText() ] = leader.color+'+';
+	ELEMENT_COLORS.forEach( (color) => {
+		var index = getColorIndex(color);
+		if( !this.variable.colorDeleted[index] && deletedWave.colorDeletePairs[index].length > 0 ){
+			num += 3;
+			this.variable.colorDeleted[index] = true;
+		}
+	});
+
+    while(num > 0 && environmentManager.isDropSpaceEmpty() ){
+    	num -= 1;
+		addNewItemRandomPositionIntoDropSpace(leader.color);
     }
 
     this.variable.count = num;
@@ -39,18 +48,13 @@ var BabylonTeamNewItem = function( leader, friend ){
     for(var x = 0; x < environmentManager.hNum; x++){
         if( checkFirstStraightByPlace( 5, x ) ){
             var newItemNum = 1;
-            for(var y = environmentManager.vNum-1; y >= 0 && newItemNum; y--){
-                var point = new Point( x, y, true );
-                for(var i = 0; i < environmentManager.dropSpace.emptyPoints.length; i++){
-                    if( point.toText() == environmentManager.dropSpace.emptyPoints[i].toText() ){
-                        environmentManager.dropSpace.emptyPoints.splice( i, 1 );
-                        environmentManager.dropSpace.newColors[ point.toText() ] = leader.color;
-                        environmentManager.dropSpace.dropStack[ x ].push( leader.color );
-                        -- newItemNum;
-                        break;
-                    }
-                }
-            }
+			while( newItemNum > 0 ){
+				newItemNum -= 1;
+				var newPointIndex = findLowestPositionIndex(environmentManager.dropSpace.emptyPoints, x);
+				if( newPointIndex != null ){
+					addNewItemIndexPositionIntoDropSpace( newPointIndex, leader.color );
+				}
+			}
         }
     }
 }
@@ -68,22 +72,16 @@ var OldGreekTeamNewItem = function(leader, friend){
     if ( historyManager.deletedInfo.waveNum == 0 ) { 
     	this.variable.count = 0;
     	var num = deletedWave.orderDeletePairs.length;
-	    while(num > 0){
+	    while(num > 0 && environmentManager.isDropSpaceEmpty() ){
 	    	num -= 1;
-	        var rand = Math.floor( randomNext() * environmentManager.dropSpace.emptyPoints.length );
-	        var point = environmentManager.dropSpace.emptyPoints.splice(rand, 1)[0];
-	        environmentManager.dropSpace.fillPoints.push( point );
-	        environmentManager.dropSpace.newColors[ point.toText() ] = leader.color;
+			addNewItemRandomPositionIntoDropSpace(leader.color);
 	    }
     } else {
     	var num = deletedWave.orderDeletePairs.length;
-    	while( num > 0 && this.variable.count < 5 ){
+    	while( num > 0 && this.variable.count < 5 && environmentManager.isDropSpaceEmpty() ){
     		num -= 1;
     		this.variable.count += 1;
-	        var rand = Math.floor( randomNext() * environmentManager.dropSpace.emptyPoints.length );
-	        var point = environmentManager.dropSpace.emptyPoints.splice(rand, 1)[0];
-	        environmentManager.dropSpace.fillPoints.push( point );
-	        environmentManager.dropSpace.newColors[ point.toText() ] = leader.color;
+			addNewItemRandomPositionIntoDropSpace(leader.color);
     	}
     }
 }
@@ -187,6 +185,18 @@ var DarkGoldMayaBreakColor = function(leader, friend) {
 	}
 }
 //==============================================================
+// STAR_BURST_OPHIUCHUS
+//==============================================================
+var StarBurstOphiuchusTeamLocus = function(leader, friend, paraments){
+	if( ! paraments[0] instanceof Point ){ return; }
+	var lastPoint = paraments[0];
+    var ball = fieldManager.getBallAtPoint( lastPoint );
+	 
+	if( ball.frozen == null || ball.frozen == 1 ){
+		ball.item = ball.color+"+";
+	}
+}
+//==============================================================
 // FAIRY_SAKURA
 //==============================================================
 var FairySakuraTeamSetting = function(leader, friend){
@@ -219,20 +229,14 @@ var FairySakuraTeamNewItem = function(leader, friend){
 		this.variable.ldhNum += deletedWave.colorDeletePairs[ getColorIndex('h') ].length *4;
 	}
 
-	while(this.variable.wfpNum > 0 && environmentManager.dropSpace.emptyPoints.length > 0){
+	while(this.variable.wfpNum > 0 && environmentManager.isDropSpaceEmpty() ){
 		this.variable.wfpNum -= 1;
-		var rand = Math.floor( randomNext() * environmentManager.dropSpace.emptyPoints.length );
-		var point = environmentManager.dropSpace.emptyPoints.splice(rand, 1)[0];
-		environmentManager.dropSpace.fillPoints.push( point );
-		environmentManager.dropSpace.newColors[ point.toText() ] = 'f+';
+		addNewItemRandomPositionIntoDropSpace('f+');
 	}
 
-	while(this.variable.ldhNum > 0 && environmentManager.dropSpace.emptyPoints.length > 0){
+	while(this.variable.ldhNum > 0 && environmentManager.isDropSpaceEmpty() ){
 		this.variable.ldhNum -= 1;
-		var rand = Math.floor( randomNext() * environmentManager.dropSpace.emptyPoints.length );
-		var point = environmentManager.dropSpace.emptyPoints.splice(rand, 1)[0];
-		environmentManager.dropSpace.fillPoints.push( point );
-		environmentManager.dropSpace.newColors[ point.toText() ] = 'h+';
+		addNewItemRandomPositionIntoDropSpace('h+');
 	}
 
 	//每消除10火 掉落一火強
@@ -240,12 +244,9 @@ var FairySakuraTeamNewItem = function(leader, friend){
 	for(var i = 0; i < fballs.length; i++){
 		this.variable.countF += fballs[i].balls.length;
 	}
-	while(this.variable.countF >= 10 && environmentManager.dropSpace.emptyPoints.length > 0){
+	while(this.variable.countF >= 10 && environmentManager.isDropSpaceEmpty() ){
 		this.variable.countF -= 10;
-        var rand = Math.floor( randomNext() * environmentManager.dropSpace.emptyPoints.length );
-        var point = environmentManager.dropSpace.emptyPoints.splice(rand, 1)[0];
-        environmentManager.dropSpace.fillPoints.push( point );
-        environmentManager.dropSpace.newColors[ point.toText() ] = 'f+';
+		addNewItemRandomPositionIntoDropSpace('f+');
 	}
 
 	//每消除10心 掉落一心強
@@ -253,19 +254,15 @@ var FairySakuraTeamNewItem = function(leader, friend){
 	for(var i = 0; i < hballs.length; i++){
 		this.variable.countH += hballs[i].balls.length;
 	}
-	while(this.variable.countH >= 10 && environmentManager.dropSpace.emptyPoints.length > 0){
+	while(this.variable.countH >= 10 && environmentManager.isDropSpaceEmpty() ){
 		this.variable.countH -= 10;
-        var rand = Math.floor( randomNext() * environmentManager.dropSpace.emptyPoints.length );
-        var point = environmentManager.dropSpace.emptyPoints.splice(rand, 1)[0];
-        environmentManager.dropSpace.fillPoints.push( point );
-        environmentManager.dropSpace.newColors[ point.toText() ] = 'h+';
+		addNewItemRandomPositionIntoDropSpace('h+');
 	}
 
 }
 //==============================================================
 // FAIRY_ROZEN
 //==============================================================
-
 var FairyRozenTeamNewItem = function(leader, friend){ 
     var deletedWave = historyManager.deletedInfo.getCurrentWave();
     if( !deletedWave ){ return; } 
@@ -292,17 +289,27 @@ var FairyRozenTeamNewItem = function(leader, friend){
 			num += 5;
 		}
 	} 
-	while(num > 0 && environmentManager.dropSpace.emptyPoints.length > 0){
+	while(num > 0 && environmentManager.isDropSpaceEmpty() ){
 		num -= 1;
-        var rand = Math.floor( randomNext() * environmentManager.dropSpace.emptyPoints.length );
-        var point = environmentManager.dropSpace.emptyPoints.splice(rand, 1)[0];
-        environmentManager.dropSpace.fillPoints.push( point );
-        environmentManager.dropSpace.newColors[ point.toText() ] = 'h';
+		addNewItemRandomPositionIntoDropSpace('h');
 	}
-
 }
 
+//==============================================================
+// UNIVERSE_DAOLOTH
+//==============================================================
+var UniverseDaolothTeamLocus = function(leader, friend, paraments){
+	if( ! paraments[0] instanceof Point ){ return; }
+	var lastPoint = paraments[0];
+    var ball = fieldManager.getBallAtPoint( lastPoint );
 
+	if( comboManager.moveNum < 5 ){
+		if( ball.frozen == null || ball.frozen == 1 ){
+			ball.color = leader.color;
+			ball.item = leader.color+"+";
+		}
+	}
+}
 
 //==============================================================
 //==============================================================
@@ -330,11 +337,17 @@ var TEAM_SKILLS_DATA = {
 		if( leader.id == friend.id && leader.id == "DARK_GOLD_MAYA" ){
 			skillArray.push("DARK_GOLD_MAYA_TEAM");
 		}
+		if( leader.id == friend.id && leader.id == "STAR_BURST_OPHIUCHUS" ){
+			skillArray.push("STAR_BURST_OPHIUCHUS_TEAM");
+		}
 		if( leader.id == friend.id && leader.id == "FAIRY_SAKURA" ){
 			skillArray.push("FAIRY_SAKURA_TEAM");
 		}
 		if( leader.id == friend.id && leader.id == "FAIRY_ROZEN" ){
 			skillArray.push("FAIRY_ROZEN_TEAM");
+		}
+		if( leader.id == friend.id && leader.id == "UNIVERSE_DAOLOTH" ){
+			skillArray.push("UNIVERSE_DAOLOTH_TEAM"); 
 		}
 		return skillArray;
 	},
@@ -377,6 +390,11 @@ var TEAM_SKILLS_DATA = {
 		init: DarkGoldMayaSetting,
 		breakColor: DarkGoldMayaBreakColor,
 	},
+	STAR_BURST_OPHIUCHUS_TEAM: {
+		id: "STAR_BURST_OPHIUCHUS_TEAM",
+		init: BasicTeamSetting,
+		locus: StarBurstOphiuchusTeamLocus,
+	},
 	FAIRY_SAKURA_TEAM: {
 		id: "FAIRY_SAKURA_TEAM",
 		init: FairySakuraTeamSetting,
@@ -386,5 +404,10 @@ var TEAM_SKILLS_DATA = {
 		id: "FAIRY_ROZEN_TEAM",
 		init: BasicTeamSetting,
 		newItem: FairyRozenTeamNewItem,
-	}
+	},
+	UNIVERSE_DAOLOTH_TEAM: {
+		id: "UNIVERSE_DAOLOTH_TEAM",
+		init: BasicTeamSetting,
+		locus: UniverseDaolothTeamLocus,
+	},
 };

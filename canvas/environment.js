@@ -189,6 +189,9 @@ var EnvironmentManager = function(){
         }
         return color;
     };
+	this.isDropSpaceEmpty = function(){
+		return self.dropSpace.emptyPoints.length > 0;
+	}
 
     // 設定軌跡模式
     this.setLocusMode = function(mode){

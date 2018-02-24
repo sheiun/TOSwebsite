@@ -17,6 +17,7 @@ var TeamManager = function( table, environment ){
         this.id       = skillID;
         this.init     = LEADER_SKILLS_DATA[skillID].init;
         this.newItem  = LEADER_SKILLS_DATA[skillID].newItem;
+        this.locus    = LEADER_SKILLS_DATA[skillID].locus;
     }
     var WakeSkillInfo = function(wakeID){
         var self = this;
@@ -26,11 +27,12 @@ var TeamManager = function( table, environment ){
     var TeamSkillInfo = function(teamID){
         var self = this;
         this.variable = null;
-        this.id       = teamID;
-        this.init     = TEAM_SKILLS_DATA[teamID].init;
-        this.newItem  = TEAM_SKILLS_DATA[teamID].newItem;
-        this.newDelete = TEAM_SKILLS_DATA[teamID].newDelete;
-        this.breakColor = TEAM_SKILLS_DATA[teamID].breakColor;
+        this.id          = teamID;
+        this.init        = TEAM_SKILLS_DATA[teamID].init;
+        this.newItem     = TEAM_SKILLS_DATA[teamID].newItem;
+        this.newDelete   = TEAM_SKILLS_DATA[teamID].newDelete;
+        this.breakColor  = TEAM_SKILLS_DATA[teamID].breakColor;
+		this.locus       = TEAM_SKILLS_DATA[teamID].locus;
     }
 
 	var self = this;
@@ -139,10 +141,12 @@ var TeamManager = function( table, environment ){
             self.friendSkill[key]( self.friend, "FRIEND" );
         }
     }
-    this.checkTeamSkill = function( key ){
+    this.checkTeamSkill = function( key ){ 
+		var paraments = Array.prototype.slice.call(arguments);
+		paraments.shift();
         for(var i = 0; i < self.teamSkills.length; i++){
             if( self.teamSkills[i][key] ){
-                self.teamSkills[i][key]( self.leader, self.friend );
+                self.teamSkills[i][key]( self.leader, self.friend, paraments );
             }
         }
     }

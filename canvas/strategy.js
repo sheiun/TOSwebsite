@@ -188,14 +188,14 @@ var FieldStrategyDropDelete = function(field, deleteFinished, dropFinished, hasS
     this.updateTryDrop = function(){
 
         self.field.environment.resetDropSpace();
-        teamManager.checkLeaderSkill("newItem");
         teamManager.checkTeamSkill("newItem");
+        teamManager.checkLeaderSkill("newItem");
         self.makeNewStrong();
 
         if( self.field.environment.newDrop ){
             self.field.environment.fillEmptySpace();
-            self.field.environment.pushIntoDropStack();
         }
+        self.field.environment.pushIntoDropStack();
 
         // 計算落下距離
         for(var i = 0; i < self.field.environment.hNum; i++){
@@ -617,10 +617,13 @@ var FieldStrategyMove = function(field, replay){
     };
     this.exchangeBall = function( newPoint, direction ){
         var ball = self.field.getBallAtPoint( newPoint );
+		var lastPoint = self.lastPoint;
         self.field.deleteBallAtPoint( newPoint );
         self.field.setBallAtPoint( ball, self.lastPoint );
         self.lastPoint = newPoint.clone();
         
+		//軌跡技能判定
+        teamManager.checkTeamSkill("locus", lastPoint);
         comboManager.addMove();
 
         // 幻界檢查

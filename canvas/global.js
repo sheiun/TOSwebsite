@@ -175,6 +175,7 @@ var GAME_MODE = {
 };
 
 var COLORS = ['w', 'f', 'p', 'l', 'd', 'h'];
+var ELEMENT_COLORS = ['w', 'f', 'p', 'l', 'd'];
 var getColorIndex = function(color){        
     for(var i = 0; i < COLORS.length; i++){
         if( COLORS[i] == color ){ return i; }
@@ -199,13 +200,6 @@ var REPLAY_SPEED  = BALL_SIZE / MOVE_FRAME;
 var SHIFT_BIAS    = BALL_SIZE / 20;
 
 
-
-
-
-
-
-
-
 // =================================================================
 // utility function for checking
 // =================================================================
@@ -217,4 +211,37 @@ function checkFirstStraightByPlace( length, x ){
         if( deletedWave.vDeletePairs[x][i].balls.length >= length ){ return true; }
     }
     return false;
+}
+
+// =================================================================
+// utility function for add newItem
+// =================================================================
+function addNewItemRandomPositionIntoDropSpace(item){
+	if( !environmentManager.isDropSpaceEmpty() ) return;
+
+	var rand = Math.floor( randomNext() * environmentManager.dropSpace.emptyPoints.length );
+    var point = environmentManager.dropSpace.emptyPoints.splice(rand, 1)[0];
+    environmentManager.dropSpace.fillPoints.push( point );
+    environmentManager.dropSpace.newColors[ point.toText() ] = item;
+}
+function addNewItemIndexPositionIntoDropSpace(index, item){
+	if( !environmentManager.isDropSpaceEmpty() ) return;
+	if( !(environmentManager.dropSpace.emptyPoints.length > index) ) return; 
+
+    var point = environmentManager.dropSpace.emptyPoints.splice(index, 1)[0];
+    environmentManager.dropSpace.fillPoints.push( point );
+    environmentManager.dropSpace.newColors[ point.toText() ] = item;
+}
+function findLowestPositionIndex(emptyPoints, x){
+	var index = -1;
+	for(var i = 0; i < emptyPoints.length; i++){
+		var point = emptyPoints[i];
+		if(point.getGridX() == x){
+			if(index == -1 || point.getGridY() < emptyPoints[index].getGridY()){
+				index = i;
+			}
+		}
+	}
+	if( index != -1 ){ return index; }
+	return null;
 }
