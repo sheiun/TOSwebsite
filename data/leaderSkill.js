@@ -114,7 +114,7 @@ var AzathothNewItem = function( member, direct ){
 //==============================================================
 var FourGroupSetting = function( member ){
 	COLORS.forEach( (color) => {
-		environmentManager.pairSize[ color ] = 4;
+		environmentManager.pairSize[ color ] = 2;
 		environmentManager.groupSize[ color ] = 4;
 	}); 
 }
