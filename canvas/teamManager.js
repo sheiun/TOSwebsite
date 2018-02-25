@@ -13,11 +13,12 @@ var TeamManager = function( table, environment ){
     }
     var LeaderSkillInfo = function(skillID){
         var self = this;
-        this.variable = null;
-        this.id       = skillID;
-        this.init     = LEADER_SKILLS_DATA[skillID].init;
-        this.newItem  = LEADER_SKILLS_DATA[skillID].newItem;
-        this.locus    = LEADER_SKILLS_DATA[skillID].locus;
+        this.variable		= null;
+        this.id				= skillID;
+        this.init			= LEADER_SKILLS_DATA[skillID].init;
+        this.newItem		= LEADER_SKILLS_DATA[skillID].newItem;
+        this.randNewItem	= LEADER_SKILLS_DATA[skillID].randNewItem;
+        this.locus			= LEADER_SKILLS_DATA[skillID].locus;
     }
     var WakeSkillInfo = function(wakeID){
         var self = this;
@@ -26,10 +27,11 @@ var TeamManager = function( table, environment ){
     }
     var TeamSkillInfo = function(teamID){
         var self = this;
-        this.variable = null;
+        this.variable		= null;
         this.id          = teamID;
         this.init        = TEAM_SKILLS_DATA[teamID].init;
         this.newItem     = TEAM_SKILLS_DATA[teamID].newItem;
+        this.randNewItem = TEAM_SKILLS_DATA[teamID].randNewItem;
         this.newDelete   = TEAM_SKILLS_DATA[teamID].newDelete;
         this.breakColor  = TEAM_SKILLS_DATA[teamID].breakColor;
 		this.locus       = TEAM_SKILLS_DATA[teamID].locus;

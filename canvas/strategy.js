@@ -188,11 +188,17 @@ var FieldStrategyDropDelete = function(field, deleteFinished, dropFinished, hasS
     this.updateTryDrop = function(){
 
         self.field.environment.resetDropSpace();
+
+		// 落珠技能判定
         teamManager.checkTeamSkill("newItem");
         teamManager.checkLeaderSkill("newItem");
-        self.makeNewStrong();
 
         if( self.field.environment.newDrop ){
+			// 隨機落珠技能判定
+			teamManager.checkTeamSkill("randNewItem");
+			teamManager.checkLeaderSkill("randNewItem");
+
+			self.makeNewStrong();
             self.field.environment.fillEmptySpace();
         }
         self.field.environment.pushIntoDropStack();
@@ -624,6 +630,8 @@ var FieldStrategyMove = function(field, replay){
         
 		//軌跡技能判定
         teamManager.checkTeamSkill("locus", lastPoint);
+        teamManager.checkLeaderSkill("locus", lastPoint);
+
         comboManager.addMove();
 
         // 幻界檢查

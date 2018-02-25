@@ -13,7 +13,7 @@ var GreekTeamSetting = function(leader, friend){
 	this.count = 0;
 	this.colorDeleted = [ false, false, false, false, false ];
 }
-var GreekTeamNewItem = function(leader, friend){	
+var GreekTeamRandNewItem = function(leader, friend){	
     var deletedWave = historyManager.deletedInfo.getCurrentWave();
     if( !deletedWave ){ return; }
 
@@ -64,7 +64,7 @@ var BabylonTeamNewItem = function( leader, friend ){
 var OldGreekTeamSetting = function(leader, friend){
 	this.count = 0;
 }
-var OldGreekTeamNewItem = function(leader, friend){	
+var OldGreekTeamRandNewItem = function(leader, friend){	
     var deletedWave = historyManager.deletedInfo.getCurrentWave();
     if( !deletedWave ){ return; }
 
@@ -205,7 +205,7 @@ var FairySakuraTeamSetting = function(leader, friend){
 	this.wfpNum = 0;
 	this.ldhNum = 0;
 }
-var FairySakuraTeamNewItem = function(leader, friend){ 
+var FairySakuraTeamRandNewItem = function(leader, friend){ 
     var deletedWave = historyManager.deletedInfo.getCurrentWave();
     if( !deletedWave ){ return; }
 
@@ -263,7 +263,7 @@ var FairySakuraTeamNewItem = function(leader, friend){
 //==============================================================
 // FAIRY_ROZEN
 //==============================================================
-var FairyRozenTeamNewItem = function(leader, friend){ 
+var FairyRozenTeamRandNewItem = function(leader, friend){ 
     var deletedWave = historyManager.deletedInfo.getCurrentWave();
     if( !deletedWave ){ return; } 
 
@@ -359,7 +359,7 @@ var TEAM_SKILLS_DATA = {
 	GREEK_TEAM: {
 		id: "GREEK_TEAM",
 		init: GreekTeamSetting,
-		newItem: GreekTeamNewItem,
+		randNewItem: GreekTeamRandNewItem,
 	},
 	BABYLON_TEAM: {
 		id: "BABYLON_TEAM",
@@ -369,7 +369,7 @@ var TEAM_SKILLS_DATA = {
 	OLD_GREEK_TEAM: {
 		id: "OLD_GREEK_TEAM",
 		init: OldGreekTeamSetting,
-		newItem: OldGreekTeamNewItem,
+		randNewItem: OldGreekTeamRandNewItem,
 	},
 	FALLEN_HALO_TEAM: {
 		id: "FALLEN_HALO_TEAM",
@@ -398,12 +398,12 @@ var TEAM_SKILLS_DATA = {
 	FAIRY_SAKURA_TEAM: {
 		id: "FAIRY_SAKURA_TEAM",
 		init: FairySakuraTeamSetting,
-		newItem: FairySakuraTeamNewItem,
+		randNewItem: FairySakuraTeamRandNewItem,
 	},
 	FAIRY_ROZEN_TEAM: {
 		id: "FAIRY_ROZEN_TEAM",
 		init: BasicTeamSetting,
-		newItem: FairyRozenTeamNewItem,
+		randNewItem: FairyRozenTeamRandNewItem,
 	},
 	UNIVERSE_DAOLOTH_TEAM: {
 		id: "UNIVERSE_DAOLOTH_TEAM",
