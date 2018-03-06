@@ -12,7 +12,7 @@ $(document).ready( function(){
         alert("\n\n此次模擬結果網址：\n\n"+$("#clipboard").attr("data-clipboard-text")+"\n\n此網址已複製到剪貼簿。\n\n");
     });
     CLIPBOARD.on('error', function(e) {
-        alert("製造網址時產生錯誤，敬請見諒。\n\n建議使用Chrome進行作業。");
+        alert("製造網址時產生錯誤，敬請見諒。\n\n建議使用電腦Chrome瀏覽器進行作業。");
     });
 
     //initial Scrollbar
@@ -29,23 +29,35 @@ $(document).ready( function(){
         },
         snapAmount: amount,
     });
+    $("#BattleInfomationScrollbar").mCustomScrollbar({
+        axis:"y",
+        theme:"inset-dark"
+    });
+    $('.selectpicker').selectpicker({ style:'btn-default btn-lg' });
 
     //load history if exist
     if( $.url("?record") ){
         parseUploadJson( LZString.decompressFromEncodedURIComponent( $.url("?record") ) );
     }else{
-        newRandomPlain();
         initialTeamMember();
+        resetMemberSelect();
+        resetTeamMembers();
+        newRandomPlain();
+        resetHistory();
     }
-    MAIN_STATE = "count";
+    MAIN_STATE = MAIN_STATE_ENUM.READY;
+    PLAY_TYPE = PLAY_TYPE_ENUM.DRAG;
+    GAME_MODE = GAME_MODE_ENUM.REPEAT;
 
     closeCanvas();
     setComboShow();
     setHistoryShow();
-    resetMemberSelect();
+    $("#BattleInfomation").children().remove();
+    startGame();
 
     setTimeout( function(){
-    resetTimeDiv();
+        resetTimeLifeDiv();
+        resetTeamMemberSelectDiv();
     }, 10);
 });
 
@@ -59,31 +71,29 @@ function newRandomPlain(){
 
     autoCheckDropGroups();
 
-    if( $("#optionalPanel").text() == "版面製作中" ){
+    if( MAIN_STATE == MAIN_STATE_ENUM.CREATE ){
         $("#dragContainment tr td").mousedown( function(){ setElementByOption(this); } );
     }else{
         nextMoveWave();
     }
 }
 function newOptionalPlain(){
-    $("#optionalPanel").text("版面製作中");
-    $("#optionalPanel").closest("button").attr("onclick","endOptionalPlain()");
+    $("#OptionalPanel").toggle();
+    $("#EndOptionalPanel").toggle();
     $("#dragContainment tr td").mousedown( function(){ setElementByOption(this); } );
-    MAIN_STATE = "create";
-    AUTO_REMOVE = false;
+    $("#dragContainment tr td").css( "cursor","url('img/UI/cursor_createItem.png'), default" );
+    MAIN_STATE = MAIN_STATE_ENUM.CREATE;
     resetMoveTime();
     stopDragging();
 }
 function endOptionalPlain(){
-    $("#optionalPanel").text("開始自選版面");
-    $("#optionalPanel").closest("button").attr("onclick","newOptionalPlain()");
+    $("#OptionalPanel").toggle();
+    $("#EndOptionalPanel").toggle();
     $("#dragContainment tr td").unbind("mousedown");
+    $("#dragContainment tr td").css( "cursor","" );
     $("#panelControl button").css('background','');
     CREATE_COLOR = null;
-    returnMainState();
-    returnAutoRemove();
     nextMoveWave();
-
 }
 function setColor(color, n){
     CREATE_COLOR = color;
@@ -99,69 +109,46 @@ function setElementByOption(e){
 }
 
 function toggleFreeDrag(){
-    if( $("#freeDrag").text() == "自由移動" ){
-        $("#freeDrag").text("一般移動");
-        MAIN_STATE = "count";
-    }else{
-        $("#freeDrag").text("自由移動");
-        MAIN_STATE = "freeDrag";
-    }
+    FREE_DRAGABLE = !FREE_DRAGABLE;
+    $("#normalDrag").toggle();
+    $("#freeDrag").toggle();
+    PLAY_TYPE = FREE_DRAGABLE ? PLAY_TYPE_ENUM.FREE : PLAY_TYPE_ENUM.DRAG;
+    buttonGroupAdjust();
 }
-function returnMainState(){
-    if( $("#freeDrag").text() == "自由移動" ){
-        MAIN_STATE = "freeDrag";
-    }else{
-        MAIN_STATE = "count";
+function setPlayType( type ){
+    if( FREE_DRAGABLE != (type == PLAY_TYPE_ENUM.FREE) ){
+        toggleFreeDrag();
     }
 }
 function toggleTimeLimit(){
-    if( $("#timeLimit").text() == "限制時間" ){
-        $("#timeLimit").text("無限時間");
-        $("#timeRange").hide();
-        TIME_IS_LIMIT = false;
-    }else{
-        $("#timeLimit").text("限制時間");
-        $("#timeRange").show();
-        TIME_IS_LIMIT = true;
-        TIME_LIMIT = 5;
-        MOVING = false;
-    }
+    TIME_IS_LIMIT = !TIME_IS_LIMIT;
+    $("#timeLimit").toggle();
+    $("#timeNoLimit").toggle();
+    $("#timeRange").toggle();
+    buttonGroupAdjust();
 }
-function toggleAutoRemove(){
-    if( $("#autoRemove").text() == "自動消除" ){
-        $("#autoRemove").text("保持待機");
-        AUTO_REMOVE = false;
-    }else{
-        $("#autoRemove").text("自動消除");
-        AUTO_REMOVE = true;
-        checkGroups();
-    }
-}
-function returnAutoRemove(){
-    if( $("#autoRemove").text() == "自動消除" ){
-        AUTO_REMOVE = true;
-    }else{
-        AUTO_REMOVE = false;
-    }
+function setTimeLimit( time ){
+    $("#timeLimit").show();
+    $("#timeNoLimit").hide();
+    $("#timeRange").show();
+    $('#timeRange').val( time );
+    TIME_FIXED = true;
+    TIME_FIX_LIST.push(time);
+    TIME_IS_LIMIT = true;
+    buttonGroupAdjust();
 }
 function toggleDropable(){
-    if( $("#dropable").text() == "取消落珠" ){
-        $("#dropable").text("隨機落珠");
-        DROPABLE = true;
-        resetColors();
-    }else{
-        $("#dropable").text("取消落珠");
-        DROPABLE = false;
-    }
+    DROPABLE = !DROPABLE;
+    $("#Dropable").toggle();
+    $("#NoDropable").toggle();
+    resetColors();
+    buttonGroupAdjust();
 }
 function toggleAudio(){
-    if( $("#playAudio").text() == "播放音效" ){
-        $("#playAudio").text("關閉音效");
-        AUDIO = false;
-    }else{
-        $("#playAudio").text("播放音效");
-        AUDIO = true;
-    }
+    AUDIO = !AUDIO;
+    $("#PlayAudio").toggle();
+    $("#NoAudio").toggle();
+    buttonGroupAdjust();
 }
 
 function initialPlain(){
@@ -173,54 +160,107 @@ function finalPlain(){
     nextMoveWave();
 }
 function replay(){
-    $("#randomPanel").closest("button").prop("disabled", true);
-    $("#optionalPanel").closest("button").prop("disabled", true);
-    $("#initial").closest("button").prop("disabled", true);
-    $("#final").closest("button").prop("disabled", true);
-    $("#replay").closest("button").prop("disabled", true);
+    MAIN_STATE = MAIN_STATE_ENUM.REVIEW;
 
-    MAIN_STATE = "review";
-    AUTO_REMOVE = false;
+    disbalePanelControl( true );
     COLOR_RANDOM = HISTORY_RANDOM;
     loadTeamMembers(HISTORY_TEAM_MEMBER);
-    $("#TeamMember select").each(function(i){
-        var msdropdown = $(this).msDropDown().data("dd");
-        msdropdown.setIndexByValue( TEAM_MEMBERS[i]["id"] );
-    });
+
+    resetTeamMembers();
     loadSkillVariable(HISTORY_SKILL_VARIABLE);
+    showTeamInfomation();
+    
     backInitColor();
     resetComboStack();
     resetAttackRecoverStack();
 
-    checkSkillByKey('findMaxC');
+    checkTeamSkillByKey('findMaxC');
+    
     replayHistory();
 }
 function endReplayHistory(){
-    returnMainState();
-    returnAutoRemove();
-    $("#randomPanel").closest("button").prop("disabled", false);
-    $("#optionalPanel").closest("button").prop("disabled", false);
-    $("#initial").closest("button").prop("disabled", false);
-    $("#final").closest("button").prop("disabled", false);
-    $("#replay").closest("button").prop("disabled", false);
-    $("#review").text("顯示軌跡");
+    disbalePanelControl( false );
+    SHOW_REVIEW = false;
+    REVIEW_PATH = false;
+    $("#ShowReview").show();
+    $("#CloseReview").hide();
     closeCanvas();;
     endMoveWave();
 }
 function toggleReviewPath(){
-    if( $("#review").text() == "顯示軌跡" ){
-        $("#review").text("隱藏軌跡");
-        MAIN_STATE = "review";        
-        AUTO_REMOVE = false;
+    REVIEW_PATH = !REVIEW_PATH;
+    $("#ShowReview").toggle();
+    $("#CloseReview").toggle();
+    if( REVIEW_PATH ){
+        MAIN_STATE = MAIN_STATE_ENUM.REVIEW;
         resetCanvas();
         drawPath();
     }else{
-        $("#review").text("顯示軌跡");
-        returnMainState();
-        returnAutoRemove();
         closeCanvas();
         nextMoveWave();
     }
+}
+
+function startEditTeam(){
+    PLAY_TURN = 0;    
+    $("#StartTeam").hide();
+    $("#CloseTeam").show();
+    $("#ActiveCoolDown").show();
+    $("#TeamMember").show();
+    $("#OpenSysInfo").show();
+    $("#CloseSysInfo").hide();
+
+    closeCanvas();
+    resetTimeLifeDiv();
+    resetTeamMemberSelectDiv();
+    showTeamInfomation();
+}
+function closeEditTeam(){
+    $("#StartTeam").show();
+    $("#CloseTeam").hide();
+    $("#ActiveCoolDown").hide();
+    $("#TeamMember").hide();   
+    $("#OpenSysInfo").hide();
+    $("#CloseSysInfo").hide();
+    $("#SystemInfomation").hide();
+    $("#TeamMember select").each(function(){
+        var msdropdown = $(this).msDropDown().data("dd");
+        msdropdown.setIndexByValue("NONE");
+    });
+    $("#BattleInfomation").children().remove();
+    resetTeamMembers();
+}
+function toggleSystemInfomation(){
+    $("#SystemInfomation").toggle();
+    $("#OpenSysInfo").toggle();
+    $("#CloseSysInfo").toggle();
+}
+function ActiveCoolDownToZero(){
+    $.each(TEAM_ACTIVE_SKILL, function(place, actives){
+        $.each(actives, function(i, active){
+            active['variable']['COOLDOWN'] = 0;
+        });
+    });
+    updateActiveCoolDownLabel();
+}
+
+function disbalePanelControl( bool ){
+    $("#randomPanel").closest("button").prop("disabled",  bool );
+    $("#optionalPanel").closest("button").prop("disabled",  bool );
+    $("#initial").closest("button").prop("disabled",  bool );
+    $("#final").closest("button").prop("disabled",  bool );
+    $("#replay").closest("button").prop("disabled",  bool );
+}
+function buttonGroupAdjust(){
+    $('.btn-group').has('.btn:hidden').find('.btn').css('border-radius', 0);
+    $('.btn-group').has('.btn:hidden').find('.btn:visible:last').css({
+        'border-top-right-radius': '3px',
+        'border-bottom-right-radius': '3px',
+    });
+    $('.btn-group').has('.btn:hidden').find('.btn:visible:first').css({
+        'border-top-left-radius': '6px',
+        'border-bottom-left-radius': '6px',
+    });
 }
 
 //==============================================================
@@ -234,7 +274,7 @@ $("#file").change(function (){
 });
 $('#timeRange').change(function (){
     $(this).val( Math.max( parseInt($(this).attr("min")), 
-        Math.min( parseInt($(this).attr("max")), parseInt($(this).val()) ) ) );
+                 Math.min( parseInt($(this).attr("max")), parseInt($(this).val()) ) ) );
     TIME_LIMIT = parseInt( $(this).val() );
 });
 $('#speedSelect').change(function (){
@@ -249,12 +289,7 @@ $('#colorSelect').change(function (){
 });
 $("#dropColorSelect").change(function (){
     $("#HorizontalScrollbar").hide();
-    cleanColors();
-    reserDropColors();
     resetTeamMembers();
-    resetMemberWakes();
-    resetTeamLeaderSkill();
-    resetColors();
 });
 
 $("#locusSelect").change(function (){
@@ -271,32 +306,37 @@ $("#locusSelect").change(function (){
         }
     }
 });
+$("select.TeamMemberTypeSelect").change(function(){
+    resetMemberSelectAt( "#"+$(this).attr("action") );
+    resetTeamMembers();
+});
 
 //==============================================================
 // Show Result
 //==============================================================
-function showResult(){
-    $("#AttackNumber td").children().remove();
-    $("#RecoverNumber td").children().remove();
-    $.each(ATTACK_STACK, function(i, attack){
-        var atk = Math.round( attack["base"] * attack["factor"] );
-        if( attack["type"] == "person" ){
-            $("#AttackNumber td").eq( attack["place"] ).append( $("<sapn></span>").text(atk).addClass("AtkRecLabel") ).append( $("<br>") );
-        }
-    });
-    $.each(RECOVER_STACK, function(i, recover){
-        var rec = Math.round( recover["base"] * recover["factor"] );
-        $("#RecoverNumber td").eq( recover["place"] ).append( $("<sapn></span>").text(rec).addClass("AtkRecLabel") ).append( $("<br>") );
-    });
-
-    resetTimeDiv();
-}
-function showTime(now){    
+function showTime(){
+    var now = new Date().getTime() / 1000;  
     var timeFraction = ( TIME_LIMIT - ( now - START_TIME ) )/TIME_LIMIT;
-    $("#timeRect").css( "clip", "rect(0px, "+
-        parseInt($("#timeBack").css("width"))*timeFraction+"px,"+
-        parseInt($("#timeBack").css("height"))+"px, 0px)" );
+    $("#timeLifeRect").stop().css( "clip", "rect(0px, "+
+        parseInt($("#timeLifeBack").css("width"))*timeFraction+"px,"+
+        parseInt($("#timeLifeBack").css("height"))+"px, 0px)" );
 }
+function showLife(){
+    var lifeFraction = HEALTH_POINT / TOTAL_HEALTH_POINT;
+    $("#timeLifeRect").stop().css( "clip", "rect(0px, "+
+        parseInt($("#timeLifeBack").css("width"))*lifeFraction+"px,"+
+        parseInt($("#timeLifeBack").css("height"))+"px, 0px)" );
+}
+function showLifeInjureAnimate(){
+    var lifeFraction = HEALTH_POINT / TOTAL_HEALTH_POINT;
+    $("#timeLifeRect").stop().animate( {
+        "clip" : "rect(0px, "+
+                parseInt($("#timeLifeBack").css("width"))*lifeFraction+"px,"+
+                parseInt($("#timeLifeBack").css("height"))+"px, 0px)",
+    }, ATTACK_INFO_TIME );
+}
+
+
 function setHistoryShow(){    
     $("#historyNum").text( HISTORY_SHOW );
 }
@@ -337,6 +377,7 @@ function addComboSet(comboSet){
         div.append(e);
     }
     $("#comboBox").append(div.append("<hr>"));
+    $("#comboBox").append($("#comboBox").attr("wave",DROP_WAVES).append("<hr>"));
 
     $("#Scrollbar").mCustomScrollbar("update");
 }
@@ -354,26 +395,20 @@ function addColorIntoBar(){
         $("#optionalColors li").eq(-1).before(li);
 
         $("#HorizontalScrollbar").mCustomScrollbar("update");
-        setOptionalColors();
+        resetTeamMembers();
     }
 }
 function removeSelfColor(id){
     $("#li_"+id).remove();
-    setOptionalColors();
+    resetTeamMembers();
 }
 function setOptionalColors(){
-    cleanColors();
     COLORS = [];
     $("#optionalColors li").each(function(){
         if( $(this).find("img").length > 0 ){
             COLORS.push( $(this).find("img").attr("color") );
         }
     });
-            
-    resetTeamMembers();
-    resetMemberWakes();
-    resetTeamLeaderSkill();
-    resetColors();
 }
 
 //==============================================================
@@ -393,12 +428,7 @@ function initialTeamMember(){
         MEMBER_3,
         MEMBER_4,
         TEAM_FRIEND,
-    ];    
-    cleanColors();
-    reserDropColors();
-    resetMemberWakes();
-    resetTeamLeaderSkill();
-    resetColors();
+    ];
 }
 function saveTeamMembers(){
     return [
@@ -425,59 +455,47 @@ function loadTeamMembers(members){
         MEMBER_4,
         TEAM_FRIEND,
     ];
-    cleanColors();
-    reserDropColors();
-    resetMemberWakes();
-    resetTeamLeaderSkill();
-    resetColors();
+    $("#TeamLeaderSelect input[value='"+members[0]+"']").click();
+    $("#TeamMember1Select input[value='"+members[1]+"']").click();
+    $("#TeamMember2Select input[value='"+members[2]+"']").click();
+    $("#TeamMember3Select input[value='"+members[3]+"']").click();
+    $("#TeamMember4Select input[value='"+members[4]+"']").click();
+    $("#TeamFriendSelect input[value='"+members[5]+"']").click();
 }
 function resetMemberSelect(){
-    $("#TeamMember select").each(function(i){
-        var msdropdown = $(this).msDropDown().data("dd");
-        for(var id in CHARACTERS){
-            msdropdown.add({
-                value: id,
-                image: CHARACTERS[id]["img"]
+    $("#TeamMember div.characterSelect").each(function(i){
+        resetMemberSelectAt( this );
+    });
+}
+function resetMemberSelectAt( select ){
+    $(select).children().remove();
+    var selectID = $(select).attr('id');
+    var typeArr = $( "#"+$(select).attr('action') ).val();
+
+    for(var id in CHARACTERS_DATA){
+        if( ( typeArr == null && CHARACTERS_DATA[id]['id'].indexOf("CREATURE") < 0 ) ||
+            ( typeArr != null && typeArr.indexOf( "CREATURE" ) >= 0 && 
+              CHARACTERS_DATA[id]['id'].indexOf("CREATURE") >= 0 ) ||
+            ( typeArr != null && typeArr.indexOf( CHARACTERS_DATA[id]["type"] ) >= 0 && 
+              CHARACTERS_DATA[id]['id'].indexOf("CREATURE") < 0  ) ){
+            var charID = CHARACTERS_DATA[id]['id'];
+
+            var radio = $("<input>").attr('type','radio');
+            radio.attr('id',selectID+'Radio'+charID).attr('name',selectID+'Radio').val(charID);
+            var label =  $("<label></label>").attr('for',selectID+'Radio'+charID).val(charID);
+            label.css('background-image','url("'+CHARACTERS_DATA[charID]["img"]+'")');
+            label.click(function(){
+                $(select).val( $(this).val() );
+                resetTeamMembers();
             });
+            $(select).append( radio ).append( label );
         }
-        msdropdown.setIndexByValue( TEAM_MEMBERS[i]["id"] );
-        msdropdown.on("change", function(){
-            TIME_LIMIT = 5;
-            $('#timeRange').val(5);
-            cleanColors();
-            reserDropColors();
-            resetTeamMembers();
-            resetMemberWakes();
-            resetTeamLeaderSkill();
-            resetColors();
-        });
-    });
-}
-function startEditTeam(){
-    $("#StartTeam").hide();
-    $("#CloseTeam").show();
-    $("#TeamMember").show();
-    resetTimeDiv();
-}
-function closeEditTeam(){
-    $("#StartTeam").show();
-    $("#CloseTeam").hide();
-    $("#TeamMember").hide();
-    $("#TeamMember select").each(function(){
-        var msdropdown = $(this).msDropDown().data("dd");
-        msdropdown.setIndexByValue("NONE");
-    });
-
-    cleanColors();
-    reserDropColors();
-    resetTeamMembers();
-    resetMemberWakes();
-    resetTeamLeaderSkill();
-    resetTimeDiv();
-    resetColors();
+    }
+    $(select).find('input').eq(0).attr('checked',"checked" );
+    $(select).val( $(select).find('input').eq(0).val() );
 }
 
-function reserDropColors(){
+function resetDropColors(){
     if( $("#dropColorSelect").val() == "optional" ){
         if( $("#HorizontalScrollbar").is(":visible") ){
             setOptionalColors();
@@ -514,93 +532,207 @@ function reserDropColors(){
 }
 
 function resetTeamMembers(){
+    TIME_LIMIT = 5;
+    $('#timeRange').val(5);
+    $("#BattleInfomation").children().remove();
+
     TEAM_LEADER = NewCharacter( $("#TeamLeaderSelect").val() );
     MEMBER_1    = NewCharacter( $("#TeamMember1Select").val() );
     MEMBER_2    = NewCharacter( $("#TeamMember2Select").val() );
     MEMBER_3    = NewCharacter( $("#TeamMember3Select").val() );
     MEMBER_4    = NewCharacter( $("#TeamMember4Select").val() );
     TEAM_FRIEND = NewCharacter( $("#TeamFriendSelect").val() );
-    TEAM_MEMBERS = [
-        TEAM_LEADER,
-        MEMBER_1,
-        MEMBER_2,
-        MEMBER_3,
-        MEMBER_4,
-        TEAM_FRIEND,
-    ];
-}
-function resetMemberWakes(){
-    TEAM_LEADER_WAKES = [
-        WAKES_DATA[ TEAM_LEADER["wake"][0] ], WAKES_DATA[ TEAM_LEADER["wake"][1] ],
-        WAKES_DATA[ TEAM_LEADER["wake"][2] ], WAKES_DATA[ TEAM_LEADER["wake"][3] ],
-    ];
-    MEMBER_1_WAKES = [
-        WAKES_DATA[ MEMBER_1["wake"][0] ], WAKES_DATA[ MEMBER_1["wake"][1] ],
-        WAKES_DATA[ MEMBER_1["wake"][2] ], WAKES_DATA[ MEMBER_1["wake"][3] ],
-    ];
-    MEMBER_2_WAKES = [
-        WAKES_DATA[ MEMBER_2["wake"][0] ], WAKES_DATA[ MEMBER_2["wake"][1] ],
-        WAKES_DATA[ MEMBER_2["wake"][2] ], WAKES_DATA[ MEMBER_2["wake"][3] ],
-    ];
-    MEMBER_3_WAKES = [
-        WAKES_DATA[ MEMBER_3["wake"][0] ], WAKES_DATA[ MEMBER_3["wake"][1] ],
-        WAKES_DATA[ MEMBER_3["wake"][2] ], WAKES_DATA[ MEMBER_3["wake"][3] ],
-    ];
-    MEMBER_4_WAKES = [
-        WAKES_DATA[ MEMBER_4["wake"][0] ], WAKES_DATA[ MEMBER_4["wake"][1] ],
-        WAKES_DATA[ MEMBER_4["wake"][2] ], WAKES_DATA[ MEMBER_4["wake"][3] ],
-    ];
-    TEAM_FRIEND_WAKES = [
-        WAKES_DATA[ TEAM_FRIEND["wake"][0] ], WAKES_DATA[ TEAM_FRIEND["wake"][1] ],
-        WAKES_DATA[ TEAM_FRIEND["wake"][2] ], WAKES_DATA[ TEAM_FRIEND["wake"][3] ],
-    ];
 
-    TEAM_WAKES = [
-        TEAM_LEADER_WAKES,
-        MEMBER_1_WAKES,
-        MEMBER_2_WAKES,
-        MEMBER_3_WAKES,
-        MEMBER_4_WAKES,
-        TEAM_FRIEND_WAKES,
-    ];
-
-    checkWakeSkill();
+    resetTeamComposition();
+    showTeamInfomation();
+    showActiveInfomation();
+    resetTimeLifeDiv();
+    resetTeamMemberSelectDiv();
+    restartGame();
 }
-function checkWakeSkill(){
-    $.each(TEAM_WAKES, function(place, wakes){
-        $.each(wakes, function(i, wake){
-            if( "preSet" in wake ){
-                wake["preSet"]( TEAM_MEMBERS[place], place, TEAM_MEMBERS[place]['wake_var'][i] );
+
+//==============================================================
+// SHOW Infomation
+//==============================================================
+function showPlayTurnLevel(){
+    $("#BattleInfomation").append( $("<span></span>").text("第"+(PLAY_TURN+1)+"回合：") ).append("<br>");    
+}
+function showNextLevel(){
+    $("#BattleInfomation").append( $("<span></span>").text("進入第 "+(GAME_PROGRESS+1)+" 關 : ") ).append("<br>");    
+}
+function showWinGame(){
+    $("#BattleInfomation").append( $("<span></span>").text("戰鬥勝利") ).append("<br>");
+}
+function showLoseGame(){
+    $("#BattleInfomation").append( $("<span></span>").text("戰鬥失敗") ).append("<br>");
+}
+function showEndGame(){
+    $("#BattleInfomation").append( $("<span></span>").text("戰鬥結束") ).append("<br>");  
+}
+function showEnemySuffer(){
+    $.each(ENEMY, function(i, enemy){
+        if( enemy['variable']['SUFFER'] > 0 &&
+            enemy['id'] != 'EMPTY' ){        
+            $("#BattleInfomation").append( 
+                $("<span></span>").text(
+                    "給予 敵人("+(i+1)+")"+enemy['label']+' '+enemy['variable']['SUFFER']+' 點傷害 ， '+
+                    "剩下 "+enemy['variable']['HEALTH']+" 點生命值"
+                )
+            ).append("<br>");
+        }
+    });
+}
+function showEnemyDead( enemy, i ){
+    if(enemy['id'] != 'EMPTY'){
+        $("#BattleInfomation").append( 
+            $("<span></span>").text("敵人"+enemy['label']+'死亡')
+        ).append("<br>");
+    }
+}
+function showPersonAttack( attack ){
+    var atk = Math.round( attack["base"] * attack["factor"] );
+    if( attack["style"] == "person" ){
+        $("#AttackNumber td").eq( attack["place"] ).append( 
+            $("<sapn></span>").text(atk).addClass("AtkRecLabel") 
+        ).append( $("<br>") );
+    }
+}
+function showPersonRecover( recover ){
+    var rec = Math.round( recover["base"] * recover["factor"] );
+    if( recover['style'] == 'person' ){
+        $("#RecoverNumber td").eq( recover["place"] ).append(
+            $("<sapn></span>").text(rec).addClass("AtkRecLabel")
+        ).append( $("<br>") );
+    }
+}
+function showTotalRecover( total_recover ){
+    $("#BattleInfomation").append( 
+        $("<span></span>").text("總共回復 "+total_recover+" 點生命值") 
+    ).append("<br>");
+    
+    resetTimeLifeDiv();
+    showLifeInjureAnimate();
+}
+function showTeamInjure(){
+    $.each(INJURE_STACK, function(i, injure){
+        $("#BattleInfomation").append( 
+            $("<span></span>").text("敵人"+injure['label']+'  攻擊， 受到 '+injure['damage']+' 點傷害')
+        ).append("<br>");
+    });
+}
+function showResult(){
+    $("#BattleInfomation").append( 
+        $("<span></span>").text("現在生命值 : "+HEALTH_POINT+" / "+TOTAL_HEALTH_POINT )
+    ).append("<br>");
+
+    resetTimeLifeDiv();
+    showLifeInjureAnimate();
+}
+function showTeamInfomation(){
+    $.each(TEAM_MEMBERS, function(place, member){
+        $("#LabelInfomation td span").eq(place).text( member['label'] );
+        $("#HealthInfomation td span").eq(place).text( member['health'] );
+        $("#AttackInfomation td span").eq(place).text( member['attack'] );
+        $("#RecoveryInfomation td span").eq(place).text( member['recovery'] );
+
+        $("#Wakes1Infomation td span").eq(place).text( member['wake_info'][0] );
+        $("#Wakes2Infomation td span").eq(place).text( member['wake_info'][1] );
+        $("#Wakes3Infomation td span").eq(place).text( member['wake_info'][2] );
+        $("#Wakes4Infomation td span").eq(place).text( member['wake_info'][3] );
+
+        $("#ActiveSkillInfomation td").eq(place).children().remove();
+        $.each(TEAM_ACTIVE_SKILL[place], function(i, active){
+            var infoID = "activeSkillInfo_"+place+"_"+i;
+            var label = $("<span></span>").append( active['label'] );
+            label.addClass('labelInfo').attr("onclick","$('#"+infoID+"').toggle()");
+            var info = $("<span></span>").append($("<br>")).append("CD時間 ： "+active['coolDown']);
+            info.append($("<br>")).append( active['info'] ).attr("id", infoID).hide();
+            if( i > 0 ){ $("#ActiveSkillInfomation td").eq(place).append($("<br>")); }
+            $("#ActiveSkillInfomation td").eq(place).append( [ label, info ] );
+        });
+
+        $.each(TEAM_COMBINE_SKILL[place], function(i, combine){
+            var infoID = "combineSkillinfo_"+place+"_"+i;
+            var label = $("<span></span>").append( combine['label'] );
+            label.addClass('labelInfo').attr("onclick","$('#"+infoID+"').toggle()");
+            var info = $("<span></span>").append($("<br>")).append( combine['info'] ).attr("id", infoID).hide();
+            $("#ActiveSkillInfomation td").eq(place).append( [ "<br>", label, info ] );
+        });
+    });
+
+    $('#LeaderSkillInfomation td span').eq(0).text( TEAM_LEADER_SKILL['label'] );
+    $('#LeaderSkillInfomation td span').eq(1).text( TEAM_LEADER_SKILL['info'] );
+    $('#LeaderSkillInfomation td span').eq(2).text( TEAM_FRIEND_SKILL['label'] );
+    $('#LeaderSkillInfomation td span').eq(3).text( TEAM_FRIEND_SKILL['info'] );
+
+    $("#TeamSkillInfoTD").children().remove();
+    $.each(TEAM_SKILL, function(i, team_skill){
+        var infoID = "teamSkillInfo"+i;
+        var label = $("<span></span>").text( team_skill['label'] );
+        label.addClass('labelInfo').attr("onclick","$('#"+infoID+"').toggle()");
+        var info = $("<span></span>").append("<br>").append(team_skill['info']);
+        info.append("<br>").attr("id",infoID).hide();
+        $("#TeamSkillInfoTD").append( [label, info] );
+    });
+
+}
+function showActiveInfomation(){
+    $.each(TEAM_ACTIVE_SKILL, function(place, actives){
+        $("#ActiveButtonTD td div.activeBtn").eq(place).children().remove();
+        $.each(actives, function(i, active){
+            var label = $("<span></span>").text( active['label'] );
+            if( 'USING' in active['variable'] && active['variable']['USING'] ){
+                label.append("<br>(使用中)");
             }
+            var button = $("<button></button>").addClass('activeButton btn-default').append( label );
+            button.attr( "onclick", "triggerActive("+place+","+i+")" ).prop("disabled", true);
+            $("#ActiveButtonTD td div.activeBtn").eq(place).append( button );
+        });
+    });
+    $.each(TEAM_COMBINE_SKILL, function(place, combines){
+        $("#ActiveButtonTD td div.combineBtn").eq(place).children().remove();
+        $.each(combines, function(i, combine){
+            var label = $("<span></span>").text( combine['label'] );
+            if( 'USING' in combine['variable'] && combine['variable']['USING'] ){
+                label.append("<br>(使用中)");
+            }
+            var button = $("<button></button>").addClass('activeButton btn-default').append( label );
+            button.attr( "onclick", "triggerCombine("+place+","+i+")" ).prop("disabled", true);
+            $("#ActiveButtonTD td div.combineBtn").eq(place).append( button );
+        });
+    });
+    updateActiveCoolDownLabel();
+    resetTimeLifeDiv();
+    resetTeamMemberSelectDiv();
+}
+function updateActiveCoolDownLabel(){
+    $.each(TEAM_ACTIVE_SKILL, function(place, actives){
+        var coolDown_arr = [];
+        $.each(actives, function(i, active){
+            var check = active['variable']['COOLDOWN'] != 0
+            $("#ActiveButtonTD td div.activeBtn").eq(place).find("button").eq(i).prop("disabled", check);
+            coolDown_arr.push( active['variable']['COOLDOWN'] );
+        });
+        $("#ActiveCoolDownTD td").eq(place).children().remove();
+        $("#ActiveCoolDownTD td").eq(place).append(
+            $("<span></span>").text( coolDown_arr.join(' / ') ).addClass('CDTimeLabel')
+        );
+    });    
+    $.each(TEAM_COMBINE_SKILL, function(place, combines){
+        $.each(combines, function(i, combine){
+            var useable = checkCombineUseable( TEAM_COMBINE_SKILL[place][i]['variable']['COMBINE'] );
+            $("#ActiveButtonTD td div.combineBtn").eq(place).find("button").eq(i).prop("disabled", !useable['check']);
         });
     });
 }
-function resetTeamLeaderSkill(){
-    TEAM_COLORS_CHANGEABLE = true;
-    GROUP_SIZE = {'w':3, 'f':3, 'p':3, 'l':3, 'd':3, 'h':3};
-
-    TEAM_LEADER_SKILL = LEADER_SKILLS_DATA[ TEAM_LEADER['leader'] ];
-    TEAM_FRIEND_SKILL = LEADER_SKILLS_DATA[ TEAM_FRIEND['leader'] ];
-    checkTeamSkill();
-
-    if( "preSet" in TEAM_LEADER_SKILL ){
-        TEAM_LEADER_SKILL_VAR = TEAM_LEADER_SKILL['preSet']( TEAM_LEADER );
-    }
-    if( "preSet" in TEAM_FRIEND_SKILL ){
-        TEAM_FRIEND_SKILL_VAR = TEAM_FRIEND_SKILL['preSet']( TEAM_FRIEND );
-    }
-}
-function checkTeamSkill(){
-    TEAM_SKILL = [];
-    TEAM_SKILL_VAR = {};
-    for( var teamSkillKey in TEAM_SKILLS_DATA ){
-        TEAM_SKILLS_DATA[teamSkillKey]["mapping"]();
-    }
-    for( var teamSkill of TEAM_SKILL ){
-        if( "preSet" in teamSkill ){
-            TEAM_SKILL_VAR[ teamSkill["id"] ] = teamSkill["preSet"]( TEAM_LEADER, TEAM_FRIEND );
-        }
-    }
+function updateAdditionalEffectLabel(){
+    $("#AdditionalEffectTD td").children().remove();
+    $.each(ADDITIONAL_EFFECT_STACK, function(i, effect){
+        var active = effect['variable']['SOURCE'];
+        var text = active['label']+"("+effect['variable']['DURATION']+")";
+        var label = $("<span></span>").text( text ).addClass('EffectLabel');
+        $("#AdditionalEffectTD td").append( label )
+    })
 }
 
 //==============================================================

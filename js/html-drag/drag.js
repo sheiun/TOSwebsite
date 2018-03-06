@@ -1,142 +1,6 @@
 
 //==============================================================
-// BASIC LENGTH
-//==============================================================
-var WIDTH = 80;
-var HEIGHT = 80;
-
-var TR_INDEX;
-var TD_INDEX;
-var BASE_LEFT;
-var BASE_TOP;
-var TR_NUM = parseInt( $("#dragContainment").attr("tr") );
-var TD_NUM = parseInt( $("#dragContainment").attr("td") );
-
-var ACCURACY = 0.6;
-var MIN_SHIFT = 8;
-var MAX_SHIFT = 35;
-var MAX_AUTO_DROP_TIMES = 100;
-
-//==============================================================
-// GLOBAL VARIABLE
-//==============================================================
-var COLORS = ['w', 'f', 'p', 'l', 'd', 'h'];
-var TEAM_COLORS = [];
-var COLOR_MAP = {};
-var COLOR_PROB = [ {}, {}, {}, {}, {}, {} ];
-
-var STRAIGHT_SETS = [];
-var HORIZONTAL_SETS = [];
-var COLOR_SETS = {'w':[], 'f':[], 'p':[], 'l':[], 'd':[], 'h':[]};
-var COLOR_SETS_PREPARE = {'w':[], 'f':[], 'p':[], 'l':[], 'd':[], 'h':[]};
-var GROUP_SIZE = {'w':3, 'f':3, 'p':3, 'l':3, 'd':3, 'h':3};
-var GROUP_SETS = {'w':[], 'f':[], 'p':[], 'l':[], 'd':[], 'h':[]};
-
-var REMOVE_STACK = [];
-var STRONG_STACK = {};
-var DROP_STACK = [];
-
-var ALL_GROUP_SET_STACK = [];
-var COMBO_STACK = [];
-var DROP_WAVES = 0;
-var COMBO_TIMES = 0;
-var COMBO_SHOW = 0;
-
-var COUNT_COMBO                = 0;
-var COUNT_COMBO_COEFF          = 0.25;
-var COUNT_AMOUNT               = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
-var COUNT_MAX_AMOUNT           = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
-var COUNT_AMOUNT_COEFF         = 0.25;
-var COUNT_STRONG               = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
-var COUNT_STRONG_COEFF         = 0.15;
-var COUNT_SETS                 = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
-var COUNT_FIRST_SETS           = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
-var COUNT_BELONG_COLOR         = { };
-var COUNT_BELONG_AMOUNT        = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
-var COUNT_BELONG_MAX_AMOUNT    = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
-var COUNT_BELONG_STRONG        = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
-var COUNT_BELONG_SETS          = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
-var COUNT_FACTOR               = {};
-var COUNT_RECOVER_COMBO_COEFF  = 0.25;
-var COUNT_RECOVER_AMOUNT_COEFF = 0.25;
-var COUNT_RECOVER_STRONG_COEFF = 0.15;
-var COUNT_RECOVER_FACTOR       = {};
-
-var DRAG_ANIMATE_TIME = 100;
-var REMOVE_TIME = 100;
-var FADEOUT_TIME = 200;
-var DROP_TIME = 150;
-
-var MOVING = false;
-var MOVE_OUT_OF_TIME = false;
-var START_TIME = 0;
-var TIME_INTERVAL;
-var TIME_RUNNING = false;
-var TIME_GRADIENT;
-var TIME_RECT;
-
-var HISTORY = [];
-var INITIAL_PANEL = [];
-var FINAL_PANEL = [];
-var HISTORY_SHOW = 0;
-var COLOR_RANDOM = Math.floor( Math.random() * 1000 );
-var HISTORY_RANDOM = COLOR_RANDOM;
-var HISTORY_SKILL_VARIABLE;
-var HISTORY_TEAM_MEMBER;
-var CLIPBOARD;
-
-var LOCUS_LENGTH = 6;
-var LOCUS = true;
-var LOCUS_TYPE = null;
-var LOCUS_STACK = [];
-
-var MAIN_STATE;
-
-//==============================================================
-// CONTROL PARAMETER
-//==============================================================
-var TEAM_COLORS_CHANGEABLE = true;
-var CREATE_COLOR = null;
-var TIME_IS_LIMIT = true;
-var TIME_LIMIT = 5;
-var DROPABLE = false;
-var AUTO_REMOVE = true;
-var REPLAY_SPEED = 300;
-var AUDIO = true;
-
-//==============================================================
-// TEAM MEMBER
-//==============================================================
-var TEAM_MEMBERS = [];
-var TEAM_LEADER  = null;
-var MEMBER_1     = null;
-var MEMBER_2     = null;
-var MEMBER_3     = null;
-var MEMBER_4     = null;
-var TEAM_FRIEND  = null;
-
-var TEAM_WAKES        = [];
-var TEAM_LEADER_WAKES = null;
-var MEMBER_1_WAKES    = null;
-var MEMBER_2_WAKES    = null;
-var MEMBER_3_WAKES    = null;
-var MEMBER_4_WAKES    = null;
-var TEAM_FRIEND_WAKES = null;
-
-var TEAM_LEADER_SKILL = null;
-var TEAM_FRIEND_SKILL = null;
-var TEAM_SKILL        = [];
-
-var TEAM_LEADER_SKILL_VAR = null;
-var TEAM_FRIEND_SKILL_VAR = null;
-var TEAM_SKILL_VAR        = [];
-
-var ATTACK_STACK = [];
-var RECOVER_STACK = [];
-
-
-//==============================================================
-// reset functions
+// drag item analysis
 //==============================================================
 function resetDraggable(){
     $("#dragContainment tr td img").removeAttr("style");
@@ -145,26 +9,28 @@ function resetDraggable(){
         zIndex: 2500,
         start: function(event, ui){
             countGridPositon(this);
-            if( (MOVING && MAIN_STATE == "freeDrag") || TIME_RUNNING ){ 
-                return; 
+            if( MAIN_STATE == MAIN_STATE_ENUM.READY ){
+                initialMoveWave();
             }
-            initialMoveWave();
         },
         drag: function(event, ui) {
-            if( MOVE_OUT_OF_TIME ){ return false; }
-            dragPosition(this);
+            if( MAIN_STATE == MAIN_STATE_ENUM.READY ||
+                MAIN_STATE == MAIN_STATE_ENUM.TIME_TO_MOVE ||
+                MAIN_STATE == MAIN_STATE_ENUM.MOVING ){
+                dragPosition(this);
+            }else{ return false; }
         },
         stop: function(){
             resetLocus();
             closeCanvas();
-            if( MOVING ){
+            if( MAIN_STATE == MAIN_STATE_ENUM.MOVING ){
                 endPosition(this);
             }
-            if( MAIN_STATE == "freeDrag" && MOVING ){
+            if( PLAY_TYPE == PLAY_TYPE_ENUM.FREE && MAIN_STATE == MAIN_STATE_ENUM.MOVING ){
                 HISTORY.push(null);
                 resetDraggable();
                 startDragging();
-            }else if( MAIN_STATE == "count" && MOVING ){
+            }else if( PLAY_TYPE == PLAY_TYPE_ENUM.DRAG && MAIN_STATE == MAIN_STATE_ENUM.MOVING ){
                 endMoveWave();
             }else{
                 resetDraggable();
@@ -173,209 +39,6 @@ function resetDraggable(){
         },
     });
 }
-
-function resetBase(){
-    TR_NUM = parseInt( $("#dragContainment").attr("tr") );
-    TD_NUM = parseInt( $("#dragContainment").attr("td") );
-    BASE_LEFT = $("#dragContainment td").eq(0).offset().left;
-    BASE_TOP = $("#dragContainment td").eq(0).offset().top;
-}
-function cleanColors(){
-    COLORS = ['w', 'f', 'p', 'l', 'd', 'h'];
-    COLOR_MAP = {};
-    COLOR_PROB = [];
-    for(var i = 0; i < TD_NUM; i++){
-        COLOR_PROB.push( {} );
-    }
-}
-function resetColors(){
-    TEAM_COLORS = []; 
-    for(var i = 0; i < TD_NUM; i++){
-        if( TEAM_COLORS_CHANGEABLE ){
-            var team_colors = {};
-            var tmp_colors = {};
-            var prob = 0;
-            var color_len = 0;
-
-            for( var c of COLORS ){
-                if( !(c in COLOR_PROB[i]) ){
-                    tmp_colors[c] = ( c in tmp_colors ) ? tmp_colors[c]+1 : 1;
-                    color_len++;
-                }
-            }
-
-            for( var c in COLOR_PROB[i] ){
-                team_colors[c] = prob + COLOR_PROB[i][c];
-                prob += COLOR_PROB[i][c];
-            }
-
-            var else_prob = 1 - prob;
-            for( var c in tmp_colors ){
-                var c_prob = tmp_colors[c] * ( else_prob / color_len ) ;
-                team_colors[c] = prob + c_prob;
-                prob += c_prob;
-            }
-
-            TEAM_COLORS.push( team_colors );
-        }else{
-            TEAM_COLORS.push( { 'w': 1/6, 'f': 2/6, 'p': 3/6, 
-                                'l': 4/6, 'd': 5/6, 'h': 6/6 } );
-        }
-    }
-}
-function resetColorGroupSet(){
-    STRAIGHT_SETS = [];
-    for(var i = 0; i < TD_NUM; i++){ STRAIGHT_SETS.push([]); }
-    HORIZONTAL_SETS = [];
-    for(var i = 0; i < TR_NUM; i++){ HORIZONTAL_SETS.push([]); }
-    COLOR_SETS = {'w':[], 'f':[], 'p':[], 'l':[], 'd':[], 'h':[]};
-    COLOR_SETS_PREPARE = {'w':[], 'f':[], 'p':[], 'l':[], 'd':[], 'h':[]};
-
-    GROUP_SETS = {'w':[], 'f':[], 'p':[], 'l':[], 'd':[], 'h':[]};
-}
-function resetDropStack(){
-    REMOVE_STACK = [];
-    STRONG_STACK = {};
-    DROP_STACK = [];
-    for(var i = 0; i < TD_NUM; i++){
-        DROP_STACK.push([]);
-    }
-}
-function resetComboStack(){ 
-    COMBO_STACK = [];
-    ALL_GROUP_SET_STACK = [];   
-    DROP_WAVES = 0;
-    COMBO_TIMES = 0;
-    COMBO_SHOW = 0;
-    setComboShow();
-    setExtraComboShow(0);
-    resetComboBox();
-
-    // TeamGreek reset extraCombo
-    checkSkillByKey( 'extraReset' );
-}
-function resetCount(){    
-    COUNT_COMBO                = COMBO_TIMES;
-    COUNT_COMBO_COEFF          = 0.25;
-    COUNT_AMOUNT               = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
-    COUNT_AMOUNT_COEFF         = 0.25;
-    COUNT_MAX_AMOUNT           = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
-    COUNT_STRONG               = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
-    COUNT_STRONG_COEFF         = 0.15;
-    COUNT_SETS                 = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
-    COUNT_FIRST_SETS           = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
-    COUNT_BELONG_COLOR         = {
-    'w': { 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 },
-    'f': { 'w': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 },
-    'p': { 'w': 0, 'f': 0, 'l': 0, 'd': 0, 'h': 0 },
-    'l': { 'w': 0, 'f': 0, 'p': 0, 'd': 0, 'h': 0 },
-    'd': { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'h': 0 },
-    'h': { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0 } };
-    COUNT_BELONG_AMOUNT        = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
-    COUNT_BELONG_MAX_AMOUNT    = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
-    COUNT_BELONG_STRONG        = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
-    COUNT_BELONG_SETS          = { 'w': 0, 'f': 0, 'p': 0, 'l': 0, 'd': 0, 'h': 0 };
-    COUNT_FACTOR               = { 'NORMAL': 
-        { 
-            factor    : function( member ){ return 1; } ,
-            prob      : 1,
-            condition : function( member ){ return true; } 
-        } 
-    };
-    COUNT_RECOVER_COMBO_COEFF  = 0.25;
-    COUNT_RECOVER_AMOUNT_COEFF = 0.25;
-    COUNT_RECOVER_STRONG_COEFF = 0.15;
-    COUNT_RECOVER_FACTOR       = { 'NORMAL': 
-        { 
-            factor    : function( member ){ return 1; } ,
-            prob      : 1,
-            condition : function( member ){ return true; } 
-        } 
-    };;
-}
-function resetAttackRecoverStack(){
-    ATTACK_STACK = [];
-    RECOVER_STACK = [];
-}
-function resetMoveTime(){
-    MOVING = false;
-    START_TIME = 0;
-    TIME_RUNNING = false;
-    clearInterval(TIME_INTERVAL);
-}
-function resetHistory(){
-    HISTORY_SHOW = 0;
-    HISTORY_RANDOM =  COLOR_RANDOM;
-    HISTORY_SKILL_VARIABLE = saveSkillVariable();
-    HISTORY_TEAM_MEMBER = saveTeamMembers();
-    HISTORY = [];
-    INITIAL_PANEL = [];
-    for(var i = 0; i < TR_NUM*TD_NUM; i++){
-        if( $("#dragContainment tr td").eq(i).find("img") == 0 ){
-            INITIAL_PANEL.push( undefined );
-        }else{
-            try{
-                var item = $("#dragContainment tr td").eq(i).find("img.over").attr("item");
-                INITIAL_PANEL.push( item );
-            }catch(e){
-                INITIAL_PANEL.push( undefined );
-            }
-        }
-    }
-    FINAL_PANEL = [];
-}
-function recordFinal(){
-    FINAL_PANEL = [];
-    for(var i = 0; i < TR_NUM*TD_NUM; i++){
-        if( $("#dragContainment tr td").eq(i).find("img") == 0 ){
-            INITIAL_PANEL.push( undefined );
-        }else{
-            try{
-                var item = $("#dragContainment tr td").eq(i).find("img.under").attr("item");
-                FINAL_PANEL.push( item );
-            }catch(e){
-                FINAL_PANEL.push( undefined );
-            }
-        }
-    }
-
-    var record = LZString.compressToEncodedURIComponent( parseDownloadJson() );
-    var url = $.url("hostname")+$.url("path")+"?record="+record;
-    $('#clipboard').attr("data-clipboard-text", url);
-}
-function resetCanvas(){
-    $('#dragCanvas').show();
-    $('#dragCanvas').clearCanvas();
-    $('#dragCanvas').removeLayers();
-    $('#dragCanvas').offset( $("#dragContainment").offset() );
-    $('#dragCanvas').attr("width",TD_NUM*WIDTH).attr("height",TR_NUM*HEIGHT);   
-}
-function closeCanvas(){
-    $('#dragCanvas').hide();
-    $('#dragCanvas').clearCanvas();
-    $('#dragCanvas').removeLayers();
-    $('#dragCanvas').offset( $("#dragContainment").offset() );
-    $('#dragCanvas').attr("width",TD_NUM*WIDTH).attr("height",TR_NUM*HEIGHT);
-}
-function resetTimeDiv(){
-    $("#clock").offset({ top  : $("#dragContainment").offset().top-$("#clock").height(),
-                         left : $("#dragContainment").offset().left });
-    $("#timeBack").css( "width", TD_NUM*WIDTH-($("#clock").width()/2) );
-    $("#timeBack").css( "height", $("#clock").height()/2 );
-    $("#timeBack").offset( { top  : $("#clock").offset().top+($("#clock").height()/4),
-                             left : $("#clock").offset().left+($("#clock").width()/2) });
-    $("#timeRect").css( "width", TD_NUM*WIDTH-($("#clock").width()/2) );
-    $("#timeRect").css( "height", $("#clock").height()/2 );
-    $("#timeRect").offset( { top  : $("#clock").offset().top+($("#clock").height()/4),
-                             left : $("#clock").offset().left+($("#clock").width()/2) });
-}
-function renewTimeDiv(){
-    resetTimeDiv();
-    $("#timeRect").css( "clip", "rect(0px, "+
-        parseInt($("#timeBack").css("width"))+"px,"+
-        parseInt($("#timeBack").css("height"))+"px, 0px)" );
-}
-
 
 function stopDragging(){
     MOVE_OUT_OF_TIME = true;
@@ -387,27 +50,6 @@ function startDragging(){
     $("img.draggable").draggable({ disabled: false });
 }
 
-function playAudioRemove(){
-    if( !AUDIO ){ return; }
-    if( COMBO_SHOW < 10 ){
-        var mp3 = "sound/combo"+COMBO_SHOW+".mp3";
-    }else{
-        var mp3 = "sound/combo10.mp3";
-    }
-    var audio = new Audio(mp3);
-    audio.volume = 0.5;
-    audio.play();
-}
-function playAudioWrong(){
-    if( !AUDIO ){ return; }
-    var audio = new Audio('sound/wrong.mp3');
-    audio.volume = 0.8;
-    audio.play();
-}
-
-//==============================================================
-// drag item analysis
-//==============================================================
 function countGridPositon(e){
     TD_INDEX = $(e).closest("td").index();
     TR_INDEX = $(e).closest("tr").index();
@@ -447,17 +89,16 @@ function dragPosition(e){
     }
 
     if( left_index != TD_INDEX || top_index != TR_INDEX  ){
-        if( !MOVING && !MOVE_OUT_OF_TIME ){
+        if( ( MAIN_STATE == MAIN_STATE_ENUM.READY || MAIN_STATE == MAIN_STATE_ENUM.TIME_TO_MOVE )
+            && !MOVE_OUT_OF_TIME ){
             //Maybe used in end attack effect
             newMoveWave();
-            MOVING = true;
+            MAIN_STATE = MAIN_STATE_ENUM.MOVING;
             HISTORY.push( TR_INDEX*TD_NUM+TD_INDEX );
 
             // start timer
             if( TIME_IS_LIMIT && !TIME_RUNNING ){
-                TIME_RUNNING = true;
-                START_TIME = new Date().getTime() / 1000;
-                TIME_INTERVAL = setInterval( function(){ dragTimer(); }, 10);
+                startToRunTimer();
             }
 
             // start locus
@@ -466,7 +107,8 @@ function dragPosition(e){
                 LOCUS_STACK.push( TR_INDEX*TD_NUM+TD_INDEX );
             }
         }
-        if( MAIN_STATE == "freeDrag" && MOVING && HISTORY.slice(-1)[0] == null ){
+        if( PLAY_TYPE == PLAY_TYPE_ENUM.FREE && MAIN_STATE == MAIN_STATE_ENUM.MOVING && 
+            HISTORY.slice(-1)[0] == null ){
             HISTORY.push( TR_INDEX*TD_NUM+TD_INDEX );   
             // start locus
             if( LOCUS ){
@@ -631,323 +273,49 @@ function locusUpdate( id ){
 //==============================================================
 // timer
 //==============================================================
-function dragTimer(){
-    var now = new Date().getTime() / 1000;
-    showTime(now);
+function countTimeLimit(){
+    if( !TIME_IS_LIMIT ){ return false; }
+    TIME_LIMIT = 5;
+    if( TIME_FIXED ){
+        if( TIME_FIX_LIST.length > 0 ){
+            TIME_LIMIT = TIME_FIX_LIST[ TIME_FIX_LIST.length-1 ];
+            TIME_FIX_LIST = [];
+        }
+    }else{
+        for( var key in TIME_ADD_LIST ){
+            TIME_LIMIT += TIME_ADD_LIST[key];
+        }
+        for( var key in TIME_MULTI_LIST ){
+            TIME_LIMIT *= TIME_MULTI_LIST[key];
+        }
+    }
+    TIME_LIMIT = Math.max( 1, TIME_LIMIT );
+    setTimeLimit(TIME_LIMIT);
+}
+function startToRunTimer(){
+    checkAdditionEffectByKey( 'setTime' );
+    countTimeLimit();
 
+    START_TIME = new Date().getTime() / 1000;
+    TIME_RUNNING = true;
+    TIME_INTERVAL = setInterval( function(){ dragTimer(); }, 10);
+    switchTimeLifeToTime();
+}
+function dragTimer(){
+    showTime();
+
+    var now = new Date().getTime() / 1000;  
     if( TIME_IS_LIMIT && ( (now - START_TIME) > TIME_LIMIT || MOVE_OUT_OF_TIME )  ){
         MOVE_OUT_OF_TIME = true;
         TIME_RUNNING = false;
-        MOVING = false;
-        endMoveWave();
-    }
-}
 
-//==============================================================
-// make element
-//==============================================================
-function initialTable(){
-    $("#dragContainment tr").remove();
-    for(var i = 0; i < TR_NUM; i++){
-        var tr = $("<tr></tr>");
-        for(var j = 0; j < TD_NUM; j++){
-            $(tr).append($("<td></td>"));
-        }
-        $("#dragContainment").append(tr);
-    }    
-}
-
-function initialColor(){
-    for(var i = 0; i < TD_NUM; i++){
-        for(var j = 0; j < TR_NUM; j ++){
-            var target = $("#dragContainment tr td").eq(j*TD_NUM+i);
-            if( $(target).children().length == 0 ){
-                $(target).append( newElementByID(j*TD_NUM+i) );
-            }
-        }
-    }
-}
-
-function mapColor(color){
-    if( color ){
-        return color[0];
-    }else{
-        return null;
-    }
-}
-function mapImgSrc(item){
-    var c    = mapColor(item);
-    var plus = ( item.indexOf('+') >= 0 ) ? '+' : '';
-    var _    = ( item.indexOf('_') >= 0 ) ? '_' : '';
-    var x    = ( item.indexOf('x') >= 0 ) ? 'x' : '';
-    var i    = ( item.indexOf('i') >= 0 ) ? item.substr( item.indexOf('i'), item.indexOf('i')+1 ) : '';
-
-    if( item.indexOf('X') >= 0 ){
-        item = 'x'+i ;
-    }else if( item.indexOf('q') >= 0 ){
-        item = 'q'+i+x ;
-    }else if( item.indexOf('k') >= 0 ){
-        item = c+'k'+i+x ;
-    }else{
-        item = c+plus+_+i+x ;
-    }
-
-    return "img/Icon/"+item+".png";
-}
-function randomBySeed(){    
-    var rand = Math.sin(COLOR_RANDOM++) * 10000;
-    return rand - Math.floor(rand);
-}
-
-function newElementByID(id){
-    var td_seat = id%TD_NUM;
-    var colors = TEAM_COLORS[td_seat];
-    var rand = randomBySeed();
-    var color = 'w';
-
-    for( var c in colors ){
-        if( rand <= colors[c] ){
-            color = c;
-            break;
-        }
-    }
-    if( color in COLOR_MAP ){
-        color = COLOR_MAP[color];
-    }
-
-    return newElementByItem(color);
-}
-function newElementByItem(item){
-    var color = mapColor(item);
-    if( color ){
-        var src_path = mapImgSrc(item);
-        var strong = item.indexOf('+') >= 0 ? 1 : undefined;
-        var inhibit = ( item.indexOf('x') >= 0 || item.indexOf('X') >= 0 ) ? 1 : undefined;
-        var locking = item.indexOf('k') >= 0 ? 1 : undefined;
-
-        var frozen = item.indexOf('i') >= 0 ? 0 : undefined;
-        if( item.indexOf('i') >= 0 ){
-            frozen = parseInt( item[ item.indexOf('i') + 1 ] );
-        }
-
-        var img = $("<img></img>").attr("src",src_path).attr("color",color).attr("item",item);
-        img.attr("strong",strong).attr("inhibit",inhibit).attr("frozen",frozen).attr("locking",locking);
-
-        var over = img.clone().addClass("draggable over");
-        var under = img.clone().addClass("draggable under");
-        return [over, under];
-    }else{
-        return null;
-    }
-}
-
-//==============================================================
-//  Count Attack
-//==============================================================
-function checkSkillByKey( key ){
-    if( key in TEAM_LEADER_SKILL ){
-        TEAM_LEADER_SKILL[ key ](  TEAM_LEADER_SKILL_VAR, "leader" );
-    }
-    if( key in TEAM_FRIEND_SKILL ){
-        TEAM_FRIEND_SKILL[ key ]( TEAM_FRIEND_SKILL_VAR, "friend" );
-    }    
-    for( var teamSkill of TEAM_SKILL ){
-        if( key in teamSkill ){
-            teamSkill[ key ]( TEAM_SKILL_VAR[ teamSkill["id"] ] );
-        }
-    }
-}
-function checkWakeByKey( key ){
-    $.each(TEAM_WAKES, function(place, wakes){
-        $.each(wakes, function(i, wake){
-            if( key in wake ){
-                wake[ key ]( TEAM_MEMBERS[place]['wake_var'][i], place, i );
-            }
-        });
-    });
-}
-
-function countAttack(){
-    resetCount();
-
-    checkSkillByKey( "attack" );
-    checkSkillByKey( "recover" );
-    checkWakeByKey( "attack" );
-    checkWakeByKey( "recover" );
-
-    for(var obj of COMBO_STACK){
-        var c = obj['color'];
-        COUNT_AMOUNT[c] += obj['amount'];
-        COUNT_MAX_AMOUNT[c] = Math.max( COUNT_MAX_AMOUNT[c], obj['amount'] );
-        COUNT_STRONG[c] += obj['strong_amount'];
-        COUNT_SETS[c] += 1;
-
-        for(var belong_color in COUNT_BELONG_COLOR[c]){
-            if( COUNT_BELONG_COLOR[c][belong_color] > 0 ){
-                COUNT_BELONG_AMOUNT[belong_color] += obj['amount'] * COUNT_BELONG_COLOR[c][belong_color];
-                COUNT_BELONG_MAX_AMOUNT[c] = Math.max( COUNT_BELONG_MAX_AMOUNT[c], obj['amount'] );
-                COUNT_BELONG_STRONG[belong_color] += obj['strong_amount'] * COUNT_BELONG_COLOR[c][belong_color];
-                COUNT_BELONG_SETS[belong_color] += 1;
-            }
-        }
-
-        if( obj['drop_wave'] == 0 ){
-            COUNT_FIRST_SETS[c] += 1;
-        }
-    }
-
-    $.each(TEAM_MEMBERS, function(membe_place, member){
-        var attack = {
-            place  : membe_place,
-            type   : "person",
-            goal   : "single",
-            color  : member["color"],
-            base   : member["attack"],
-            factor : 1,
-            log    : "",
-        };
-        var recover = {
-            place  : membe_place,
-            color  : "h",
-            base   : member["recovery"],
-            factor : 1,
-            log    : "",
-        };
-        var color = member["color"];
-
-        if( COUNT_MAX_AMOUNT[color] >= 5 || COUNT_BELONG_MAX_AMOUNT[color] >= 5 ){
-            attack['goal'] = "all";
-        }
-
-        var atk       = ( 1+ ( COUNT_COMBO-1 ) * COUNT_COMBO_COEFF ) * 
-                        ( ( COUNT_AMOUNT[color] + COUNT_BELONG_AMOUNT[color] +
-                            COUNT_SETS[color]   + COUNT_BELONG_SETS[color]     ) * COUNT_AMOUNT_COEFF +
-                          ( COUNT_STRONG[color] + COUNT_BELONG_STRONG[color]   ) * COUNT_STRONG_COEFF );
-        attack['log'] = "(1+("+(COUNT_COMBO-1)+")*"+COUNT_COMBO_COEFF+")*"+
-                        "(("+COUNT_AMOUNT[color]+"+"+COUNT_BELONG_AMOUNT[color]+"+"+
-                             COUNT_SETS[color]  +"+"+COUNT_BELONG_SETS[color]  +")*"+COUNT_AMOUNT_COEFF+"+"+
-                         "("+COUNT_STRONG[color]+"+"+COUNT_BELONG_STRONG[color]+")*"+COUNT_STRONG_COEFF+")";
-
-        for(var key in COUNT_FACTOR){
-            if( COUNT_FACTOR[key]["condition"]( member, membe_place ) ){
-                if( randomBySeed() < COUNT_FACTOR[key]["prob"] ){
-                    var factor = COUNT_FACTOR[key]["factor"]( member, membe_place ).toFixed(5);
-                    atk *= factor;
-                    attack['log'] += "*"+factor+'('+key+')';
-                }
-            }
-        }
-
-        var rec        = ( 1+ ( COUNT_COMBO-1 ) * COUNT_RECOVER_COMBO_COEFF ) *
-                         ( ( COUNT_AMOUNT['h'] + COUNT_BELONG_AMOUNT['h'] +
-                             COUNT_SETS['h']   + COUNT_BELONG_SETS['h']     ) * COUNT_RECOVER_AMOUNT_COEFF +
-                           ( COUNT_STRONG['h'] + COUNT_BELONG_STRONG['h']   ) * COUNT_RECOVER_STRONG_COEFF );
-        recover['log'] = "(1+("+(COUNT_COMBO-1)+")*"+COUNT_RECOVER_COMBO_COEFF+")"+"*"+
-                         "(("+COUNT_AMOUNT['h']+"+"+COUNT_BELONG_AMOUNT['h']+"+"+
-                              COUNT_SETS['h']  +"+"+COUNT_BELONG_SETS['h']  +")*"+COUNT_RECOVER_AMOUNT_COEFF+"+"+
-                          "("+COUNT_STRONG['h']+"+"+COUNT_BELONG_STRONG['h']+")*"+COUNT_RECOVER_STRONG_COEFF+")";
-        for(var key in COUNT_RECOVER_FACTOR){
-            if( COUNT_RECOVER_FACTOR[key]["condition"]( member, membe_place ) ){
-                if( randomBySeed() < COUNT_RECOVER_FACTOR[key]["prob"] ){
-                    var factor = COUNT_RECOVER_FACTOR[key]["factor"]( member, membe_place ).toFixed(5);
-                    rec *= factor;
-                    recover['log'] += "*"+factor;
-                }
-            }
-        }
-
-        attack["factor"]  = atk;
-        ATTACK_STACK.push( attack );
-        recover["factor"] = rec;
-        RECOVER_STACK.push( recover );
-    });
-}
-
-//==============================================================
-//  stage define 
-//==============================================================
-function initialMoveWave(){    
-    resetBase();
-    resetMoveTime();
-}
-function endMoveWave(){
-    resetLocus();
-    closeCanvas();
-    resetMoveTime();
-    stopDragging();
-    recordFinal();    
-    checkGroups();
-}
-function nextMoveWave(){
-    resetDraggable();
-    startDragging();
-}
-function newMoveWave(){
-    //Maybe used in end attack effect
-    resetComboStack();
-    resetAttackRecoverStack();
-    resetHistory();
-    renewTimeDiv();
-
-    checkSkillByKey('findMaxC');
-}
-
-function checkGroups(){
-    if( !AUTO_REMOVE ){ return; }
-
-    resetBase();
-    resetColorGroupSet();
-    resetDropStack();
-
-    countColor();
-    countGroup();
-
-    var num = 0;
-    for(var color in GROUP_SETS){
-        num += GROUP_SETS[color].length;
-        for(var set of GROUP_SETS[color]){
-            var strong_amount = 0;
-            for(var i of set){
-                if( parseInt( $("#dragContainment tr td img.over ").eq(i).attr('strong') ) > 0 ){
-                    strong_amount += 1;
-                }
-            }
-
-            var combo = {
-                color         : color,
-                drop_wave     : DROP_WAVES,
-                amount        : set.size,
-                strong_amount : strong_amount,
-                set           : set,
-            }; 
-
-            COMBO_STACK.push(combo);
-            COMBO_TIMES += 1;
-        }
-    }
-
-    if( num == 0 ){
-        if( TR_NUM > 5 ){
-            endBrokeBoundary()
+        if( MAIN_STATE == MAIN_STATE_ENUM.MOVING ){
+            endMoveWave();
         }else{
-            checkAttack();
+            checkActiveSkillByKey("end");
+            restartMoveWave();
         }
-    }else{
-        setTimeout( function(){
-            removeGroups(TD_NUM*TR_NUM-1);
-        }, REMOVE_TIME);        
     }
-}
-
-function checkAttack(){
-    frozenUpdate();
-    countAttack();
-    showResult();
-
-    setTimeout( function(){
-        checkSkillByKey( 'end' );
-        nextMoveWave();
-    }, 1000);
 }
 
 //==============================================================
@@ -983,7 +351,7 @@ function countColor(){
                     break;
                 }
             }
-            if( set.size >= GROUP_SIZE[color] ){
+            if( set.size >= SET_SIZE[color] ){
                 COLOR_SETS[color].push(new Set(set));
                 COLOR_SETS_PREPARE[color].push( new Set(set) );
                 STRAIGHT_SETS[i].push(new Set(set));
@@ -1019,7 +387,7 @@ function countColor(){
                     break;
                 }
             }
-            if( set.size >= GROUP_SIZE[color] ){
+            if( set.size >= SET_SIZE[color] ){
                 COLOR_SETS[color].push(new Set(set));
                 COLOR_SETS_PREPARE[color].push(new Set(set));
                 HORIZONTAL_SETS[i].push(new Set(set));
@@ -1034,7 +402,7 @@ function countGroup(){
             var set = COLOR_SETS_PREPARE[ key ].pop();
             var setArr = Array.from(set);
             for(var id of setArr){
-                for(var already_set of GROUP_SETS[ key ] ){
+                for(var already_set of GROUP_SETS_PREPARE[ key ] ){
                     if(   already_set.has(id)                                           ||
                         ( already_set.has(id+1)      && id%TD_NUM < TD_NUM-1          ) ||
                         ( already_set.has(id-1)      && id%TD_NUM > 0                 ) ||
@@ -1043,11 +411,20 @@ function countGroup(){
                         for(var already_i of already_set){
                             set.add(already_i);
                         }
-                        GROUP_SETS[ key ].splice( GROUP_SETS[ key ].indexOf( already_set ), 1);
+                        GROUP_SETS_PREPARE[ key ].splice( GROUP_SETS_PREPARE[ key ].indexOf( already_set ), 1);
                     }
                 }
             }
-            GROUP_SETS[ key ].push(set);
+
+            GROUP_SETS_PREPARE[ key ].push(set);
+        }
+    }
+
+    for( var key in GROUP_SETS_PREPARE ){
+        for( var set of GROUP_SETS_PREPARE[ key ] ){
+            if( set.size >= GROUP_SIZE[key] ){
+                GROUP_SETS[ key ].push(set);
+            }
         }
     }
 
@@ -1058,12 +435,37 @@ function countGroup(){
     });
 }
 
+function countComboStack(){
+    var num = 0;
+    for(var color in GROUP_SETS){
+        num += GROUP_SETS[color].length;
+        for(var set of GROUP_SETS[color]){
+            var strong_amount = 0;
+            for(var i of set){
+                if( parseInt( $("#dragContainment tr td img.over ").eq(i).attr('strong') ) > 0 ){
+                    strong_amount += 1;
+                }
+            }
+
+            var combo = {
+                color         : color,
+                drop_wave     : DROP_WAVES,
+                amount        : set.size,
+                strong_amount : strong_amount,
+                set           : set,
+            }; 
+
+            COMBO_STACK.push(combo);
+            COMBO_TIMES += 1;
+        }
+    }
+    return num;
+}
+
 //==============================================================
 // remove & new group
 //==============================================================
-function removeGroups(next){    
-    if( !AUTO_REMOVE ){ return; }
-
+function removeGroups(next){
     var i = next;
     for( ; i >= 0; i--){
         if( REMOVE_STACK.indexOf(i) >= 0 ){ continue; }
@@ -1083,7 +485,6 @@ function removePeriod(set, next){
     var setArr = Array.from(set);
     var comboSet = makeComboSet( Array.from(set) );
     for(var id of setArr){
-        if( !AUTO_REMOVE ){ break; }
         REMOVE_STACK.push(id);
         $("#dragContainment tr td").eq(id).find("img").fadeOut( FADEOUT_TIME, function (){
             $(this).remove();
@@ -1095,7 +496,7 @@ function removePeriod(set, next){
     playAudioRemove();
 
     // greek skill extracombo
-    checkSkillByKey( 'extraCombo' );
+    checkTeamSkillByKey( 'extraCombo' );
 
     setTimeout( function(){
         removeGroups(next-1);
@@ -1113,12 +514,13 @@ function inGroup(id){
 }
 
 function newGroups(){
-    if( !AUTO_REMOVE ){ return; }
 
     REMOVE_STACK.sort(function(a, b){return a-b});
 
     //  希臘/巴比隊長技使用
-    checkSkillByKey( 'newItem' );
+    checkLeaderSkillByKey( 'newItem' );
+    checkTeamSkillByKey( 'newItem' );
+    checkAdditionEffectByKey( 'newItem' );
 
     for(var color in GROUP_SETS){
         for(var set of GROUP_SETS[color]){
@@ -1158,7 +560,6 @@ function newGroups(){
 // drop new element from stack
 //==============================================================
 function dropGroups(){
-    if( !AUTO_REMOVE ){ return; }
 
     for(var i = 0; i < TD_NUM; i++){
         var num = 0;

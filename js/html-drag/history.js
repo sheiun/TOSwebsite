@@ -1,5 +1,49 @@
 
 //==============================================================
+// reset
+//==============================================================
+function resetHistory(){
+    HISTORY_SHOW = 0;
+    HISTORY_RANDOM =  COLOR_RANDOM;
+    HISTORY_SKILL_VARIABLE = saveSkillVariable();
+    HISTORY_TEAM_MEMBER = saveTeamMembers();
+    HISTORY = [];
+    INITIAL_PANEL = [];
+    for(var i = 0; i < TR_NUM*TD_NUM; i++){
+        if( $("#dragContainment tr td").eq(i).find("img") == 0 ){
+            INITIAL_PANEL.push( undefined );
+        }else{
+            try{
+                var item = $("#dragContainment tr td").eq(i).find("img.over").attr("item");
+                INITIAL_PANEL.push( item );
+            }catch(e){
+                INITIAL_PANEL.push( undefined );
+            }
+        }
+    }
+    FINAL_PANEL = [];
+}
+function recordFinal(){
+    FINAL_PANEL = [];
+    for(var i = 0; i < TR_NUM*TD_NUM; i++){
+        if( $("#dragContainment tr td").eq(i).find("img") == 0 ){
+            INITIAL_PANEL.push( undefined );
+        }else{
+            try{
+                var item = $("#dragContainment tr td").eq(i).find("img.under").attr("item");
+                FINAL_PANEL.push( item );
+            }catch(e){
+                FINAL_PANEL.push( undefined );
+            }
+        }
+    }
+
+    var record = LZString.compressToEncodedURIComponent( parseDownloadJson() );
+    var url = $.url("hostname")+$.url("path")+"?record="+record;
+    $('#clipboard').attr("data-clipboard-text", url);
+}
+
+//==============================================================
 // show history path
 //==============================================================
 function backInitColor(){
@@ -160,8 +204,10 @@ function drawPath(){
         });
     }
 
-    drawTerminalCircle( shift_analysis, line_history[0], 'start' );
-    drawTerminalCircle( shift_analysis, line_history[ line_history.length-1 ], 'goal' );
+    if( line_history.length > 1 ){
+        drawTerminalCircle( shift_analysis, line_history[0], 'start' );
+        drawTerminalCircle( shift_analysis, line_history[ line_history.length-1 ], 'goal' );
+    }
 }
 function findEmptyShift( shift_analysis, array, vector ){
     var total_shift = new Set();
@@ -176,7 +222,7 @@ function findEmptyShift( shift_analysis, array, vector ){
             }
         }
     }
-    var max_shift = 1;
+    var max_shift = 0;
     while( total_shift.has(max_shift) ){
         max_shift++;
     }
@@ -213,8 +259,8 @@ function makeShiftBias(shift_analysis, line, vector){
         var arr = shift_analysis[id][vector];
         max_shift = Math.max( arr[ arr.length-1 ], max_shift );
     }
-    var shift = line['shift'] - ( 1+ (( max_shift - 1 )*0.5) );
-    var shift_bias = Math.min( MAX_SHIFT, max_shift*MIN_SHIFT ) / max_shift;
+    var shift = 2*line['shift'] - max_shift;
+    var shift_bias = Math.min( MAX_SHIFT, max_shift*MIN_SHIFT ) / (max_shift+1);
     return shift * shift_bias;
 }
 function drawTerminalCircle(shift_analysis, line, terminal){    
@@ -252,6 +298,9 @@ function hafStartMove(i){
         var id_goal = HISTORY[i+1];
         var imgs_start = $("#dragContainment tr td").eq(id_start).find("img.over");
         var imgs_goal = $("#dragContainment tr td").eq(id_goal).find("img");
+        if( $("#dragContainment tr td").eq(id_goal).children().length == 0 ){
+            var imgs_goal = $("#dragContainment tr td").eq(id_goal);
+        }
         var offset_start = $(imgs_start).offset();
         var offset_goal = $(imgs_goal).offset();
         var top_vector = offset_goal.top - offset_start.top;
@@ -273,6 +322,9 @@ function hafGoalMove(i){
         var id_goal = HISTORY[i+1];
         var imgs_base = $("#dragContainment tr td").eq(id_base).find("img.under");
         var imgs_goal = $("#dragContainment tr td").eq(id_goal).find("img");
+        if( $("#dragContainment tr td").eq(id_goal).children().length == 0 ){
+            var imgs_goal = $("#dragContainment tr td").eq(id_goal);
+        }
         var offset_base = $(imgs_base).offset();
         var offset_goal = $(imgs_goal).offset();
         var top_vector = (offset_base.top - offset_goal.top);
@@ -284,9 +336,11 @@ function hafGoalMove(i){
         $("#dragContainment tr td").eq(id_goal).append(imgs);
 
         $(imgs_base).offset(offset_goal);
-        $(imgs_goal).offset(offset_goal);
-        $(imgs_goal).animate({top: "+="+top_vector+"px",left: "+="+left_vector+"px"},
-                            {duration: REPLAY_SPEED/3} );
+        if( $("#dragContainment tr td").eq(id_goal).children().length == 0 ){
+            $(imgs_goal).offset(offset_goal);
+            $(imgs_goal).animate({top: "+="+top_vector+"px",left: "+="+left_vector+"px"},
+                                {duration: REPLAY_SPEED/3} );
+        }
 
         setTimeout( function(){
             var next = i+1;
@@ -337,7 +391,6 @@ function parseDownloadJson(){
         FINAL_PANEL,
         HISTORY_RANDOM,
 
-        AUTO_REMOVE,
         DROPABLE,
 
         COLORS,
@@ -363,6 +416,7 @@ function upload()
     fileReader.readAsText(fileToLoad, "UTF-8");
 }
 function parseUploadJson(msg){
+
     try{
         var json = JSON.parse(msg);
         TD_NUM                 = json[0];
@@ -376,23 +430,21 @@ function parseUploadJson(msg){
         HISTORY_RANDOM         = json[6];
         COLOR_RANDOM = HISTORY_RANDOM;
 
-        AUTO_REMOVE            = json[7];
-        DROPABLE               = json[8];
-        if( !AUTO_REMOVE ){
-            $("#autoRemove").text("保持待機");
-        }
+        DROPABLE               = json[7];        
         if( DROPABLE ){
             $("#dropable").text("隨機落珠");
         }
 
-        COLORS                 = json[9];
-        COLOR_PROB             = json[10];
-        COLOR_MAP              = json[11];
-        GROUP_SIZE             = json[12];
+        COLORS                 = json[8];
+        COLOR_PROB             = json[9];
+        COLOR_MAP              = json[10];
+        GROUP_SIZE             = json[11];
 
-        HISTORY_TEAM_MEMBER    = json[13];
-        HISTORY_SKILL_VARIABLE = json[14];
+        HISTORY_TEAM_MEMBER    = json[12];
+        HISTORY_SKILL_VARIABLE = json[13];
         loadTeamMembers(HISTORY_TEAM_MEMBER);
+        resetMemberSelect();
+        resetTeamMembers();
         loadSkillVariable(HISTORY_SKILL_VARIABLE);
 
         if( INITIAL_PANEL.length > 0 ){
@@ -404,7 +456,7 @@ function parseUploadJson(msg){
         }
 
     }catch(e){
-        alert("檔案讀取失敗！！\n"+e);
+       alert("檔案讀取失敗！！\n"+e);
         newRandomPlain();
     }
 }
